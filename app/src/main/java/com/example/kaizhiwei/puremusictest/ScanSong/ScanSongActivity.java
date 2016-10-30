@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.example.kaizhiwei.puremusictest.AsyncTask.AsyncTaskScanPath;
 import com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView;
@@ -25,15 +26,20 @@ import com.example.kaizhiwei.puremusictest.Welcome.WelcomeFragment5;
 import com.viewpagerindicator.LinePageIndicator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by kaizhiwei on 16/10/30.
  */
-public class ScanSongActivity extends FragmentActivity implements CommonTitleView.onTitleClickListener, View.OnClickListener {
+public class ScanSongActivity extends FragmentActivity implements CommonTitleView.onTitleClickListener, View.OnClickListener, AsyncTaskScanPath.ScanResultListener {
     private CommonTitleView mTitleView;
     private Button btnStartScan;
     private Button btnSetScan;
     private ScanSetFragment mScanSetFragment;
+    private TextView textViewScanProgress;
+    private TextView textViewScaningFile;
+    private TextView textViewScanResult;
+    private int mSongInc;
 
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -49,6 +55,12 @@ public class ScanSongActivity extends FragmentActivity implements CommonTitleVie
         btnSetScan = (Button)findViewById(R.id.btnSetScan);
         btnStartScan.setOnClickListener(this);
         btnSetScan.setOnClickListener(this);
+
+        textViewScanProgress = (TextView)findViewById(R.id.textViewScanProgress);
+        textViewScaningFile = (TextView)findViewById(R.id.textViewScaningFile);
+        textViewScanResult = (TextView)findViewById(R.id.textViewScanResult);
+
+        MediaScanHelper.getInstance().addScanListener(this);
     }
 
     @Override
@@ -79,5 +91,25 @@ public class ScanSongActivity extends FragmentActivity implements CommonTitleVie
         else if(btnStartScan == v){
             MediaScanHelper.getInstance().scanFile(this, "");
         }
+    }
+
+    @Override
+    public void onScanStart() {
+
+    }
+
+    @Override
+    public void onScaning(int process, String strFilePath,final boolean bAudioFile) {
+        textViewScanProgress.setText("扫描中:"+process +"%");
+        textViewScaningFile.setText("正在扫描:" + strFilePath);
+        if(bAudioFile){
+            mSongInc++;
+            textViewScanResult.setText("扫描到"+mSongInc+"首歌曲");
+        }
+    }
+
+    @Override
+    public void onScanCompleted(HashMap<String, String> mapResult) {
+
     }
 }

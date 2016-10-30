@@ -43,19 +43,44 @@
                 android:scaleY="0.4"
                 android:layout_below="@id/textView"/>
 
-            <TextView
-                android:id="@+id/textViewPromt"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="一键扫描手机内的歌曲文件"
-                android:textAppearance="?android:textAppearanceLarge"
-                android:textColor="#000000"
-                android:textSize="20sp"
+                android:layout_height="150dp"
+                android:orientation="vertical"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
-                android:layout_marginBottom="15dp"
-                android:gravity="center"
-                android:layout_below="@+id/imageView" />
+                android:id="@+id/linearLayoutScanPromt"
+                android:layout_below="@id/imageView">
+                <TextView
+                    android:id="@+id/textViewScanProgress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="一键扫描手机内的歌曲文件"
+                    android:textAppearance="?android:textAppearanceLarge"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center" />
+
+                <TextView android:id="@+id/textViewScaningFile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="正在扫描xxx文件..."
+                    android:textSize="15sp"
+                    android:gravity="center"
+                    android:layout_marginBottom="10dp"
+                    android:singleLine="true"
+                    android:ellipsize="start"/>
+
+                <TextView android:id="@+id/textViewScanResult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="扫描到0首歌曲"
+                    android:gravity="center"
+                    android:textColor="#000000"
+                    android:textSize="20sp"/>
+            </LinearLayout>
+
 
             <Button android:id="@+id/btnStartScan"
                 android:layout_width="match_parent"
@@ -63,7 +88,9 @@
                 android:text="开始扫描"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
-                android:layout_below="@id/textViewPromt"/>
+                android:layout_below="@id/linearLayoutScanPromt"/>
+
+
 
             <Button android:id="@+id/btnSetScan"
                 android:layout_width="wrap_content"

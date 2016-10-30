@@ -1,6 +1,8 @@
 package com.example.kaizhiwei.puremusictest.Databases;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
@@ -18,6 +20,12 @@ import java.util.Set;
 public class MediaScanHelper implements AsyncTaskScanPath.ScanResultListener{
     private volatile static MediaScanHelper instance;
     private Context mContext;
+    private List<AsyncTaskScanPath.ScanResultListener> mListListener;
+    private static final int WHAT_SCAN_START = 1001;
+    private static final int WHAT_SCAN_ING = 1002;
+    private static final int WHAT_SCAN_COMPLETED = 1003;
+
+    private Handler handler = new Handler();
 
     private MediaScanHelper(){
 
@@ -28,6 +36,13 @@ public class MediaScanHelper implements AsyncTaskScanPath.ScanResultListener{
             instance = new MediaScanHelper();
         }
         return instance;
+    }
+
+    public void addScanListener(AsyncTaskScanPath.ScanResultListener listener){
+        if(mListListener == null){
+            mListListener = new ArrayList<AsyncTaskScanPath.ScanResultListener>();
+        }
+        mListListener.add(listener);
     }
 
     /**
@@ -54,16 +69,47 @@ public class MediaScanHelper implements AsyncTaskScanPath.ScanResultListener{
 
     @Override
     public void onScanStart() {
+        if(mListListener == null || mListListener.size() == 0)
+            return ;
 
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                for(int i = 0; i < mListListener.size();i++){
+                    AsyncTaskScanPath.ScanResultListener listener = mListListener.get(i);
+                    if(listener == null)
+                        continue;
+
+                    listener.onScanStart();
+                }
+            }
+        });
     }
 
     @Override
-    public void onScaning(int process, String strFilePath) {
-        Log.i("weikaizhi", "onScaning: " + process + ", strFilePath: " + strFilePath);
+    public void onScaning(final int process, final String strFilePath,final boolean bAudioFile) {
+        if(mListListener == null || mListListener.size() == 0)
+            return ;
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                for(int i = 0; i < mListListener.size();i++){
+                    AsyncTaskScanPath.ScanResultListener listener = mListListener.get(i);
+                    if(listener == null)
+                        continue;
+
+                    listener.onScaning(process, strFilePath, bAudioFile);
+                }
+            }
+        });
     }
 
     @Override
-    public void onScanCompleted(HashMap<String, String> mapResult) {
+    public void onScanCompleted(final HashMap<String, String> mapResult) {
+        if(mListListener == null || mListListener.size() == 0)
+            return ;
+
         Set<String> keySet = mapResult.keySet();
         List<ScanFile> listScanFile = new ArrayList<>();
         for (String s : keySet){
@@ -72,6 +118,19 @@ public class MediaScanHelper implements AsyncTaskScanPath.ScanResultListener{
             ScanFile scanFile = new ScanFile(s, mimeType);
             listScanFile.add(scanFile);
         }
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                for(int i = 0; i < mListListener.size();i++){
+                    AsyncTaskScanPath.ScanResultListener listener = mListListener.get(i);
+                    if(listener == null)
+                        continue;
+
+                    listener.onScanCompleted(mapResult);
+                }
+            }
+        });
 
         ScanClient client = new ScanClient(mContext, listScanFile);
         client.connectAndScan();

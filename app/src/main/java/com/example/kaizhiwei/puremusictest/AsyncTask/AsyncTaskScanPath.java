@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.StatFs;
 import android.support.annotation.MainThread;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -14,7 +15,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -24,7 +27,7 @@ import java.util.List;
 public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer, HashMap<String, String>> {
     public interface ScanResultListener{
         public void onScanStart();
-        public void onScaning(int process, String strFilePath);
+        public void onScaning(int process, String strFilePath, boolean bAudioFile);
         public void onScanCompleted(HashMap<String, String>  mapResult);
     }
 
@@ -63,7 +66,7 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
         }
 
         for(int i = 0;i < mListScanPath.size();i++){
-            mAvailableSize += getPathAvailableSize(mListScanPath.get(i));
+            mAvailableSize += getPathTotalSize(mListScanPath.get(i)) - getPathAvailableSize(mListScanPath.get(i));
         }
 
         if(mListener != null){
@@ -75,15 +78,7 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
     protected HashMap<String, String> doInBackground(HashMap<String, String>... params) {
 
         for(int i = 0; i < mListScanPath.size();i++){
-            String newString = null;
-            try {
-                newString = new String(mListScanPath.get(i).getBytes(), "utf-8");
-                exec(new String[]{"cd " , newString});
-                exec(new String[]{"ls"});
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
+            getDirFile(mListScanPath.get(i));
         }
 
         return mMapScanResult;
@@ -111,9 +106,8 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
     }
 
     // 获得SD卡总大小
-    private long getSDTotalSize() {
-        File path = Environment.getExternalStorageDirectory();
-        StatFs stat = new StatFs(path.getPath());
+    private long getPathTotalSize(String path) {
+        StatFs stat = new StatFs(path);
         long blockSize = stat.getBlockSize();
         long totalBlocks = stat.getBlockCount();
         return blockSize * totalBlocks;
@@ -141,6 +135,7 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
 
         File root = new File(path);
         Log.e("weikaizhi", "path: " + path + "###" + root.getAbsolutePath() + " threadId: " + Thread.currentThread().getName());
+        //非utf8文件名称编码会崩溃
         String files[] = root.list();
         if(files != null){
             for(String f: files){
@@ -153,34 +148,89 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
                     mScanFileSize += f.length();
                     int progress =  (int)(mScanFileSize / mAvailableSize);
                     publishProgress(progress);
-                    if(mListener != null){
-                        mListener.onScaning(progress, strFilePath);
-                    }
+
 
                     int index = strFilePath.lastIndexOf(".");
                     String strFileFormat = strFilePath.substring(index, strFilePath.length()-1);
+                    Log.e("weikaizhi", "strFileFormat:" + strFileFormat);
                     for(int i = 0;i < mListSupportAudioFormat.size();i++) {
                         if (mListSupportAudioFormat.get(i).compareToIgnoreCase(strFileFormat) == 0) {
                             mMapScanResult.put(strFilePath, strFileFormat);
                         }
+                    }
+
+                    if(mListener != null){
+                        mListener.onScaning(progress, strFilePath, false);
                     }
                 }
             }
         }
     }
 
-    public void execCommand(String command) throws IOException {
+    public void getDirFile(String path){
+        if(TextUtils.isEmpty(path))
+            return ;
+
+        try {
+            String strSubFile = execCommand("cd " + path + "\n" + "ls\n");
+            List<String> listSubFile = Arrays.asList(strSubFile.split("\n"));
+            for(int i = 0;i < listSubFile.size();i++){
+                String strItem = listSubFile.get(i);
+                if(TextUtils.isEmpty(strItem))
+                    continue;
+
+                Log.e("weikaizhi", "scaning: " + path + File.separator + strItem);
+                File file = new File(path + File.separator + strItem);
+                if(file.isDirectory()){
+                    getDirFile(file.getCanonicalPath());
+                }
+                else{
+                    String strFilePath = file.getCanonicalPath();
+                    mScanFileSize += file.length();
+                    int progress =  (int)(mScanFileSize / mAvailableSize);
+                    publishProgress(progress);
+
+                    int index = strFilePath.lastIndexOf(File.separator);
+                    if(index < 0)
+                        return ;
+
+                    String strFileName = strFilePath.substring(index+1, strFilePath.length());
+                    index = strFileName.lastIndexOf(".");
+                    if(index < 0)
+                        return ;
+
+                    boolean bAudioFile = false;
+                    String strFileFormat = strFileName.substring(index, strFileName.length());
+                    Log.e("weikaizhi", "strFileName:" + strFileName + "###strFileFormat:" + strFileFormat + "mScanFileSize:"+mScanFileSize+ "###mAvailableSize:"+mAvailableSize);
+                    for(int j = 0;j < mListSupportAudioFormat.size();j++) {
+                        if (mListSupportAudioFormat.get(j).compareToIgnoreCase(strFileFormat) == 0) {
+                            mMapScanResult.put(strFilePath, strFileFormat);
+                            bAudioFile = true;
+                        }
+                    }
+
+                    if(mListener != null){
+                        mListener.onScaning(progress, strFilePath, bAudioFile);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String execCommand(String command) throws IOException {
         // start the ls command running
         //String[] args =  new String[]{"sh", "-c", command};
         Runtime runtime = Runtime.getRuntime();
-        String[] newCommond = new String[]{"sh", "-c", command};
+        String[] newCommond = new String[]{"/system/bin/sh", "-c", command};
         Process proc = runtime.exec(newCommond);        //这句话就是shell与高级语言间的调用
         //如果有参数的话可以用另外一个被重载的exec方法
         //实际上这样执行时启动了一个子进程,它没有父进程的控制台
         //也就看不到输出,所以我们需要用输出流来得到shell执行后的输出
         InputStream inputstream = proc.getInputStream();
         InputStreamReader inputstreamreader = new InputStreamReader(inputstream);
-        BufferedReader bufferedreader = new BufferedReader(inputstreamreader, 7777);
+        BufferedReader bufferedreader = new BufferedReader(inputstreamreader);
         // read the ls output
         String line = "";
         StringBuilder sb = new StringBuilder(line);
@@ -193,14 +243,11 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
         //使用exec执行不会等执行成功以后才返回,它会立即返回
         //所以在某些情况下是很要命的(比如复制文件的时候)
         //使用wairFor()可以等待命令执行完成以后才返回
-        try {
-            if (proc.waitFor() != 0) {
-                System.err.println("exit value = " + proc.exitValue());
-            }
+
+        if(proc != null){
+            proc.destroy();
         }
-        catch (InterruptedException e) {
-            System.err.println(e);
-        }
+        return sb.toString();
     }
 
     public String exec(String[] args) {
