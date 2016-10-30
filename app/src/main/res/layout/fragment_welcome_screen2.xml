@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/welcome_background">
+
+    <com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/titleView" />
+
+    <FrameLayout
+        android:id="@+id/mainContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/titleView">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/welcome_background"
+            android:visibility="visible">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Scan Music"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="#0099CC"
+                android:textSize="40sp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="15dp"
+                android:id="@+id/textView"
+                android:visibility="gone"/>
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:src="@drawable/app_icon_xlarge"
+                android:scaleX="0.4"
+                android:scaleY="0.4"
+                android:layout_below="@id/textView"/>
+
+            <TextView
+                android:id="@+id/textViewPromt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="一键扫描手机内的歌曲文件"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="15dp"
+                android:gravity="center"
+                android:layout_below="@+id/imageView" />
+
+            <Button android:id="@+id/btnStartScan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="开始扫描"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_below="@id/textViewPromt"/>
+
+            <Button android:id="@+id/btnSetScan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="设置"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true" />
+
+        </RelativeLayout>
+</FrameLayout>
+</RelativeLayout>

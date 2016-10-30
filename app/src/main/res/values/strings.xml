@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">PureMusicTest</string>
+    <string name="welcome_text_1">Thanks for downloading Jams Music Player. To help you get started with the app, you\'ll be guided through a few initial steps. Swipe left to continue.</string>
+    <string name="scan_frequency_instructions">Pick how often you want your library to be rescanned for new music. You can always manually rescan from the app too.</string>
+    <string name="scan_every_startup">Scan at every startup</string>
+    <string name="scan_every_3_startups">Scan every 3 startups</string>
+    <string name="scan_every_5_startups">Scan every 5 startups</string>
+    <string name="scan_every_10_startups">Scan every 10 startups</string>
+    <string name="scan_every_20_startups">Scan every 20 startups</string>
+    <string name="scan_manually">Scan manually</string>
+    <string name="preferred_album_art_instructions">Choose your preferred album art source. If you\'re not sure, choose the first option. You can change these options later in Settings.</string>
+
+    <string name="pick_whats_best_for_me">Pick what\'s best for me</string>
+    <string name="building_album_art">Building Album Art</string>
+    <string name="no_songs_to_skip_to">No more songs to skip to.</string>
+    <string name="use_embedded_art_only">Use embedded art only</string>
+    <string name="use_folder_art_only">Use folder art only</string>
+    <string name="ready_to_scan_instructions">Jams will now build your music library and album art. Feel free to close the app during this process.</string>
+    <string name="swipe_left_to_continue">Swipe left to continue.</string>
+    <string name="finish">Finish</string>
+    <string name="jams_is_building_library">Jams is building your library.</string>
+    <string name="jams_is_building_library_info">Feel free to close the app during this process. Swipe down your notification drawer at any time to check the current progress.</string>
+    <string name="jams_is_caching_artwork">Jams is caching album art.</string>
+</resources>

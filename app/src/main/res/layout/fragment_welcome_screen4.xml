@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textViewAlbumArt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Album Art"
+        android:textSize="40sp"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"/>
+
+    <TextView
+        android:id="@+id/textViewDesc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewAlbumArt"
+        android:text="@string/preferred_album_art_instructions"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"/>
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textViewDesc"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="15dp">
+
+        <RadioButton
+            android:id="@+id/sacn_every_startup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/pick_whats_best_for_me"
+            android:checked="true"
+            android:textAppearance="?android:attr/textAppearanceMedium">
+        </RadioButton>
+
+        <RadioButton
+            android:id="@+id/use_embedded_art_only"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/use_embedded_art_only"
+            android:checked="false"
+            android:textAppearance="?android:attr/textAppearanceMedium">
+        </RadioButton>
+
+        <RadioButton
+            android:id="@+id/use_folder_art_only"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/use_folder_art_only"
+            android:checked="false"
+            android:textAppearance="?android:attr/textAppearanceMedium">
+        </RadioButton>
+    </RadioGroup>
+
+
+</RelativeLayout>

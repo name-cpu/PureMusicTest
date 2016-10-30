@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:id="@+id/customeScan"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="自定义扫描"
+            android:textSize="20sp"
+            android:layout_marginLeft="10dp"
+            android:gravity="center|left"/>
+
+        <Button
+            android:id="@+id/customeScanBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="left btn"
+            android:layout_margin="5dp" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#FF0000"/>
+
+    <LinearLayout
+        android:id="@+id/noScanPath"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="指定不扫描的文件夹"
+            android:textSize="20sp"
+            android:layout_marginLeft="10dp"
+            android:gravity="center|left"/>
+
+        <Button
+            android:id="@+id/leftBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="left btn"
+            android:layout_margin="5dp" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#FF0000"/>
+
+    <LinearLayout
+        android:id="@+id/noScanLessThanDuration"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="不扫描60秒以下的歌曲"
+            android:textSize="20sp"
+            android:layout_marginLeft="10dp"
+            android:gravity="center|left"/>
+
+        <CheckBox
+            android:id="@+id/noScanLessThanDurationBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="left btn"
+            android:layout_margin="5dp" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#FF0000"/>
+
+</LinearLayout>

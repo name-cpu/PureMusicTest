@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/lineearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:weightSum="1">
+        <TextView
+            android:id="@+id/textViewFrequency"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Scan Frequency"
+            android:textSize="40sp"
+            android:textColor="#FFFFFF"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/scan_frequency_light" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textViewDesc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineearLayout1"
+        android:text="@string/scan_frequency_instructions"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"/>
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textViewDesc"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="15dp">
+
+        <RadioButton
+            android:id="@+id/sacn_every_startup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/scan_every_startup"
+            android:checked="true"
+            android:textAppearance="?android:attr/textAppearanceMedium">
+        </RadioButton>
+
+        <RadioButton
+            android:id="@+id/scan_every_3_startups"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/scan_every_3_startups"
+            android:checked="false"
+            android:textAppearance="?android:attr/textAppearanceMedium">
+        </RadioButton>
+
+        <RadioButton
+            android:id="@+id/scan_every_5_startups"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/scan_every_5_startups"
+            android:checked="false"
+            android:textAppearance="?android:attr/textAppearanceMedium">
+        </RadioButton>
+
+        <RadioButton
+            android:id="@+id/scan_every_10_startups"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/scan_every_10_startups"
+            android:checked="false"
+            android:textAppearance="?android:attr/textAppearanceMedium">
+        </RadioButton>
+
+        <RadioButton
+            android:id="@+id/scan_every_20_startups"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/scan_every_20_startups"
+            android:checked="false"
+            android:textAppearance="?android:attr/textAppearanceMedium">
+        </RadioButton>
+
+        <RadioButton
+            android:id="@+id/scan_manually"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/scan_manually"
+            android:checked="false"
+            android:textAppearance="?android:attr/textAppearanceMedium">
+        </RadioButton>
+    </RadioGroup>
+
+
+</RelativeLayout>
