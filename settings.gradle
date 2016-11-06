@@ -1,1 +1,1 @@
-include ':app', ':viewpagerindicatorlibrary', ':velocityviewpagerlibrary'
+include ':app', ':viewpagerindicatorlibrary', ':velocityviewpagerlibrary', ':libvlc'

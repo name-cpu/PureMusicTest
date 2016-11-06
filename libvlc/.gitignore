@@ -1,0 +1,6 @@
+bin/
+gen/
+obj/
+build/
+jni/libvlcjni-modules.h
+.settings

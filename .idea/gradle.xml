@@ -9,6 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/libvlc" />
             <option value="$PROJECT_DIR$/velocityviewpagerlibrary" />
             <option value="$PROJECT_DIR$/viewpagerindicatorlibrary" />
           </set>
@@ -17,6 +18,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/libvlc" />
             <option value="$PROJECT_DIR$/velocityviewpagerlibrary" />
             <option value="$PROJECT_DIR$/viewpagerindicatorlibrary" />
           </set>
