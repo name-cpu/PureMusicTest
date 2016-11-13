@@ -1,4 +1,4 @@
-package com.example.kaizhiwei.puremusictest.Databases;
+package com.example.kaizhiwei.puremusictest.MediaData;
 
 /**
  * Created by kaizhiwei on 16/10/29.

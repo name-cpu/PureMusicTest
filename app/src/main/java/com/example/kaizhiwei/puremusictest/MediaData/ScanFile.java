@@ -1,4 +1,4 @@
-package com.example.kaizhiwei.puremusictest.Databases;
+package com.example.kaizhiwei.puremusictest.MediaData;
 
 public class ScanFile{
 

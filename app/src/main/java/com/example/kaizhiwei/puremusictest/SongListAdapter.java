@@ -8,7 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.kaizhiwei.puremusictest.Databases.SongEntity;
+import com.example.kaizhiwei.puremusictest.MediaData.SongEntity;
 
 import java.util.List;
 

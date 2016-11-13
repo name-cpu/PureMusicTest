@@ -1,31 +1,18 @@
 package com.example.kaizhiwei.puremusictest.ScanSong;
 
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.kaizhiwei.puremusictest.AsyncTask.AsyncTaskScanPath;
 import com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView;
-import com.example.kaizhiwei.puremusictest.Databases.MediaScanHelper;
-import com.example.kaizhiwei.puremusictest.Databases.ScanFile;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaScanHelper;
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.Welcome.WelcomeFragment1;
-import com.example.kaizhiwei.puremusictest.Welcome.WelcomeFragment2;
-import com.example.kaizhiwei.puremusictest.Welcome.WelcomeFragment3;
-import com.example.kaizhiwei.puremusictest.Welcome.WelcomeFragment4;
-import com.example.kaizhiwei.puremusictest.Welcome.WelcomeFragment5;
-import com.viewpagerindicator.LinePageIndicator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**

@@ -14,7 +14,6 @@ import android.media.audiofx.PresetReverb;
 import android.media.audiofx.Visualizer;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -26,16 +25,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.example.kaizhiwei.puremusictest.Databases.MediaStoreAccessHelper;
-import com.example.kaizhiwei.puremusictest.Databases.SongEntity;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaStoreAccessHelper;
+import com.example.kaizhiwei.puremusictest.MediaData.SongEntity;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.LogRecord;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
     private ListView mListViewSong;

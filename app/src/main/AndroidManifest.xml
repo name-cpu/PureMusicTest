@@ -38,6 +38,11 @@
         <activity android:name=".ScanSong.ScanSongActivity">
 
         </activity>
+
+        <activity android:name=".Audio.AudioActivity">
+
+        </activity>
+
     </application>
 
 </manifest>

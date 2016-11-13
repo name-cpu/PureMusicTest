@@ -8,4 +8,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="PureMusic.Apearance" parent="AppTheme">
+        <item name="tab_background_color">@color/colorPrimary</item>
+        <item name="tab_textColor">@color/colorPrimary</item>
+        <item name="tab_select_text_color">@color/colorPrimary</item>
+        <item name="tab_indicator_text_color">@color/colorPrimary</item>
+
+    </style>
+
+
 </resources>

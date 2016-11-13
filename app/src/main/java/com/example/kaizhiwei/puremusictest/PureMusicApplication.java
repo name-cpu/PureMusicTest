@@ -3,7 +3,7 @@ package com.example.kaizhiwei.puremusictest;
 import android.app.Application;
 import android.content.Context;
 
-import com.example.kaizhiwei.puremusictest.Databases.SongEntity;
+import com.example.kaizhiwei.puremusictest.MediaData.SongEntity;
 
 import java.util.ArrayList;
 import java.util.List;

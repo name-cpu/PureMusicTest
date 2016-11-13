@@ -1,27 +1,15 @@
 package com.example.kaizhiwei.puremusictest.Welcome;
 
-import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.provider.MediaStore;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 
-import com.example.kaizhiwei.puremusictest.Databases.MediaStoreAccessHelper;
-import com.example.kaizhiwei.puremusictest.Databases.SongEntity;
-import com.example.kaizhiwei.puremusictest.PureMusicApplication;
 import com.example.kaizhiwei.puremusictest.R;
 import com.viewpagerindicator.LinePageIndicator;
 
-import java.sql.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 

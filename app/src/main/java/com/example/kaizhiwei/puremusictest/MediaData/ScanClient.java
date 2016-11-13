@@ -1,4 +1,4 @@
-package com.example.kaizhiwei.puremusictest.Databases;
+package com.example.kaizhiwei.puremusictest.MediaData;
 
 import android.content.Context;
 import android.media.MediaScannerConnection;

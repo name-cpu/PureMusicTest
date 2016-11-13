@@ -1,14 +1,10 @@
-package com.example.kaizhiwei.puremusictest.Databases;
+package com.example.kaizhiwei.puremusictest.MediaData;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseErrorHandler;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.example.kaizhiwei.puremusictest.PureMusicApplication;

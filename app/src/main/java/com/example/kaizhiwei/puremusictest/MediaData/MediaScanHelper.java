@@ -1,10 +1,8 @@
-package com.example.kaizhiwei.puremusictest.Databases;
+package com.example.kaizhiwei.puremusictest.MediaData;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.example.kaizhiwei.puremusictest.AsyncTask.AsyncTaskScanPath;
