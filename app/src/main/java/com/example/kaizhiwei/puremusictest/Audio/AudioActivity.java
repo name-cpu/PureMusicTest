@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
 import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
@@ -32,7 +33,8 @@ import java.util.List;
  */
 @TargetApi(Build.VERSION_CODES.M)
 public class AudioActivity extends Activity implements ViewPager.OnLongClickListener, ViewPager.OnPageChangeListener, TabLayout.OnTabSelectedListener
-        ,MediaLibrary.IMediaScanListener, AdapterView.OnItemClickListener, AbsListView.OnScrollListener, AudioListViewAdapter.IAudioListViewListener{
+        ,MediaLibrary.IMediaScanListener, AdapterView.OnItemClickListener, AbsListView.OnScrollListener, AudioListViewAdapter.IAudioListViewListener
+        ,PlaybackService.Client.Callback{
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
     private SwipeRefreshLayout mSRLayout;
@@ -48,6 +50,9 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
     private AudioListView mAlbumListView;
     private AudioListViewAdapter mAlbumAdapter;
     private Handler mHandler = new Handler();
+
+    private PlaybackService.Client mClient = new PlaybackService.Client(this, this);
+    private PlaybackService mService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -118,6 +123,18 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         mAlbumAdapter.unregisterListener(this);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mClient.disconnect();
+    }
+
     //TabLayout.OnTabSelectedListener
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
@@ -169,11 +186,12 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
     @Override
     public void onScanFinish() {
-        mSRLayout.setRefreshing(false);
+
         final WeakReference<MediaLibrary> mlibrary = new WeakReference<MediaLibrary>(MediaLibrary.getInstance());
         mHandler.post(new Runnable() {
             @Override
             public void run() {
+                mSRLayout.setRefreshing(false);
                 if(mlibrary.get() != null){
                     mAllSongAdapter = new AudioListViewAdapter(mlibrary.get().getAllMediaEntrty(), AudioActivity.this, AudioListViewAdapter.ADAPTER_TYPE_ALLSONG);
                     mAllSongListView.setAdapter(mAllSongAdapter);
@@ -198,7 +216,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
             return ;
 
         if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
-
+            mService.play(itemData.mListMedia, 0);
         }
         else if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ARTIST){
 
@@ -232,5 +250,16 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
     @Override
     public void onItemClick(AudioListViewAdapter adapter, int position) {
 
+    }
+
+    //PlaybackService.Client.Callback
+    @Override
+    public void onConnected(PlaybackService service) {
+        mService = service;
+    }
+
+    @Override
+    public void onDisconnected() {
+        mService = null;
     }
 }

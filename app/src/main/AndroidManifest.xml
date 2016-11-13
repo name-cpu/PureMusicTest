@@ -43,6 +43,9 @@
 
         </activity>
 
+        <service android:name=".Service.PlaybackService">
+
+        </service>
     </application>
 
 </manifest>

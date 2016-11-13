@@ -112,6 +112,10 @@ public class MediaEntrty implements Parcelable, Serializable {
         return mAlbum;
     }
 
+    public Uri getUri(){
+        return mUri;
+    }
+
     private void updateMetaData(){
         if(mMedia == null)
             return ;
