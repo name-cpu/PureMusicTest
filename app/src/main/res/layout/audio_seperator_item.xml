@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginTop="5dp">
-    <TextView android:id="@+id/tvCategaryName"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="15sp"
-        android:text="#"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#FF0000"/>
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="15dp">
+
+        <TextView android:id="@+id/tvCategaryName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:text="#"/>
+    </LinearLayout>
+
 </LinearLayout>

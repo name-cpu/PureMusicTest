@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:style="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="1">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/nowPlayingSeperatorLineColor"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:layout_weight="1"
+            android:layout_marginRight="5dp"
+            android:weightSum="1">
+            <ImageView
+                android:id="@+id/ivArtist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_launcher"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp">
+                <TextView
+                    android:id="@+id/tvNowPlayingMain"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_name"
+                    android:textSize="12sp"
+                    android:textColor="@color/mainTextColor"/>
+                <TextView
+                    android:id="@+id/tvNowPlayingSub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_name"
+                    android:textSize="11sp"
+                    android:textColor="@color/subTextColor"/>
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btnPlayPause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/ic_launcher"/>
+
+            <ImageButton
+                android:id="@+id/btnPlayNext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/ic_launcher"/>
+
+            <ImageButton
+                android:id="@+id/btnPlaylist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/ic_launcher"/>
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/pbPlay"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:background="#ff0000"/>
+    </LinearLayout>
+</LinearLayout>

@@ -10,6 +10,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 
@@ -41,8 +42,12 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
     private List<String> mListTitle;
     private List<View> mListView;
+
     private AudioListView mAllSongListView;
     private AudioListViewAdapter mAllSongAdapter;
+
+    private AudioListView mSongFolderListView;
+    private AudioListViewAdapter mSongFolderAdapter;
 
     private AudioListView mArtistListView;
     private AudioListViewAdapter mArtistAdapter;
@@ -54,6 +59,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
     private PlaybackService.Client mClient = new PlaybackService.Client(this, this);
     private PlaybackService mService;
 
+    //正在播放列表
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -71,23 +77,29 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
         mListTitle = new ArrayList<String>();
         mListTitle.add("歌曲");
-        mListTitle.add("艺术家");
+        mListTitle.add("文件夹");
+        mListTitle.add("歌手");
         mListTitle.add("专辑");
 
-        mAllSongListView = new AudioListView(this);
+        mAllSongListView = (AudioListView) this.findViewById(R.id.lvAllSong);
         mAllSongAdapter = new AudioListViewAdapter(MediaLibrary.getInstance().getAllMediaEntrty(), this, AudioListViewAdapter.ADAPTER_TYPE_ALLSONG);
         mAllSongListView.setAdapter(mAllSongAdapter);
 
-        mArtistListView = new AudioListView(this);
+        mSongFolderListView = mAllSongListView = (AudioListView) this.findViewById(R.id.lvSongFolder);
+        mSongFolderAdapter = new AudioListViewAdapter(MediaLibrary.getInstance().getAllMediaEntrty(), this, AudioListViewAdapter.ADAPTER_TYPE_ALLSONG);
+        mSongFolderListView.setAdapter(mSongFolderAdapter);
+
+        mArtistListView = (AudioListView) this.findViewById(R.id.lvArtist);
         mArtistAdapter = new AudioListViewAdapter(MediaLibrary.getInstance().getAllMediaEntrty(), this, AudioListViewAdapter.ADAPTER_TYPE_ARTIST);
         mArtistListView.setAdapter(mArtistAdapter);
 
-        mAlbumListView = new AudioListView(this);
+        mAlbumListView = (AudioListView) this.findViewById(R.id.lvAlbum);
         mAlbumAdapter = new AudioListViewAdapter(MediaLibrary.getInstance().getAllMediaEntrty(), this, AudioListViewAdapter.ADAPTER_TYPE_ALLSONG);
         mAlbumListView.setAdapter(mAlbumAdapter);
 
         mListView = new ArrayList<View>();
         mListView.add(mAllSongListView);
+        mListView.add(mSongFolderListView);
         mListView.add(mArtistListView);
         mListView.add(mAlbumListView);
 
@@ -97,6 +109,14 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         mViewPager.setOffscreenPageLimit(mListView.size());
         AudioViewPagerAdapter adapter = new AudioViewPagerAdapter(mListView, mListTitle);
         mViewPager.setAdapter(adapter);
+
+        for(int i = 0;i < mListTitle.size();i++){
+            mTabLayout.addTab(mTabLayout.newTab().setText(mListTitle.get(i)));
+        }
+        mTabLayout.setBackgroundResource(R.color.backgroundColor);
+        mTabLayout.setTabTextColors(R.color.mainTextColor, R.color.tabSelectTextColor);
+        int indicatorColor = this.getResources().getColor(R.color.tabSeperatorLineColor);
+        mTabLayout.setSelectedTabIndicatorColor(indicatorColor);
 
         mTabLayout.setTabsFromPagerAdapter(adapter);
         mTabLayout.setupWithViewPager(mViewPager);
@@ -165,7 +185,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
     @Override
     public void onPageSelected(int position) {
-
+        mTabLayout.getTabAt(position).select();
     }
 
     @Override
@@ -217,6 +237,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
         if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
             mService.play(itemData.mListMedia, 0);
+            mAllSongAdapter.setItemPlayState(position, true);
         }
         else if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ARTIST){
 
@@ -234,6 +255,9 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
     public void onScroll(AbsListView view, int firstVisibleItem,
                          int visibleItemCount, int totalItemCount) {
+        if(mSRLayout == null)
+            return ;
+
         boolean enable = false;
         if(view != null && view.getChildCount() > 0){
             // check if the first item of the list is visible

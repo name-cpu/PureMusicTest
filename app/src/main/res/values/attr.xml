@@ -4,4 +4,10 @@
     <attr name="tab_textColor" format="reference|color"/>
     <attr name="tab_select_text_color" format="reference|color"/>
     <attr name="tab_indicator_text_color" format="reference|color"/>
+    <attr name="backgroundColor" format="reference|color"/>
+    <attr name="mainTextColor" format="reference|color"/>
+    <attr name="subTextColor" format="reference|color"/>
+    <attr name="tabSeperatorLineColor" format="reference|color"/>
+    <attr name="tabSelectTextColor" format="reference|color"/>
+    <attr name="listviewSeperatorLineColor" format="reference|color"/>
 </resources>

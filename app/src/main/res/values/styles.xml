@@ -6,6 +6,12 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="backgroundColor">@color/backgroundColor</item>
+        <item name="mainTextColor">@color/mainTextColor</item>
+        <item name="subTextColor">@color/subTextColor</item>
+        <item name="tabSeperatorLineColor">@color/tabSeperatorLineColor</item>
+        <item name="tabSelectTextColor">@color/tabSelectTextColor</item>
+        <item name="listviewSeperatorLineColor">@color/listviewSeperatorLineColor</item>
     </style>
 
     <style name="PureMusic.Apearance" parent="AppTheme">
@@ -16,5 +22,13 @@
 
     </style>
 
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

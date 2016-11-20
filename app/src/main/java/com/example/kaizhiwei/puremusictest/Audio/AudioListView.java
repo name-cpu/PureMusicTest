@@ -1,8 +1,12 @@
 package com.example.kaizhiwei.puremusictest.Audio;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.ListView;
+
+import com.example.kaizhiwei.puremusictest.R;
 
 /**
  * Created by kaizhiwei on 16/11/12.
@@ -10,24 +14,46 @@ import android.widget.ListView;
 public class AudioListView extends ListView {
     private AudioActivity mContext;
 
-    public AudioListView(AudioActivity context) {
+    public AudioListView(Context context) {
         super(context);
-        init(context);
+        if(isInEditMode())
+            return ;
+
+        mContext = (AudioActivity)context;
+        init();
     }
 
-    public AudioListView(AudioActivity context, AttributeSet attrs, int defStyleAttr) {
+    public AudioListView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        if(isInEditMode())
+            return ;
+
+        mContext = (AudioActivity)context;
+        init();
     }
 
-    public AudioListView(AudioActivity context, AttributeSet attrs) {
+    public AudioListView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        if(isInEditMode())
+            return ;
+
+        mContext = (AudioActivity)context;
+        init();
     }
 
-    public void init(AudioActivity context){
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public AudioListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes){
+        super(context, attrs, defStyleAttr, defStyleRes);
+        if(isInEditMode())
+            return ;
+
+        init();
+    }
+
+    public void init(){
         this.setDividerHeight(0);
-        this.setOnItemClickListener(context);
-        this.setOnScrollListener(context);
+        this.setOnItemClickListener(mContext);
+        this.setOnScrollListener(mContext);
+        this.setBackgroundResource(R.color.backgroundColor);
     }
 }

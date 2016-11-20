@@ -2,11 +2,13 @@ package com.example.kaizhiwei.puremusictest.Audio;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextPaint;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -50,8 +52,10 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
     private Map<IAudioListViewListener, Object> mMapListener;
 
     public class AudioItemData{
-        public static final int TYPE_MEDIA = 0;
-        public static final int TYPE_SEPERATOR = 1;
+        public static final int TYPE_OPERBAR = 0;
+        public static final int TYPE_MEDIA = 1;
+        public static final int TYPE_SEPERATOR = 2;
+        public static final int TYPE_FOOTER = 3;
 
         public int mItemType;
         public String mFirstLetterPinYin;
@@ -59,9 +63,11 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         public String mSubTitle;
         public String mSeparatorTitle;
         public List<MediaEntrty> mListMedia;
+        public boolean isPlaying;
+        public String mFooterInfo;
 
         AudioItemData(){
-
+            isPlaying = false;
         }
     }
 
@@ -148,10 +154,21 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
 
                     AudioItemData itemData = new AudioItemData();
                     itemData.mMainTitle = entrty.getFileName();
-                    itemData.mSubTitle = entrty.getArtist();
-                    if(itemData.mSubTitle == null){
+                    if(entrty.getArtist() == null || entrty.getArtist().equals("null")){
                         itemData.mSubTitle = "unknown artist";
                     }
+                    else{
+                        itemData.mSubTitle = entrty.getArtist();
+                    }
+
+                    itemData.mSubTitle += " - ";
+                    if(entrty.getAlbum() == null || entrty.getAlbum().equals("null")){
+                        itemData.mSubTitle += "unknown album";
+                    }
+                    else{
+                        itemData.mSubTitle = entrty.getAlbum();
+                    }
+
                     itemData.mItemType = AudioItemData.TYPE_MEDIA;
                     itemData.mListMedia = new ArrayList<>();
                     itemData.mListMedia.add(entrty);
@@ -236,6 +253,18 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 }
             }
         }
+
+        if(mListItemData.size() > 0){
+            //添加操作栏
+            AudioItemData operBarData = new AudioItemData();
+            operBarData.mItemType = AudioItemData.TYPE_OPERBAR;
+            mListItemData.add(0, operBarData);
+
+            //添加footer
+            AudioItemData footerData = new AudioItemData();
+            footerData.mItemType = AudioItemData.TYPE_FOOTER;
+            mListItemData.add(footerData);
+        }
     }
 
     public void registerListener(IAudioListViewListener listener){
@@ -298,10 +327,26 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             return null;
 
         LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if(getItemViewType(position) == AudioItemData.TYPE_MEDIA){
+        if(getItemViewType(position) == AudioItemData.TYPE_OPERBAR){
+            AudioOperatioinBarHolder holder = null;
+            if(convertView == null){
+                View view = inflater.inflate(R.layout.audio_operationbar, null);
+                view.setBackgroundResource(R.color.backgroundColor);
+                holder = new AudioOperatioinBarHolder(view);
+                view.setTag(holder);
+                convertView = view;
+                holder.btnRandom.setOnClickListener(this);
+                holder.btnBatchMgr.setOnClickListener(this);
+            }
+            else{
+                holder = (AudioOperatioinBarHolder) convertView.getTag();
+            }
+        }
+        else if(getItemViewType(position) == AudioItemData.TYPE_MEDIA){
             AudioListViewAdapterHolder holder = null;
             if(convertView == null){
                 View view = inflater.inflate(R.layout.audio_item, null);
+                view.setBackgroundResource(R.color.backgroundColor);
                 holder = new AudioListViewAdapterHolder(view);
                 view.setTag(holder);
                 convertView = view;
@@ -313,6 +358,16 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             holder.ibBtnMore.setTag(position);
             holder.tvSongMain.setText(data.mMainTitle);
             holder.tvSongSub.setText(data.mSubTitle);
+            holder.viewSepratorLine.setBackgroundResource(R.color.listviewSeperatorLineColor);
+
+            if(data.isPlaying){
+                holder.tvSongMain.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+                holder.tvSongSub.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+            }
+            else{
+                holder.tvSongMain.setTextColor(mContext.getResources().getColor(R.color.mainTextColor));
+                holder.tvSongSub.setTextColor(mContext.getResources().getColor(R.color.subTextColor));
+            }
         }
         else if(getItemViewType(position) == AudioItemData.TYPE_SEPERATOR) {
             AudioListViewAdapterSeperatorHolder holder = null;
@@ -321,10 +376,40 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 holder = new AudioListViewAdapterSeperatorHolder(view);
                 view.setTag(holder);
                 convertView = view;
+                view.setEnabled(false);
+                view.setClickable(false);
+                view.setBackgroundResource(R.color.backgroundColor);
+                TextPaint tp = holder.tvCategaryName.getPaint();
+                tp.setFakeBoldText(true);
+                holder.tvCategaryName.setTextSize((float) 16.0);
+                holder.tvCategaryName.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
             } else {
                 holder = (AudioListViewAdapterSeperatorHolder) convertView.getTag();
             }
             holder.tvCategaryName.setText(data.mSeparatorTitle);
+        }
+        else if(getItemViewType(position) == AudioItemData.TYPE_FOOTER){
+            AudioListViewFooterHolder holder = null;
+            if(convertView == null){
+                View view = inflater.inflate(R.layout.audio_footer_item, null);
+                view.setBackgroundResource(R.color.backgroundColor);
+                holder = new AudioListViewFooterHolder(view);
+
+                int iCount = 0;
+                for(int i = 0;i < mListItemData.size();i++){
+                    AudioItemData tempdata = (AudioItemData)mListItemData.get(i);
+                    if(tempdata == null || tempdata.mItemType != AudioItemData.TYPE_MEDIA)
+                        continue;
+
+                    iCount++;
+                }
+                holder.tvFooterInfo.setText(String.format("%d首歌曲", iCount));
+                view.setTag(holder);
+                convertView = view;
+            }
+            else{
+                holder = (AudioListViewFooterHolder) convertView.getTag();
+            }
         }
 
         return convertView;
@@ -339,15 +424,42 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
     }
 
     public int getViewTypeCount() {
-        return 2;
+        return 4;
     }
 
     @Override
     public void onClick(View v) {
         for(IAudioListViewListener key : mMapListener.keySet()){
             if(key != null){
-                key.onItemClick(this, (int)v.getTag());
+                //key.onItemClick(this, (int)v.getTag());
             }
+        }
+    }
+
+    public void setItemPlayState(int index, boolean isPlaying){
+        for(int i = 0;i < mListItemData.size();i++){
+            AudioItemData tempdata = mListItemData.get(i);
+            if(tempdata == null || tempdata.mItemType != AudioItemData.TYPE_MEDIA)
+                continue;
+
+            if(i == index){
+                tempdata.isPlaying = isPlaying;
+            }
+            else{
+                tempdata.isPlaying = false;
+            }
+
+        }
+        notifyDataSetChanged();
+    }
+
+    private class AudioOperatioinBarHolder{
+        public TextView btnRandom;
+        public TextView btnBatchMgr;
+
+        public AudioOperatioinBarHolder(View view){
+            btnRandom = (TextView)view.findViewById(R.id.btnRandom);
+            btnBatchMgr = (TextView)view.findViewById(R.id.btnBatchMgr);
         }
     }
 
@@ -357,6 +469,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         public TextView tvSongMain;
         public TextView tvSongSub;
         public ImageView ibBtnMore;
+        public View viewSepratorLine;
 
         public AudioListViewAdapterHolder(View view){
             tvTopLine = (TextView)view.findViewById(R.id.tvTopLine);
@@ -364,6 +477,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             tvSongMain = (TextView)view.findViewById(R.id.tvSongMain);
             tvSongSub = (TextView)view.findViewById(R.id.tvSongSub);
             ibBtnMore = (ImageView)view.findViewById(R.id.ibBtnMore);
+            viewSepratorLine = (View)view.findViewById(R.id.viewSepratorLine);
         }
     }
 
@@ -372,6 +486,16 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
 
         public AudioListViewAdapterSeperatorHolder(View view){
             tvCategaryName = (TextView)view.findViewById(R.id.tvCategaryName);
+
+        }
+    }
+
+    private class AudioListViewFooterHolder{
+        public TextView tvFooterInfo;
+
+        public AudioListViewFooterHolder(View view){
+            tvFooterInfo = (TextView)view.findViewById(R.id.tvFooterInfo);
+
         }
     }
 }

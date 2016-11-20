@@ -100,6 +100,10 @@ public class MediaEntrty implements Parcelable, Serializable {
         }
     };
 
+    public String getTitle(){
+        return mTitle;
+    }
+
     public String getFileName(){
         return mFileName;
     }
