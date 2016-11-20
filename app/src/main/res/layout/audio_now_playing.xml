@@ -58,7 +58,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:background="@drawable/ic_launcher"/>
+                android:background="@drawable/play"/>
 
             <ImageButton
                 android:id="@+id/btnPlayNext"
@@ -72,7 +72,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:background="@drawable/ic_launcher"/>
+                android:background="@drawable/songs"/>
         </LinearLayout>
 
         <ProgressBar
@@ -80,6 +80,6 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             style="?android:attr/progressBarStyleHorizontal"
-            android:background="#ff0000"/>
+            android:indeterminateDrawable="@color/tabSeperatorLineColor"/>
     </LinearLayout>
 </LinearLayout>

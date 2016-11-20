@@ -120,6 +120,10 @@ public class MediaEntrty implements Parcelable, Serializable {
         return mUri;
     }
 
+    public long getDuration(){
+        return mDuration;
+    }
+
     private void updateMetaData(){
         if(mMedia == null)
             return ;

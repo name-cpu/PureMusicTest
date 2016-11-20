@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.kaizhiwei.puremusictest.MediaData.MediaEntrty;
 import com.example.kaizhiwei.puremusictest.R;
 
 /**
@@ -59,10 +60,20 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
         mBtnPlayPause = (ImageButton)view.findViewById(R.id.btnPlayPause);
         mBtnPlayNext = (ImageButton)view.findViewById(R.id.btnPlayNext);
         mBtnPlaylist = (ImageButton)view.findViewById(R.id.btnPlaylist);
-        mtvMain = (TextView) view.findViewById(R.id.tvSongMain);
-        mtvSub = (TextView)view.findViewById(R.id.tvSongSub);
+        mBtnPlayPause.setOnClickListener(this);
+        mBtnPlayNext.setOnClickListener(this);
+        mBtnPlaylist.setOnClickListener(this);
+        this.setOnClickListener(this);
+
+        mtvMain = (TextView) view.findViewById(R.id.tvNowPlayingMain);
+        mtvSub = (TextView)view.findViewById(R.id.tvNowPlayingSub);
         mImArtist = (ImageView)view.findViewById(R.id.ivArtist);
         mPlayProgress = (ProgressBar) view.findViewById(R.id.pbPlay);
+        mPlayProgress.setProgress(0);
+    }
+
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
     }
 
     @Override
@@ -76,6 +87,16 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
         else if(v == mBtnPlaylist){
 
         }
+    }
+
+    public void setPlayingMediaEntrty(MediaEntrty media){
+        if(media == null)
+            return ;
+
+        mtvMain.setText(media.getFileName());
+        mtvSub.setText(media.getArtist());
+        mBtnPlayPause.setBackgroundResource(R.drawable.pause);
+        mPlayProgress.setMax((int)media.getDuration());
     }
 
     public void updatePlayProgress(float fProgress){

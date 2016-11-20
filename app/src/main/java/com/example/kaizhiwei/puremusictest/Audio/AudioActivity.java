@@ -33,10 +33,12 @@ import java.util.List;
  * Created by kaizhiwei on 16/11/12.
  */
 @TargetApi(Build.VERSION_CODES.M)
-public class AudioActivity extends Activity implements ViewPager.OnLongClickListener, ViewPager.OnPageChangeListener, TabLayout.OnTabSelectedListener
+public class AudioActivity extends Activity implements ViewPager.OnLongClickListener, ViewPager.OnPageChangeListener
         ,MediaLibrary.IMediaScanListener, AdapterView.OnItemClickListener, AbsListView.OnScrollListener, AudioListViewAdapter.IAudioListViewListener
         ,PlaybackService.Client.Callback{
     private TabLayout mTabLayout;
+    private TabLayout.TabLayoutOnPageChangeListener mTVl;
+
     private ViewPager mViewPager;
     private SwipeRefreshLayout mSRLayout;
 
@@ -60,12 +62,14 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
     private PlaybackService mService;
 
     //正在播放列表
+    private NowPlayingLayout    mNowPlayingLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio);
 
         mTabLayout = (TabLayout) this.findViewById(R.id.tabLayout);
+        mTVl = new TabLayout.TabLayoutOnPageChangeListener(mTabLayout);
         mViewPager = (ViewPager) this.findViewById(R.id.viewPager);
         mSRLayout = (SwipeRefreshLayout) this.findViewById(R.id.sfLayout);
         mSRLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -114,15 +118,15 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
             mTabLayout.addTab(mTabLayout.newTab().setText(mListTitle.get(i)));
         }
         mTabLayout.setBackgroundResource(R.color.backgroundColor);
-        mTabLayout.setTabTextColors(R.color.mainTextColor, R.color.tabSelectTextColor);
+        mTabLayout.setTabTextColors(this.getResources().getColor(R.color.mainTextColor), this.getResources().getColor(R.color.tabSelectTextColor));
         int indicatorColor = this.getResources().getColor(R.color.tabSeperatorLineColor);
         mTabLayout.setSelectedTabIndicatorColor(indicatorColor);
 
-        mTabLayout.setTabsFromPagerAdapter(adapter);
         mTabLayout.setupWithViewPager(mViewPager);
-        mTabLayout.setOnTabSelectedListener(this);
         mTabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         mTabLayout.setTabMode(TabLayout.MODE_FIXED);
+
+        mNowPlayingLayout = (NowPlayingLayout)this.findViewById(R.id.nowPlayingLayout);
     }
 
     @Override
@@ -155,22 +159,6 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         mClient.disconnect();
     }
 
-    //TabLayout.OnTabSelectedListener
-    @Override
-    public void onTabSelected(TabLayout.Tab tab) {
-
-    }
-
-    @Override
-    public void onTabUnselected(TabLayout.Tab tab) {
-
-    }
-
-    @Override
-    public void onTabReselected(TabLayout.Tab tab) {
-
-    }
-
     //ViewPager.OnLongClickListener
     @Override
     public boolean onLongClick(View v) {
@@ -180,17 +168,18 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
     //ViewPager.OnPageChangeListener
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+        mTVl.onPageScrolled(position, positionOffset, positionOffsetPixels);
     }
 
     @Override
     public void onPageSelected(int position) {
-        mTabLayout.getTabAt(position).select();
+        mViewPager.setCurrentItem(position);
+        mTVl.onPageSelected(position);
     }
 
     @Override
     public void onPageScrollStateChanged(int state) {
-
+        mTVl.onPageScrollStateChanged(state);
     }
 
     //MediaLibrary.IMediaScanListener
@@ -238,6 +227,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
             mService.play(itemData.mListMedia, 0);
             mAllSongAdapter.setItemPlayState(position, true);
+            mNowPlayingLayout.setPlayingMediaEntrty(itemData.mListMedia.get(0));
         }
         else if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ARTIST){
 
