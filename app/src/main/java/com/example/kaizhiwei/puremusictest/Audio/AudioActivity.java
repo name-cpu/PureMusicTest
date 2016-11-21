@@ -2,15 +2,14 @@ package com.example.kaizhiwei.puremusictest.Audio;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 
@@ -18,15 +17,8 @@ import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
 
-import net.sourceforge.pinyin4j.PinyinHelper;
-import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
-import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
-import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
-import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -40,7 +32,6 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
     private TabLayout.TabLayoutOnPageChangeListener mTVl;
 
     private ViewPager mViewPager;
-    private SwipeRefreshLayout mSRLayout;
 
     private List<String> mListTitle;
     private List<View> mListView;
@@ -71,13 +62,6 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         mTabLayout = (TabLayout) this.findViewById(R.id.tabLayout);
         mTVl = new TabLayout.TabLayoutOnPageChangeListener(mTabLayout);
         mViewPager = (ViewPager) this.findViewById(R.id.viewPager);
-        mSRLayout = (SwipeRefreshLayout) this.findViewById(R.id.sfLayout);
-        mSRLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-           public void onRefresh() {
-                MediaLibrary.getInstance().startScan();
-            }
-        });
 
         mListTitle = new ArrayList<String>();
         mListTitle.add("歌曲");
@@ -86,20 +70,28 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         mListTitle.add("专辑");
 
         mAllSongListView = (AudioListView) this.findViewById(R.id.lvAllSong);
-        mAllSongAdapter = new AudioListViewAdapter(MediaLibrary.getInstance().getAllMediaEntrty(), this, AudioListViewAdapter.ADAPTER_TYPE_ALLSONG);
+        mAllSongAdapter = new AudioListViewAdapter(this, AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, true);
         mAllSongListView.setAdapter(mAllSongAdapter);
+        mAllSongListView.setOnItemClickListener(this);
+        mAllSongListView.setOnScrollListener(this);
 
-        mSongFolderListView = mAllSongListView = (AudioListView) this.findViewById(R.id.lvSongFolder);
-        mSongFolderAdapter = new AudioListViewAdapter(MediaLibrary.getInstance().getAllMediaEntrty(), this, AudioListViewAdapter.ADAPTER_TYPE_ALLSONG);
+        mSongFolderListView = (AudioListView) this.findViewById(R.id.lvSongFolder);
+        mSongFolderAdapter = new AudioListViewAdapter(this, AudioListViewAdapter.ADAPTER_TYPE_FOLDER, false);
         mSongFolderListView.setAdapter(mSongFolderAdapter);
+        mSongFolderListView.setOnItemClickListener(this);
+        mSongFolderListView.setOnScrollListener(this);
 
         mArtistListView = (AudioListView) this.findViewById(R.id.lvArtist);
-        mArtistAdapter = new AudioListViewAdapter(MediaLibrary.getInstance().getAllMediaEntrty(), this, AudioListViewAdapter.ADAPTER_TYPE_ARTIST);
+        mArtistAdapter = new AudioListViewAdapter(this, AudioListViewAdapter.ADAPTER_TYPE_ARTIST, false);
         mArtistListView.setAdapter(mArtistAdapter);
+        mArtistListView.setOnItemClickListener(this);
+        mArtistListView.setOnScrollListener(this);
 
         mAlbumListView = (AudioListView) this.findViewById(R.id.lvAlbum);
-        mAlbumAdapter = new AudioListViewAdapter(MediaLibrary.getInstance().getAllMediaEntrty(), this, AudioListViewAdapter.ADAPTER_TYPE_ALLSONG);
+        mAlbumAdapter = new AudioListViewAdapter(this, AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, false);
         mAlbumListView.setAdapter(mAlbumAdapter);
+        mAlbumListView.setOnItemClickListener(this);
+        mAlbumListView.setOnScrollListener(this);
 
         mListView = new ArrayList<View>();
         mListView.add(mAllSongListView);
@@ -200,16 +192,12 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mSRLayout.setRefreshing(false);
                 if(mlibrary.get() != null){
-                    mAllSongAdapter = new AudioListViewAdapter(mlibrary.get().getAllMediaEntrty(), AudioActivity.this, AudioListViewAdapter.ADAPTER_TYPE_ALLSONG);
-                    mAllSongListView.setAdapter(mAllSongAdapter);
+                    mAllSongAdapter.initData(mlibrary.get().getAllMediaEntrty());
+                    mSongFolderAdapter.initData(mlibrary.get().getAllMediaEntrty());
+                    mArtistAdapter.initData(mlibrary.get().getAllMediaEntrty());
+                    mAlbumAdapter.initData(mlibrary.get().getAllMediaEntrty());
 
-                    mArtistAdapter = new AudioListViewAdapter(mlibrary.get().getAllMediaEntrty(), AudioActivity.this, AudioListViewAdapter.ADAPTER_TYPE_ARTIST);
-                    mAllSongListView.setAdapter(mArtistAdapter);
-
-                    mAlbumAdapter = new AudioListViewAdapter(mlibrary.get().getAllMediaEntrty(), AudioActivity.this, AudioListViewAdapter.ADAPTER_TYPE_ALLSONG);
-                    mAllSongListView.setAdapter(mAlbumAdapter);
                 }
             }
         });
@@ -229,6 +217,21 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
             mAllSongAdapter.setItemPlayState(position, true);
             mNowPlayingLayout.setPlayingMediaEntrty(itemData.mListMedia.get(0));
         }
+        else if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
+            if(itemData instanceof AudioListViewAdapter.AudioFolderItemData){
+                AudioListViewAdapter.AudioFolderItemData folderItemData = (AudioListViewAdapter.AudioFolderItemData)itemData;
+
+                Intent intent = new Intent(AudioActivity.this, AudioFilterActivity.class);
+                intent.putExtra(AudioFilterActivity.FILTER_NAME, folderItemData.mFolderPath);
+                intent.putExtra(AudioFilterActivity.FILTER_TYPE, AudioFilterActivity.FILTER_FOLDER);
+                intent.putExtra(AudioFilterActivity.TITLE_NAME, folderItemData.mFolderName);
+
+                overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+                startActivity(intent);
+            }
+
+
+        }
         else if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ARTIST){
 
         }
@@ -245,8 +248,6 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
     public void onScroll(AbsListView view, int firstVisibleItem,
                          int visibleItemCount, int totalItemCount) {
-        if(mSRLayout == null)
-            return ;
 
         boolean enable = false;
         if(view != null && view.getChildCount() > 0){
@@ -257,7 +258,6 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
             // enabling or disabling the refresh layout
             enable = firstItemVisible && topOfFirstItemVisible;
         }
-        mSRLayout.setEnabled(enable);
     }
 
     //AudioListViewAdapter.IAudioListViewListener

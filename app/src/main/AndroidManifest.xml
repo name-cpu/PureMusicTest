@@ -38,6 +38,12 @@
             android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
+
+        <activity
+            android:name=".Audio.AudioFilterActivity">
+
+        </activity>
+
     </application>
 
 </manifest>

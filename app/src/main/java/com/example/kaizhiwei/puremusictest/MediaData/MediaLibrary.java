@@ -168,8 +168,7 @@ public class MediaLibrary {
                 }
                 else{
                     String fileExtention = StringUtil.getExtention(file.getAbsolutePath());
-                    if(ExtensionUtil.AUDIO.contains(fileExtention) ||
-                            ExtensionUtil.VIDEO.contains(fileExtention) ||
+                    if(ExtensionUtil.AUDIO.contains(fileExtention)  ||
                             ExtensionUtil.SUBTITLES.contains(fileExtention) ||
                             ExtensionUtil.PLAYLIST.contains(fileExtention)){
                         accept = true;

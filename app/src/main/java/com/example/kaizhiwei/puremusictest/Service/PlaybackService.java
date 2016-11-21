@@ -41,12 +41,21 @@ public class PlaybackService extends Service {
     private int                 mCurrentTime;
     private int                 mRepeatMode;
     private MediaPlayer         mMediaPlayer;
+    final private ArrayList<Callback> mCallbacks = new ArrayList<Callback>();
+
 
     private LocalBinder mBinder = new LocalBinder();
     public class LocalBinder extends Binder {
         public PlaybackService getService(){
             return PlaybackService.this;
         }
+    }
+
+    public interface Callback {
+        void update();
+        void updateProgress();
+        void onMediaEvent(Media.Event event);
+        void onMediaPlayerEvent(MediaPlayer.Event event);
     }
 
     private final Media.EventListener mMediaListener = new Media.EventListener(){
@@ -252,6 +261,23 @@ public class PlaybackService extends Service {
         mMediaPlayer.play();
     }
 
+    private boolean hasCurrentMedia() {
+        return mCurrentIndex >= 0 && mCurrentIndex < mMediaList.size();
+    }
+
+    @MainThread
+    public synchronized void addCallback(Callback cb) {
+        if (!mCallbacks.contains(cb)) {
+            mCallbacks.add(cb);
+           // if (hasCurrentMedia())
+               // mHandler.sendEmptyMessage(SHOW_PROGRESS);
+        }
+    }
+
+    @MainThread
+    public synchronized void removeCallback(Callback cb) {
+        mCallbacks.remove(cb);
+    }
 
     public static class Client {
         public static final String TAG = "PlaybackService.Client";

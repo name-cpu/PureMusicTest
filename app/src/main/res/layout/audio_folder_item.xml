@@ -7,15 +7,10 @@
         android:layout_height="65dp"
         android:orientation="vertical"
         android:gravity="center_vertical">
-        <TextView android:id="@+id/tvTopLine"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#00FF00"
-            android:visibility="gone"/>
         <LinearLayout
             android:id="@+id/contentLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="center"
             android:orientation="horizontal"
             android:layout_marginTop="5dp"
@@ -23,11 +18,12 @@
             android:weightSum="1">
             <ImageView
                 android:id="@+id/ivFolderImage"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_launcher"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_folder_nor"
                 android:layout_gravity="center_vertical"
-                android:layout_marginRight="5dp"/>
+                android:scaleType="fitCenter"
+                android:layout_marginRight="10dp"/>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -35,12 +31,12 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
 
-                android:weightSum="2"
+                android:weightSum="3"
                 android:layout_marginRight="5dp">
                 <TextView android:id="@+id/tvFolderName"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
                     android:text="123456789"
                     android:layout_gravity="left"
                     android:gravity="center_vertical"
@@ -49,8 +45,8 @@
                     android:textSize="14sp"/>
                 <TextView android:id="@+id/tvFolderSongCount"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
                     android:text="123456789"
                     android:layout_gravity="left"
                     android:gravity="center_vertical"
@@ -59,14 +55,14 @@
                     android:textSize="12sp" />
                 <TextView android:id="@+id/tvFolderPath"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
                     android:text="123456789"
                     android:layout_gravity="left"
                     android:gravity="center_vertical"
                     android:lines="1"
                     android:ellipsize="end"
-                    android:textSize="14sp"/>
+                    android:textSize="12sp"/>
             </LinearLayout>
 
             <ImageView

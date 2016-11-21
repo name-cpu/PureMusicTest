@@ -12,6 +12,7 @@
         <item name="tabSeperatorLineColor">@color/tabSeperatorLineColor</item>
         <item name="tabSelectTextColor">@color/tabSelectTextColor</item>
         <item name="listviewSeperatorLineColor">@color/listviewSeperatorLineColor</item>
+        <item name="common_title_backgroundColor">@color/common_title_backgroundColor</item>
     </style>
 
     <style name="PureMusic.Apearance" parent="AppTheme">

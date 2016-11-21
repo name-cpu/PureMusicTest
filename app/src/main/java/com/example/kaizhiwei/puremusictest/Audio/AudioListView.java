@@ -19,7 +19,6 @@ public class AudioListView extends ListView {
         if(isInEditMode())
             return ;
 
-        mContext = (AudioActivity)context;
         init();
     }
 
@@ -28,7 +27,6 @@ public class AudioListView extends ListView {
         if(isInEditMode())
             return ;
 
-        mContext = (AudioActivity)context;
         init();
     }
 
@@ -37,7 +35,6 @@ public class AudioListView extends ListView {
         if(isInEditMode())
             return ;
 
-        mContext = (AudioActivity)context;
         init();
     }
 
@@ -52,8 +49,6 @@ public class AudioListView extends ListView {
 
     public void init(){
         this.setDividerHeight(0);
-        this.setOnItemClickListener(mContext);
-        this.setOnScrollListener(mContext);
         this.setBackgroundResource(R.color.backgroundColor);
     }
 }

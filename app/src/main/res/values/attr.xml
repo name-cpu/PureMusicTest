@@ -10,4 +10,5 @@
     <attr name="tabSeperatorLineColor" format="reference|color"/>
     <attr name="tabSelectTextColor" format="reference|color"/>
     <attr name="listviewSeperatorLineColor" format="reference|color"/>
+    <attr name="common_title_backgroundColor" format="reference|color"/>
 </resources>
