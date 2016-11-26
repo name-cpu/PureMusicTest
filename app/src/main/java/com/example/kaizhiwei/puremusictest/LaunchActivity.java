@@ -8,6 +8,7 @@ import android.widget.Button;
 
 import com.example.kaizhiwei.puremusictest.Audio.AudioActivity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
+import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.ScanSong.ScanSongActivity;
 import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
 import com.example.kaizhiwei.puremusictest.Welcome.WelcomeActivity;
@@ -21,7 +22,10 @@ public class LaunchActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.launch_activity);
 
-        MediaLibrary.getInstance().startScan();
+        if(PreferenceConfig.getInstance().getFirstLaunch()){
+            MediaLibrary.getInstance().startScan();
+        }
+
         DeviceUtil.getStorageDirectories();
         Button btn = (Button)this.findViewById(R.id.button1);
         btn.setOnClickListener(new View.OnClickListener(){

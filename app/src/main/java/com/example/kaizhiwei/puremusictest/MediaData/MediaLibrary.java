@@ -15,7 +15,6 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,7 @@ public class MediaLibrary {
 
     private static MediaLibrary instance;
     private static final List<String> FOLDER_BLACKLIST;
-    private List<MediaEntrty> mItemList = new ArrayList<MediaEntrty>();
+    private List<MediaEntity> mItemList = new ArrayList<MediaEntity>();
     private ReadWriteLock mItemListLock = new ReentrantReadWriteLock();
     private boolean isScaning;
     private boolean isForceStop;
@@ -76,9 +75,9 @@ public class MediaLibrary {
         mPool = Executors.newFixedThreadPool(1);
     }
 
-    public List<MediaEntrty> getAllMediaEntrty(){
+    public List<MediaEntity> getAllMediaEntrty(){
         mItemListLock.readLock().lock();
-        List<MediaEntrty> newList = new ArrayList<>();
+        List<MediaEntity> newList = new ArrayList<>();
         newList.addAll(mItemList);
         mItemListLock.readLock().unlock();
         return newList;
@@ -92,8 +91,7 @@ public class MediaLibrary {
 
         isScaning = true;
         notifyScanStart();
-        Thread thread = new Thread(scanRunnable);
-        mPool.execute(thread);
+        mPool.execute(scanRunnable);
         isForceStop = false;
     }
 
@@ -137,6 +135,16 @@ public class MediaLibrary {
             }
         }
         isScaning = false;
+
+        if(MediaDataBase.getInstance().isEmptyMusicInfo()){
+
+        }
+        else{
+            MediaDataBase.getInstance().deleteAllMusicInfo();
+        }
+        for(int i = 0;i < mItemList.size();i++){
+            MediaDataBase.getInstance().insertMusicInfo(mItemList.get(i));
+        }
     }
 
     public void registerListener(IMediaScanListener listener){
@@ -254,7 +262,7 @@ public class MediaLibrary {
                     continue;
                 }
 
-                MediaEntrty entrty = new MediaEntrty(media);
+                MediaEntity entrty = new MediaEntity(media);
                 media.release();
                 mItemListLock.writeLock().lock();
                 mItemList.add(entrty);

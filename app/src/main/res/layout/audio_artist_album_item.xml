@@ -17,7 +17,7 @@
             android:layout_marginBottom="5dp"
             android:weightSum="1">
             <ImageView
-                android:id="@+id/ivSongImage"
+                android:id="@+id/ivArtistAlbumImage"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_launcher"
@@ -32,7 +32,7 @@
 
                 android:weightSum="2"
                 android:layout_marginRight="5dp">
-                <TextView android:id="@+id/tvSongMain"
+                <TextView android:id="@+id/tvArtistAlbumMain"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
@@ -42,7 +42,7 @@
                     android:lines="1"
                     android:ellipsize="end"
                     android:textSize="14sp"/>
-                <TextView android:id="@+id/tvSongSub"
+                <TextView android:id="@+id/tvArtistAlbumSub"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"

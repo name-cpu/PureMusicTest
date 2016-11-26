@@ -2,7 +2,6 @@ package com.example.kaizhiwei.puremusictest.Audio;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.media.Image;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -13,7 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntrty;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.R;
 
 /**
@@ -89,11 +88,11 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
         }
     }
 
-    public void setPlayingMediaEntrty(MediaEntrty media){
+    public void setPlayingMediaEntrty(MediaEntity media){
         if(media == null)
             return ;
 
-        mtvMain.setText(media.getFileName());
+        mtvMain.setText(media.getTitle());
         mtvSub.setText(media.getArtist());
         mBtnPlayPause.setBackgroundResource(R.drawable.pause);
         mPlayProgress.setMax((int)media.getDuration());

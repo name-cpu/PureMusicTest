@@ -1,21 +1,16 @@
 package com.example.kaizhiwei.puremusictest.Audio;
 
 import android.content.Context;
-import android.content.Intent;
 import android.text.TextPaint;
 import android.text.TextUtils;
-import android.text.style.MetricAffectingSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntrty;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.R;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
@@ -27,7 +22,6 @@ import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombi
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +45,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
     public static final int ADAPTER_TYPE_ALBUM = 4;
 
     private int mAdapterType;
-    private List<MediaEntrty> mListOrigin;
+    private List<MediaEntity> mListOrigin;
     private List<AudioItemData> mListItemData;
     private Context mContext;
     private Map<IAudioListViewListener, Object> mMapListener;
@@ -69,7 +63,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
 
         public int mItemType;
         public String mFooterInfo;
-        public List<MediaEntrty> mListMedia;
+        public List<MediaEntity> mListMedia;
 
         AudioItemData(){
 
@@ -138,7 +132,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             mListViewItemTypeCount = 2;
     }
 
-    public void initData(List<MediaEntrty> list){
+    public void initData(List<MediaEntity> list){
         mListOrigin = list;
 
         HanyuPinyinOutputFormat format = new HanyuPinyinOutputFormat();
@@ -153,60 +147,15 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 }});
 
             for(int i = 0;i < mListOrigin.size();i++){
-                MediaEntrty entrty = mListOrigin.get(i);
+                MediaEntity entrty = mListOrigin.get(i);
                 if(entrty == null)
                     continue;
 
-                String filePath = entrty.getUri().getPath();
-                String strArtist = entrty.getArtist();
-                String strAlbum = entrty.getAlbum();
-
-                if(!TextUtils.isEmpty(mFilterFolder)){
-                    if(!filePath.contains(mFilterFolder))
-                        continue ;
-                }
-
-                if(!TextUtils.isEmpty(mFilterArtist)){
-                    if(!strArtist.contains(mFilterArtist))
-                        continue ;
-                }
-
-                String title = entrty.getFileName();
-                char firstChar = title.toUpperCase(Locale.ENGLISH).charAt(0);
-                String firstStr = "";
-                if(Character.isLetter(firstChar)){
-                    String[] vals = new String[0];
-                    try {
-                        vals = PinyinHelper.toHanyuPinyinStringArray(firstChar, format);
-                    } catch (BadHanyuPinyinOutputFormatCombination badHanyuPinyinOutputFormatCombination) {
-                        badHanyuPinyinOutputFormatCombination.printStackTrace();
-                    }
-
-                    boolean isFindPinYin = false;
-                    List<String> listPinYin = null;
-                    if(vals != null){
-                        listPinYin = Arrays.asList(vals);
-                        if(listPinYin != null && listPinYin.size() > 0){
-                            isFindPinYin = true;
-                        }
-                    }
-
-                    if(isFindPinYin){
-                        firstStr = listPinYin.get(0).substring(0,1);
-                    }
-                    else{
-                        firstStr = String.valueOf(firstChar);
-                    }
-                }
-                else{
-                    firstStr = "#";
-                }
-
-                List<Integer> value = mapFirstLetter.get(firstStr);
+                List<Integer> value = mapFirstLetter.get(entrty.title_letter);
                 if(value == null){
                     value = new ArrayList<>();
                     value.add(i);
-                    mapFirstLetter.put(firstStr, value);
+                    mapFirstLetter.put(entrty.title_letter, value);
                 }
                 else{
                     value.add(i);
@@ -216,7 +165,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             for(String key : mapFirstLetter.keySet()){
                 List<Integer> value = mapFirstLetter.get(key);
                 for(int i = 0;i < value.size();i++){
-                    MediaEntrty entrty = mListOrigin.get(value.get(i));
+                    MediaEntity entrty = mListOrigin.get(value.get(i));
                     if(entrty == null)
                         continue ;
 
@@ -227,8 +176,27 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                         mListItemData.add(itemCategory);
                     }
 
+                    String filePath = entrty.getFilePath();
+                    String strArtist = entrty.getArtist();
+                    String strAlbum = entrty.getAlbum();
+
+                    if(!TextUtils.isEmpty(mFilterFolder)){
+                        if(!filePath.contains(mFilterFolder))
+                            continue ;
+                    }
+
+                    if(!TextUtils.isEmpty(mFilterArtist)){
+                        if(!strArtist.contains(mFilterArtist))
+                            continue ;
+                    }
+
+                    if(!TextUtils.isEmpty(mFilterAlbum)){
+                        if(!strAlbum.contains(mFilterAlbum))
+                            continue ;
+                    }
+
                     AudioSongItemData itemData = new AudioSongItemData();
-                    itemData.mMainTitle = entrty.getFileName();
+                    itemData.mMainTitle = entrty.getTitle();
                     if(entrty.getArtist() == null || entrty.getArtist().equals("null")){
                         itemData.mSubTitle = "unknown artist";
                     }
@@ -266,12 +234,12 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         else if(mAdapterType == ADAPTER_TYPE_FOLDER){
             Map<String, Integer> mapFolder = new HashMap<>();
             for(int i = 0;i < mListOrigin.size();i++){
-                MediaEntrty entrty = mListOrigin.get(i);
+                MediaEntity entrty = mListOrigin.get(i);
                 if(entrty == null)
                     continue;
 
                 String filePath = "";
-                String fileFullPath = entrty.getUri().getPath();
+                String fileFullPath = entrty.getFilePath();
                 int index = fileFullPath.lastIndexOf(File.separator);
                 if(index >= 0){
                     filePath = fileFullPath.substring(0, index);
@@ -307,15 +275,14 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             }
         }
         else if(mAdapterType == ADAPTER_TYPE_ARTIST){
-            Map<String, List<String>> mapFirstLetter = new TreeMap<String, List<String>>(new Comparator<String>() {
+            Map<String, Integer> mapArtist = new TreeMap<String, Integer>(new Comparator<String>() {
                 public int compare(String key1, String key2) {
                     return String.CASE_INSENSITIVE_ORDER.compare(key1, key2);
                 }});
 
             //建立歌手和歌曲的对应关系
-            Map<String, List<MediaEntrty>> mapArtist = new HashMap<>();
             for(int i = 0;i < mListOrigin.size();i++) {
-                MediaEntrty entrty = mListOrigin.get(i);
+                MediaEntity entrty = mListOrigin.get(i);
                 if (entrty == null)
                     continue;
 
@@ -324,55 +291,25 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                     artist = "unknown artist";
                 }
 
-                List<MediaEntrty> value = mapArtist.get(artist);
+                Integer value = mapArtist.get(artist);
                 if(value == null){
-                    value = new ArrayList<>();
-                    value.add(entrty);
-                    mapArtist.put(artist, value);
+                    mapArtist.put(artist, 1);
                 }
                 else{
-                    value.add(entrty);
+                    mapArtist.put(artist, ++value);
                 }
             }
 
-            //建立歌手与其首字符的对应关系
+            //建立歌手
             for(String strArtist : mapArtist.keySet()){
-                char firstChar = strArtist.toUpperCase(Locale.ENGLISH).charAt(0);
-                String firstStr = "";
-                if(Character.isLetter(firstChar)){
-                    firstStr = strArtist.substring(0,1);
-                }
-                else{
-                    firstStr = "#";
-                }
 
-                List<String> value = mapFirstLetter.get(firstStr);
-                if(value == null){
-                    value = new ArrayList<>();
-                    value.add(strArtist);
-                    mapFirstLetter.put(firstStr, value);
-                }
-                else{
-                    value.add(strArtist);
-                }
-            }
-
-            //建立列表数据
-            for(String key : mapFirstLetter.keySet()){
-                List<String> value = mapFirstLetter.get(key);
-                for(int i = 0;i < value.size();i++){
-                    List<MediaEntrty> listEntrty = mapArtist.get(value.get(i));
-                    if(listEntrty == null || listEntrty.size() == 0)
-                        continue ;
-
-                    AudioArtistItemData itemData = new AudioArtistItemData();
-                    itemData.mItemType = AudioItemData.TYPE_MEDIA;
-                    itemData.mArtistName = value.get(i);
-                    itemData.mArtistSongCount = listEntrty.size();
-                    itemData.mListMedia = new ArrayList<>();
-                    itemData.mListMedia.addAll(listEntrty);
-                    mListItemData.add(itemData);
-                }
+                int iCount = mapArtist.get(strArtist);
+                AudioArtistItemData itemData = new AudioArtistItemData();
+                itemData.mItemType = AudioItemData.TYPE_MEDIA;
+                itemData.mArtistName = strArtist;
+                itemData.mArtistSongCount = iCount;
+                itemData.mListMedia = new ArrayList<>();
+                mListItemData.add(itemData);
             }
         }
         notifyDataSetChanged();
@@ -490,7 +427,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             if(mAdapterType == ADAPTER_TYPE_ALLSONG){
                 AudioListViewAdapterHolder holder = null;
                 if(convertView == null){
-                    View view = inflater.inflate(R.layout.audio_item, null);
+                    View view = inflater.inflate(R.layout.audio_allsong_item, null);
                     view.setBackgroundResource(R.color.backgroundColor);
                     holder = new AudioListViewAdapterHolder(view);
                     view.setTag(holder);
@@ -543,36 +480,34 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 if(artistData == null)
                     return null;
 
-                AudioListViewFolderHolder holder = null;
+                AudioListViewAristAlbumHolder holder = null;
                 if(convertView == null){
-                    View view = inflater.inflate(R.layout.audio_folder_item, null);
+                    View view = inflater.inflate(R.layout.audio_artist_album_item, null);
                     view.setBackgroundResource(R.color.backgroundColor);
-                    holder = new AudioListViewFolderHolder(view);
+                    holder = new AudioListViewAristAlbumHolder(view);
                     view.setTag(holder);
                     convertView = view;
                     holder.ibBtnMore.setOnClickListener(this);
                 }
                 else{
-                    holder = (AudioListViewFolderHolder) convertView.getTag();
+                    holder = (AudioListViewAristAlbumHolder) convertView.getTag();
                 }
                 holder.ibBtnMore.setTag(position);
-                holder.tvFolderName.setText(folderData.mFolderName);
-                holder.tvFolderSongCount.setText("" + folderData.mFolderSongCount + "首");
-                holder.tvFolderPath.setText(folderData.mFolderPath);
+                holder.tvArtistAlbumMain.setText(artistData.mArtistName);
+                holder.tvArtistAlbumSub.setText("" + artistData.mArtistSongCount + "首");
                 holder.viewSepratorLine.setBackgroundResource(R.color.listviewSeperatorLineColor);
-                holder.tvFolderName.setTextColor(mContext.getResources().getColor(R.color.mainTextColor));
-                holder.tvFolderSongCount.setTextColor(mContext.getResources().getColor(R.color.subTextColor));
-                holder.tvFolderPath.setTextColor(mContext.getResources().getColor(R.color.subTextColor));
+                holder.tvArtistAlbumMain.setTextColor(mContext.getResources().getColor(R.color.mainTextColor));
+                holder.tvArtistAlbumSub.setTextColor(mContext.getResources().getColor(R.color.subTextColor));
             }
             else if(mAdapterType == ADAPTER_TYPE_ALBUM){
 
             }
         }
         else if(getItemViewType(position) == AudioItemData.TYPE_HEADER) {
-            AudioListViewAdapterSeperatorHolder holder = null;
+            AudioListViewAdapterHeaderHolder holder = null;
             if (convertView == null) {
                 View view = inflater.inflate(R.layout.audio_seperator_item, null);
-                holder = new AudioListViewAdapterSeperatorHolder(view);
+                holder = new AudioListViewAdapterHeaderHolder(view);
                 view.setTag(holder);
                 convertView = view;
                 view.setEnabled(false);
@@ -583,7 +518,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 holder.tvCategaryName.setTextSize((float) 16.0);
                 holder.tvCategaryName.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
             } else {
-                holder = (AudioListViewAdapterSeperatorHolder) convertView.getTag();
+                holder = (AudioListViewAdapterHeaderHolder) convertView.getTag();
             }
             holder.tvCategaryName.setText(songData.mSeparatorTitle);
         }
@@ -664,6 +599,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         notifyDataSetChanged();
     }
 
+    //所有歌曲操作栏视图
     private class AudioOperatioinBarHolder{
         public TextView btnRandom;
         public TextView btnBatchMgr;
@@ -674,8 +610,8 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         }
     }
 
+    //所有歌曲item holder
     private class AudioListViewAdapterHolder{
-        public TextView tvTopLine;
         public ImageView ivSongImage;
         public TextView tvSongMain;
         public TextView tvSongSub;
@@ -691,15 +627,17 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         }
     }
 
-    private class AudioListViewAdapterSeperatorHolder{
+    //所有歌曲item的头视图的holder
+    private class AudioListViewAdapterHeaderHolder{
         public TextView tvCategaryName;
 
-        public AudioListViewAdapterSeperatorHolder(View view){
+        public AudioListViewAdapterHeaderHolder(View view){
             tvCategaryName = (TextView)view.findViewById(R.id.tvCategaryName);
 
         }
     }
 
+    //所有歌曲item的脚视图的holder
     private class AudioListViewFooterHolder{
         public TextView tvFooterInfo;
 
@@ -709,6 +647,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         }
     }
 
+    //文件夹列表item的holder
     private class AudioListViewFolderHolder{
         public TextView tvFolderName;
         public TextView tvFolderSongCount;
@@ -725,7 +664,20 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         }
     }
 
-    private class AudioListViewAristHolder{
+    //歌手和专辑列表item的holder
+    private class AudioListViewAristAlbumHolder{
+        public ImageView ivArtistAlbumImage;
+        public TextView tvArtistAlbumMain;
+        public TextView tvArtistAlbumSub;
+        public ImageView ibBtnMore;
+        public View viewSepratorLine;
 
+        public AudioListViewAristAlbumHolder(View view){
+            ivArtistAlbumImage = (ImageView)view.findViewById(R.id.ivArtistAlbumImage);
+            tvArtistAlbumMain = (TextView)view.findViewById(R.id.tvArtistAlbumMain);
+            tvArtistAlbumSub = (TextView)view.findViewById(R.id.tvArtistAlbumSub);
+            ibBtnMore = (ImageView)view.findViewById(R.id.ibBtnMore);
+            viewSepratorLine = (View)view.findViewById(R.id.viewSepratorLine);
+        }
     }
 }

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 
+import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.MediaData.SongEntity;
 import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
 
@@ -27,6 +28,12 @@ public class PureMusicApplication extends Application {
         super.onCreate();
         instance = this;
         mContext = getApplicationContext();
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        PreferenceConfig.getInstance().setFirstLaunch(false);
     }
 
     public void addSongEntrty(SongEntity entrty){

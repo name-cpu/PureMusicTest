@@ -13,12 +13,10 @@ import android.preference.PreferenceManager;
 import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntrty;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.VLCInstance;
 
-import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
 
@@ -36,7 +34,7 @@ public class PlaybackService extends Service {
     private static final String PREF_POSITION_IN_SONG = "PREF_POSITION_IN_SONG";
     private static final String PREF_REPEAT_MODE = "PREF_REPEAT_MODE";
 
-    private List<MediaEntrty>  mMediaList;
+    private List<MediaEntity>  mMediaList;
     private int                 mCurrentIndex;
     private int                 mCurrentTime;
     private int                 mRepeatMode;
@@ -224,7 +222,7 @@ public class PlaybackService extends Service {
 
         for(int i = 0;i < listMedia.size();i++){
             Media media = new Media(VLCInstance.getInstance(), Uri.parse(listMedia.get(i)));
-            MediaEntrty entrty = new MediaEntrty(media);
+            MediaEntity entrty = new MediaEntity(media);
             mMediaList.add(entrty);
         }
     }
@@ -238,7 +236,7 @@ public class PlaybackService extends Service {
 
     }
 
-    public void play(List<MediaEntrty> list, int position){
+    public void play(List<MediaEntity> list, int position){
         if(mMediaList != null){
             mMediaList.clear();
             mMediaList.addAll(list);
@@ -247,12 +245,12 @@ public class PlaybackService extends Service {
         if(position < 0 || position >= list.size())
             mCurrentIndex = 0;
 
-        Uri uri = list.get(position).getUri();
-        File file = new File(uri.getPath());
+        String filePath = list.get(position).getFilePath();
+        File file = new File(filePath);
         if(file.exists() == false)
             return;
 
-        Media media  = new Media(VLCInstance.getInstance(), uri);
+        Media media  = new Media(VLCInstance.getInstance(), Uri.encode(filePath));
         media.setEventListener(mMediaListener);
         mMediaPlayer.setMedia(media);
         media.release();

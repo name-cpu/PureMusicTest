@@ -13,7 +13,10 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 
+import com.example.kaizhiwei.puremusictest.MediaData.MediaDataBase;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
+import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
 
@@ -93,6 +96,11 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         mAlbumListView.setOnItemClickListener(this);
         mAlbumListView.setOnScrollListener(this);
 
+        mAllSongAdapter.initData(MediaLibrary.getInstance().getAllMediaEntrty());
+        mSongFolderAdapter.initData(MediaLibrary.getInstance().getAllMediaEntrty());
+        mArtistAdapter.initData(MediaLibrary.getInstance().getAllMediaEntrty());
+        mAlbumAdapter.initData(MediaLibrary.getInstance().getAllMediaEntrty());
+
         mListView = new ArrayList<View>();
         mListView.add(mAllSongListView);
         mListView.add(mSongFolderListView);
@@ -119,6 +127,25 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         mTabLayout.setTabMode(TabLayout.MODE_FIXED);
 
         mNowPlayingLayout = (NowPlayingLayout)this.findViewById(R.id.nowPlayingLayout);
+
+        if(PreferenceConfig.getInstance().getFirstLaunch() == false)
+        {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    final List<MediaEntity> list = MediaDataBase.getInstance().queryAllMusicInfo();
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mAllSongAdapter.initData(list);
+                            mSongFolderAdapter.initData(list);
+                            mArtistAdapter.initData(list);
+                            mAlbumAdapter.initData(list);
+                        }
+                    });
+                }
+            }).start();
+        }
     }
 
     @Override
@@ -192,12 +219,12 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                if(mlibrary.get() != null){
-                    mAllSongAdapter.initData(mlibrary.get().getAllMediaEntrty());
-                    mSongFolderAdapter.initData(mlibrary.get().getAllMediaEntrty());
-                    mArtistAdapter.initData(mlibrary.get().getAllMediaEntrty());
-                    mAlbumAdapter.initData(mlibrary.get().getAllMediaEntrty());
-
+                MediaLibrary library = mlibrary.get();
+                if(library != null){
+                    mAllSongAdapter.initData(library.getAllMediaEntrty());
+                    mSongFolderAdapter.initData(library.getAllMediaEntrty());
+                    mArtistAdapter.initData(library.getAllMediaEntrty());
+                    mAlbumAdapter.initData(library.getAllMediaEntrty());
                 }
             }
         });
@@ -229,8 +256,6 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
                 overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
                 startActivity(intent);
             }
-
-
         }
         else if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ARTIST){
 
