@@ -33,7 +33,7 @@ public class PureMusicApplication extends Application {
     @Override
     public void onTerminate() {
         super.onTerminate();
-        PreferenceConfig.getInstance().setFirstLaunch(false);
+
     }
 
     public void addSongEntrty(SongEntity entrty){

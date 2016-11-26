@@ -19,7 +19,6 @@ public class AudioViewPagerAdapter extends PagerAdapter {
 
         if(listTitle != null)
             mListTitle = listTitle;
-
     }
 
     @Override

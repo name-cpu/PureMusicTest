@@ -76,6 +76,14 @@ public class MediaLibrary {
     }
 
     public List<MediaEntity> getAllMediaEntrty(){
+
+        if(mItemList == null || mItemList.size() == 0){
+            mItemListLock.writeLock().lock();
+            List<MediaEntity> list = MediaDataBase.getInstance().queryAllMusicInfo();
+            mItemList.addAll(list);
+            mItemListLock.writeLock().unlock();
+        }
+
         mItemListLock.readLock().lock();
         List<MediaEntity> newList = new ArrayList<>();
         newList.addAll(mItemList);
@@ -126,16 +134,6 @@ public class MediaLibrary {
     }
 
     public void notifyScanFinish(){
-        if(mMapListener == null)
-            return ;
-
-        for(IMediaScanListener key : mMapListener.keySet()){
-            if(key != null){
-                key.onScanFinish();
-            }
-        }
-        isScaning = false;
-
         if(MediaDataBase.getInstance().isEmptyMusicInfo()){
 
         }
@@ -145,6 +143,16 @@ public class MediaLibrary {
         for(int i = 0;i < mItemList.size();i++){
             MediaDataBase.getInstance().insertMusicInfo(mItemList.get(i));
         }
+
+        if(mMapListener == null)
+            return ;
+
+        for(IMediaScanListener key : mMapListener.keySet()){
+            if(key != null){
+                key.onScanFinish();
+            }
+        }
+        isScaning = false;
     }
 
     public void registerListener(IMediaScanListener listener){

@@ -22,8 +22,6 @@ public class AudioFilterActivity extends Activity implements MediaLibrary.IMedia
     private AudioListViewAdapter mListViewAdapter;
     private Handler mHandler = new Handler();
 
-    public static final int FILTER_FOLDER = 1;
-
     public static final String FILTER_TYPE = "FILTER_TYPE";
     public static final String FILTER_NAME = "FILTER_NAME";
     public static final String TITLE_NAME = "TITLE_NAME";
@@ -40,11 +38,17 @@ public class AudioFilterActivity extends Activity implements MediaLibrary.IMedia
         //mAllSongListView.setOnScrollListener(this);
 
         Intent intent = getIntent();
-        int filterType = intent.getIntExtra(FILTER_TYPE, FILTER_FOLDER);
+        int filterType = intent.getIntExtra(FILTER_TYPE, AudioListViewAdapter.ADAPTER_TYPE_FOLDER);
         String strFilterData = intent.getStringExtra(FILTER_NAME);
         String strTitleName = intent.getStringExtra(TITLE_NAME);
-        if(filterType == FILTER_FOLDER){
+        if(filterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
             mListViewAdapter.setFilterFolder(strFilterData);
+        }
+        else if(filterType == AudioListViewAdapter.ADAPTER_TYPE_ARTIST){
+            mListViewAdapter.setFilterArtist(strFilterData);
+        }
+        else if(filterType == AudioListViewAdapter.ADAPTER_TYPE_ALBUM){
+            mListViewAdapter.setFilterAlbum(strFilterData);
         }
 
         mListViewAdapter.initData(MediaLibrary.getInstance().getAllMediaEntrty());

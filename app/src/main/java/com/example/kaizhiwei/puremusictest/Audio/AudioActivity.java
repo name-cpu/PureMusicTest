@@ -36,8 +36,8 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
     private ViewPager mViewPager;
 
-    private List<String> mListTitle;
-    private List<View> mListView;
+    private List<String> mListTitleData;
+    private List<View> mListViewData;
 
     private AudioListView mAllSongListView;
     private AudioListViewAdapter mAllSongAdapter;
@@ -48,7 +48,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
     private AudioListView mArtistListView;
     private AudioListViewAdapter mArtistAdapter;
 
-    private AudioListView mAlbumListView;
+    private AudioListView mAlbumListViewData;
     private AudioListViewAdapter mAlbumAdapter;
     private Handler mHandler = new Handler();
 
@@ -66,11 +66,11 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         mTVl = new TabLayout.TabLayoutOnPageChangeListener(mTabLayout);
         mViewPager = (ViewPager) this.findViewById(R.id.viewPager);
 
-        mListTitle = new ArrayList<String>();
-        mListTitle.add("歌曲");
-        mListTitle.add("文件夹");
-        mListTitle.add("歌手");
-        mListTitle.add("专辑");
+        mListTitleData = new ArrayList<String>();
+        mListTitleData.add("歌曲");
+        mListTitleData.add("文件夹");
+        mListTitleData.add("歌手");
+        mListTitleData.add("专辑");
 
         mAllSongListView = (AudioListView) this.findViewById(R.id.lvAllSong);
         mAllSongAdapter = new AudioListViewAdapter(this, AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, true);
@@ -90,32 +90,27 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         mArtistListView.setOnItemClickListener(this);
         mArtistListView.setOnScrollListener(this);
 
-        mAlbumListView = (AudioListView) this.findViewById(R.id.lvAlbum);
-        mAlbumAdapter = new AudioListViewAdapter(this, AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, false);
-        mAlbumListView.setAdapter(mAlbumAdapter);
-        mAlbumListView.setOnItemClickListener(this);
-        mAlbumListView.setOnScrollListener(this);
+        mAlbumListViewData = (AudioListView) this.findViewById(R.id.lvAlbum);
+        mAlbumAdapter = new AudioListViewAdapter(this, AudioListViewAdapter.ADAPTER_TYPE_ALBUM, false);
+        mAlbumListViewData.setAdapter(mAlbumAdapter);
+        mAlbumListViewData.setOnItemClickListener(this);
+        mAlbumListViewData.setOnScrollListener(this);
 
-        mAllSongAdapter.initData(MediaLibrary.getInstance().getAllMediaEntrty());
-        mSongFolderAdapter.initData(MediaLibrary.getInstance().getAllMediaEntrty());
-        mArtistAdapter.initData(MediaLibrary.getInstance().getAllMediaEntrty());
-        mAlbumAdapter.initData(MediaLibrary.getInstance().getAllMediaEntrty());
-
-        mListView = new ArrayList<View>();
-        mListView.add(mAllSongListView);
-        mListView.add(mSongFolderListView);
-        mListView.add(mArtistListView);
-        mListView.add(mAlbumListView);
+        mListViewData = new ArrayList<View>();
+        mListViewData.add(mAllSongListView);
+        mListViewData.add(mSongFolderListView);
+        mListViewData.add(mArtistListView);
+        mListViewData.add(mAlbumListViewData);
 
         mViewPager.setLongClickable(true);
         mViewPager.setOnLongClickListener(this);
         mViewPager.addOnPageChangeListener(this);
-        mViewPager.setOffscreenPageLimit(mListView.size());
-        AudioViewPagerAdapter adapter = new AudioViewPagerAdapter(mListView, mListTitle);
+        mViewPager.setOffscreenPageLimit(mListViewData.size());
+        AudioViewPagerAdapter adapter = new AudioViewPagerAdapter(mListViewData, mListTitleData);
         mViewPager.setAdapter(adapter);
 
-        for(int i = 0;i < mListTitle.size();i++){
-            mTabLayout.addTab(mTabLayout.newTab().setText(mListTitle.get(i)));
+        for(int i = 0;i < mListTitleData.size();i++){
+            mTabLayout.addTab(mTabLayout.newTab().setText(mListTitleData.get(i)));
         }
         mTabLayout.setBackgroundResource(R.color.backgroundColor);
         mTabLayout.setTabTextColors(this.getResources().getColor(R.color.mainTextColor), this.getResources().getColor(R.color.tabSelectTextColor));
@@ -128,23 +123,8 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
         mNowPlayingLayout = (NowPlayingLayout)this.findViewById(R.id.nowPlayingLayout);
 
-        if(PreferenceConfig.getInstance().getFirstLaunch() == false)
-        {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    final List<MediaEntity> list = MediaDataBase.getInstance().queryAllMusicInfo();
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            mAllSongAdapter.initData(list);
-                            mSongFolderAdapter.initData(list);
-                            mArtistAdapter.initData(list);
-                            mAlbumAdapter.initData(list);
-                        }
-                    });
-                }
-            }).start();
+        if(PreferenceConfig.getInstance().getLastFirstLaunch() == false){
+            initAdapterData();
         }
     }
 
@@ -176,6 +156,22 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
     protected void onStop() {
         super.onStop();
         mClient.disconnect();
+    }
+
+    public void initAdapterData(){
+        final WeakReference<MediaLibrary> mlibrary = new WeakReference<MediaLibrary>(MediaLibrary.getInstance());
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                MediaLibrary library = mlibrary.get();
+                if(library != null){
+                    mAllSongAdapter.initData(library.getAllMediaEntrty());
+                    mSongFolderAdapter.initData(library.getAllMediaEntrty());
+                    mArtistAdapter.initData(library.getAllMediaEntrty());
+                    mAlbumAdapter.initData(library.getAllMediaEntrty());
+                }
+            }
+        });
     }
 
     //ViewPager.OnLongClickListener
@@ -214,20 +210,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
     @Override
     public void onScanFinish() {
-
-        final WeakReference<MediaLibrary> mlibrary = new WeakReference<MediaLibrary>(MediaLibrary.getInstance());
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                MediaLibrary library = mlibrary.get();
-                if(library != null){
-                    mAllSongAdapter.initData(library.getAllMediaEntrty());
-                    mSongFolderAdapter.initData(library.getAllMediaEntrty());
-                    mArtistAdapter.initData(library.getAllMediaEntrty());
-                    mAlbumAdapter.initData(library.getAllMediaEntrty());
-                }
-            }
-        });
+        initAdapterData();
     }
 
     //AdapterView.OnItemClickListener
@@ -250,18 +233,23 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
                 Intent intent = new Intent(AudioActivity.this, AudioFilterActivity.class);
                 intent.putExtra(AudioFilterActivity.FILTER_NAME, folderItemData.mFolderPath);
-                intent.putExtra(AudioFilterActivity.FILTER_TYPE, AudioFilterActivity.FILTER_FOLDER);
+                intent.putExtra(AudioFilterActivity.FILTER_TYPE, adapterType);
                 intent.putExtra(AudioFilterActivity.TITLE_NAME, folderItemData.mFolderName);
-
                 overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
                 startActivity(intent);
             }
         }
-        else if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ARTIST){
+        else if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ARTIST || adapterType == AudioListViewAdapter.ADAPTER_TYPE_ALBUM){
+            if(itemData instanceof AudioListViewAdapter.AudioArtistAlbumItemData){
+                AudioListViewAdapter.AudioArtistAlbumItemData artistItemData = (AudioListViewAdapter.AudioArtistAlbumItemData)itemData;
 
-        }
-        else if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ALBUM){
-
+                Intent intent = new Intent(AudioActivity.this, AudioFilterActivity.class);
+                intent.putExtra(AudioFilterActivity.FILTER_NAME, artistItemData.mArtistAlbumName);
+                intent.putExtra(AudioFilterActivity.FILTER_TYPE, adapterType);
+                intent.putExtra(AudioFilterActivity.TITLE_NAME, artistItemData.mArtistAlbumName);
+                overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+                startActivity(intent);
+            }
         }
     }
 

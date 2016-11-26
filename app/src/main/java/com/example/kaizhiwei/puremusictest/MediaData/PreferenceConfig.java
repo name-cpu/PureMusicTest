@@ -9,7 +9,8 @@ import com.example.kaizhiwei.puremusictest.PureMusicApplication;
  * Created by kaizhiwei on 16/11/26.
  */
 public class PreferenceConfig {
-    public static final String FIRST_LAUNCH = "FIRST_LAUNCH";
+    private static final String LAST_FIRST_LAUNCH = "LAST_FIRST_LAUNCH";
+    private static final String FIRST_LAUNCH = "FIRST_LAUNCH";
 
     private static PreferenceConfig mInstance;
 
@@ -26,8 +27,19 @@ public class PreferenceConfig {
     }
 
     public void setFirstLaunch(boolean firstLaunch){
+        setLastFirstLaunch(getFirstLaunch());
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(PureMusicApplication.getInstance()).edit();
         editor.putBoolean(FIRST_LAUNCH, firstLaunch);
+        editor.commit();
+    }
+
+    public boolean getLastFirstLaunch(){
+        return PreferenceManager.getDefaultSharedPreferences(PureMusicApplication.getInstance()).getBoolean(LAST_FIRST_LAUNCH, true);
+    }
+
+    public void setLastFirstLaunch(boolean firstLaunch){
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(PureMusicApplication.getInstance()).edit();
+        editor.putBoolean(LAST_FIRST_LAUNCH, firstLaunch);
         editor.commit();
     }
 }

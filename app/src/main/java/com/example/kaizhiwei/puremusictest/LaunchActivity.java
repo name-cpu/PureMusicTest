@@ -25,6 +25,7 @@ public class LaunchActivity extends FragmentActivity {
         if(PreferenceConfig.getInstance().getFirstLaunch()){
             MediaLibrary.getInstance().startScan();
         }
+        PreferenceConfig.getInstance().setFirstLaunch(false);
 
         DeviceUtil.getStorageDirectories();
         Button btn = (Button)this.findViewById(R.id.button1);
@@ -37,4 +38,5 @@ public class LaunchActivity extends FragmentActivity {
             }
         });
     }
+
 }

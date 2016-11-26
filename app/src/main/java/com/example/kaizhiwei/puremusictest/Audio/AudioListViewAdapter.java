@@ -3,6 +3,7 @@ package com.example.kaizhiwei.puremusictest.Audio;
 import android.content.Context;
 import android.text.TextPaint;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.R;
+import com.hp.hpl.sparta.Text;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
 import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
@@ -56,10 +58,11 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
     private String mFilterAlbum;
 
     public class AudioItemData{
-        public static final int TYPE_OPERBAR = 0;
-        public static final int TYPE_MEDIA = 1;
-        public static final int TYPE_HEADER = 2;
-        public static final int TYPE_FOOTER = 3;
+        public static final int TYPE_MEDIA = 0;
+        public static final int TYPE_FOOTER = 1;
+        public static final int TYPE_OPERBAR = 2;
+        public static final int TYPE_HEADER = 3;
+
 
         public int mItemType;
         public String mFooterInfo;
@@ -94,25 +97,14 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         }
     }
 
-    public class AudioArtistItemData extends AudioItemData{
-        public String mArtistImagePath;
-        public String mArtistName;
-        public int mArtistSongCount;
+    public class AudioArtistAlbumItemData extends AudioItemData{
+        public String mArtistAlbumImagePath;
+        public String mArtistAlbumName;
+        public int mArtistAlbumSongCount;
 
-        AudioArtistItemData(){
+        AudioArtistAlbumItemData(){
             super();
-            mArtistSongCount = 0;
-        }
-    }
-
-    public class AudioAlbumItemData extends AudioItemData{
-        public String mAlbumImagePath;
-        public String mAlbumName;
-        public int mAlbumSongCount;
-
-        AudioAlbumItemData(){
-            super();
-            mAlbumSongCount = 0;
+            mArtistAlbumSongCount = 0;
         }
     }
 
@@ -151,11 +143,19 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 if(entrty == null)
                     continue;
 
-                List<Integer> value = mapFirstLetter.get(entrty.title_letter);
+                String strFirstLetter = "";
+                if(mIsShowHeader){
+                    strFirstLetter = entrty.title_letter;
+                }
+                else{
+                    strFirstLetter = "#";
+                }
+
+                List<Integer> value = mapFirstLetter.get(strFirstLetter);
                 if(value == null){
                     value = new ArrayList<>();
                     value.add(i);
-                    mapFirstLetter.put(entrty.title_letter, value);
+                    mapFirstLetter.put(strFirstLetter, value);
                 }
                 else{
                     value.add(i);
@@ -274,7 +274,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 mListItemData.add(footerData);
             }
         }
-        else if(mAdapterType == ADAPTER_TYPE_ARTIST){
+        else if(mAdapterType == ADAPTER_TYPE_ARTIST || mAdapterType == ADAPTER_TYPE_ALBUM){
             Map<String, Integer> mapArtist = new TreeMap<String, Integer>(new Comparator<String>() {
                 public int compare(String key1, String key2) {
                     return String.CASE_INSENSITIVE_ORDER.compare(key1, key2);
@@ -286,17 +286,24 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 if (entrty == null)
                     continue;
 
-                String artist = entrty.getArtist();
-                if (artist == null) {
-                    artist = "unknown artist";
-                }
-
-                Integer value = mapArtist.get(artist);
-                if(value == null){
-                    mapArtist.put(artist, 1);
+                String strInfo = "";
+                if(mAdapterType == ADAPTER_TYPE_ARTIST){
+                    strInfo = entrty.getArtist();
                 }
                 else{
-                    mapArtist.put(artist, ++value);
+                    strInfo = entrty.getAlbum();
+                }
+
+                if (strInfo == null) {
+                    strInfo = "<unknown>";
+                }
+
+                Integer value = mapArtist.get(strInfo);
+                if(value == null){
+                    mapArtist.put(strInfo, 1);
+                }
+                else{
+                    mapArtist.put(strInfo, ++value);
                 }
             }
 
@@ -304,12 +311,19 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             for(String strArtist : mapArtist.keySet()){
 
                 int iCount = mapArtist.get(strArtist);
-                AudioArtistItemData itemData = new AudioArtistItemData();
+                AudioArtistAlbumItemData itemData = new AudioArtistAlbumItemData();
                 itemData.mItemType = AudioItemData.TYPE_MEDIA;
-                itemData.mArtistName = strArtist;
-                itemData.mArtistSongCount = iCount;
+                itemData.mArtistAlbumName = strArtist;
+                itemData.mArtistAlbumSongCount = iCount;
                 itemData.mListMedia = new ArrayList<>();
                 mListItemData.add(itemData);
+            }
+
+            if(mListItemData.size() > 0){
+                //添加footer
+                AudioArtistAlbumItemData footerData = new AudioArtistAlbumItemData();
+                footerData.mItemType = AudioItemData.TYPE_FOOTER;
+                mListItemData.add(footerData);
             }
         }
         notifyDataSetChanged();
@@ -388,8 +402,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
 
         AudioSongItemData songData = null;
         AudioFolderItemData folderData = null;
-        AudioArtistItemData artistData = null;
-        AudioAlbumItemData albumData = null;
+        AudioArtistAlbumItemData artistData = null;
 
         switch(mAdapterType){
             case ADAPTER_TYPE_ALLSONG:
@@ -399,13 +412,10 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 folderData = (AudioFolderItemData)data;
                 break;
             case ADAPTER_TYPE_ARTIST:
-                artistData = (AudioArtistItemData)data;
-                break;
             case ADAPTER_TYPE_ALBUM:
-                albumData = (AudioAlbumItemData)data;
+                artistData = (AudioArtistAlbumItemData)data;
                 break;
         }
-
 
         LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         if(getItemViewType(position) == AudioItemData.TYPE_OPERBAR){
@@ -476,7 +486,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 holder.tvFolderSongCount.setTextColor(mContext.getResources().getColor(R.color.subTextColor));
                 holder.tvFolderPath.setTextColor(mContext.getResources().getColor(R.color.subTextColor));
             }
-            else if(mAdapterType == ADAPTER_TYPE_ARTIST){
+            else if(mAdapterType == ADAPTER_TYPE_ARTIST || mAdapterType == ADAPTER_TYPE_ALBUM){
                 if(artistData == null)
                     return null;
 
@@ -493,14 +503,11 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                     holder = (AudioListViewAristAlbumHolder) convertView.getTag();
                 }
                 holder.ibBtnMore.setTag(position);
-                holder.tvArtistAlbumMain.setText(artistData.mArtistName);
-                holder.tvArtistAlbumSub.setText("" + artistData.mArtistSongCount + "首");
+                holder.tvArtistAlbumMain.setText(artistData.mArtistAlbumName);
+                holder.tvArtistAlbumSub.setText("" + artistData.mArtistAlbumSongCount + "首");
                 holder.viewSepratorLine.setBackgroundResource(R.color.listviewSeperatorLineColor);
                 holder.tvArtistAlbumMain.setTextColor(mContext.getResources().getColor(R.color.mainTextColor));
                 holder.tvArtistAlbumSub.setTextColor(mContext.getResources().getColor(R.color.subTextColor));
-            }
-            else if(mAdapterType == ADAPTER_TYPE_ALBUM){
-
             }
         }
         else if(getItemViewType(position) == AudioItemData.TYPE_HEADER) {
@@ -545,6 +552,12 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 else if(mAdapterType == ADAPTER_TYPE_FOLDER){
                     strFooterInfo = String.format("%d个文件夹", iCount);
                 }
+                else if(mAdapterType == ADAPTER_TYPE_ARTIST){
+                    strFooterInfo = String.format("%d位歌手", iCount);
+                }
+                else if(mAdapterType == ADAPTER_TYPE_ALBUM){
+                    strFooterInfo = String.format("%d张专辑", iCount);
+                }
                 holder.tvFooterInfo.setText(strFooterInfo);
                 view.setTag(holder);
                 convertView = view;
@@ -562,6 +575,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             return 0;
 
         AudioItemData data = mListItemData.get(position);
+        Log.i("weikaizhi", "getItemViewType: " + data.mItemType);
         return data.mItemType;
     }
 
