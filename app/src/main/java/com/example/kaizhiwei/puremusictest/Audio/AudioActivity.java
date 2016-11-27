@@ -3,6 +3,7 @@ package com.example.kaizhiwei.puremusictest.Audio;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,6 +11,8 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 
@@ -60,6 +63,20 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+
+        getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
+                    | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.TRANSPARENT);
+            window.setNavigationBarColor(Color.TRANSPARENT);
+        }
+
         setContentView(R.layout.activity_audio);
 
         mTabLayout = (TabLayout) this.findViewById(R.id.tabLayout);
@@ -275,8 +292,35 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
     //AudioListViewAdapter.IAudioListViewListener
     @Override
-    public void onItemClick(AudioListViewAdapter adapter, int position) {
+    public void onMoreBtnClick(AudioListViewAdapter adapter, int position) {
+        if(adapter == null)
+            return ;
 
+        int adapterType = adapter.getAdapterType();
+        if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
+            AudioListViewAdapter.AudioItemData itemData = adapter.getAudioItemData(position);
+            AudioListViewAdapter.AudioSongItemData songItemData = null;
+            if(itemData instanceof AudioListViewAdapter.AudioSongItemData){
+                songItemData = (AudioListViewAdapter.AudioSongItemData)itemData;
+            }
+
+            if(songItemData != null){
+                MoreOperationDialog.Builder builder = new MoreOperationDialog.Builder(this);
+                MoreOperationDialog dialog = builder.create();
+                dialog.setTitle(songItemData.mMainTitle);
+                List<Integer> list = new ArrayList<>();
+                list.add(MoreOperationDialog.MORE_NEXTPLAY_NORMAL);
+                list.add(MoreOperationDialog.MORE_LOVE_NORMAL);
+                list.add(MoreOperationDialog.MORE_BELL_NORMAL);
+                list.add(MoreOperationDialog.MORE_SHARE_NORMAL);
+                list.add(MoreOperationDialog.MORE_ADD_NORMA);
+                list.add(MoreOperationDialog.MORE_DELETE_NORMAL);
+                dialog.setMoreOperData(list);
+                dialog.setCancelable(true);
+                dialog.show();
+            }
+
+        }
     }
 
     //PlaybackService.Client.Callback

@@ -38,7 +38,7 @@ import java.util.TreeMap;
 public class AudioListViewAdapter extends BaseAdapter implements View.OnClickListener {
 
     public interface IAudioListViewListener{
-        public void onItemClick(AudioListViewAdapter adapter, int position);
+        public void onMoreBtnClick(AudioListViewAdapter adapter, int position);
     }
 
     public static final int ADAPTER_TYPE_ALLSONG = 1;
@@ -587,7 +587,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
     public void onClick(View v) {
         for(IAudioListViewListener key : mMapListener.keySet()){
             if(key != null){
-                //key.onItemClick(this, (int)v.getTag());
+                key.onMoreBtnClick(this, (int)v.getTag());
             }
         }
     }

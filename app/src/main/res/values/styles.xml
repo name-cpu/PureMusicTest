@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -21,6 +21,10 @@
         <item name="tab_select_text_color">@color/colorPrimary</item>
         <item name="tab_indicator_text_color">@color/colorPrimary</item>
 
+        <item name="android:windowTranslucentStatus" tools:targetApi="19">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="windowActionBar">false</item>
+
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -31,5 +35,25 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Dialog" parent="android:style/Theme.Dialog" type="text/css">
+        <!-- 设置无边框 -->
+        <item name="android:windowFrame">@null</item>
+        <item name="android:background">#00000000</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <!-- 设置屏幕变暗 -->
+        <!--<item name="android:backgroundDimEnabled">true</item>-->
+        <item name="android:windowAnimationStyle">@style/ActionSheetDialogAnimation</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+
+        <!-- ActionSheet进出动画 -->
+    <style name="ActionSheetDialogAnimation" parent="@android:style/Animation.Dialog">
+        <item name="android:windowEnterAnimation">@anim/anim_activty_enter</item>
+        <item name="android:windowExitAnimation">@anim/anim_activty_exit</item>
+    </style>
 
 </resources>

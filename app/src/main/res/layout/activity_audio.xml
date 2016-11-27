@@ -27,7 +27,8 @@
             android:layout_height="match_parent"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:scrollbarStyle="outsideOverlay"/>
+            android:scrollbarStyle="outsideOverlay"
+            android:background="@drawable/default_back"/>
 
         <com.example.kaizhiwei.puremusictest.Audio.AudioListView
             android:id="@+id/lvSongFolder"
@@ -35,7 +36,8 @@
             android:layout_height="match_parent"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:scrollbarStyle="outsideOverlay"/>
+            android:scrollbarStyle="outsideOverlay"
+            android:background="@drawable/default_back"/>
 
         <com.example.kaizhiwei.puremusictest.Audio.AudioListView
             android:id="@+id/lvArtist"
@@ -43,7 +45,8 @@
             android:layout_height="match_parent"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:scrollbarStyle="outsideOverlay"/>
+            android:scrollbarStyle="outsideOverlay"
+            android:background="@drawable/default_back"/>
 
         <com.example.kaizhiwei.puremusictest.Audio.AudioListView
             android:id="@+id/lvAlbum"
@@ -51,7 +54,8 @@
             android:layout_height="match_parent"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:scrollbarStyle="outsideOverlay"/>
+            android:scrollbarStyle="outsideOverlay"
+            android:background="@drawable/default_back"/>
     </android.support.v4.view.ViewPager>
 
     <FrameLayout

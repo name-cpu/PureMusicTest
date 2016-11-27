@@ -38,7 +38,6 @@
                     android:layout_height="wrap_content"
                     android:maxLines="1"
                     android:text="123456789"
-                    android:layout_gravity="left"
                     android:gravity="center_vertical"
                     android:lines="1"
                     android:ellipsize="end"
@@ -48,7 +47,6 @@
                     android:layout_height="wrap_content"
                     android:maxLines="1"
                     android:text="123456789"
-                    android:layout_gravity="left"
                     android:gravity="center_vertical"
                     android:lines="1"
                     android:ellipsize="end"
@@ -58,7 +56,6 @@
                     android:layout_height="wrap_content"
                     android:maxLines="1"
                     android:text="123456789"
-                    android:layout_gravity="left"
                     android:gravity="center_vertical"
                     android:lines="1"
                     android:ellipsize="end"
@@ -68,9 +65,12 @@
             <ImageView
                 android:id="@+id/ibBtnMore"
                 android:layout_gravity="center_vertical"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_action_about" />
+                android:scaleX="0.7"
+                android:scaleY="0.7"
+                android:src="@drawable/ic_list_more_normal"
+                android:background="@drawable/default_back"/>
         </LinearLayout>
     </LinearLayout>
 
