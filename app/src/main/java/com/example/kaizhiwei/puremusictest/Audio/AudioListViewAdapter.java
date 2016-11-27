@@ -63,7 +63,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         public static final int TYPE_OPERBAR = 2;
         public static final int TYPE_HEADER = 3;
 
-
+        public long id;
         public int mItemType;
         public String mFooterInfo;
         public List<MediaEntity> mListMedia;
@@ -212,6 +212,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                         itemData.mSubTitle = entrty.getAlbum();
                     }
 
+                    itemData.id = entrty._id;
                     itemData.mItemType = AudioItemData.TYPE_MEDIA;
                     itemData.mListMedia = new ArrayList<>();
                     itemData.mListMedia.add(entrty);

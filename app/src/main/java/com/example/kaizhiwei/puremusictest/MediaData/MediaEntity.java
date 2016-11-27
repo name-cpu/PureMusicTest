@@ -29,6 +29,7 @@ import java.util.Locale;
 
 public class MediaEntity implements Serializable, Parcelable {
 
+    public long _id;
     public String _data;
     public long _size;
     public String _display_name;
@@ -164,6 +165,7 @@ public class MediaEntity implements Serializable, Parcelable {
     }
 
     protected MediaEntity(Parcel in) {
+        _id = in.readLong();
         _data = in.readString();
         _size = in.readLong();
         _display_name = in.readString();
@@ -307,6 +309,7 @@ public class MediaEntity implements Serializable, Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(_id);
         dest.writeString(_data);
         dest.writeLong(_size);
         dest.writeString(_display_name);

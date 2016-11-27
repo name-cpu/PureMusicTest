@@ -11,6 +11,7 @@ import com.example.kaizhiwei.puremusictest.PureMusicApplication;
 public class PreferenceConfig {
     private static final String LAST_FIRST_LAUNCH = "LAST_FIRST_LAUNCH";
     private static final String FIRST_LAUNCH = "FIRST_LAUNCH";
+    private static final String PLAY_MODE = "PLAY_MODE";
 
     private static PreferenceConfig mInstance;
 
@@ -41,5 +42,9 @@ public class PreferenceConfig {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(PureMusicApplication.getInstance()).edit();
         editor.putBoolean(LAST_FIRST_LAUNCH, firstLaunch);
         editor.commit();
+    }
+
+    public int getPlayMode(){
+        return PreferenceManager.getDefaultSharedPreferences(PureMusicApplication.getInstance()).getInt(PLAY_MODE, 0);
     }
 }

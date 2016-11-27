@@ -11,12 +11,14 @@ import android.widget.TextView;
 import com.example.kaizhiwei.puremusictest.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by kaizhiwei on 16/11/26.
  */
-public class MoreOperationAdapter extends BaseAdapter {
+public class MoreOperationAdapter extends BaseAdapter implements View.OnClickListener {
     static public class MoreOperationItemData{
         public int id;
         public String strText;
@@ -27,6 +29,10 @@ public class MoreOperationAdapter extends BaseAdapter {
         public MoreOperationItemData(){
 
         }
+    }
+
+    public interface IMoreOperListener{
+        public void onMoreItemClick(MoreOperationAdapter adapter, int tag);
     }
 
     private class MoreOperationItemHolder{
@@ -41,6 +47,7 @@ public class MoreOperationAdapter extends BaseAdapter {
 
     private Context mContext;
     private List<MoreOperationItemData> mListItemData = new ArrayList<>();
+    private Map<IMoreOperListener, Object> mMapListener;
 
     public MoreOperationAdapter(Context context, List<MoreOperationItemData> list){
         if(list != null){
@@ -48,6 +55,24 @@ public class MoreOperationAdapter extends BaseAdapter {
             mListItemData.addAll(list);
         }
         mContext = context;
+    }
+
+    public void registerListener(IMoreOperListener listener){
+        if(mMapListener == null){
+            mMapListener = new HashMap<>();
+        }
+
+        mMapListener.put(listener,listener);
+    }
+
+    public void unregisterListener(IMoreOperListener listener){
+        if(mMapListener == null){
+            mMapListener = new HashMap<>();
+        }
+
+        if(mMapListener.containsKey(listener)){
+            mMapListener.remove(listener);
+        }
     }
 
     @Override
@@ -77,6 +102,7 @@ public class MoreOperationAdapter extends BaseAdapter {
         if(convertView == null){
             View view = inflater.inflate(R.layout.more_operation_gridview_item, null);
             holder = new MoreOperationItemHolder(view);
+            holder.imMoreOperImage.setOnClickListener(this);
             view.setTag(holder);
             convertView = view;
         }
@@ -84,6 +110,7 @@ public class MoreOperationAdapter extends BaseAdapter {
             holder = (MoreOperationItemHolder)convertView.getTag();
         }
         holder.tvMoreOperTitle.setText(itemData.strText);
+        holder.imMoreOperImage.setTag(itemData.id);
 
         if(itemData.isSelect && itemData.resSelImage != 0){
             holder.imMoreOperImage.setImageResource(itemData.resSelImage);
@@ -93,5 +120,14 @@ public class MoreOperationAdapter extends BaseAdapter {
         }
 
         return convertView;
+    }
+
+    @Override
+    public void onClick(View v) {
+        for(IMoreOperListener key : mMapListener.keySet()){
+            if(key != null){
+                key.onMoreItemClick(this, (int)v.getTag());
+            }
+        }
     }
 }

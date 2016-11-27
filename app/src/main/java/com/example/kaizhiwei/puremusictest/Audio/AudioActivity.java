@@ -57,6 +57,8 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
     private PlaybackService.Client mClient = new PlaybackService.Client(this, this);
     private PlaybackService mService;
+    MoreOperationDialog.Builder mMoreDialogbuilder = null;
+    MoreOperationDialog mMoreDialog = null;
 
     //正在播放列表
     private NowPlayingLayout    mNowPlayingLayout;
@@ -150,6 +152,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         super.onResume();
         MediaLibrary.getInstance().registerListener(this);
         mAllSongAdapter.registerListener(this);
+        mSongFolderAdapter.registerListener(this);
         mArtistAdapter.registerListener(this);
         mAlbumAdapter.registerListener(this);
     }
@@ -159,6 +162,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         super.onPause();
         MediaLibrary.getInstance().unregisterListener(this);
         mAllSongAdapter.unregisterListener(this);
+        mSongFolderAdapter.unregisterListener(this);
         mArtistAdapter.unregisterListener(this);
         mAlbumAdapter.unregisterListener(this);
     }
@@ -296,31 +300,65 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         if(adapter == null)
             return ;
 
+        if(mMoreDialogbuilder == null){
+            mMoreDialogbuilder = new MoreOperationDialog.Builder(this);
+        }
+
+        if(mMoreDialog == null){
+            mMoreDialog = mMoreDialogbuilder.create();
+        }
+
+        List<Integer> list = new ArrayList<>();
         int adapterType = adapter.getAdapterType();
+        AudioListViewAdapter.AudioItemData itemData = adapter.getAudioItemData(position);
         if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
-            AudioListViewAdapter.AudioItemData itemData = adapter.getAudioItemData(position);
             AudioListViewAdapter.AudioSongItemData songItemData = null;
             if(itemData instanceof AudioListViewAdapter.AudioSongItemData){
                 songItemData = (AudioListViewAdapter.AudioSongItemData)itemData;
             }
 
             if(songItemData != null){
-                MoreOperationDialog.Builder builder = new MoreOperationDialog.Builder(this);
-                MoreOperationDialog dialog = builder.create();
-                dialog.setTitle(songItemData.mMainTitle);
-                List<Integer> list = new ArrayList<>();
+                mMoreDialog.setTitle(songItemData.mMainTitle);
                 list.add(MoreOperationDialog.MORE_NEXTPLAY_NORMAL);
                 list.add(MoreOperationDialog.MORE_LOVE_NORMAL);
                 list.add(MoreOperationDialog.MORE_BELL_NORMAL);
                 list.add(MoreOperationDialog.MORE_SHARE_NORMAL);
                 list.add(MoreOperationDialog.MORE_ADD_NORMA);
                 list.add(MoreOperationDialog.MORE_DELETE_NORMAL);
-                dialog.setMoreOperData(list);
-                dialog.setCancelable(true);
-                dialog.show();
+            }
+        }
+        else if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
+            AudioListViewAdapter.AudioFolderItemData folderItemData = null;
+            if(itemData instanceof AudioListViewAdapter.AudioFolderItemData){
+                folderItemData = (AudioListViewAdapter.AudioFolderItemData)itemData;
             }
 
+            if(folderItemData != null){
+                mMoreDialog.setTitle(folderItemData.mFolderName);
+                list.add(MoreOperationDialog.MORE_PLAY_NORMAL);
+                list.add(MoreOperationDialog.MORE_ADD_NORMA);
+                list.add(MoreOperationDialog.MORE_HIDE_NORMAL);
+                list.add(MoreOperationDialog.MORE_DELETE_NORMAL);
+            }
         }
+        else{
+            AudioListViewAdapter.AudioArtistAlbumItemData artistAlbumItemData = null;
+            if(itemData instanceof AudioListViewAdapter.AudioArtistAlbumItemData){
+                artistAlbumItemData = (AudioListViewAdapter.AudioArtistAlbumItemData)itemData;
+            }
+
+            if(artistAlbumItemData != null){
+                mMoreDialog.setTitle(artistAlbumItemData.mArtistAlbumName);
+                list.add(MoreOperationDialog.MORE_PLAY_NORMAL);
+                list.add(MoreOperationDialog.MORE_ADD_NORMA);
+                list.add(MoreOperationDialog.MORE_DELETE_NORMAL);
+            }
+        }
+
+        mMoreDialog.setMoreLVData(adapterType, itemData);
+        mMoreDialog.setMoreOperData(list);
+        mMoreDialog.setCancelable(true);
+        mMoreDialog.show();
     }
 
     //PlaybackService.Client.Callback

@@ -7,7 +7,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:weightSum="1">
         <View
@@ -37,12 +37,15 @@
                 android:orientation="vertical"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp">
-                <TextView
+                <com.example.kaizhiwei.puremusictest.CommonUI.AlwaysMarqueeTextView
                     android:id="@+id/tvNowPlayingMain"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/app_name"
                     android:textSize="12sp"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
                     android:textColor="@color/mainTextColor"/>
                 <TextView
                     android:id="@+id/tvNowPlayingSub"
@@ -50,6 +53,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/app_name"
                     android:textSize="11sp"
+                    android:singleLine="true"
+                    android:ellipsize="end"
                     android:textColor="@color/subTextColor"/>
             </LinearLayout>
 

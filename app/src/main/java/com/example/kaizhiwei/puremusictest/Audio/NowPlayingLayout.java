@@ -15,6 +15,8 @@ import android.widget.TextView;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.R;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created by kaizhiwei on 16/11/20.
  */
@@ -26,6 +28,7 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
     private TextView   mtvSub;
     private ImageView  mImArtist;
     private ProgressBar mPlayProgress;
+    private WeakReference<MediaEntity>  mWeakMediaEntity;
 
     public NowPlayingLayout(Context context) {
         super(context);
@@ -94,8 +97,10 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
 
         mtvMain.setText(media.getTitle());
         mtvSub.setText(media.getArtist());
-        mBtnPlayPause.setBackgroundResource(R.drawable.pause);
+        mBtnPlayPause.setBackgroundResource(R.drawable.bt_minibar_pause_normal);
         mPlayProgress.setMax((int)media.getDuration());
+
+        mWeakMediaEntity = new WeakReference<MediaEntity>(media);
     }
 
     public void updatePlayProgress(float fProgress){

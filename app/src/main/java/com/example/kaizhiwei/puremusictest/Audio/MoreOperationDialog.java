@@ -14,7 +14,11 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
 
 import java.util.ArrayList;
@@ -22,10 +26,11 @@ import java.util.List;
 
 import static com.example.kaizhiwei.puremusictest.Audio.MoreOperationAdapter.*;
 
+
 /**
  * Created by kaizhiwei on 16/11/26.
  */
-public class MoreOperationDialog extends Dialog {
+public class MoreOperationDialog extends Dialog implements IMoreOperListener {
     public static final int MORE_ADD_NORMA = 1;
     public static final int MORE_ALBUM_NORMAL = 2;
     public static final int MORE_BELL_NORMAL = 3;
@@ -41,10 +46,16 @@ public class MoreOperationDialog extends Dialog {
     public static final int MORE_SONGER_NORMAL = 13;
 
     private Context context;
-    private  List<MoreOperationAdapter.MoreOperationItemData>  mMoreOperAll;
+    private List<MoreOperationAdapter.MoreOperationItemData>  mMoreOperAll;
     private List<MoreOperationAdapter.MoreOperationItemData> mListData = new ArrayList<>();
     private TextView tvTitle;
     private GridView gvMoreOperation;
+    private MoreOperationAdapter mMoreAdapter;
+    private AudioListViewAdapter.AudioSongItemData mLVSongItemData = null;
+    private AudioListViewAdapter.AudioFolderItemData mLVFolderItemData = null;
+    private AudioListViewAdapter.AudioArtistAlbumItemData mLVArtistAlbumItemData = null;
+
+    private int mLVAdapterType;
 
     public MoreOperationDialog(Context context, int theme_Dialog) {
         super(context);
@@ -145,6 +156,35 @@ public class MoreOperationDialog extends Dialog {
         this.tvTitle.setText(strTitle);
     }
 
+    public void setMoreLVData(int lvAdapterType, AudioListViewAdapter.AudioItemData itemData){
+        mLVAdapterType = lvAdapterType;
+
+        mLVSongItemData = null;
+        mLVFolderItemData = null;
+        mLVArtistAlbumItemData = null;
+
+        if(lvAdapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
+            if(itemData instanceof AudioListViewAdapter.AudioSongItemData){
+                mLVSongItemData = (AudioListViewAdapter.AudioSongItemData)itemData;
+            }
+        }
+        else if(lvAdapterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
+            if(itemData instanceof AudioListViewAdapter.AudioFolderItemData){
+                mLVFolderItemData = (AudioListViewAdapter.AudioFolderItemData)itemData;
+            }
+        }
+        else{
+            if(itemData instanceof AudioListViewAdapter.AudioArtistAlbumItemData){
+                mLVArtistAlbumItemData = (AudioListViewAdapter.AudioArtistAlbumItemData)itemData;
+            }
+        }
+
+        if(mLVSongItemData != null){
+            boolean bFavorite = MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mLVSongItemData.id);
+            setFavorite(bFavorite);
+        }
+    }
+
     public void setMoreOperData(List<Integer> listMore){
         List<MoreOperationAdapter.MoreOperationItemData> listData = new ArrayList<>();
         for(int i = 0;i < listMore.size();i++){
@@ -155,8 +195,37 @@ public class MoreOperationDialog extends Dialog {
             }
         }
 
-        MoreOperationAdapter adapter = new MoreOperationAdapter(context, listData);
-        gvMoreOperation.setAdapter(adapter);
+        if(listMore.size() < 4){
+            gvMoreOperation.setNumColumns(listMore.size());
+        }
+        else{
+            gvMoreOperation.setNumColumns(4);
+        }
+
+        if(mMoreAdapter != null){
+            mMoreAdapter.unregisterListener(this);
+        }
+
+        mMoreAdapter = new MoreOperationAdapter(context, listData);
+        gvMoreOperation.setAdapter(mMoreAdapter);
+    }
+
+    private boolean isFavorite(){
+        for(int i = 0;i < mMoreOperAll.size();i++){
+            if(mMoreOperAll.get(i).id == MORE_LOVE_NORMAL){
+                return mMoreOperAll.get(i).isSelect ;
+            }
+        }
+
+        return false;
+    }
+
+    private void setFavorite(boolean bFavorite){
+        for(int i = 0;i < mMoreOperAll.size();i++){
+            if(mMoreOperAll.get(i).id == MORE_LOVE_NORMAL){
+                mMoreOperAll.get(i).isSelect = bFavorite;
+            }
+        }
     }
 
     public void setContentView(View view) {
@@ -178,6 +247,83 @@ public class MoreOperationDialog extends Dialog {
         wl.gravity = Gravity.BOTTOM;
 
         window.setAttributes(wl);
+    }
+
+    protected void onStart() {
+        super.onStart();
+        mMoreAdapter.registerListener(this);
+    }
+
+    /**
+     * Called to tell you that you're stopping.
+     */
+    protected void onStop() {
+        super.onStop();
+        mMoreAdapter.unregisterListener(this);
+    }
+
+    @Override
+    public void onMoreItemClick(MoreOperationAdapter adapter, int tag) {
+        Toast.makeText(context, "" + tag, Toast.LENGTH_SHORT).show();
+        if(adapter == null)
+            return;
+
+        switch (tag){
+            case MORE_ADD_NORMA:
+                break;
+            case MORE_ALBUM_NORMAL:
+                break;
+            case MORE_BELL_NORMAL:
+                break;
+            case MORE_DELETE_NORMAL:
+                break;
+            case MORE_DOWNLOAD_NORMAL:
+                break;
+            case MORE_HIDE_NORMAL:
+                break;
+            case MORE_LOVE_NORMAL:
+                if(mLVSongItemData == null)
+                    return ;
+
+                MediaEntity mediaEntity = MediaLibrary.getInstance().getMediaEntityById(mLVSongItemData.id);
+                if(mediaEntity == null)
+                    return ;
+
+                FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
+                favoritesMusicEntity.musicinfo_id = mediaEntity._id;
+                favoritesMusicEntity.artist = mediaEntity.artist;
+                favoritesMusicEntity.album = mediaEntity.album;
+                favoritesMusicEntity.fav_time = System.currentTimeMillis();
+                favoritesMusicEntity.path = mediaEntity._data;
+                favoritesMusicEntity.title = mediaEntity.title;
+
+                if(isFavorite()){
+                    boolean bRet = MediaLibrary.getInstance().removeFavoriteEntity(favoritesMusicEntity);
+                    if(bRet){
+                        Toast.makeText(context, "已取消喜欢", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else{
+                    boolean bRet = MediaLibrary.getInstance().addFavoriteEntity(favoritesMusicEntity);
+                    if(bRet){
+                        Toast.makeText(context, "已添加到我喜欢的单曲", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+            case MORE_MV_NORMAL:
+                break;
+            case MORE_NEXTPLAY_NORMAL:
+                break;
+            case MORE_PLAY_NORMAL:
+                break;
+            case MORE_REMOVE_NORMAL:
+                break;
+            case MORE_SHARE_NORMAL:
+                break;
+            case MORE_SONGER_NORMAL:
+                break;
+        }
+        this.dismiss();
     }
 
     public static class Builder {

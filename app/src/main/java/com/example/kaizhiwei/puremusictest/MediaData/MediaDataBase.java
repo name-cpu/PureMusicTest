@@ -20,6 +20,7 @@ public class MediaDataBase{
     private SQLiteDatabase mDB;
     private static MediaDataBase mInstance;
     private static final String TABLE_MUSIC_INFO = "musicInfo";
+    private static final String TABLE_FAVORITES_MUSIC = "favorites_music";
 
     public static synchronized MediaDataBase getInstance(){
         if(mInstance == null){
@@ -44,6 +45,9 @@ public class MediaDataBase{
     }
 
     public void insertMusicInfo(MediaEntity entity){
+        if(mDB == null || entity == null)
+            return ;
+
         String strInsertData = String.format("insert into %s (" +
                 "\"_data\", \"_size\", \"_display_name\", \"title\", \"title_key\", \"title_letter\", \"date_added\", \"date_modified\", \"mime_type\", \"duration\"," +
                 " \"bookmark\", \"artist\", \"artist_key\", \"composer\", \"album\", \"album_key\", \"album_art\", \"track\", \"year\", \"mediastore_id\", " +
@@ -67,8 +71,12 @@ public class MediaDataBase{
                 entity.cache_path, entity.play_type, entity.file_url, entity.file_hash);
 
 
-        if(mDB != null){
-            mDB.execSQL(strInsertData);
+        mDB.execSQL(strInsertData);
+
+        String strQueryId = String.format("select * from %s where _data = \"%s\";", TABLE_MUSIC_INFO,  entity._data);
+        Cursor c =  mDB.rawQuery(strQueryId, null);
+        while (c.moveToNext()) {
+            entity._id = c.getInt(c.getColumnIndex("_id"));
         }
     }
 
@@ -85,11 +93,12 @@ public class MediaDataBase{
             return null;
 
         List<MediaEntity> listMediaEntity = new ArrayList<>();
-        String strSelectMusicInfo = "select * from " + TABLE_MUSIC_INFO + ";";
+        String strSelectMusicInfo = "select * from " + TABLE_MUSIC_INFO + " where is_deleted = 0 and skip_auto_scan = 0;";
         Cursor c =  mDB.rawQuery(strSelectMusicInfo, null);
         while (c.moveToNext()){
             MediaEntity entity = new MediaEntity();
 
+            entity._id = c.getInt(c.getColumnIndex("_id"));
             entity._data = c.getString(c.getColumnIndex("_data"));
             entity._size = c.getLong(c.getColumnIndex("_size"));
             entity._display_name = c.getString(c.getColumnIndex("_display_name"));
@@ -145,6 +154,105 @@ public class MediaDataBase{
         }
 
         return  listMediaEntity;
+    }
+
+    public boolean insertFavoriteMusicInfo(FavoritesMusicEntity entity){
+        if(mDB == null || entity == null)
+            return false;
+
+        String strInsertData = String.format("insert into %s (" +
+                        "\"musicinfo_id\", \"song_id\", \"title\", \"artist_id\", \"artist\", \"album_id\", \"album\", \"fav_time\", \"havehigh\", \"charge\"," +
+                        " \"fav_type\", \"allbitrate\", \"path\", \"file_from\", \"has_original\", \"has_mv_mobile\", \"song_source\", \"original_rate\", \"cache_status\", \"version\", " +
+                        "\"has_pay_status\", \"is_offline\")" +
+                        "values(%d, %d, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %d, %d, %d," +
+                        "%d,\"%s\", \"%s\",%d, %d, %d, \"%s\", \"%s\", %d, \"%s\", %d," +
+                        "%d);",TABLE_FAVORITES_MUSIC,
+                entity.musicinfo_id, entity.song_id, entity.title, entity.artist_id, entity.artist,
+                entity.album_id, entity.album, entity.fav_time, entity.havehigh, entity.charge,
+                entity.fav_type, entity.allbitrate, entity.path, entity.file_from, entity.has_original,
+                entity.has_mv_mobile, entity.song_source, entity.original_rate, entity.cache_status, entity.version,
+                entity.has_pay_status, entity.is_offline);
+
+        mDB.execSQL(strInsertData);
+
+//        String strInsertData = String.format("insert into %s (" +
+//                        "\"musicinfo_id\", \"song_id\", \"title\", \"artist_id\", \"artist\", \"album_id\", \"album\", \"fav_time\", \"havehigh\", \"charge\"" +
+//                        ")" +
+//                        "values(%d, %d, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %d, %d, %d" +
+//                        ");",TABLE_FAVORITES_MUSIC,
+//                entity.musicinfo_id, entity.song_id, entity.title, entity.artist_id, entity.artist,
+//                entity.album_id, entity.album, entity.fav_time, entity.havehigh, entity.charge);
+//
+//        mDB.execSQL(strInsertData);
+
+        String strQueryId = String.format("select _id from %s where musicinfo_id = %s;", TABLE_FAVORITES_MUSIC,  entity.musicinfo_id);
+        Cursor c =  mDB.rawQuery(strQueryId, null);
+        boolean bSuccess = false;
+        while (c.moveToNext()) {
+            entity._id = c.getInt(c.getColumnIndex("_id"));
+            bSuccess = true;
+        }
+        return bSuccess;
+    }
+
+    public boolean deleteFavoriteMusicInfo(FavoritesMusicEntity entity){
+        if(mDB == null || entity == null || entity._id < 0)
+            return false;
+
+        String strDelete = String.format("delete from %s where _id = %d", TABLE_FAVORITES_MUSIC, entity._id);
+        mDB.execSQL(strDelete);
+        return true;
+    }
+
+    public boolean deleteFavoriteMusicInfoByMediaEntityId(long mediaEntityId){
+        if(mDB == null || mediaEntityId < 0)
+            return false;
+
+        String strDelete = String.format("delete from %s where musicinfo_id = %d", TABLE_FAVORITES_MUSIC, mediaEntityId);
+        mDB.execSQL(strDelete);
+        return true;
+    }
+
+    public List<FavoritesMusicEntity> queryAllFavoriteMusicInfo(){
+        if(mDB == null)
+            return null;
+
+        List<FavoritesMusicEntity> listFavoriteMusicEntity = new ArrayList<>();
+        String strSelectMusicInfo = "select * from " + TABLE_FAVORITES_MUSIC + ";";
+        Cursor c =  mDB.rawQuery(strSelectMusicInfo, null);
+        while (c.moveToNext()){
+            FavoritesMusicEntity entity = new FavoritesMusicEntity();
+
+            entity._id = c.getLong(c.getColumnIndex("_id"));
+            entity.musicinfo_id = c.getLong(c.getColumnIndex("musicinfo_id"));
+            entity.song_id = c.getLong(c.getColumnIndex("song_id"));
+            entity.title = c.getString(c.getColumnIndex("title"));
+            entity.artist_id = c.getString(c.getColumnIndex("artist_id"));
+            entity.artist = c.getString(c.getColumnIndex("artist"));
+            entity.album_id = c.getString(c.getColumnIndex("album_id"));
+            entity.album = c.getString(c.getColumnIndex("album"));
+            entity.fav_time = c.getLong(c.getColumnIndex("fav_time"));
+            entity.havehigh = c.getLong(c.getColumnIndex("havehigh"));
+            entity.charge = c.getLong(c.getColumnIndex("charge"));
+            entity.fav_type = c.getLong(c.getColumnIndex("fav_type"));
+            entity.artist = c.getString(c.getColumnIndex("artist"));
+            entity.allbitrate = c.getString(c.getColumnIndex("allbitrate"));
+            entity.path = c.getString(c.getColumnIndex("path"));
+            entity.album = c.getString(c.getColumnIndex("album"));
+            entity.file_from = c.getLong(c.getColumnIndex("file_from"));
+            entity.has_original = c.getLong(c.getColumnIndex("has_original"));
+            entity.has_mv_mobile = c.getLong(c.getColumnIndex("has_mv_mobile"));
+            entity.song_source = c.getString(c.getColumnIndex("song_source"));
+            entity.original_rate = c.getString(c.getColumnIndex("original_rate"));
+            entity.cache_status = c.getLong(c.getColumnIndex("cache_status"));
+            entity.version = c.getString(c.getColumnIndex("version"));
+            entity.has_pay_status = c.getLong(c.getColumnIndex("has_pay_status"));
+            entity.is_offline = c.getLong(c.getColumnIndex("is_offline"));
+
+            listFavoriteMusicEntity.add(entity);
+        }
+
+        return  listFavoriteMusicEntity;
     }
 
     public class MediaDataBaseHelpder extends SQLiteOpenHelper {
@@ -221,6 +329,34 @@ public class MediaDataBase{
             db.execSQL(strMusicInfoTable);
 
 
+            //创建favorites_music
+            String strFavoriteTable = "CREATE TABLE IF NOT EXISTS " + TABLE_FAVORITES_MUSIC +" (\n" +
+                    "  _id integer PRIMARY KEY AUTOINCREMENT,\n" +
+                    "  musicinfo_id integer DEFAULT(-1),\n" +
+                    "  song_id integer DEFAULT(-1),\n" +
+                    "  title text,\n" +
+                    "  artist_id text,\n" +
+                    "  artist text,\n" +
+                    "  album_id text,\n" +
+                    "  album text,\n" +
+                    "  fav_time integer,\n" +
+                    "  havehigh integer NOT NULL,\n" +
+                    "  charge integer,\n" +
+                    "  fav_type integer,\n" +
+                    "  allbitrate text,\n" +
+                    "  path text,\n" +
+                    "  file_from integer DEFAULT(0),\n" +
+                    "  has_original integer DEFAULT(0),\n" +
+                    "  has_mv_mobile integer DEFAULT(0),\n" +
+                    "  song_source text,\n" +
+                    "  original_rate text,\n" +
+                    "  cache_status integer DEFAULT(-1),\n" +
+                    "  version text DEFAULT(''),\n" +
+                    "  has_pay_status integer DEFAULT(0),\n" +
+                    "  is_offline integer DEFAULT(0)\n" +
+                    ");";
+
+            db.execSQL(strFavoriteTable);
         }
 
         @Override
