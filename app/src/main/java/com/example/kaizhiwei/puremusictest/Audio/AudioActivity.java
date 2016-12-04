@@ -16,6 +16,7 @@ import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 
+import com.example.kaizhiwei.puremusictest.CommonUI.SystemBarTintManager;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaDataBase;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
@@ -23,7 +24,12 @@ import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
 
+import org.videolan.libvlc.Media;
+import org.videolan.libvlc.MediaPlayer;
+
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +39,7 @@ import java.util.List;
 @TargetApi(Build.VERSION_CODES.M)
 public class AudioActivity extends Activity implements ViewPager.OnLongClickListener, ViewPager.OnPageChangeListener
         ,MediaLibrary.IMediaScanListener, AdapterView.OnItemClickListener, AbsListView.OnScrollListener, AudioListViewAdapter.IAudioListViewListener
-        ,PlaybackService.Client.Callback{
+        ,PlaybackService.Client.Callback, PlaybackService.Callback {
     private TabLayout mTabLayout;
     private TabLayout.TabLayoutOnPageChangeListener mTVl;
 
@@ -67,19 +73,9 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         super.onCreate(savedInstanceState);
 
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
-                    | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.TRANSPARENT);
-            window.setNavigationBarColor(Color.TRANSPARENT);
-        }
-
+        initSystemBar();
         setContentView(R.layout.activity_audio);
+
 
         mTabLayout = (TabLayout) this.findViewById(R.id.tabLayout);
         mTVl = new TabLayout.TabLayoutOnPageChangeListener(mTabLayout);
@@ -145,6 +141,28 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         if(PreferenceConfig.getInstance().getLastFirstLaunch() == false){
             initAdapterData();
         }
+    }
+
+    private void initSystemBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            setTranslucentStatus(true);
+            SystemBarTintManager tintManager = new SystemBarTintManager(this);
+            tintManager.setStatusBarTintEnabled(true);
+            tintManager.setStatusBarTintResource(R.color.tabSeperatorLineColor);
+            SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
+        }
+    }
+
+    private void setTranslucentStatus(boolean on) {
+        Window win = getWindow();
+        WindowManager.LayoutParams winParams = win.getAttributes();
+        final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+        if (on) {
+            winParams.flags |= bits;
+        } else {
+            winParams.flags &= ~bits;
+        }
+        win.setAttributes(winParams);
     }
 
     @Override
@@ -243,7 +261,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         if(itemData == null)
             return ;
 
-        if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
+        if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG && itemData.mItemType == AudioListViewAdapter.AudioItemData.TYPE_MEDIA){
             mService.play(itemData.mListMedia, 0);
             mAllSongAdapter.setItemPlayState(position, true);
             mNowPlayingLayout.setPlayingMediaEntrty(itemData.mListMedia.get(0));
@@ -365,10 +383,32 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
     @Override
     public void onConnected(PlaybackService service) {
         mService = service;
+        mService.addCallback(this);
     }
 
     @Override
     public void onDisconnected() {
         mService = null;
+    }
+
+    //PlaybackService.Callback
+    @Override
+    public void update() {
+
+    }
+
+    @Override
+    public void updateProgress() {
+
+    }
+
+    @Override
+    public void onMediaEvent(Media.Event event) {
+
+    }
+
+    @Override
+    public void onMediaPlayerEvent(MediaPlayer.Event event) {
+
     }
 }

@@ -1,17 +1,27 @@
 package com.example.kaizhiwei.puremusictest.Service;
 
+import android.annotation.TargetApi;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.media.AudioManager;
+import android.media.RemoteControlClient;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
@@ -19,6 +29,7 @@ import com.example.kaizhiwei.puremusictest.MediaData.VLCInstance;
 
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
+import org.videolan.libvlc.util.AndroidUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,16 +40,26 @@ import java.util.List;
  * Created by kaizhiwei on 16/11/13.
  */
 public class PlaybackService extends Service {
+    private static final String TAG = "PlaybackService";
     private static final String PREF_MEDIA_LIST = "PREF_MEDIA_LIST";
     private static final String PREF_POSITION_IN_LIST = "PREF_POSITION_IN_LIST";
     private static final String PREF_POSITION_IN_SONG = "PREF_POSITION_IN_SONG";
     private static final String PREF_REPEAT_MODE = "PREF_REPEAT_MODE";
+    private static final long PLAYBACK_ACTIONS = PlaybackStateCompat.ACTION_PAUSE
+            | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_STOP
+            | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
 
     private List<MediaEntity>  mMediaList;
     private int                 mCurrentIndex;
     private int                 mCurrentTime;
     private int                 mRepeatMode;
     private MediaPlayer         mMediaPlayer;
+    private MediaSessionCompat mMediaSession;
+    protected MediaSessionCallback mSessionCallback;
+    private boolean mHasAudioFocus = false;
+    private PowerManager.WakeLock mWakeLock;
+    private AudioManager.OnAudioFocusChangeListener mAudioFocusListener;
+
     final private ArrayList<Callback> mCallbacks = new ArrayList<Callback>();
 
 
@@ -56,40 +77,79 @@ public class PlaybackService extends Service {
         void onMediaPlayerEvent(MediaPlayer.Event event);
     }
 
+    private final class MediaSessionCallback extends MediaSessionCompat.Callback {
+        @Override
+        public void onPlay() {
+            //play();
+        }
+        @Override
+        public void onPause() {
+            //pause();
+        }
+
+        @Override
+        public void onStop() {
+            //stop();
+        }
+
+        @Override
+        public void onSkipToNext() {
+            //next();
+        }
+
+        @Override
+        public void onSkipToPrevious() {
+            //previous();
+        }
+    }
+
     private final Media.EventListener mMediaListener = new Media.EventListener(){
 
         @Override
         public void onEvent(Media.Event event) {
-//      event      switch (event.type) {
-//                case Media.Event.ParsedChanged:
-//                    Log.i(TAG, "Media.Event.ParsedChanged");
+            switch (event.type) {
+                case Media.Event.ParsedChanged:
+                    Log.i(TAG, "Media.Event.ParsedChanged");
 //                    final MediaWrapper mw = getCurrentMedia();
 //                    if (mw != null)
 //                        mw.updateMeta(mMediaPlayer);
 //                    executeUpdate();
-//                    break;
-//                case Media.Event.MetaChanged:
-//                    break;
-//            }
-//            for (Callback callback : mCallbacks)
-//                callback.onMediaEvent(event);
+                    break;
+                case Media.Event.MetaChanged:
+                    Log.i(TAG, "Media.Event.MetaChanged");
+                    break;
+                case Media.Event.SubItemAdded:
+                    Log.i(TAG, "Media.Event.SubItemAdded");
+                    break;
+                case Media.Event.DurationChanged:
+                    Log.i(TAG, "Media.Event.DurationChanged");
+                    break;
+                case Media.Event.StateChanged:
+                    Log.i(TAG, "Media.Event.StateChanged");
+                    break;
+                case Media.Event.SubItemTreeAdded:
+                    Log.i(TAG, "Media.Event.SubItemTreeAdded");
+                    break;
+            }
+            for (Callback callback : mCallbacks)
+                callback.onMediaEvent(event);
         }
     };
 
     private final MediaPlayer.EventListener mMediaPlayerListener = new MediaPlayer.EventListener() {
         @Override
         public void onEvent(MediaPlayer.Event event) {
-//            switch (event.type) {
-//                case MediaPlayer.Event.Playing:
-//
-//                    if (mMediaSession == null)
-//                        initMediaSession(PlaybackService.this);
-//
-//                    Log.i(TAG, "MediaPlayer.Event.Playing");
-//                    executeUpdate();
-//                    publishState(event.type);
-//                    executeUpdateProgress();
-//
+            switch (event.type) {
+                case MediaPlayer.Event.Playing:
+
+                    if (mMediaSession == null)
+                        initMediaSession(PlaybackService.this);
+
+                    Log.i(TAG, "MediaPlayer.Event.Playing");
+                    executeUpdate();
+                    publishState(event.type);
+                    executeUpdateProgress();
+
 //                    final MediaWrapper mw = mMediaList.getMedia(mCurrentIndex);
 //                    if (mw != null) {
 //                        long length = mMediaPlayer.getLength();
@@ -107,91 +167,147 @@ public class PlaybackService extends Service {
 //                                    MediaDatabase.INDEX_MEDIA_LENGTH, length);
 //                        }
 //                    }
-//
-//                    changeAudioFocus(true);
-//                    setRemoteControlClientPlaybackState(event.type);
-//                    showNotification();
-//                    if (!mWakeLock.isHeld())
-//                        mWakeLock.acquire();
-//                    break;
-//                case MediaPlayer.Event.Paused:
-//                    Log.i(TAG, "MediaPlayer.Event.Paused");
-//                    executeUpdate();
-//                    publishState(event.type);
-//                    executeUpdateProgress();
-//                    showNotification();
-//                    setRemoteControlClientPlaybackState(event.type);
-//                    if (mWakeLock.isHeld())
-//                        mWakeLock.release();
-//                    break;
-//                case MediaPlayer.Event.Stopped:
-//                    Log.i(TAG, "MediaPlayer.Event.Stopped");
-//                    executeUpdate();
-//                    publishState(event.type);
-//                    executeUpdateProgress();
-//                    setRemoteControlClientPlaybackState(event.type);
-//                    if (mWakeLock.isHeld())
-//                        mWakeLock.release();
-//                    changeAudioFocus(false);
-//                    break;
-//                case MediaPlayer.Event.EndReached:
-//                    Log.i(TAG, "MediaPlayer.Event.EndReached");
-//                    executeUpdate();
-//                    executeUpdateProgress();
-//                    determinePrevAndNextIndices(true);
-//                    next();
-//                    if (mWakeLock.isHeld())
-//                        mWakeLock.release();
-//                    changeAudioFocus(false);
-//                    break;
-//                case MediaPlayer.Event.EncounteredError:
+
+                    changeAudioFocus(true);
+                    //setRemoteControlClientPlaybackState(event.type);
+                    //showNotification();
+                    if (!mWakeLock.isHeld())
+                        mWakeLock.acquire();
+                    break;
+                case MediaPlayer.Event.Paused:
+                    Log.i(TAG, "MediaPlayer.Event.Paused");
+                    executeUpdate();
+                    publishState(event.type);
+                    executeUpdateProgress();
+                    //showNotification();
+                    //setRemoteControlClientPlaybackState(event.type);
+                    if (mWakeLock.isHeld())
+                        mWakeLock.release();
+                    break;
+                case MediaPlayer.Event.Stopped:
+                    Log.i(TAG, "MediaPlayer.Event.Stopped");
+                    executeUpdate();
+                    publishState(event.type);
+                    executeUpdateProgress();
+                    //setRemoteControlClientPlaybackState(event.type);
+                    if (mWakeLock.isHeld())
+                        mWakeLock.release();
+                    changeAudioFocus(false);
+                    break;
+                case MediaPlayer.Event.EndReached:
+                    Log.i(TAG, "MediaPlayer.Event.EndReached");
+                    executeUpdate();
+                    executeUpdateProgress();
+                    //determinePrevAndNextIndices(true);
+                    //next();
+                    if (mWakeLock.isHeld())
+                        mWakeLock.release();
+                    changeAudioFocus(false);
+                    break;
+                case MediaPlayer.Event.EncounteredError:
 //                    showToast(getString(
 //                            R.string.invalid_location,
 //                            mMediaList.getMRL(mCurrentIndex)), Toast.LENGTH_SHORT);
 //                    executeUpdate();
 //                    executeUpdateProgress();
 //                    next();
-//                    if (mWakeLock.isHeld())
-//                        mWakeLock.release();
-//                    break;
-//                case MediaPlayer.Event.TimeChanged:
-//                    break;
-//                case MediaPlayer.Event.PositionChanged:
-//                    updateWidgetPosition(event.getPositionChanged());
-//                    break;
-//                case MediaPlayer.Event.Vout:
-//                    break;
-//                case MediaPlayer.Event.ESAdded:
+                    if (mWakeLock.isHeld())
+                        mWakeLock.release();
+                    break;
+                case MediaPlayer.Event.TimeChanged:
+                    break;
+                case MediaPlayer.Event.PositionChanged:
+                    //updateWidgetPosition(event.getPositionChanged());
+                    break;
+                case MediaPlayer.Event.Vout:
+                    break;
+                case MediaPlayer.Event.ESAdded:
 //                    if (event.getEsChangedType() == Media.Track.Type.Video) {
 //                        if (!handleVout()) {
 //                            /* Update notification content intent: resume video or resume audio activity */
 //                            showNotification();
 //                        }
 //                    }
-//                    break;
-//                case MediaPlayer.Event.ESDeleted:
-//                    break;
-//                case MediaPlayer.Event.PausableChanged:
-//                    mPausable = event.getPausable();
-//                    break;
-//                case MediaPlayer.Event.SeekableChanged:
-//                    mSeekable = event.getSeekable();
-//                    break;
-//            }
-//            for (Callback callback : mCallbacks)
-//                callback.onMediaPlayerEvent(event);
+                    break;
+                case MediaPlayer.Event.ESDeleted:
+                    break;
+                case MediaPlayer.Event.PausableChanged:
+                    //mPausable = event.getPausable();
+                    break;
+                case MediaPlayer.Event.SeekableChanged:
+                    //mSeekable = event.getSeekable();
+                    break;
+            }
+            for (Callback callback : mCallbacks)
+                callback.onMediaPlayerEvent(event);
         }
     };
 
     public void onCreate() {
         super.onCreate();
         mMediaPlayer = new MediaPlayer(VLCInstance.getInstance());
+        PowerManager powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
+        mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+    }
 
+    private void initMediaSession(Context context) {
+        mSessionCallback = new MediaSessionCallback();
+        mMediaSession = new MediaSessionCompat(context, "PureMusic");
+        mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
+                | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mMediaSession.setCallback(mSessionCallback);
+        updateMetadata();
+    }
+
+    protected void updateMetadata() {
+        MediaEntity media = getCurrentMedia();
+        if (media == null || mMediaSession == null)
+            return;
+        String title = media.title;
+        //Bitmap cover = AudioUtil.getCover(this, media, 512);
+        MediaMetadataCompat.Builder bob = new MediaMetadataCompat.Builder();
+        bob.putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
+                //.putString(MediaMetadataCompat.METADATA_KEY_GENRE, Util.getMediaGenre(this, media))
+                .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, media.track)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST, media.artist)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, media.album)
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, media.duration);
+        //if (cover != null && cover.getConfig() != null) //In case of format not supported
+        //    bob.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, cover.copy(cover.getConfig(), false));
+        mMediaSession.setMetadata(bob.build());
+    }
+
+    private MediaEntity getCurrentMedia() {
+        return mMediaList.get(mCurrentIndex);
+    }
+
+    private void executeUpdate() {
+        executeUpdate(true);
+    }
+
+    private void executeUpdate(Boolean updateWidget) {
+        for (Callback callback : mCallbacks) {
+            callback.update();
+        }
+        //if (updateWidget)
+        //    updateWidget();
+        updateMetadata();
+
+    }
+
+    private void executeUpdateProgress() {
+        for (Callback callback : mCallbacks) {
+            callback.updateProgress();
+        }
     }
 
     @Override
     public void onDestroy() {
         mMediaPlayer.release();
+        if(mWakeLock != null){
+            if (mWakeLock.isHeld())
+                mWakeLock.release();
+        }
     }
 
     public void onStart(Intent intent, int startId) {
@@ -250,7 +366,7 @@ public class PlaybackService extends Service {
         if(file.exists() == false)
             return;
 
-        Media media  = new Media(VLCInstance.getInstance(), Uri.encode(filePath));
+        Media media  = new Media(VLCInstance.getInstance(), Uri.decode(filePath));
         media.setEventListener(mMediaListener);
         mMediaPlayer.setMedia(media);
         media.release();
@@ -270,6 +386,89 @@ public class PlaybackService extends Service {
            // if (hasCurrentMedia())
                // mHandler.sendEmptyMessage(SHOW_PROGRESS);
         }
+    }
+
+    protected void publishState(int state){
+        if(mMediaSession == null)
+            return;
+
+        PlaybackStateCompat.Builder bob = new PlaybackStateCompat.Builder();
+        bob.setActions(PLAYBACK_ACTIONS);
+        switch (state){
+            case MediaPlayer.Event.Playing:
+                bob.setState(PlaybackStateCompat.STATE_PLAYING, -1, 1);
+                break;
+            case MediaPlayer.Event.Paused:
+                bob.setState(PlaybackStateCompat.STATE_PAUSED, -1, 0);
+                break;
+            case MediaPlayer.Event.Stopped:
+                bob.setState(PlaybackStateCompat.STATE_STOPPED, -1, 0);
+                break;
+        }
+        PlaybackStateCompat pbstate = bob.build();
+        mMediaSession.setPlaybackState(pbstate);
+        mMediaSession.setActive(state != PlaybackStateCompat.STATE_STOPPED);
+    }
+
+//    /**
+//     * Set up the remote control and tell the system we want to be the default receiver for the MEDIA buttons
+//     */
+//    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+//    public void changeRemoteControlClient(AudioManager am, boolean acquire) {
+//        if (acquire) {
+//            Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+//            mediaButtonIntent.setComponent(mRemoteControlClientReceiverComponent);
+//            PendingIntent mediaPendingIntent = PendingIntent.getBroadcast(this, 0, mediaButtonIntent, 0);
+//
+//            // create and register the remote control client
+//            mRemoteControlClient = new RemoteControlClient(mediaPendingIntent);
+//            am.registerRemoteControlClient(mRemoteControlClient);
+//
+//            mRemoteControlClient.setTransportControlFlags(
+//                    RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
+//                            RemoteControlClient.FLAG_KEY_MEDIA_PAUSE |
+//                            RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS |
+//                            RemoteControlClient.FLAG_KEY_MEDIA_NEXT |
+//                            RemoteControlClient.FLAG_KEY_MEDIA_STOP);
+//        } else {
+//            am.unregisterRemoteControlClient(mRemoteControlClient);
+//            mRemoteControlClient = null;
+//        }
+//    }
+
+    @TargetApi(Build.VERSION_CODES.FROYO)
+    private void changeAudioFocusFroyoOrLater(boolean acquire) {
+        final AudioManager am = (AudioManager)getSystemService(AUDIO_SERVICE);
+        if (am == null)
+            return;
+
+        if (acquire) {
+            if (!mHasAudioFocus) {
+                final int result = am.requestAudioFocus(mAudioFocusListener,
+                        AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+                if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                    am.setParameters("bgm_state=true");
+                    //am.registerMediaButtonEventReceiver(mRemoteControlClientReceiverComponent);
+                    //if (AndroidUtil.isICSOrLater())
+                    //    changeRemoteControlClient(am, acquire);
+                    mHasAudioFocus = true;
+                }
+            }
+        } else {
+            if (mHasAudioFocus) {
+                final int result = am.abandonAudioFocus(mAudioFocusListener);
+                am.setParameters("bgm_state=false");
+                //am.unregisterMediaButtonEventReceiver(mRemoteControlClientReceiverComponent);
+                //if (AndroidUtil.isICSOrLater())
+                //    changeRemoteControlClient(am, acquire);
+                mHasAudioFocus = false;
+            }
+        }
+    }
+
+    private void changeAudioFocus(boolean acquire) {
+        if (AndroidUtil.isFroyoOrLater())
+            changeAudioFocusFroyoOrLater(acquire);
     }
 
     @MainThread

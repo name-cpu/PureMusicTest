@@ -28,7 +28,9 @@
         </activity>
         <activity android:name=".Welcome.WelcomeActivity"></activity>
         <activity android:name=".ScanSong.ScanSongActivity"></activity>
-        <activity android:name=".Audio.AudioActivity"></activity>
+        <activity android:name=".Audio.AudioActivity">
+
+        </activity>
 
         <service android:name=".Service.PlaybackService"></service>
 

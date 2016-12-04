@@ -230,6 +230,8 @@ public class MoreOperationDialog extends Dialog implements IMoreOperListener {
 
     public void setContentView(View view) {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams. FLAG_FULLSCREEN , WindowManager.LayoutParams. FLAG_FULLSCREEN);
+
         super.setContentView(view);
         tvTitle = (TextView) view.findViewById(R.id.tvTitle);
         gvMoreOperation = (GridView) view.findViewById(R.id.gvMoreOperation);
@@ -238,6 +240,7 @@ public class MoreOperationDialog extends Dialog implements IMoreOperListener {
         Window window = this.getWindow();
         window.getDecorView().setPadding(0,0,0,0);
         window.setWindowAnimations(R.style.ActionSheetDialogAnimation);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
         // 可以在此设置显示动画
         WindowManager.LayoutParams wl = window.getAttributes();
         wl.x = 0;
