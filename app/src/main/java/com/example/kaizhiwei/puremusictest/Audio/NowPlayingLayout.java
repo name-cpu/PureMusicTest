@@ -13,14 +13,21 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
+
+import org.videolan.libvlc.Media;
+import org.videolan.libvlc.MediaPlayer;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by kaizhiwei on 16/11/20.
  */
-public class NowPlayingLayout extends LinearLayout implements View.OnClickListener {
+public class NowPlayingLayout extends LinearLayout implements View.OnClickListener, PlaybackService.Client.Callback, PlaybackService.Callback {
     private ImageButton mBtnPlayPause;
     private ImageButton mBtnPlayNext;
     private ImageButton mBtnPlaylist;
@@ -29,6 +36,9 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
     private ImageView  mImArtist;
     private ProgressBar mPlayProgress;
     private WeakReference<MediaEntity>  mWeakMediaEntity;
+    private boolean mIsPlaying;
+    private PlaybackService.Client mClient = new PlaybackService.Client(this.getContext(), this);
+    private PlaybackService mService;
 
     public NowPlayingLayout(Context context) {
         super(context);
@@ -49,6 +59,16 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
     public NowPlayingLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
+    }
+
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mClient.connect();
+    }
+
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mClient.disconnect();
     }
 
     public void init(){
@@ -80,14 +100,26 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-        if(v == mBtnPlayPause){
+        if(mService == null)
+            return;
 
+        if(v == mBtnPlayPause){
+            if(mIsPlaying){
+                mService.pause();
+            }
+            else{
+                mService.play();
+            }
         }
         else if(v == mBtnPlayNext){
 
         }
         else if(v == mBtnPlaylist){
-
+            PlayListDialog.Builder builder = new PlayListDialog.Builder(this.getContext());
+            PlayListDialog dialog = builder.create();
+            dialog.setCancelable(true);
+            dialog.setPlaylistData(MediaLibrary.getInstance().getAllMediaEntrty());
+            dialog.show();
         }
     }
 
@@ -97,13 +129,65 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
 
         mtvMain.setText(media.getTitle());
         mtvSub.setText(media.getArtist());
-        mBtnPlayPause.setBackgroundResource(R.drawable.bt_minibar_pause_normal);
+        //mBtnPlayPause.setBackgroundResource(R.drawable.bt_minibar_pause_normal);
         mPlayProgress.setMax((int)media.getDuration());
 
         mWeakMediaEntity = new WeakReference<MediaEntity>(media);
     }
 
-    public void updatePlayProgress(float fProgress){
+    public void updatePlayProgress(int iCur, int iMax){
+        mPlayProgress.setMax(iMax);
+        mPlayProgress.setProgress(iCur);
+    }
+
+    public void setPlayPauseState(boolean isPlaying){
+        if(isPlaying){
+            mBtnPlayPause.setBackgroundResource(R.drawable.bt_minibar_pause_normal);
+        }
+        else{
+            mBtnPlayPause.setBackgroundResource(R.drawable.bt_minibar_play_normal);
+        }
+        mIsPlaying = isPlaying;
+    }
+
+    //PlaybackService.Client.Callback
+    @Override
+    public void onConnected(PlaybackService service) {
+        mService = service;
+        mService.addCallback(this);
+    }
+
+    @Override
+    public void onDisconnected() {
+        mService = null;
+    }
+
+    //PlaybackService.Callback
+    @Override
+    public void update() {
+
+    }
+
+    @Override
+    public void updateProgress() {
+        if(mService == null)
+            return ;
+
+        int iTime = (int)mService.getTIme();
+        int iLengtht = (int)mService.getLength();
+        updatePlayProgress(iTime, iLengtht);
+    }
+
+    @Override
+    public void onMediaEvent(Media.Event event) {
+        if(mService == null || event == null)
+            return;
+
+        setPlayPauseState(mService.isPlaying());
+    }
+
+    @Override
+    public void onMediaPlayerEvent(MediaPlayer.Event event) {
 
     }
 }

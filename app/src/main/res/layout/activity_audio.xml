@@ -4,7 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:clipToPadding="true" >
+    android:clipToPadding="true"
+    android:paddingBottom="0dp"
+    android:layout_marginBottom="0dp">
 
     <android.support.design.widget.TabLayout
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -27,8 +29,6 @@
             android:id="@+id/lvAllSong"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
             android:scrollbarStyle="outsideOverlay"
             android:background="@drawable/default_back"/>
 
@@ -36,8 +36,6 @@
             android:id="@+id/lvSongFolder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
             android:scrollbarStyle="outsideOverlay"
             android:background="@drawable/default_back"/>
 
@@ -45,8 +43,6 @@
             android:id="@+id/lvArtist"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
             android:scrollbarStyle="outsideOverlay"
             android:background="@drawable/default_back"/>
 
@@ -54,8 +50,6 @@
             android:id="@+id/lvAlbum"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
             android:scrollbarStyle="outsideOverlay"
             android:background="@drawable/default_back"/>
     </android.support.v4.view.ViewPager>
@@ -63,7 +57,7 @@
     <FrameLayout
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:background="@color/backgroundColor">
         <com.example.kaizhiwei.puremusictest.Audio.NowPlayingLayout
             android:id="@+id/nowPlayingLayout"

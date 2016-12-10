@@ -11,21 +11,26 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.RemoteControlClient;
+import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.VLCInstance;
+import com.example.kaizhiwei.puremusictest.Util.WeakHandler;
 
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
@@ -49,19 +54,21 @@ public class PlaybackService extends Service {
             | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_STOP
             | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
 
-    private List<MediaEntity>  mMediaList;
+    private List<MediaEntity>  mMediaList = new ArrayList<>();
     private int                 mCurrentIndex;
     private int                 mCurrentTime;
     private int                 mRepeatMode;
     private MediaPlayer         mMediaPlayer;
-    private MediaSessionCompat mMediaSession;
+    private MediaSessionCompat  mMediaSession;
     protected MediaSessionCallback mSessionCallback;
     private boolean mHasAudioFocus = false;
     private PowerManager.WakeLock mWakeLock;
     private AudioManager.OnAudioFocusChangeListener mAudioFocusListener;
 
-    final private ArrayList<Callback> mCallbacks = new ArrayList<Callback>();
+    private ArrayList<Callback> mCallbacks = new ArrayList<Callback>();
 
+    private static final int SHOW_PROGRESS = 0;
+    private Handler mHandler = new AudioServiceHandler(this);
 
     private LocalBinder mBinder = new LocalBinder();
     public class LocalBinder extends Binder {
@@ -243,6 +250,24 @@ public class PlaybackService extends Service {
         }
     };
 
+    private static class AudioServiceHandler extends WeakHandler<PlaybackService> {
+        public AudioServiceHandler(PlaybackService cls) {
+            super(cls);
+        }
+
+        public void handleMessage(Message msg) {
+            PlaybackService service = (PlaybackService) this.getOwner();
+            int what = msg.what;
+            if(what == SHOW_PROGRESS){
+                if(service.mCallbacks.size() > 0){
+                    service.executeUpdateProgress();
+                    removeMessages(what);
+                    sendEmptyMessageDelayed(what, 1000);
+                }
+            }
+        }
+    }
+
     public void onCreate() {
         super.onCreate();
         mMediaPlayer = new MediaPlayer(VLCInstance.getInstance());
@@ -251,11 +276,18 @@ public class PlaybackService extends Service {
     }
 
     private void initMediaSession(Context context) {
+        ComponentName mediaButtonReceiver = new ComponentName(getApplicationContext(), MediaButtonReceiver.class);
         mSessionCallback = new MediaSessionCallback();
-        mMediaSession = new MediaSessionCompat(context, "PureMusic");
+        mMediaSession = new MediaSessionCompat(context, "PureMusic", mediaButtonReceiver, null);
         mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
                 | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
         mMediaSession.setCallback(mSessionCallback);
+        Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        mediaButtonIntent.setClass(this,
+                MediaButtonReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, mediaButtonIntent, 0);
+        mMediaSession.setMediaButtonReceiver(pendingIntent);
+
         updateMetadata();
     }
 
@@ -333,9 +365,6 @@ public class PlaybackService extends Service {
         mCurrentTime = pref.getInt(PREF_POSITION_IN_SONG, 0);
         mRepeatMode = pref.getInt(PREF_REPEAT_MODE, 0);
 
-        if(mMediaList == null)
-            mMediaList = new ArrayList<>();
-
         for(int i = 0;i < listMedia.size();i++){
             Media media = new Media(VLCInstance.getInstance(), Uri.parse(listMedia.get(i)));
             MediaEntity entrty = new MediaEntity(media);
@@ -373,6 +402,7 @@ public class PlaybackService extends Service {
         mMediaPlayer.setVideoTitleDisplay(MediaPlayer.Position.Disable, 0);
         mMediaPlayer.setEventListener(mMediaPlayerListener);
         mMediaPlayer.play();
+        mHandler.sendEmptyMessage(SHOW_PROGRESS);
     }
 
     private boolean hasCurrentMedia() {
@@ -410,6 +440,33 @@ public class PlaybackService extends Service {
         mMediaSession.setActive(state != PlaybackStateCompat.STATE_STOPPED);
     }
 
+    public long getTIme(){
+        return mMediaPlayer.getTime();
+    }
+
+    public long getLength(){
+        return mMediaPlayer.getLength();
+    }
+
+    public boolean isPlaying(){
+        return mMediaPlayer.isPlaying();
+    }
+
+    public void play(){
+        if(hasCurrentMedia()){
+            mMediaPlayer.play();
+            mHandler.sendEmptyMessage(SHOW_PROGRESS);
+            updateMetadata();
+        }
+    }
+
+    public void pause(){
+        if(hasCurrentMedia()){
+            mMediaPlayer.pause();
+            mHandler.removeMessages(SHOW_PROGRESS);
+            updateMetadata();
+        }
+    }
 //    /**
 //     * Set up the remote control and tell the system we want to be the default receiver for the MEDIA buttons
 //     */

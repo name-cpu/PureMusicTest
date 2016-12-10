@@ -2,11 +2,13 @@ package com.example.kaizhiwei.puremusictest.Audio;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -33,13 +35,14 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * Created by kaizhiwei on 16/11/12.
  */
 @TargetApi(Build.VERSION_CODES.M)
 public class AudioActivity extends Activity implements ViewPager.OnLongClickListener, ViewPager.OnPageChangeListener
         ,MediaLibrary.IMediaScanListener, AdapterView.OnItemClickListener, AbsListView.OnScrollListener, AudioListViewAdapter.IAudioListViewListener
-        ,PlaybackService.Client.Callback, PlaybackService.Callback {
+        ,PlaybackService.Client.Callback, PlaybackService.Callback, AdapterView.OnItemLongClickListener {
     private TabLayout mTabLayout;
     private TabLayout.TabLayoutOnPageChangeListener mTVl;
 
@@ -60,6 +63,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
     private AudioListView mAlbumListViewData;
     private AudioListViewAdapter mAlbumAdapter;
     private Handler mHandler = new Handler();
+    private Vibrator vibrator;
 
     private PlaybackService.Client mClient = new PlaybackService.Client(this, this);
     private PlaybackService mService;
@@ -76,7 +80,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         initSystemBar();
         setContentView(R.layout.activity_audio);
 
-
+        vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
         mTabLayout = (TabLayout) this.findViewById(R.id.tabLayout);
         mTVl = new TabLayout.TabLayoutOnPageChangeListener(mTabLayout);
         mViewPager = (ViewPager) this.findViewById(R.id.viewPager);
@@ -92,24 +96,28 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         mAllSongListView.setAdapter(mAllSongAdapter);
         mAllSongListView.setOnItemClickListener(this);
         mAllSongListView.setOnScrollListener(this);
+        mAllSongListView.setOnItemLongClickListener(this);
 
         mSongFolderListView = (AudioListView) this.findViewById(R.id.lvSongFolder);
         mSongFolderAdapter = new AudioListViewAdapter(this, AudioListViewAdapter.ADAPTER_TYPE_FOLDER, false);
         mSongFolderListView.setAdapter(mSongFolderAdapter);
         mSongFolderListView.setOnItemClickListener(this);
         mSongFolderListView.setOnScrollListener(this);
+        mSongFolderListView.setOnItemLongClickListener(this);
 
         mArtistListView = (AudioListView) this.findViewById(R.id.lvArtist);
         mArtistAdapter = new AudioListViewAdapter(this, AudioListViewAdapter.ADAPTER_TYPE_ARTIST, false);
         mArtistListView.setAdapter(mArtistAdapter);
         mArtistListView.setOnItemClickListener(this);
         mArtistListView.setOnScrollListener(this);
+        mArtistListView.setOnItemLongClickListener(this);
 
         mAlbumListViewData = (AudioListView) this.findViewById(R.id.lvAlbum);
         mAlbumAdapter = new AudioListViewAdapter(this, AudioListViewAdapter.ADAPTER_TYPE_ALBUM, false);
         mAlbumListViewData.setAdapter(mAlbumAdapter);
         mAlbumListViewData.setOnItemClickListener(this);
         mAlbumListViewData.setOnScrollListener(this);
+        mAlbumListViewData.setOnItemLongClickListener(this);
 
         mListViewData = new ArrayList<View>();
         mListViewData.add(mAllSongListView);
@@ -292,6 +300,13 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         }
     }
 
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        vibrator.vibrate(50);
+        onMoreBtnClick((AudioListViewAdapter) parent.getAdapter(), position);
+        return true;
+    }
+
     //AdapterView.OnScrollChangeListener
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -399,12 +414,20 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
     @Override
     public void updateProgress() {
+        if(mService == null || mNowPlayingLayout == null)
+            return ;
 
+        int iTime = (int)mService.getTIme();
+        int iLengtht = (int)mService.getLength();
+        //mNowPlayingLayout.updatePlayProgress(iTime, iLengtht);
     }
 
     @Override
     public void onMediaEvent(Media.Event event) {
+        if(mService == null || event == null)
+            return;
 
+        //mNowPlayingLayout.setPlayPauseState(mService.isPlaying());
     }
 
     @Override

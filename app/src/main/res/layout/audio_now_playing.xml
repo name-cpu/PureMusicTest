@@ -20,7 +20,6 @@
             android:layout_height="0dp"
             android:orientation="horizontal"
             android:layout_weight="1"
-            android:layout_marginRight="5dp"
             android:weightSum="1">
             <ImageView
                 android:id="@+id/ivArtist"
@@ -30,64 +29,77 @@
                 android:src="@drawable/ic_launcher"/>
 
             <LinearLayout
-                android:layout_width="0dp"
-                android:gravity="center"
-                android:layout_weight="1"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp">
-                <com.example.kaizhiwei.puremusictest.CommonUI.AlwaysMarqueeTextView
-                    android:id="@+id/tvNowPlayingMain"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/app_name"
-                    android:textSize="12sp"
-                    android:singleLine="true"
-                    android:ellipsize="marquee"
-                    android:marqueeRepeatLimit="marquee_forever"
-                    android:textColor="@color/mainTextColor"/>
-                <TextView
-                    android:id="@+id/tvNowPlayingSub"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/app_name"
-                    android:textSize="11sp"
-                    android:singleLine="true"
-                    android:ellipsize="end"
-                    android:textColor="@color/subTextColor"/>
+                android:orientation="horizontal"
+                android:background="@drawable/default_selector">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp">
+                    <com.example.kaizhiwei.puremusictest.CommonUI.AlwaysMarqueeTextView
+                        android:id="@+id/tvNowPlayingMain"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/app_name"
+                        android:textSize="12sp"
+                        android:singleLine="true"
+                        android:ellipsize="marquee"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:textColor="@color/mainTextColor"/>
+                    <TextView
+                        android:id="@+id/tvNowPlayingSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/app_name"
+                        android:textSize="11sp"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:textColor="@color/subTextColor"/>
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnPlayPause"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/bt_minibar_play_normal"
+                    android:layout_marginRight="5dp"/>
+
+                <ImageButton
+                    android:id="@+id/btnPlayNext"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/bt_minibar_next_normal"
+                    android:layout_marginRight="5dp"/>
+
+                <ImageButton
+                    android:id="@+id/btnPlaylist"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/bt_minibar_playinglist_normal"
+                    android:layout_marginRight="5dp"/>
             </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/btnPlayPause"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center_vertical"
-                android:background="@drawable/bt_minibar_play_normal"
-                android:layout_marginRight="5dp"/>
-
-            <ImageButton
-                android:id="@+id/btnPlayNext"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center_vertical"
-                android:background="@drawable/bt_minibar_next_normal"
-                android:layout_marginRight="5dp"/>
-
-            <ImageButton
-                android:id="@+id/btnPlaylist"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center_vertical"
-                android:background="@drawable/bt_minibar_playinglist_normal"
-                android:layout_marginRight="5dp"/>
         </LinearLayout>
+
 
         <ProgressBar
             android:id="@+id/pbPlay"
+            android:indeterminateOnly="false"
+            android:mirrorForRtl="true"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_height="2dp"
+            android:minHeight="2dp"
+            android:maxHeight="2dp"
+            android:layout_toRightOf="@+id/progressBarV"
+            android:indeterminate="false"
+            android:progressDrawable="@drawable/progress_horizontal"
             android:indeterminateDrawable="@color/tabSeperatorLineColor"/>
     </LinearLayout>
 </LinearLayout>

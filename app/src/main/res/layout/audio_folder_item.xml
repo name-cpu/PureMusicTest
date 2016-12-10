@@ -6,7 +6,10 @@
     <LinearLayout android:layout_width="match_parent"
         android:layout_height="65dp"
         android:orientation="vertical"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/listview_padding"
+        android:paddingRight="@dimen/listview_padding"
+        android:background="@drawable/default_selector">
         <LinearLayout
             android:id="@+id/contentLayout"
             android:layout_width="match_parent"

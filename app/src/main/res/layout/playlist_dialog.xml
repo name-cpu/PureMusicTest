@@ -1,14 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="300dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="50dp"
+        android:background="@color/playlist_title_color"
+        android:weightSum="1">
 
         <ImageView
+            android:id="@+id/ivPlayMode"
+            android:layout_marginLeft="10dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/bt_widget_mode_cycle_press"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="正在播放列表"
+            android:textColor="#000000"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/tvClearAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:text="全部清空"
+            android:layout_gravity="center"/>
     </LinearLayout>
+
+    <ListView
+        android:id="@+id/lvPlaylist"
+        android:dividerHeight="1dp"
+        android:divider="@color/listviewSeperatorLineColor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:cacheColorHint="#000000"
+        android:listSelector="#ff0000"
+        android:scrollbars="none">
+    </ListView>
 </LinearLayout>
