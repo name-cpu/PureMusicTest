@@ -3,21 +3,30 @@
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent">
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
         android:layout_gravity="center"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
+        android:layout_marginTop="@dimen/listview_padding"
+        android:layout_marginBottom="@dimen/listview_padding"
+        android:paddingLeft="@dimen/listview_padding"
+        android:paddingRight="@dimen/listview_padding"
         android:gravity="center">
+
+        <ImageView
+            android:id="@+id/ivPlay"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/bt_localmusic_play_nor"/>
 
         <TextView android:id="@+id/btnRandom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/ic_launcher"
             android:gravity="center_vertical"
             android:text="随机播放全部"
             android:textColor="@color/subTextColor"
+            android:layout_toRightOf="@id/ivPlay"
+            android:layout_marginLeft="5dp"
             android:textSize="13sp"/>
 
         <TextView android:id="@+id/btnBatchMgr"
@@ -25,11 +34,18 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_alignParentRight="true"
-            android:drawableLeft="@drawable/ic_launcher"
+            android:layout_marginLeft="5dp"
             android:gravity="center_vertical"
             android:text="批量编辑"
             android:textColor="@color/subTextColor"
             android:textSize="13sp"/>
+
+        <ImageView
+            android:id="@+id/ivEdit"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_toLeftOf="@id/btnBatchMgr"
+            android:src="@drawable/bt_localmusic_edit_nor"/>
 
     </RelativeLayout>
 </RelativeLayout>

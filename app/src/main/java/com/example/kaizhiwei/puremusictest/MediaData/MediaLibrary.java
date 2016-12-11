@@ -131,7 +131,6 @@ public class MediaLibrary {
 
         mFavoriteListLock.writeLock().lock();
         mFavoriteListData.add(entity);
-
         mFavoriteListLock.writeLock().unlock();
         return MediaDataBase.getInstance().insertFavoriteMusicInfo(entity);
     }
@@ -141,7 +140,12 @@ public class MediaLibrary {
             return false;
 
         mFavoriteListLock.writeLock().lock();
-        mFavoriteListData.remove(entity);
+        for(int i = 0;i < mFavoriteListData.size();i++){
+            if(entity.musicinfo_id == mFavoriteListData.get(i).musicinfo_id){
+                mFavoriteListData.remove(i);
+                break;
+            }
+        }
         mFavoriteListLock.writeLock().unlock();
         return MediaDataBase.getInstance().deleteFavoriteMusicInfoByMediaEntityId(entity.musicinfo_id);
     }

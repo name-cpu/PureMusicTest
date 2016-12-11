@@ -112,13 +112,13 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
             }
         }
         else if(v == mBtnPlayNext){
-
+            mService.next(false);
         }
         else if(v == mBtnPlaylist){
             PlayListDialog.Builder builder = new PlayListDialog.Builder(this.getContext());
             PlayListDialog dialog = builder.create();
             dialog.setCancelable(true);
-            dialog.setPlaylistData(MediaLibrary.getInstance().getAllMediaEntrty());
+            dialog.setPlaylistData(mService.getPlaylist());
             dialog.show();
         }
     }

@@ -2,13 +2,19 @@ package com.example.kaizhiwei.puremusictest.Audio;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,8 +23,11 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Toast;
 
+import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
 import com.example.kaizhiwei.puremusictest.CommonUI.SystemBarTintManager;
+import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaDataBase;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
@@ -42,7 +51,7 @@ import java.util.List;
 @TargetApi(Build.VERSION_CODES.M)
 public class AudioActivity extends Activity implements ViewPager.OnLongClickListener, ViewPager.OnPageChangeListener
         ,MediaLibrary.IMediaScanListener, AdapterView.OnItemClickListener, AbsListView.OnScrollListener, AudioListViewAdapter.IAudioListViewListener
-        ,PlaybackService.Client.Callback, PlaybackService.Callback, AdapterView.OnItemLongClickListener {
+        ,PlaybackService.Client.Callback, PlaybackService.Callback, AdapterView.OnItemLongClickListener, MoreOperationDialog.IMoreOperationDialogListener {
     private TabLayout mTabLayout;
     private TabLayout.TabLayoutOnPageChangeListener mTVl;
 
@@ -173,6 +182,13 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         win.setAttributes(winParams);
     }
 
+    public void onDestory(){
+        super.onDestroy();
+        if(mMoreDialog != null){
+            mMoreDialog.unregisterListener(this);
+        }
+    }
+
     @Override
     protected void onResume(){
         super.onResume();
@@ -265,12 +281,48 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         AudioListViewAdapter adapter = (AudioListViewAdapter)parent.getAdapter();
         int adapterType = adapter.getAdapterType();
-        AudioListViewAdapter.AudioItemData itemData = adapter.getAudioItemData(position);
+        List<AudioListViewAdapter.AudioItemData> listAllData = adapter.getAdapterAllData();
+        if(listAllData == null || listAllData.size() == 0)
+            return;
+
+        AudioListViewAdapter.AudioItemData itemData = listAllData.get(position);
         if(itemData == null)
             return ;
 
         if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG && itemData.mItemType == AudioListViewAdapter.AudioItemData.TYPE_MEDIA){
-            mService.play(itemData.mListMedia, 0);
+//            if(mService.isPlaying()){
+//                mService.pause();
+//            }
+//            else
+            {
+                int realPosition = -1;
+                boolean bAdd = true;
+                List<MediaEntity> listMediaEntity = new ArrayList<>();
+                for(int i = 0;i < listAllData.size();i++){
+                    AudioListViewAdapter.AudioItemData tempData = listAllData.get(i);
+                    if(tempData == null)
+                        continue;
+
+                    if(tempData.mItemType != AudioListViewAdapter.AudioItemData.TYPE_MEDIA)
+                        continue;
+
+                    if(bAdd == true && tempData != itemData){
+                        realPosition ++;
+                    }
+                    else{
+                        bAdd = false;
+                    }
+
+                    if(tempData.mListMedia != null){
+                        listMediaEntity.addAll(tempData.mListMedia);
+                    }
+                }
+
+                if(realPosition >= 0){
+                    mService.play(listMediaEntity, realPosition+1);
+                }
+            }
+
             mAllSongAdapter.setItemPlayState(position, true);
             mNowPlayingLayout.setPlayingMediaEntrty(itemData.mListMedia.get(0));
         }
@@ -302,7 +354,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        vibrator.vibrate(50);
+        vibrator.vibrate(30);
         onMoreBtnClick((AudioListViewAdapter) parent.getAdapter(), position);
         return true;
     }
@@ -339,6 +391,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
         if(mMoreDialog == null){
             mMoreDialog = mMoreDialogbuilder.create();
+            mMoreDialog.registerListener(this);
         }
 
         List<Integer> list = new ArrayList<>();
@@ -433,5 +486,137 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
     @Override
     public void onMediaPlayerEvent(MediaPlayer.Event event) {
 
+    }
+
+    //MoreOperationDialog.IMoreOperationDialogListener
+    @Override
+    public void onMoreItemClick(MoreOperationDialog dialog, int tag) {
+        if(dialog == null)
+            return;
+
+        AudioListViewAdapter.AudioSongItemData mLVSongItemData = null;
+        AudioListViewAdapter.AudioFolderItemData mLVFolderItemData = null;
+        AudioListViewAdapter.AudioArtistAlbumItemData mLVArtistAlbumItemData = null;
+
+        MediaEntity mediaEntity = null;
+        int lvAdapterType = dialog.getLVAdapterType();
+        AudioListViewAdapter.AudioItemData itemData = dialog.getAduioItemData();
+        if(lvAdapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
+            if(itemData instanceof AudioListViewAdapter.AudioSongItemData){
+                mLVSongItemData = (AudioListViewAdapter.AudioSongItemData)itemData;
+            }
+        }
+        else if(lvAdapterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
+            if(itemData instanceof AudioListViewAdapter.AudioFolderItemData){
+                mLVFolderItemData = (AudioListViewAdapter.AudioFolderItemData)itemData;
+            }
+        }
+        else{
+            if(itemData instanceof AudioListViewAdapter.AudioArtistAlbumItemData){
+                mLVArtistAlbumItemData = (AudioListViewAdapter.AudioArtistAlbumItemData)itemData;
+            }
+        }
+
+        switch (tag){
+            case MoreOperationDialog.MORE_ADD_NORMA:
+                break;
+            case MoreOperationDialog.MORE_ALBUM_NORMAL:
+                break;
+            case MoreOperationDialog.MORE_BELL_NORMAL:
+                if(mLVSongItemData == null)
+                    return ;
+
+                mediaEntity = MediaLibrary.getInstance().getMediaEntityById(mLVSongItemData.id);
+                if(mediaEntity == null)
+                    return ;
+
+                String filePath = mediaEntity.getFilePath();
+                ContentValues cv = new ContentValues();
+                Uri uri = null, newUri = null;
+                uri = MediaStore.Audio.Media.getContentUriForPath(filePath);
+                Cursor cursor = this.getContentResolver().query(uri, null, MediaStore.MediaColumns.DATA + "=?", new String[]{filePath}, null);
+                if(cursor.moveToFirst() && cursor.getCount() > 0){
+                    String _id = cursor.getString(0);
+                    cv.put(MediaStore.Audio.Media.IS_RINGTONE, true);
+                    cv.put(MediaStore.Audio.Media.IS_NOTIFICATION, false);
+                    cv.put(MediaStore.Audio.Media.IS_ALARM, false);
+                    cv.put(MediaStore.Audio.Media.IS_MUSIC, false);
+
+                    // 把需要设为铃声的歌曲更新铃声库
+                    getContentResolver().update(uri, cv, MediaStore.MediaColumns.DATA + "=?",new String[] { filePath });
+                    newUri = ContentUris.withAppendedId(uri, Long.valueOf(_id));
+                    RingtoneManager.setActualDefaultRingtoneUri(this, RingtoneManager.TYPE_RINGTONE, newUri);
+                    String strPromt = String.format("已将歌曲\"%s\"设置为铃声",mediaEntity.title);
+                    Toast.makeText(this, strPromt, Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case MoreOperationDialog.MORE_DELETE_NORMAL:
+                break;
+            case MoreOperationDialog.MORE_DOWNLOAD_NORMAL:
+                break;
+            case MoreOperationDialog.MORE_HIDE_NORMAL:
+                break;
+            case MoreOperationDialog.MORE_LOVE_NORMAL:
+                if(mLVSongItemData == null)
+                    return ;
+
+                mediaEntity = MediaLibrary.getInstance().getMediaEntityById(mLVSongItemData.id);
+                if(mediaEntity == null)
+                    return ;
+
+                FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
+                favoritesMusicEntity.musicinfo_id = mediaEntity._id;
+                favoritesMusicEntity.artist = mediaEntity.artist;
+                favoritesMusicEntity.album = mediaEntity.album;
+                favoritesMusicEntity.fav_time = System.currentTimeMillis();
+                favoritesMusicEntity.path = mediaEntity._data;
+                favoritesMusicEntity.title = mediaEntity.title;
+
+                if(MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mediaEntity._id)){
+                    boolean bRet = MediaLibrary.getInstance().removeFavoriteEntity(favoritesMusicEntity);
+                    if(bRet){
+                        Toast.makeText(this, "已取消喜欢", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else{
+                    boolean bRet = MediaLibrary.getInstance().addFavoriteEntity(favoritesMusicEntity);
+                    if(bRet){
+                        Toast.makeText(this, "已添加到我喜欢的单曲", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+            case MoreOperationDialog.MORE_MV_NORMAL:
+                break;
+            case MoreOperationDialog.MORE_NEXTPLAY_NORMAL:
+                if(mLVSongItemData == null)
+                    return ;
+
+                mediaEntity = MediaLibrary.getInstance().getMediaEntityById(mLVSongItemData.id);
+                if(mediaEntity == null)
+                    return ;
+
+                if(mLVSongItemData != null){
+                    mService.addSongToNext(mediaEntity);
+                }
+                break;
+            case MoreOperationDialog.MORE_PLAY_NORMAL:
+                break;
+            case MoreOperationDialog.MORE_REMOVE_NORMAL:
+                break;
+            case MoreOperationDialog.MORE_SHARE_NORMAL:
+                if(mLVSongItemData == null)
+                    return ;
+
+                AndroidShare as = new AndroidShare(
+                        this,
+                        "哈哈---超方便的分享！！！来自allen",
+                        "http://img6.cache.netease.com/cnews/news2012/img/logo_news.png");
+                as.show();
+                as.setTitle("分享 - " + mLVSongItemData.mMainTitle);
+                break;
+            case MoreOperationDialog.MORE_SONGER_NORMAL:
+                break;
+        }
+        mMoreDialog.dismiss();
     }
 }

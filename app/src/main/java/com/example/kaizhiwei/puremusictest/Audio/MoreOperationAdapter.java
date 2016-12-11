@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Created by kaizhiwei on 16/11/26.
  */
-public class MoreOperationAdapter extends BaseAdapter implements View.OnClickListener {
+public class MoreOperationAdapter extends BaseAdapter {
     static public class MoreOperationItemData{
         public int id;
         public String strText;
@@ -31,10 +31,6 @@ public class MoreOperationAdapter extends BaseAdapter implements View.OnClickLis
         }
     }
 
-    public interface IMoreOperListener{
-        public void onMoreItemClick(MoreOperationAdapter adapter, int tag);
-    }
-
     private class MoreOperationItemHolder{
         public TextView tvMoreOperTitle;
         public ImageView imMoreOperImage;
@@ -45,34 +41,15 @@ public class MoreOperationAdapter extends BaseAdapter implements View.OnClickLis
         }
     }
 
-    private Context mContext;
+    private MoreOperationDialog mContext;
     private List<MoreOperationItemData> mListItemData = new ArrayList<>();
-    private Map<IMoreOperListener, Object> mMapListener;
 
-    public MoreOperationAdapter(Context context, List<MoreOperationItemData> list){
+    public MoreOperationAdapter(MoreOperationDialog context, List<MoreOperationItemData> list){
         if(list != null){
             mListItemData.clear();
             mListItemData.addAll(list);
         }
         mContext = context;
-    }
-
-    public void registerListener(IMoreOperListener listener){
-        if(mMapListener == null){
-            mMapListener = new HashMap<>();
-        }
-
-        mMapListener.put(listener,listener);
-    }
-
-    public void unregisterListener(IMoreOperListener listener){
-        if(mMapListener == null){
-            mMapListener = new HashMap<>();
-        }
-
-        if(mMapListener.containsKey(listener)){
-            mMapListener.remove(listener);
-        }
     }
 
     @Override
@@ -98,11 +75,11 @@ public class MoreOperationAdapter extends BaseAdapter implements View.OnClickLis
         MoreOperationItemData itemData = mListItemData.get(position);
 
         MoreOperationItemHolder holder = null;
-        LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater)mContext.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         if(convertView == null){
             View view = inflater.inflate(R.layout.more_operation_gridview_item, null);
             holder = new MoreOperationItemHolder(view);
-            holder.imMoreOperImage.setOnClickListener(this);
+            holder.imMoreOperImage.setOnClickListener(mContext);
             view.setTag(holder);
             convertView = view;
         }
@@ -120,14 +97,5 @@ public class MoreOperationAdapter extends BaseAdapter implements View.OnClickLis
         }
 
         return convertView;
-    }
-
-    @Override
-    public void onClick(View v) {
-        for(IMoreOperListener key : mMapListener.keySet()){
-            if(key != null){
-                key.onMoreItemClick(this, (int)v.getTag());
-            }
-        }
     }
 }

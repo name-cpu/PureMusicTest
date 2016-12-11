@@ -29,6 +29,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
+import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.MediaData.VLCInstance;
 import com.example.kaizhiwei.puremusictest.Util.WeakHandler;
 
@@ -57,7 +58,7 @@ public class PlaybackService extends Service {
     private List<MediaEntity>  mMediaList = new ArrayList<>();
     private int                 mCurrentIndex;
     private int                 mCurrentTime;
-    private int                 mRepeatMode;
+    private int                 mRepeatMode;       //PreferenceConfig.PLAYMODE_ORDER
     private MediaPlayer         mMediaPlayer;
     private MediaSessionCompat  mMediaSession;
     protected MediaSessionCallback mSessionCallback;
@@ -87,21 +88,21 @@ public class PlaybackService extends Service {
     private final class MediaSessionCallback extends MediaSessionCompat.Callback {
         @Override
         public void onPlay() {
-            //play();
+            play();
         }
         @Override
         public void onPause() {
-            //pause();
+            pause();
         }
 
         @Override
         public void onStop() {
-            //stop();
+            stop();
         }
 
         @Override
         public void onSkipToNext() {
-            //next();
+            next(true);
         }
 
         @Override
@@ -206,7 +207,7 @@ public class PlaybackService extends Service {
                     executeUpdate();
                     executeUpdateProgress();
                     //determinePrevAndNextIndices(true);
-                    //next();
+                    next(true);
                     if (mWakeLock.isHeld())
                         mWakeLock.release();
                     changeAudioFocus(false);
@@ -217,7 +218,7 @@ public class PlaybackService extends Service {
 //                            mMediaList.getMRL(mCurrentIndex)), Toast.LENGTH_SHORT);
 //                    executeUpdate();
 //                    executeUpdateProgress();
-//                    next();
+                      next(true);
                     if (mWakeLock.isHeld())
                         mWakeLock.release();
                     break;
@@ -390,7 +391,17 @@ public class PlaybackService extends Service {
         if(position < 0 || position >= list.size())
             mCurrentIndex = 0;
 
-        String filePath = list.get(position).getFilePath();
+        play(position, 0);
+
+
+    }
+
+    public void play(int index, int flag){
+        if(index < 0 || index >= mMediaList.size())
+            mCurrentIndex = 0;
+        else
+            mCurrentIndex = index;
+        String filePath = mMediaList.get(index).getFilePath();
         File file = new File(filePath);
         if(file.exists() == false)
             return;
@@ -466,6 +477,83 @@ public class PlaybackService extends Service {
             mHandler.removeMessages(SHOW_PROGRESS);
             updateMetadata();
         }
+    }
+
+    public void stop(){
+        if(mMediaSession != null){
+            mMediaSession.setActive(false);
+            mMediaSession.release();
+            mMediaSession = null;
+        }
+
+        if(mMediaPlayer == null)
+            return;
+
+        Media media = mMediaPlayer.getMedia();
+        if(media != null){
+            media.setEventListener(null);
+            mMediaPlayer.setEventListener(null);
+            mMediaPlayer.stop();
+            mMediaPlayer.setMedia(null);
+            media.release();
+        }
+
+        mCurrentIndex = -1;
+        mHandler.removeMessages(SHOW_PROGRESS);
+        executeUpdate();
+        executeUpdateProgress();
+        changeAudioFocus(false);
+    }
+
+    public void next(boolean bAuto){
+        int nextPosition = 0;
+        switch (mRepeatMode){
+            case PreferenceConfig.PLAYMODE_ORDER:
+                if(bAuto){
+                    if(mCurrentIndex != mMediaList.size() - 1){
+                        nextPosition = mCurrentIndex + 1;
+                    }
+                    else{
+                        nextPosition = -1;
+                        stop();
+                        return ;
+                    }
+                }
+                else{
+                    nextPosition = (mCurrentIndex + 1)%mMediaList.size();
+                }
+                break;
+            case PreferenceConfig.PLAYMODE_ONECIRCLE:
+                if(bAuto){
+                    nextPosition = mCurrentIndex;
+                }
+                else{
+                    nextPosition = (mCurrentIndex + 1)%mMediaList.size();
+                }
+                break;
+            case PreferenceConfig.PLAYMODE_ALLCIRCLE:
+                nextPosition = (mCurrentIndex + 1)%mMediaList.size();
+                break;
+            case PreferenceConfig.PLAYMODE_RANDOM:
+                nextPosition = (int)Math.random()%mMediaList.size();
+                break;
+        }
+
+        play(nextPosition, 0);
+        //onMediaChanged();
+    }
+
+    public List<MediaEntity> getPlaylist(){
+        List<MediaEntity> list = new ArrayList<>();
+        list.addAll(mMediaList);
+        return list;
+    }
+
+    public void addSongToNext(MediaEntity entity){
+        if(entity == null || entity._id < 0)
+            return;
+
+        mMediaList.add(mCurrentIndex+1, entity);
     }
 //    /**
 //     * Set up the remote control and tell the system we want to be the default receiver for the MEDIA buttons

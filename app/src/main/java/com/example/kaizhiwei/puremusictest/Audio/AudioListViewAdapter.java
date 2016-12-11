@@ -427,8 +427,8 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 holder = new AudioOperatioinBarHolder(view);
                 view.setTag(holder);
                 convertView = view;
-                holder.btnRandom.setOnClickListener(this);
-                holder.btnBatchMgr.setOnClickListener(this);
+                //holder.btnRandom.setOnClickListener(this);
+                //holder.btnBatchMgr.setOnClickListener(this);
             }
             else{
                 holder = (AudioOperatioinBarHolder) convertView.getTag();
@@ -612,6 +612,12 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
 
         }
         notifyDataSetChanged();
+    }
+
+    public List<AudioItemData> getAdapterAllData(){
+        List<AudioItemData> list = new ArrayList<AudioItemData>();
+        list.addAll(mListItemData);
+        return  list;
     }
 
     //所有歌曲操作栏视图

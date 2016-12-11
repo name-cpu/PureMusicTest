@@ -12,6 +12,10 @@ public class PreferenceConfig {
     private static final String LAST_FIRST_LAUNCH = "LAST_FIRST_LAUNCH";
     private static final String FIRST_LAUNCH = "FIRST_LAUNCH";
     private static final String PLAY_MODE = "PLAY_MODE";
+    public static final int PLAYMODE_ORDER = 0;    //顺序播放
+    public static final int PLAYMODE_ONECIRCLE = 1;//单曲循环
+    public static final int PLAYMODE_ALLCIRCLE = 2;//整个播放列表循环播放
+    public static final int PLAYMODE_RANDOM = 3;    //随机播放
 
     private static PreferenceConfig mInstance;
 
@@ -45,6 +49,12 @@ public class PreferenceConfig {
     }
 
     public int getPlayMode(){
-        return PreferenceManager.getDefaultSharedPreferences(PureMusicApplication.getInstance()).getInt(PLAY_MODE, 0);
+        return PreferenceManager.getDefaultSharedPreferences(PureMusicApplication.getInstance()).getInt(PLAY_MODE, PLAYMODE_ORDER);
+    }
+
+    public void setPlayMode(int iMode){
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(PureMusicApplication.getInstance()).edit();
+        editor.putInt(PLAY_MODE, iMode);
+        editor.commit();
     }
 }

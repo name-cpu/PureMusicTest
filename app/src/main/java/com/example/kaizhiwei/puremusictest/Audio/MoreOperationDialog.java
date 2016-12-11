@@ -20,9 +20,12 @@ import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.example.kaizhiwei.puremusictest.Audio.MoreOperationAdapter.*;
 
@@ -30,7 +33,7 @@ import static com.example.kaizhiwei.puremusictest.Audio.MoreOperationAdapter.*;
 /**
  * Created by kaizhiwei on 16/11/26.
  */
-public class MoreOperationDialog extends Dialog implements IMoreOperListener {
+public class MoreOperationDialog extends Dialog implements View.OnClickListener {
     public static final int MORE_ADD_NORMA = 1;
     public static final int MORE_ALBUM_NORMAL = 2;
     public static final int MORE_BELL_NORMAL = 3;
@@ -54,8 +57,40 @@ public class MoreOperationDialog extends Dialog implements IMoreOperListener {
     private AudioListViewAdapter.AudioSongItemData mLVSongItemData = null;
     private AudioListViewAdapter.AudioFolderItemData mLVFolderItemData = null;
     private AudioListViewAdapter.AudioArtistAlbumItemData mLVArtistAlbumItemData = null;
+    private Map<IMoreOperationDialogListener, Object> mMapListener;
 
     private int mLVAdapterType;
+
+    public interface IMoreOperationDialogListener{
+        public void onMoreItemClick(MoreOperationDialog dialog, int tag);
+    }
+
+    public void registerListener(IMoreOperationDialogListener listener){
+        if(mMapListener == null){
+            mMapListener = new HashMap<>();
+        }
+
+        mMapListener.put(listener,listener);
+    }
+
+    public void unregisterListener(IMoreOperationDialogListener listener){
+        if(mMapListener == null){
+            mMapListener = new HashMap<>();
+        }
+
+        if(mMapListener.containsKey(listener)){
+            mMapListener.remove(listener);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        for(IMoreOperationDialogListener key : mMapListener.keySet()){
+            if(key != null){
+                key.onMoreItemClick(this, (int)v.getTag());
+            }
+        }
+    }
 
     public MoreOperationDialog(Context context, int theme_Dialog) {
         super(context);
@@ -183,6 +218,26 @@ public class MoreOperationDialog extends Dialog implements IMoreOperListener {
             boolean bFavorite = MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mLVSongItemData.id);
             setFavorite(bFavorite);
         }
+
+        if(mMoreAdapter != null){
+            mMoreAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public int getLVAdapterType(){
+        return mLVAdapterType;
+    }
+
+    public AudioListViewAdapter.AudioItemData getAduioItemData(){
+        if(mLVAdapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
+            return mLVSongItemData;
+        }
+        else if(mLVAdapterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
+            return mLVFolderItemData;
+        }
+        else{
+            return mLVArtistAlbumItemData;
+        }
     }
 
     public void setMoreOperData(List<Integer> listMore){
@@ -202,11 +257,7 @@ public class MoreOperationDialog extends Dialog implements IMoreOperListener {
             gvMoreOperation.setNumColumns(4);
         }
 
-        if(mMoreAdapter != null){
-            mMoreAdapter.unregisterListener(this);
-        }
-
-        mMoreAdapter = new MoreOperationAdapter(context, listData);
+        mMoreAdapter = new MoreOperationAdapter(this, listData);
         gvMoreOperation.setAdapter(mMoreAdapter);
     }
 
@@ -254,7 +305,6 @@ public class MoreOperationDialog extends Dialog implements IMoreOperListener {
 
     protected void onStart() {
         super.onStart();
-        mMoreAdapter.registerListener(this);
     }
 
     /**
@@ -262,71 +312,6 @@ public class MoreOperationDialog extends Dialog implements IMoreOperListener {
      */
     protected void onStop() {
         super.onStop();
-        mMoreAdapter.unregisterListener(this);
-    }
-
-    @Override
-    public void onMoreItemClick(MoreOperationAdapter adapter, int tag) {
-        Toast.makeText(context, "" + tag, Toast.LENGTH_SHORT).show();
-        if(adapter == null)
-            return;
-
-        switch (tag){
-            case MORE_ADD_NORMA:
-                break;
-            case MORE_ALBUM_NORMAL:
-                break;
-            case MORE_BELL_NORMAL:
-                break;
-            case MORE_DELETE_NORMAL:
-                break;
-            case MORE_DOWNLOAD_NORMAL:
-                break;
-            case MORE_HIDE_NORMAL:
-                break;
-            case MORE_LOVE_NORMAL:
-                if(mLVSongItemData == null)
-                    return ;
-
-                MediaEntity mediaEntity = MediaLibrary.getInstance().getMediaEntityById(mLVSongItemData.id);
-                if(mediaEntity == null)
-                    return ;
-
-                FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-                favoritesMusicEntity.musicinfo_id = mediaEntity._id;
-                favoritesMusicEntity.artist = mediaEntity.artist;
-                favoritesMusicEntity.album = mediaEntity.album;
-                favoritesMusicEntity.fav_time = System.currentTimeMillis();
-                favoritesMusicEntity.path = mediaEntity._data;
-                favoritesMusicEntity.title = mediaEntity.title;
-
-                if(isFavorite()){
-                    boolean bRet = MediaLibrary.getInstance().removeFavoriteEntity(favoritesMusicEntity);
-                    if(bRet){
-                        Toast.makeText(context, "已取消喜欢", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                else{
-                    boolean bRet = MediaLibrary.getInstance().addFavoriteEntity(favoritesMusicEntity);
-                    if(bRet){
-                        Toast.makeText(context, "已添加到我喜欢的单曲", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                break;
-            case MORE_MV_NORMAL:
-                break;
-            case MORE_NEXTPLAY_NORMAL:
-                break;
-            case MORE_PLAY_NORMAL:
-                break;
-            case MORE_REMOVE_NORMAL:
-                break;
-            case MORE_SHARE_NORMAL:
-                break;
-            case MORE_SONGER_NORMAL:
-                break;
-        }
-        this.dismiss();
     }
 
     public static class Builder {

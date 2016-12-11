@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/backgroundColor">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:text="@string/app_name"
+        android:textSize="15sp"
+        android:textColor="#000000"
+        android:textAlignment="center"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:gravity="center"
+        android:layout_gravity="bottom" />
+
+    <View
+        android:id="@+id/viewSepratorLine"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/more_oper_dialog_seperator_line"
+        android:layout_alignParentBottom="true"/>
+    <GridView
+        android:id="@+id/gvShare"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:listSelector="@android:color/transparent"
+        android:scrollbars="none"
+        android:gravity="center"
+        android:numColumns="4">
+    </GridView>
+</LinearLayout>
