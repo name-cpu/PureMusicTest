@@ -32,6 +32,7 @@ public class FavoritesMusicEntity  implements Serializable, Parcelable {
     public String version;
     public long has_pay_status;
     public long is_offline;
+    public long favorite_id;
 
     public FavoritesMusicEntity(){
 
@@ -61,6 +62,7 @@ public class FavoritesMusicEntity  implements Serializable, Parcelable {
         version = in.readString();
         has_pay_status = in.readLong();
         is_offline = in.readLong();
+        favorite_id = in.readLong();
     }
 
     @Override
@@ -88,6 +90,7 @@ public class FavoritesMusicEntity  implements Serializable, Parcelable {
         dest.writeString(version);
         dest.writeLong(has_pay_status);
         dest.writeLong(is_offline);
+        dest.writeLong(favorite_id);
     }
 
     @Override

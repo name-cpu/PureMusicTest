@@ -22,6 +22,7 @@ public class MoreOperationAdapter extends BaseAdapter {
     static public class MoreOperationItemData{
         public int id;
         public String strText;
+        public String strSelText;
         public int resImage;
         public int resSelImage;
         boolean isSelect;
@@ -91,9 +92,11 @@ public class MoreOperationAdapter extends BaseAdapter {
 
         if(itemData.isSelect && itemData.resSelImage != 0){
             holder.imMoreOperImage.setImageResource(itemData.resSelImage);
+            holder.tvMoreOperTitle.setText(itemData.strSelText);
         }
         else{
             holder.imMoreOperImage.setImageResource(itemData.resImage);
+            holder.tvMoreOperTitle.setText(itemData.strText);
         }
 
         return convertView;

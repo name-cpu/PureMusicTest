@@ -40,8 +40,11 @@ public class MediaLibrary {
     private static final List<String> FOLDER_BLACKLIST;
     private List<MediaEntity> mMediaEntityList = new ArrayList<MediaEntity>();
     private ReadWriteLock mMediaEntityListLock = new ReentrantReadWriteLock();
-    private List<FavoritesMusicEntity> mFavoriteListData = new ArrayList<>();
-    private ReadWriteLock mFavoriteListLock = new ReentrantReadWriteLock();
+
+    private List<FavoriteEntity> mFavoriteListData = new ArrayList<>();
+
+    private List<FavoritesMusicEntity> mFavoriteMusicListData = new ArrayList<>();
+    private ReadWriteLock mFavoriteMusicListLock = new ReentrantReadWriteLock();
 
     private boolean isScaning;
     private boolean isForceStop;
@@ -78,6 +81,27 @@ public class MediaLibrary {
         mPool = Executors.newFixedThreadPool(1);
     }
 
+    public void initData(){
+        if(mMediaEntityList == null || mMediaEntityList.size() == 0){
+            mMediaEntityListLock.writeLock().lock();
+            List<MediaEntity> list = MediaDataBase.getInstance().queryAllMusicInfo();
+            mMediaEntityList.addAll(list);
+            mMediaEntityListLock.writeLock().unlock();
+        }
+
+        if(mFavoriteListData.size() == 0){
+            List<FavoriteEntity> list = MediaDataBase.getInstance().queryAllFavoriteInfo();
+            mFavoriteListData.addAll(list);
+        }
+
+        if(mFavoriteMusicListData == null || mFavoriteMusicListData.size() == 0){
+            mFavoriteMusicListLock.writeLock().lock();
+            List<FavoritesMusicEntity> list = MediaDataBase.getInstance().queryAllFavoriteMusicInfo();
+            mFavoriteMusicListData.addAll(list);
+            mFavoriteMusicListLock.writeLock().unlock();
+        }
+    }
+
     public List<MediaEntity> getAllMediaEntrty(){
 
         if(mMediaEntityList == null || mMediaEntityList.size() == 0){
@@ -87,7 +111,7 @@ public class MediaLibrary {
             mMediaEntityListLock.writeLock().unlock();
         }
 
-        getAllFavoriteEntity();
+        getAllFavoriteMusicEntity();
         mMediaEntityListLock.readLock().lock();
         List<MediaEntity> newList = new ArrayList<>();
         newList.addAll(mMediaEntityList);
@@ -107,60 +131,97 @@ public class MediaLibrary {
         return entity;
     }
 
-    public List<FavoritesMusicEntity> getAllFavoriteEntity(){
-        if(mFavoriteListData == null || mFavoriteListData.size() == 0){
-            mFavoriteListLock.writeLock().lock();
+    public List<FavoritesMusicEntity> getAllFavoriteMusicEntity(){
+        if(mFavoriteMusicListData == null || mFavoriteMusicListData.size() == 0){
+            mFavoriteMusicListLock.writeLock().lock();
             List<FavoritesMusicEntity> list = MediaDataBase.getInstance().queryAllFavoriteMusicInfo();
-            mFavoriteListData.addAll(list);
-            mFavoriteListLock.writeLock().unlock();
+            mFavoriteMusicListData.addAll(list);
+            mFavoriteMusicListLock.writeLock().unlock();
         }
 
-        mFavoriteListLock.readLock().lock();
+        mFavoriteMusicListLock.readLock().lock();
         List<FavoritesMusicEntity> newList = new ArrayList<>();
-        newList.addAll(mFavoriteListData);
-        mFavoriteListLock.readLock().unlock();
+        newList.addAll(mFavoriteMusicListData);
+        mFavoriteMusicListLock.readLock().unlock();
         return newList;
     }
 
-    public boolean addFavoriteEntity(FavoritesMusicEntity entity){
+    public boolean addFavoriteMusicEntity(FavoritesMusicEntity entity){
         if(entity == null)
             return false;
 
-        if(queryIsFavoriteByMediaEntityId(entity._id))
+        if(!isExistFavorite(entity.favorite_id))
+            return false;
+
+        if(queryIsFavoriteByMediaEntityId(entity._id, getDefaultFavoriteEntityId()))
             return true;
 
-        mFavoriteListLock.writeLock().lock();
-        mFavoriteListData.add(entity);
-        mFavoriteListLock.writeLock().unlock();
+        mFavoriteMusicListLock.writeLock().lock();
+        mFavoriteMusicListData.add(entity);
+        mFavoriteMusicListLock.writeLock().unlock();
         return MediaDataBase.getInstance().insertFavoriteMusicInfo(entity);
     }
 
-    public boolean removeFavoriteEntity(FavoritesMusicEntity entity){
-        if(entity == null)
+    public boolean removeFavoriteMusicEntity(long musicEntityId, long favoriteEntityId){
+        if(musicEntityId < 0 || favoriteEntityId < 0)
             return false;
 
-        mFavoriteListLock.writeLock().lock();
-        for(int i = 0;i < mFavoriteListData.size();i++){
-            if(entity.musicinfo_id == mFavoriteListData.get(i).musicinfo_id){
-                mFavoriteListData.remove(i);
+        if(!isExistFavorite(favoriteEntityId))
+            return false;
+
+        mFavoriteMusicListLock.writeLock().lock();
+        for(int i = 0;i < mFavoriteMusicListData.size();i++){
+            if(musicEntityId == mFavoriteMusicListData.get(i).musicinfo_id && mFavoriteMusicListData.get(i).favorite_id == favoriteEntityId){
+                mFavoriteMusicListData.remove(i);
                 break;
             }
         }
-        mFavoriteListLock.writeLock().unlock();
-        return MediaDataBase.getInstance().deleteFavoriteMusicInfoByMediaEntityId(entity.musicinfo_id);
+        mFavoriteMusicListLock.writeLock().unlock();
+        return MediaDataBase.getInstance().deleteFavoriteMusicInfoByMediaEntityId(musicEntityId, favoriteEntityId);
     }
 
-    public boolean queryIsFavoriteByMediaEntityId(long mediaEntityId){
-        mFavoriteListLock.readLock().lock();
+    public boolean queryIsFavoriteByMediaEntityId(long mediaEntityId, long favoriteEntityId){
+        mFavoriteMusicListLock.readLock().lock();
         boolean bFavorite = false;
-        for(int i = 0;i < mFavoriteListData.size();i++){
-            if(mFavoriteListData.get(i).musicinfo_id == mediaEntityId){
+        for(int i = 0;i < mFavoriteMusicListData.size();i++){
+            if(mFavoriteMusicListData.get(i).musicinfo_id == mediaEntityId && mFavoriteMusicListData.get(i).favorite_id == favoriteEntityId){
                 bFavorite = true;
                 break;
             }
         }
-        mFavoriteListLock.readLock().unlock();
+        mFavoriteMusicListLock.readLock().unlock();
         return bFavorite;
+    }
+
+    public List<FavoriteEntity> getAllFavoriteEntity(){
+        if(mFavoriteListData == null || mFavoriteListData.size() == 0){
+            List<FavoriteEntity> list = MediaDataBase.getInstance().queryAllFavoriteInfo();
+            mFavoriteListData.addAll(list);
+        }
+
+        List<FavoriteEntity> newList = new ArrayList<>();
+        newList.addAll(mFavoriteListData);
+        return newList;
+    }
+
+    public long getDefaultFavoriteEntityId(){
+        for(int i = 0;i < mFavoriteListData.size();i++){
+            if(mFavoriteListData.get(i).favoriteType == FavoriteEntity.DEFAULT_FAVORITE_TYPE){
+                return mFavoriteListData.get(i)._id;
+            }
+        }
+
+        return -1;
+    }
+
+    public boolean isExistFavorite(long favoriteEntityId){
+        for(int i = 0;i < mFavoriteListData.size();i++){
+            if(mFavoriteListData.get(i)._id == favoriteEntityId){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void startScan(){

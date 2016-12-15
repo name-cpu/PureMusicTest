@@ -142,6 +142,7 @@ public class MoreOperationDialog extends Dialog implements View.OnClickListener 
         data = new MoreOperationAdapter.MoreOperationItemData();
         data.id = MORE_LOVE_NORMAL;
         data.strText = "喜欢";
+        data.strSelText = "取消喜欢";
         data.resImage = R.drawable.ic_listmore_love_normal;
         data.resSelImage = R.drawable.ic_listmore_love_hl;
         mMoreOperAll.add(data);
@@ -215,7 +216,7 @@ public class MoreOperationDialog extends Dialog implements View.OnClickListener 
         }
 
         if(mLVSongItemData != null){
-            boolean bFavorite = MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mLVSongItemData.id);
+            boolean bFavorite = MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mLVSongItemData.id, 1);
             setFavorite(bFavorite);
         }
 

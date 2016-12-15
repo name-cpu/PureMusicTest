@@ -21,6 +21,7 @@ public class MediaDataBase{
     private static MediaDataBase mInstance;
     private static final String TABLE_MUSIC_INFO = "musicInfo";
     private static final String TABLE_FAVORITES_MUSIC = "favorites_music";
+    private static final String TABLE_FAVORITES = "favorites";
 
     public static synchronized MediaDataBase getInstance(){
         if(mInstance == null){
@@ -157,35 +158,25 @@ public class MediaDataBase{
     }
 
     public boolean insertFavoriteMusicInfo(FavoritesMusicEntity entity){
-        if(mDB == null || entity == null)
+        if(mDB == null || entity == null || entity.favorite_id < 0)
             return false;
 
         String strInsertData = String.format("insert into %s (" +
                         "\"musicinfo_id\", \"song_id\", \"title\", \"artist_id\", \"artist\", \"album_id\", \"album\", \"fav_time\", \"havehigh\", \"charge\"," +
                         " \"fav_type\", \"allbitrate\", \"path\", \"file_from\", \"has_original\", \"has_mv_mobile\", \"song_source\", \"original_rate\", \"cache_status\", \"version\", " +
-                        "\"has_pay_status\", \"is_offline\")" +
+                        "\"has_pay_status\", \"is_offline\", \"favorite_id\")" +
                         "values(%d, %d, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %d, %d, %d," +
                         "%d,\"%s\", \"%s\",%d, %d, %d, \"%s\", \"%s\", %d, \"%s\", %d," +
-                        "%d);",TABLE_FAVORITES_MUSIC,
+                        "%d, %d);",TABLE_FAVORITES_MUSIC,
                 entity.musicinfo_id, entity.song_id, entity.title, entity.artist_id, entity.artist,
                 entity.album_id, entity.album, entity.fav_time, entity.havehigh, entity.charge,
                 entity.fav_type, entity.allbitrate, entity.path, entity.file_from, entity.has_original,
                 entity.has_mv_mobile, entity.song_source, entity.original_rate, entity.cache_status, entity.version,
-                entity.has_pay_status, entity.is_offline);
+                entity.has_pay_status, entity.is_offline, entity.favorite_id);
 
         mDB.execSQL(strInsertData);
 
-//        String strInsertData = String.format("insert into %s (" +
-//                        "\"musicinfo_id\", \"song_id\", \"title\", \"artist_id\", \"artist\", \"album_id\", \"album\", \"fav_time\", \"havehigh\", \"charge\"" +
-//                        ")" +
-//                        "values(%d, %d, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %d, %d, %d" +
-//                        ");",TABLE_FAVORITES_MUSIC,
-//                entity.musicinfo_id, entity.song_id, entity.title, entity.artist_id, entity.artist,
-//                entity.album_id, entity.album, entity.fav_time, entity.havehigh, entity.charge);
-//
-//        mDB.execSQL(strInsertData);
-
-        String strQueryId = String.format("select _id from %s where musicinfo_id = %s;", TABLE_FAVORITES_MUSIC,  entity.musicinfo_id);
+        String strQueryId = String.format("select _id from %s where fav_time = %s;", TABLE_FAVORITES_MUSIC,  entity.fav_time);
         Cursor c =  mDB.rawQuery(strQueryId, null);
         boolean bSuccess = false;
         while (c.moveToNext()) {
@@ -195,7 +186,7 @@ public class MediaDataBase{
         return bSuccess;
     }
 
-    public boolean deleteFavoriteMusicInfo(FavoritesMusicEntity entity){
+    public boolean deleteFavoriteMusicInfo(FavoritesMusicEntity entity, FavoriteEntity favoriteEntity){
         if(mDB == null || entity == null || entity._id < 0)
             return false;
 
@@ -204,11 +195,11 @@ public class MediaDataBase{
         return true;
     }
 
-    public boolean deleteFavoriteMusicInfoByMediaEntityId(long mediaEntityId){
+    public boolean deleteFavoriteMusicInfoByMediaEntityId(long mediaEntityId, long favoriteEntityId){
         if(mDB == null || mediaEntityId < 0)
             return false;
 
-        String strDelete = String.format("delete from %s where musicinfo_id = %d", TABLE_FAVORITES_MUSIC, mediaEntityId);
+        String strDelete = String.format("delete from %s where musicinfo_id = %d and favorite_id = %d", TABLE_FAVORITES_MUSIC, mediaEntityId, favoriteEntityId);
         mDB.execSQL(strDelete);
         return true;
     }
@@ -248,11 +239,74 @@ public class MediaDataBase{
             entity.version = c.getString(c.getColumnIndex("version"));
             entity.has_pay_status = c.getLong(c.getColumnIndex("has_pay_status"));
             entity.is_offline = c.getLong(c.getColumnIndex("is_offline"));
-
+            entity.favorite_id = c.getLong(c.getColumnIndex("favorite_id"));
             listFavoriteMusicEntity.add(entity);
         }
 
         return  listFavoriteMusicEntity;
+    }
+
+    public List<FavoriteEntity> queryAllFavoriteInfo(){
+        if(mDB == null)
+            return null;
+
+        List<FavoriteEntity> listFavoriteEntity = new ArrayList<>();
+        String strSelectFavoritInfo = "select * from " + TABLE_FAVORITES + ";";
+        Cursor c =  mDB.rawQuery(strSelectFavoritInfo, null);
+        while (c.moveToNext()){
+            FavoriteEntity entity = new FavoriteEntity();
+
+            entity._id = c.getLong(c.getColumnIndex("_id"));
+            entity.strFavoriteName = c.getString(c.getColumnIndex("favoriteName"));
+            entity.favoriteType = c.getLong(c.getColumnIndex("favoriteType"));
+            listFavoriteEntity.add(entity);
+        }
+
+        return  listFavoriteEntity;
+    }
+
+    public boolean insertFavoriteInfo(FavoriteEntity entity){
+        if(mDB == null || entity == null)
+            return false;
+
+        String strInsertData = String.format("insert into %s (" +
+                        "\"favoriteName\", \"favoriteType\")" +
+                        "values(\"%s\", %d);",TABLE_FAVORITES,
+                entity.strFavoriteName, entity.favoriteType);
+
+        mDB.execSQL(strInsertData);
+
+        String strQueryId = String.format("select _id from %s where favoriteName = %s;", TABLE_FAVORITES,  entity.strFavoriteName);
+        Cursor c =  mDB.rawQuery(strQueryId, null);
+        boolean bSuccess = false;
+        while (c.moveToNext()) {
+            entity._id = c.getInt(c.getColumnIndex("_id"));
+            bSuccess = true;
+        }
+        return bSuccess;
+    }
+
+
+    public boolean modifyFavoriteInfo(FavoriteEntity entity){
+        if(mDB == null || entity == null)
+            return false;
+
+        String strUpdateData = String.format("update %s set " +
+                        "favoriteName = %s" + " where _id = %d;",
+                        TABLE_FAVORITES,  entity.strFavoriteName, entity._id);
+
+        mDB.execSQL(strUpdateData);
+        return true;
+    }
+
+    public boolean deleteFavoriteInfo(FavoriteEntity entity){
+        if(mDB == null || entity == null)
+            return false;
+
+        String strUpdateData = String.format("delete from %s where _id = %d;",
+                TABLE_FAVORITES, entity._id);
+        mDB.execSQL(strUpdateData);
+        return true;
     }
 
     public class MediaDataBaseHelpder extends SQLiteOpenHelper {
@@ -353,10 +407,22 @@ public class MediaDataBase{
                     "  cache_status integer DEFAULT(-1),\n" +
                     "  version text DEFAULT(''),\n" +
                     "  has_pay_status integer DEFAULT(0),\n" +
-                    "  is_offline integer DEFAULT(0)\n" +
+                    "  is_offline integer DEFAULT(0),\n" +
+                    "  favorite_id integer DEFAULT(-1)\n" +
                     ");";
 
             db.execSQL(strFavoriteTable);
+
+            //创建favorites表
+            String strFarovites = "CREATE TABLE IF NOT EXISTS " + TABLE_FAVORITES + " (\n" +
+                    " _id integer PRIMARY KEY AUTOINCREMENT,\n" +
+                    " favoriteName text,\n" +
+                    " favoriteType integer DEFAULT(0)\n" +
+                    ");";
+            db.execSQL(strFarovites);
+
+            String strDefaultFavorite = "insert into " + TABLE_FAVORITES + " values (null, '我喜欢的单曲'" + ", " + FavoriteEntity.DEFAULT_FAVORITE_TYPE + ");";
+            db.execSQL(strDefaultFavorite);
         }
 
         @Override

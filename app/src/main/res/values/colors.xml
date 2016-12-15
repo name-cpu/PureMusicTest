@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="backgroundColor">#FFFFFF</color>
+    <color name="defaultTextColor">#000000</color>
     <color name="mainTextColor">#424242</color>
     <color name="subTextColor">#A0A0A0</color>
     <color name="tabSeperatorLineColor">#32B3E1</color>

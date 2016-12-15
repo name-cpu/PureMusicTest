@@ -2,6 +2,7 @@ package com.example.kaizhiwei.puremusictest.Audio;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -27,6 +28,7 @@ import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
 import com.example.kaizhiwei.puremusictest.CommonUI.SystemBarTintManager;
+import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaDataBase;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
@@ -519,6 +521,21 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
 
         switch (tag){
             case MoreOperationDialog.MORE_ADD_NORMA:
+                FavoriteDialog.Builder builderFavorite = new FavoriteDialog.Builder(this);
+                FavoriteDialog dialogFavorite = builderFavorite.create();
+                dialogFavorite.setCancelable(true);
+                dialogFavorite.setFavoritelistData(MediaLibrary.getInstance().getAllFavoriteEntity());
+                if(mLVSongItemData != null){
+                    dialogFavorite.setSongItemData(mLVSongItemData);
+                }
+                else if(mLVFolderItemData != null){
+
+                }
+                else if(mLVArtistAlbumItemData != null){
+
+                }
+                dialogFavorite.show();
+                dialogFavorite.setTitle("添加到歌单");
                 break;
             case MoreOperationDialog.MORE_ALBUM_NORMAL:
                 break;
@@ -551,6 +568,11 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
                 }
                 break;
             case MoreOperationDialog.MORE_DELETE_NORMAL:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+                alertDialog.getWindow().setContentView(this.getLayoutInflater().inflate(R.layout.delete_music, null));
+
                 break;
             case MoreOperationDialog.MORE_DOWNLOAD_NORMAL:
                 break;
@@ -571,15 +593,16 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
                 favoritesMusicEntity.fav_time = System.currentTimeMillis();
                 favoritesMusicEntity.path = mediaEntity._data;
                 favoritesMusicEntity.title = mediaEntity.title;
+                favoritesMusicEntity.favorite_id = MediaLibrary.getInstance().getDefaultFavoriteEntityId();
 
-                if(MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mediaEntity._id)){
-                    boolean bRet = MediaLibrary.getInstance().removeFavoriteEntity(favoritesMusicEntity);
+                if(MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mediaEntity._id, favoritesMusicEntity.favorite_id)){
+                    boolean bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(favoritesMusicEntity.musicinfo_id, favoritesMusicEntity.favorite_id);
                     if(bRet){
                         Toast.makeText(this, "已取消喜欢", Toast.LENGTH_SHORT).show();
                     }
                 }
                 else{
-                    boolean bRet = MediaLibrary.getInstance().addFavoriteEntity(favoritesMusicEntity);
+                    boolean bRet = MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
                     if(bRet){
                         Toast.makeText(this, "已添加到我喜欢的单曲", Toast.LENGTH_SHORT).show();
                     }
