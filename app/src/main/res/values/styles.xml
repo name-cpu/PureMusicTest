@@ -56,5 +56,12 @@
         <item name="android:windowExitAnimation">@anim/anim_activty_exit</item>
     </style>
 
+    <style name="DefaultTextView">
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
 
+    <style name="DefaultCheckbox" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/check_box_blue_selector</item>
+    </style>
 </resources>

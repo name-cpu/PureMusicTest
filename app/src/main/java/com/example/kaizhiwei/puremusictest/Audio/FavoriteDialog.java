@@ -3,6 +3,8 @@ package com.example.kaizhiwei.puremusictest.Audio;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,13 +28,11 @@ import java.util.List;
 /**
  * Created by kaizhiwei on 16/11/27.
  */
-public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsListView.OnItemClickListener {
+public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsListView.OnItemClickListener, AlertDialogFavorite.OnAlterDialogFavoriteListener {
     private ListView lvFavorite;
     private TextView tvTitle;
     private FavoriteListViewAdapter mFavoriteListAdapter;
-    private AudioListViewAdapter.AudioSongItemData mLVSongItemData = null;
-    private AudioListViewAdapter.AudioFolderItemData mLVFolderItemData = null;
-    private AudioListViewAdapter.AudioArtistAlbumItemData mLVArtistAlbumItemData = null;
+    private List<MediaEntity> mListMediaEntity;
 
     public FavoriteDialog(Context context) {
         super(context);
@@ -54,6 +54,9 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
         lvFavorite = (ListView) view.findViewById(R.id.lvFavorite);
         tvTitle = (TextView) view.findViewById(R.id.tvTitle);
 
+        DisplayMetrics dm = null;
+        dm = getContext().getApplicationContext().getResources().getDisplayMetrics();
+
         Window window = this.getWindow();
         window.getDecorView().setPadding(0,0,0,0);
         window.setWindowAnimations(R.style.ActionSheetDialogAnimation);
@@ -65,6 +68,7 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
         // 以下这两句是为了保证按钮可以水平满屏
         wl.width = ViewGroup.LayoutParams.MATCH_PARENT;
         wl.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        //wl.height = view.getHeight() > 300 * dm.densityDpi ? 300 * dm.densityDpi : view.getHeight();
         wl.gravity = Gravity.BOTTOM;
 
         window.setAttributes(wl);
@@ -77,11 +81,8 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
         lvFavorite.setAdapter(mFavoriteListAdapter);
     }
 
-    public void setSongItemData(AudioListViewAdapter.AudioSongItemData itemData){
-        mLVSongItemData = null;
-        mLVFolderItemData = null;
-        mLVArtistAlbumItemData = null;
-        mLVSongItemData = itemData;
+    public void setMediaEntityData(List<MediaEntity> list){
+        mListMediaEntity = list;
     }
 
     public void setTitle(String strTitle) {
@@ -106,18 +107,85 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        FavoriteEntity entity = (FavoriteEntity)mFavoriteListAdapter.getItem(position);
+        if(entity == null)
+            return;
+
         //新组歌单
         if(position == 0){
-
+            AlertDialogFavorite favoriteDialog = new AlertDialogFavorite(this.getContext(), this);
+            favoriteDialog.show();
+            favoriteDialog.setFavoriteEntity(entity);
+            favoriteDialog.setOperType(AlertDialogFavorite.ADD_FAVORITE);
         }
-        //添加到默认的歌单
-        else if(position == 1){
+        //添加到已有的歌单
+        else{
             boolean bExist = false;
             boolean bSuccess = false;
-            if(mLVSongItemData != null){
-                MediaEntity mediaEntity = MediaLibrary.getInstance().getMediaEntityById(mLVSongItemData.id);
+            if(mListMediaEntity != null){
+                boolean isMutil = mListMediaEntity.size() > 1 ? true : false;
+                for(int i = 0;i < mListMediaEntity.size();i++){
+                    MediaEntity mediaEntity = mListMediaEntity.get(i);
+                    if(mediaEntity == null)
+                        continue ;
+
+                    FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
+                    favoritesMusicEntity.musicinfo_id = mediaEntity._id;
+                    favoritesMusicEntity.artist = mediaEntity.artist;
+                    favoritesMusicEntity.album = mediaEntity.album;
+                    favoritesMusicEntity.fav_time = System.currentTimeMillis();
+                    favoritesMusicEntity.path = mediaEntity._data;
+                    favoritesMusicEntity.title = mediaEntity.title;
+                    favoritesMusicEntity.favorite_id = entity._id;
+
+                    if(MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mediaEntity._id, favoritesMusicEntity.favorite_id)){
+                        bExist = true;
+                    }
+                    else{
+                        bSuccess= MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
+                    }
+                }
+
+                String strPromt = "";
+                if(bExist){
+                    strPromt = String.format("歌曲已经添加到\"%s\"", entity.strFavoriteName);
+
+                }
+                else{
+                    if(bSuccess){
+                        strPromt = String.format("成功添加到\"%s\"", entity.strFavoriteName);
+                    }
+                    else{
+                        strPromt = String.format("添加失败");
+                    }
+                }
+                Toast.makeText(this.getContext(), strPromt, Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        dismiss();
+    }
+
+    @Override
+    public void OnFinish(AlertDialogFavorite dialog, int operType, String strFavoriteName) {
+        if(dialog == null || TextUtils.isEmpty(strFavoriteName))
+            return;
+
+        String strPromt = "";
+        if(operType == AlertDialogFavorite.ADD_FAVORITE){
+            FavoriteEntity favoriteEntity = new FavoriteEntity();
+            favoriteEntity.favoriteType = FavoriteEntity.DEFAULT_CUSTOME_TYPE;
+            favoriteEntity.strFavoriteName = strFavoriteName;
+            if(MediaLibrary.getInstance().addFavoriteEntity(favoriteEntity) == false){
+                Toast.makeText(this.getContext(), "新建歌单失败",Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            boolean bSuccess = false;
+            for(int i = 0;i < mListMediaEntity.size();i++){
+                MediaEntity mediaEntity = mListMediaEntity.get(i);
                 if(mediaEntity == null)
-                    return ;
+                    continue;
 
                 FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
                 favoritesMusicEntity.musicinfo_id = mediaEntity._id;
@@ -126,27 +194,34 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
                 favoritesMusicEntity.fav_time = System.currentTimeMillis();
                 favoritesMusicEntity.path = mediaEntity._data;
                 favoritesMusicEntity.title = mediaEntity.title;
-                favoritesMusicEntity.favorite_id = MediaLibrary.getInstance().getDefaultFavoriteEntityId();
+                favoritesMusicEntity.favorite_id = favoriteEntity._id;
 
-                if(MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mediaEntity._id, favoritesMusicEntity.favorite_id)){
-                    bExist = true;
-                }
-                else{
-                    bSuccess= MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
-                }
+                bSuccess = MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
             }
 
-            if(bExist){
-                Toast.makeText(this.getContext(), "该歌曲已经添加到此歌单", Toast.LENGTH_SHORT).show();
+            if(bSuccess){
+                strPromt = String.format("成功添加到\"%s\"", favoriteEntity.strFavoriteName);
             }
             else{
-                if(bSuccess){
-                    Toast.makeText(this.getContext(), "成功添加到此歌单", Toast.LENGTH_SHORT).show();
-                }
+                strPromt = String.format("添加失败");
+            }
+
+        }
+        else if(operType == AlertDialogFavorite.MODIFY_FAVORITE){
+            FavoriteEntity entity = dialog.getFavoriteEntity();
+            if(entity == null)return;
+
+            entity.strFavoriteName = strFavoriteName;
+            boolean bSuccess = false;
+            bSuccess = MediaLibrary.getInstance().modifyFavoriteEntity(entity);
+            if(bSuccess){
+                strPromt = String.format("修改成功");
+            }
+            else{
+                strPromt = String.format("修改失败");
             }
         }
-
-        dismiss();
+        Toast.makeText(this.getContext(), strPromt, Toast.LENGTH_SHORT).show();
     }
 
     public static class Builder {

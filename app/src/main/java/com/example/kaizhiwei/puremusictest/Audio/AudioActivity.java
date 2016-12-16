@@ -500,23 +500,31 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
         AudioListViewAdapter.AudioFolderItemData mLVFolderItemData = null;
         AudioListViewAdapter.AudioArtistAlbumItemData mLVArtistAlbumItemData = null;
 
-        MediaEntity mediaEntity = null;
+        List<MediaEntity> listOperMediaEntity = null;
         int lvAdapterType = dialog.getLVAdapterType();
         AudioListViewAdapter.AudioItemData itemData = dialog.getAduioItemData();
         if(lvAdapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
             if(itemData instanceof AudioListViewAdapter.AudioSongItemData){
                 mLVSongItemData = (AudioListViewAdapter.AudioSongItemData)itemData;
+                listOperMediaEntity = mLVSongItemData.mListMedia;
             }
         }
         else if(lvAdapterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
             if(itemData instanceof AudioListViewAdapter.AudioFolderItemData){
                 mLVFolderItemData = (AudioListViewAdapter.AudioFolderItemData)itemData;
+                listOperMediaEntity = mLVFolderItemData.mListMedia;
             }
         }
         else{
             if(itemData instanceof AudioListViewAdapter.AudioArtistAlbumItemData){
                 mLVArtistAlbumItemData = (AudioListViewAdapter.AudioArtistAlbumItemData)itemData;
+                listOperMediaEntity = mLVArtistAlbumItemData.mListMedia;
             }
+        }
+
+        if(listOperMediaEntity == null || listOperMediaEntity.size() == 0){
+            Toast.makeText(this, "data error", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         switch (tag){
@@ -526,7 +534,7 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
                 dialogFavorite.setCancelable(true);
                 dialogFavorite.setFavoritelistData(MediaLibrary.getInstance().getAllFavoriteEntity());
                 if(mLVSongItemData != null){
-                    dialogFavorite.setSongItemData(mLVSongItemData);
+                    dialogFavorite.setMediaEntityData(listOperMediaEntity);
                 }
                 else if(mLVFolderItemData != null){
 
@@ -543,9 +551,12 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
                 if(mLVSongItemData == null)
                     return ;
 
-                mediaEntity = MediaLibrary.getInstance().getMediaEntityById(mLVSongItemData.id);
+                if(listOperMediaEntity == null || listOperMediaEntity.size() > 1)
+                    return;
+
+                MediaEntity mediaEntity = listOperMediaEntity.get(0);
                 if(mediaEntity == null)
-                    return ;
+                    return;
 
                 String filePath = mediaEntity.getFilePath();
                 ContentValues cv = new ContentValues();
@@ -568,11 +579,12 @@ public class AudioActivity extends Activity implements ViewPager.OnLongClickList
                 }
                 break;
             case MoreOperationDialog.MORE_DELETE_NORMAL:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-                alertDialog.getWindow().setContentView(this.getLayoutInflater().inflate(R.layout.delete_music, null));
-
+                AlertDialogDeleteOne delteOne = new AlertDialogDeleteOne(this);
+                delteOne.show();
+                delteOne.setMediaEntityData(listOperMediaEntity);
+                if(mLVSongItemData != null){
+                    delteOne.setTitle("确定删除\"" + mLVSongItemData.mMainTitle + "\"吗?");
+                }
                 break;
             case MoreOperationDialog.MORE_DOWNLOAD_NORMAL:
                 break;

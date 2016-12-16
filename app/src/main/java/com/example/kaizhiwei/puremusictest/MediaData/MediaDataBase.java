@@ -89,6 +89,15 @@ public class MediaDataBase{
         mDB.execSQL(strDeleteSql);
     }
 
+    public boolean deleteMusicInfoByEntityId(MediaEntity entity){
+        if(entity == null || entity._id < 0)
+            return false;
+
+        String strDeleteSql = String.format("update %s set is_deleted = 1 where _id = %d;", TABLE_MUSIC_INFO, entity._id);
+        mDB.execSQL(strDeleteSql);
+        return true;
+    }
+
     public List<MediaEntity> queryAllMusicInfo(){
         if(mDB == null)
             return null;
@@ -265,20 +274,23 @@ public class MediaDataBase{
         return  listFavoriteEntity;
     }
 
-    public boolean insertFavoriteInfo(FavoriteEntity entity){
-        if(mDB == null || entity == null)
+    public boolean insertFavoriteInfo(FavoriteEntity entity) {
+        if (mDB == null || entity == null)
             return false;
 
         String strInsertData = String.format("insert into %s (" +
                         "\"favoriteName\", \"favoriteType\")" +
-                        "values(\"%s\", %d);",TABLE_FAVORITES,
+                        "values(\"%s\", %d);", TABLE_FAVORITES,
                 entity.strFavoriteName, entity.favoriteType);
 
         mDB.execSQL(strInsertData);
 
-        String strQueryId = String.format("select _id from %s where favoriteName = %s;", TABLE_FAVORITES,  entity.strFavoriteName);
-        Cursor c =  mDB.rawQuery(strQueryId, null);
         boolean bSuccess = false;
+        String strQueryId = String.format("select _id from %s where favoriteName = \"%s\";", TABLE_FAVORITES, entity.strFavoriteName);
+        Cursor c = mDB.rawQuery(strQueryId, null);
+        if (c == null)
+            return bSuccess;
+
         while (c.moveToNext()) {
             entity._id = c.getInt(c.getColumnIndex("_id"));
             bSuccess = true;
@@ -286,13 +298,12 @@ public class MediaDataBase{
         return bSuccess;
     }
 
-
     public boolean modifyFavoriteInfo(FavoriteEntity entity){
         if(mDB == null || entity == null)
             return false;
 
         String strUpdateData = String.format("update %s set " +
-                        "favoriteName = %s" + " where _id = %d;",
+                        "favoriteName = \"%s\"" + " where _id = %d;",
                         TABLE_FAVORITES,  entity.strFavoriteName, entity._id);
 
         mDB.execSQL(strUpdateData);

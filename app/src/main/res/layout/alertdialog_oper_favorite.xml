@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/backgroundColor"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/defaultTextColor"
+        android:textSize="15sp"/>
+
+    <EditText
+        android:id="@+id/etFavoriteName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawablePadding="5dp"
+        android:paddingLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:textColor="@color/subTextColor"
+        android:hint="歌单名称"
+        android:textColorHint="@color/subTextColor"
+        android:inputType="text"
+        android:focusable="true"
+        android:textSize="12sp"
+        android:focusableInTouchMode="true"
+        style="@style/DefaultCheckbox" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/btnDelete"
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:text="确定"
+            android:gravity="center"
+            android:background="@drawable/default_back"
+            android:clickable="true"
+            style="@style/DefaultTextView"
+            android:textColor="@color/tabSelectTextColor"/>
+
+        <TextView
+            android:id="@+id/btnCancel"
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/default_back"
+            android:layout_toLeftOf="@+id/btnDelete"
+            android:text="取消"
+            android:gravity="center"
+            android:clickable="true"
+            style="@style/DefaultTextView"
+            android:textColor="@color/tabSelectTextColor"/>
+    </RelativeLayout>
+</LinearLayout>

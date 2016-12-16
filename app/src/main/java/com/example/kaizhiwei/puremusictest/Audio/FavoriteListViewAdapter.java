@@ -45,6 +45,9 @@ public class FavoriteListViewAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
+        if(position < 0 || position >= listData.size())
+            return null;
+
         return listData.get(position);
     }
 
@@ -76,10 +79,9 @@ public class FavoriteListViewAdapter extends BaseAdapter {
         holder.tvFavoriteMain.setTextColor(mContext.getResources().getColor(R.color.mainTextColor));
         holder.tvFavoriteSub.setTextColor(mContext.getResources().getColor(R.color.subTextColor));
         holder.tvFavoriteMain.setText(entity.strFavoriteName);
-        holder.tvFavoriteSub.setText("1");
+        holder.tvFavoriteSub.setText(entity.favoriteMusicNum + "首");
         holder.setFavoriteType((int) entity.favoriteType);
-
-
+        
         return convertView;
     }
 

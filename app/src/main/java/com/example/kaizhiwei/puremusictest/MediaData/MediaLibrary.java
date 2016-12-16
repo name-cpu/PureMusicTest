@@ -99,6 +99,13 @@ public class MediaLibrary {
             List<FavoritesMusicEntity> list = MediaDataBase.getInstance().queryAllFavoriteMusicInfo();
             mFavoriteMusicListData.addAll(list);
             mFavoriteMusicListLock.writeLock().unlock();
+
+            for(int i = 0;i < list.size();i++){
+                FavoriteEntity favoriteEntity = getFavoriteEntityById(list.get(i).favorite_id);
+                if(favoriteEntity != null){
+                    favoriteEntity.favoriteMusicNum++;
+                }
+            }
         }
     }
 
@@ -117,6 +124,13 @@ public class MediaLibrary {
         newList.addAll(mMediaEntityList);
         mMediaEntityListLock.readLock().unlock();
         return newList;
+    }
+
+    public boolean removeMediaEntity(MediaEntity entity){
+        if(entity == null || entity._id < 0)
+            return false;
+
+        return MediaDataBase.getInstance().deleteMusicInfoByEntityId(entity);
     }
 
     public MediaEntity getMediaEntityById(long id){
@@ -159,7 +173,15 @@ public class MediaLibrary {
         mFavoriteMusicListLock.writeLock().lock();
         mFavoriteMusicListData.add(entity);
         mFavoriteMusicListLock.writeLock().unlock();
-        return MediaDataBase.getInstance().insertFavoriteMusicInfo(entity);
+        boolean bRet =  MediaDataBase.getInstance().insertFavoriteMusicInfo(entity);
+        if(bRet){
+            FavoriteEntity favoriteEntity = getFavoriteEntityById(entity.favorite_id);
+            if(favoriteEntity != null){
+                favoriteEntity.favoriteMusicNum++;
+            }
+        }
+
+        return bRet;
     }
 
     public boolean removeFavoriteMusicEntity(long musicEntityId, long favoriteEntityId){
@@ -177,7 +199,16 @@ public class MediaLibrary {
             }
         }
         mFavoriteMusicListLock.writeLock().unlock();
-        return MediaDataBase.getInstance().deleteFavoriteMusicInfoByMediaEntityId(musicEntityId, favoriteEntityId);
+        boolean bRet =  MediaDataBase.getInstance().deleteFavoriteMusicInfoByMediaEntityId(musicEntityId, favoriteEntityId);
+        if(bRet){
+            FavoriteEntity favoriteEntity = getFavoriteEntityById(favoriteEntityId);
+            if(favoriteEntity != null){
+                favoriteEntity.favoriteMusicNum--;
+            }
+        }
+
+        return bRet;
+
     }
 
     public boolean queryIsFavoriteByMediaEntityId(long mediaEntityId, long favoriteEntityId){
@@ -204,6 +235,23 @@ public class MediaLibrary {
         return newList;
     }
 
+    public boolean addFavoriteEntity(FavoriteEntity entity){
+        if(entity == null)
+            return false;
+
+        boolean bRet = MediaDataBase.getInstance().insertFavoriteInfo(entity);
+        if(bRet)
+            mFavoriteListData.add(entity);
+        return bRet;
+    }
+
+    public boolean modifyFavoriteEntity(FavoriteEntity entity){
+        if(entity == null || entity._id < 0)
+            return false;
+
+        return MediaDataBase.getInstance().modifyFavoriteInfo(entity);
+    }
+
     public long getDefaultFavoriteEntityId(){
         for(int i = 0;i < mFavoriteListData.size();i++){
             if(mFavoriteListData.get(i).favoriteType == FavoriteEntity.DEFAULT_FAVORITE_TYPE){
@@ -214,9 +262,29 @@ public class MediaLibrary {
         return -1;
     }
 
+    public FavoriteEntity getFavoriteEntityById(long favoriteEntityId){
+        for(int i = 0;i < mFavoriteListData.size();i++){
+            if(mFavoriteListData.get(i)._id == favoriteEntityId){
+                return mFavoriteListData.get(i);
+            }
+        }
+
+        return null;
+    }
+
     public boolean isExistFavorite(long favoriteEntityId){
         for(int i = 0;i < mFavoriteListData.size();i++){
             if(mFavoriteListData.get(i)._id == favoriteEntityId){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isExistFavorite(String favoriteName){
+        for(int i = 0;i < mFavoriteListData.size();i++){
+            if(mFavoriteListData.get(i).strFavoriteName.equals(favoriteName)){
                 return true;
             }
         }
