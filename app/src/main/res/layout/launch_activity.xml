@@ -9,41 +9,23 @@
         android:layout_height="fill_parent"
         android:visibility="visible" >
 
-        <TextView
-            android:id="@+id/building_music_library_text"
+        <ImageView
+            android:id="@+id/ivLogo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:src="@drawable/default_skin_thumbnail"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_marginTop="21dp"
-            android:text="@string/jams_is_building_library"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="50dp"/>
 
         <TextView
-            android:id="@+id/building_music_library_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/building_music_library_text"
-            android:layout_alignRight="@+id/building_music_library_text"
-            android:layout_below="@+id/building_music_library_text"
-            android:layout_margin="10dp"
-            android:text="@string/jams_is_building_library_info"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <ProgressBar
-            android:id="@+id/progressBar1"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/building_music_library_text"
-            android:layout_centerHorizontal="true" />
-
-        <Button
-            android:id="@+id/button1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/building_music_library_info"
-            android:text="1234"/>
+            android:text="2016 pure music copy right @wkz."
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/subTextColor"
+            android:layout_marginBottom="20dp"
+            android:layout_alignParentBottom="true" />
     </RelativeLayout>
 
 </RelativeLayout>

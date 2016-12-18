@@ -1,25 +1,31 @@
 package com.example.kaizhiwei.puremusictest;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+import android.view.Window;
+import android.view.WindowManager;
 
-import com.example.kaizhiwei.puremusictest.Audio.AudioActivity;
+import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
-import com.example.kaizhiwei.puremusictest.ScanSong.ScanSongActivity;
-import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
-import com.example.kaizhiwei.puremusictest.Welcome.WelcomeActivity;
 
 /**
  * Created by kaizhiwei on 16/10/29.
  */
 public class LaunchActivity extends FragmentActivity {
+    private Handler mHandler = new Handler();
+
     protected void onCreate( Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+          /*set it to be no title*/
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+       /*set it to be full screen*/
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.launch_activity);
 
         if(PreferenceConfig.getInstance().getFirstLaunch()){
@@ -27,16 +33,20 @@ public class LaunchActivity extends FragmentActivity {
         }
         PreferenceConfig.getInstance().setFirstLaunch(false);
 
-        DeviceUtil.getStorageDirectories();
-        Button btn = (Button)this.findViewById(R.id.button1);
-        btn.setOnClickListener(new View.OnClickListener(){
-
+        MediaLibrary.getInstance().initData();
+        mHandler.postDelayed(new Runnable() {
             @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LaunchActivity.this, AudioActivity.class);
-                startActivity(intent);
-            }
-        });
-    }
+            public void run() {
+                Intent launchIntent = getIntent();
+                if(launchIntent.getAction().equals(Intent.ACTION_VIEW)){
 
+                }
+
+                Intent intent = new Intent(LaunchActivity.this, HomeActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        },3000);
+
+    }
 }

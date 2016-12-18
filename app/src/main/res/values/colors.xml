@@ -12,6 +12,6 @@
     <color name="listviewSeperatorLineColor">#F4F4F4</color>
     <color name="nowPlayingSeperatorLineColor">#F8F8F8</color>
     <color name="common_title_backgroundColor">#00B4FD</color>
-    <color name="more_oper_dialog_seperator_line">#F2F2F2</color>
+    <color name="more_oper_dialog_seperator_line">#fff4f4f4</color>
     <color name="playlist_title_color">#F2F4F5</color>
 </resources>

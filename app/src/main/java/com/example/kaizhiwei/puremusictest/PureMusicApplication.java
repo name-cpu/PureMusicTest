@@ -30,7 +30,6 @@ public class PureMusicApplication extends Application {
         super.onCreate();
         instance = this;
         mContext = getApplicationContext();
-        MediaLibrary.getInstance().initData();
     }
 
     @Override

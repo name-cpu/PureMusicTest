@@ -8,6 +8,13 @@
     android:paddingBottom="0dp"
     android:layout_marginBottom="0dp">
 
+    <include
+        android:id="@+id/layoutTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/common_title"
+        android:layout_alignParentTop="true"/>
+
     <android.support.design.widget.TabLayout
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/tabLayout"
@@ -15,7 +22,7 @@
         android:layout_height="wrap_content"
         app:tabIndicatorHeight="2dp"
         app:tabMode="scrollable"
-        android:background="@color/backgroundColor">
+        android:layout_below="@id/layoutTitle">
     </android.support.design.widget.TabLayout>
 
     <android.support.v4.view.ViewPager
@@ -23,7 +30,6 @@
         android:layout_below="@id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:background="@color/backgroundColor">
         <com.example.kaizhiwei.puremusictest.Audio.AudioListView
             android:id="@+id/lvAllSong"
@@ -58,7 +64,8 @@
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/backgroundColor">
+        android:background="@color/backgroundColor"
+        android:visibility="gone">
         <com.example.kaizhiwei.puremusictest.Audio.NowPlayingLayout
             android:id="@+id/nowPlayingLayout"
             android:layout_width="match_parent"

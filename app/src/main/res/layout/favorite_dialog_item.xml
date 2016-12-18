@@ -7,8 +7,6 @@
         android:layout_height="60dp"
         android:orientation="vertical"
         android:gravity="center_vertical"
-        android:paddingLeft="@dimen/listview_padding"
-        android:paddingRight="@dimen/listview_padding"
         android:background="@drawable/default_selector">
         <LinearLayout
             android:id="@+id/contentLayout"
@@ -23,6 +21,7 @@
                 android:layout_height="40dp"
                 android:src="@drawable/ic_mymusic_like"
                 android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
                 android:layout_marginRight="5dp"
                 android:visibility="visible"/>
 
@@ -58,9 +57,26 @@
             <ImageView
                 android:id="@+id/ibBtnMore"
                 android:layout_gravity="center_vertical"
-                android:layout_width="33dp"
-                android:layout_height="33dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="8dp"
                 android:src="@drawable/ic_songlist_detail_nor"/>
+
+            <ImageView
+                android:id="@+id/ibBtnEdit"
+                android:layout_gravity="center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:src="@drawable/bt_mymusic_edit_rename_nor"/>
+
+            <ImageView
+                android:id="@+id/ibBtnDelete"
+                android:layout_gravity="center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:src="@drawable/bt_mymusic_edit_delete_nor"/>
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

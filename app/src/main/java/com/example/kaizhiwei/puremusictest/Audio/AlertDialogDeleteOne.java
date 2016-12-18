@@ -84,7 +84,7 @@ public class AlertDialogDeleteOne extends AlertDialog implements View.OnClickLis
                     successNum++;
                 }
                 if(bDeleteFile){
-                    File file = new File(entity.save_path);
+                    File file = new File(entity._data);
                     if(file.exists()){
                         file.delete();
                     }

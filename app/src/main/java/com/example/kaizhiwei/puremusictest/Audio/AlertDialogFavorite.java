@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class AlertDialogFavorite extends AlertDialog implements View.OnClickList
     private int mOperType;
     private OnAlterDialogFavoriteListener mListener;
     private FavoriteEntity mFavoriteEntity;
+    public static final int USER_CANCEL = -1;
     public static final int ADD_FAVORITE = 0;
     public static final int MODIFY_FAVORITE = 1;
 
@@ -35,12 +37,12 @@ public class AlertDialogFavorite extends AlertDialog implements View.OnClickList
         public void OnFinish(AlertDialogFavorite dialog, int operType, String strFavoriteName);
     }
 
-    protected AlertDialogFavorite(Context context, OnAlterDialogFavoriteListener listener) {
+    public AlertDialogFavorite(Context context, OnAlterDialogFavoriteListener listener) {
         super(context);
         mListener = listener;
     }
 
-    protected AlertDialogFavorite(Context context, boolean cancelable, OnCancelListener cancelListener) {
+    public AlertDialogFavorite(Context context, boolean cancelable, OnCancelListener cancelListener) {
         super(context, cancelable, cancelListener);
     }
 
@@ -103,6 +105,9 @@ public class AlertDialogFavorite extends AlertDialog implements View.OnClickList
     @Override
     public void onClick(View v) {
         if(v == btnCancel){
+            if(mListener != null){
+                mListener.OnFinish(this, USER_CANCEL, "");
+            }
             dismiss();
         }
         else if(v == btnDelete){
@@ -112,10 +117,20 @@ public class AlertDialogFavorite extends AlertDialog implements View.OnClickList
                     Toast.makeText(this.getContext(), "要输入歌单名字哦~", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                if(MediaLibrary.getInstance().isExistFavorite(strFavoriteName, -1)){
+                    Toast.makeText(this.getContext(), "该歌单已经存在,换个名字吧~", Toast.LENGTH_SHORT).show();
+                    return;
+                }
             }
             else if(mOperType == MODIFY_FAVORITE){
                 if(TextUtils.isEmpty(strFavoriteName)){
                     Toast.makeText(this.getContext(), "歌单名字不能为空", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(MediaLibrary.getInstance().isExistFavorite(strFavoriteName, mFavoriteEntity._id)){
+                    Toast.makeText(this.getContext(), "该歌单已经存在,换个名字吧~", Toast.LENGTH_SHORT).show();
                     return;
                 }
             }

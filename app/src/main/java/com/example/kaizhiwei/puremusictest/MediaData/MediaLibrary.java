@@ -252,6 +252,22 @@ public class MediaLibrary {
         return MediaDataBase.getInstance().modifyFavoriteInfo(entity);
     }
 
+    public boolean removeFavoriteEntity(FavoriteEntity entity){
+        if(entity == null || entity._id < 0)
+            return false;
+
+        boolean bRet = MediaDataBase.getInstance().deleteFavoriteInfo(entity);
+        if(bRet){
+            List<FavoritesMusicEntity> list = getFavoriteMusicById(entity._id);
+            for(int i = 0;i < list.size();i++){
+                removeFavoriteMusicEntity(list.get(i)._id, entity._id);
+            }
+            mFavoriteListData.remove(entity);
+        }
+
+        return bRet;
+    }
+
     public long getDefaultFavoriteEntityId(){
         for(int i = 0;i < mFavoriteListData.size();i++){
             if(mFavoriteListData.get(i).favoriteType == FavoriteEntity.DEFAULT_FAVORITE_TYPE){
@@ -272,6 +288,21 @@ public class MediaLibrary {
         return null;
     }
 
+    public List<FavoritesMusicEntity> getFavoriteMusicById(long favoriteEntityId){
+        List<FavoritesMusicEntity> list = new ArrayList<>();
+        for(int i = 0;i < mFavoriteMusicListData.size();i++){
+            FavoritesMusicEntity musicEntity = mFavoriteMusicListData.get(i);
+            if(musicEntity == null)
+                continue;
+
+            if(musicEntity.favorite_id == favoriteEntityId){
+                list.add(musicEntity);
+            }
+        }
+
+        return list;
+    }
+
     public boolean isExistFavorite(long favoriteEntityId){
         for(int i = 0;i < mFavoriteListData.size();i++){
             if(mFavoriteListData.get(i)._id == favoriteEntityId){
@@ -282,8 +313,11 @@ public class MediaLibrary {
         return false;
     }
 
-    public boolean isExistFavorite(String favoriteName){
+    public boolean isExistFavorite(String favoriteName, long excludeId){
         for(int i = 0;i < mFavoriteListData.size();i++){
+            if(excludeId == mFavoriteListData.get(i)._id)
+                continue;
+
             if(mFavoriteListData.get(i).strFavoriteName.equals(favoriteName)){
                 return true;
             }

@@ -25,10 +25,11 @@ import android.widget.Toast;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import java.util.List;
 
+
 /**
  * Created by kaizhiwei on 16/11/27.
  */
-public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsListView.OnItemClickListener, AlertDialogFavorite.OnAlterDialogFavoriteListener {
+public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsListView.OnItemClickListener, AlertDialogFavorite.OnAlterDialogFavoriteListener, FavoriteListViewAdapter.IFavoriteOperListener {
     private ListView lvFavorite;
     private TextView tvTitle;
     private FavoriteListViewAdapter mFavoriteListAdapter;
@@ -75,8 +76,9 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
     }
 
     public void setFavoritelistData(List<FavoriteEntity> list){
-        mFavoriteListAdapter = new FavoriteListViewAdapter(this.getContext(), list);
+        mFavoriteListAdapter = new FavoriteListViewAdapter(this.getContext(), list, FavoriteListViewAdapter.READONLY_MODE, false);
         mFavoriteListAdapter.notifyDataSetChanged();
+        mFavoriteListAdapter.setFavoriteAdapterListener(this);
         lvFavorite.setOnItemClickListener(this);
         lvFavorite.setAdapter(mFavoriteListAdapter);
     }
@@ -222,6 +224,24 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
             }
         }
         Toast.makeText(this.getContext(), strPromt, Toast.LENGTH_SHORT).show();
+    }
+
+    //FavoriteListViewAdapter.IFavoriteOperListener
+    @Override
+    public void OnModifyClick(FavoriteListViewAdapter adapter, int position) {
+        if(adapter == null || position < 0)
+            return;
+
+        AlertDialogFavorite favoriteDialog = new AlertDialogFavorite(this.getContext(), this);
+        favoriteDialog.show();
+        favoriteDialog.setFavoriteEntity((FavoriteEntity)adapter.getItem(position));
+        favoriteDialog.setOperType(AlertDialogFavorite.MODIFY_FAVORITE);
+    }
+
+    @Override
+    public void OnDeleteClick(FavoriteListViewAdapter adapter, int position) {
+        if(adapter == null || position < 0)
+            return;
     }
 
     public static class Builder {
