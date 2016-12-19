@@ -311,6 +311,9 @@ public class PlaybackService extends Service {
     }
 
     private MediaEntity getCurrentMedia() {
+        if(mCurrentIndex < 0 || mCurrentIndex >= mMediaList.size())
+            return null;
+        
         return mMediaList.get(mCurrentIndex);
     }
 
@@ -514,6 +517,7 @@ public class PlaybackService extends Service {
                         nextPosition = mCurrentIndex + 1;
                     }
                     else{
+                        mCurrentIndex = -1;
                         nextPosition = -1;
                         stop();
                         return ;

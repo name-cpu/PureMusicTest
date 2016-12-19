@@ -1,6 +1,7 @@
 package com.example.kaizhiwei.puremusictest.Audio;
 
 import android.content.Context;
+import android.text.Html;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.Log;
@@ -49,6 +50,8 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
     private int mAdapterType;
     private List<MediaEntity> mListOrigin;
     private List<AudioItemData> mListItemData;
+    private List<AudioItemData> mListSearchResultData;
+    private String mSearchKey;
     private Context mContext;
     private Map<IAudioListViewListener, Object> mMapListener;
     private boolean mIsShowHeader;
@@ -383,20 +386,90 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         return mListItemData.get(index);
     }
 
+    public void setSearchKey(String strSearchKey){
+        if(mListSearchResultData == null)
+            mListSearchResultData = new ArrayList<>();
+        mListSearchResultData.clear();
+
+        for(int i = 0;i < mListItemData.size();i++){
+            AudioItemData itemData = mListItemData.get(i);
+            if(itemData == null || itemData.mItemType != AudioItemData.TYPE_MEDIA)
+                continue;
+
+            if(mAdapterType == ADAPTER_TYPE_ALLSONG){
+                AudioSongItemData songItemData = null;
+                if(itemData instanceof AudioSongItemData){
+                    songItemData = (AudioSongItemData) itemData;
+                }
+
+                if(songItemData == null)
+                    continue;
+
+                if(songItemData.mMainTitle.contains(strSearchKey) || songItemData.mSubTitle.contains(strSearchKey)){
+                    mListSearchResultData.add(songItemData);
+                }
+            }
+        }
+
+        notifyDataSetChanged();
+    }
+
+    public void clearSearchkKey(){
+        mSearchKey = "";
+        notifyDataSetChanged();
+    }
+
+    public boolean isSearching(){
+        return !TextUtils.isEmpty(mSearchKey);
+    }
+
     @Override
     public int getCount() {
-        if(mListItemData == null)
-            return 0;
+        if(isSearching()){
+            if(mListSearchResultData == null)
+                return 0;
 
-        return mListItemData.size();
+            return mListSearchResultData.size();
+        }
+        else{
+            if(mListItemData == null)
+                return 0;
+
+            return mListItemData.size();
+        }
     }
 
     @Override
     public Object getItem(int position) {
-        if(mListItemData == null)
-            return null;
+        if(isSearching()){
+            if(mListItemData == null)
+                return null;
 
-        return mListItemData.get(position);
+            return mListSearchResultData.get(position);
+        }
+        else{
+            if(mListItemData == null)
+                return null;
+
+            return mListItemData.get(position);
+        }
+    }
+
+    private String getHtmlText(String strPlainText){
+        String strHtml = "";
+        if(isSearching()){
+            int index = strPlainText.lastIndexOf(mSearchKey);
+            if(index >= 0)
+                strHtml = String.format("<font color=black>%s</font><font color=red>%s</font><font color=black>%s</font>", strPlainText.substring(0, index), mSearchKey,
+                    strPlainText.substring(index + mSearchKey.length() + 1, strPlainText.length() - index - mSearchKey.length() - 1));
+            else{
+                strHtml = strPlainText;
+            }
+        }
+        else{
+            strHtml = strPlainText;
+        }
+        return strHtml;
     }
 
     @Override
@@ -406,10 +479,22 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if(mListItemData == null || position < 0 || position >= mListItemData.size())
-            return null;
+        if(isSearching()){
+            if(mListSearchResultData == null || position < 0 || position >= mListSearchResultData.size())
+                return null;
+        }
+        else{
+            if(mListItemData == null || position < 0 || position >= mListItemData.size())
+                return null;
+        }
 
-        AudioItemData data = mListItemData.get(position);
+        AudioItemData data = null;
+        if(isSearching()) {
+            data = mListSearchResultData.get(position);
+        }
+        else{
+            data = mListItemData.get(position);
+        }
         if(data == null)
             return null;
 
@@ -461,8 +546,8 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                     holder = (AudioListViewAdapterHolder) convertView.getTag();
                 }
                 holder.ibBtnMore.setTag(position);
-                holder.tvSongMain.setText(songData.mMainTitle);
-                holder.tvSongSub.setText(songData.mSubTitle);
+                holder.tvSongMain.setText(Html.fromHtml(getHtmlText(songData.mMainTitle)));
+                holder.tvSongSub.setText(Html.fromHtml(getHtmlText(songData.mSubTitle)));
                 holder.viewSepratorLine.setBackgroundResource(R.color.listviewSeperatorLineColor);
 
                 if(songData.isPlaying){

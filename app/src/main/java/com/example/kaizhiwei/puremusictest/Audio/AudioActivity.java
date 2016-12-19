@@ -16,17 +16,25 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.sax.RootElement;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,17 +59,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
 /**
  * Created by kaizhiwei on 16/11/12.
  */
 @TargetApi(Build.VERSION_CODES.M)
 public class AudioActivity extends Fragment implements ViewPager.OnLongClickListener, ViewPager.OnPageChangeListener
         ,MediaLibrary.IMediaScanListener, AdapterView.OnItemClickListener, AbsListView.OnScrollListener, AudioListViewAdapter.IAudioListViewListener
-        ,PlaybackService.Client.Callback, PlaybackService.Callback, AdapterView.OnItemLongClickListener, MoreOperationDialog.IMoreOperationDialogListener {
+        ,PlaybackService.Client.Callback, PlaybackService.Callback, AdapterView.OnItemLongClickListener, MoreOperationDialog.IMoreOperationDialogListener, View.OnClickListener {
     private TabLayout mTabLayout;
     private TabLayout.TabLayoutOnPageChangeListener mTVl;
-
-    private TextView tvTitle;
     private ViewPager mViewPager;
 
     private List<String> mListTitleData;
@@ -86,6 +93,32 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
     MoreOperationDialog.Builder mMoreDialogbuilder = null;
     MoreOperationDialog mMoreDialog = null;
 
+    //标题按钮
+    private TextView tvTitle;
+    private LinearLayout llSearch;
+    private RelativeLayout rlTitle;
+    private ImageView ivSearch;
+    private ImageView ivScan;
+    private ImageView ivSort;
+    private EditText etSearchKey;
+    private TextView tvCancel;
+    private TextWatcher tvSearchTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            mAllSongAdapter.setSearchKey(s.toString());
+        }
+    };
+
     //正在播放列表
     private NowPlayingLayout    mNowPlayingLayout;
 
@@ -106,6 +139,35 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
         mViewPager = (ViewPager) rootView.findViewById(R.id.viewPager);
         tvTitle = (TextView) rootView.findViewById(R.id.tvTitle);
         tvTitle.setText("本地音乐");
+
+        llSearch = (LinearLayout) rootView.findViewById(R.id.llSearch);
+        rlTitle = (RelativeLayout) rootView.findViewById(R.id.rlTitle);
+        ivSearch = (ImageView) rootView.findViewById(R.id.ivSearch);
+        ivSearch.setOnClickListener(this);
+        ivScan = (ImageView) rootView.findViewById(R.id.ivScan);
+        ivScan.setOnClickListener(this);
+        ivSort = (ImageView) rootView.findViewById(R.id.ivSort);
+        ivSort.setOnClickListener(this);
+        etSearchKey = (EditText) rootView.findViewById(R.id.etSearchKey);
+        etSearchKey.addTextChangedListener(tvSearchTextWatcher);
+        etSearchKey.setFocusable(true);
+        etSearchKey.setFocusableInTouchMode(true);
+        etSearchKey.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                InputMethodManager imm = (InputMethodManager) getActivity()
+                             .getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+               }
+                else{
+                    InputMethodManager imm = (InputMethodManager) etSearchKey.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
+                }
+            }
+        });
+        tvCancel = (TextView) rootView.findViewById(R.id.tvCancel);
+        tvCancel.setOnClickListener(this);
 
         mListTitleData = new ArrayList<String>();
         mListTitleData.add("歌曲");
@@ -157,7 +219,7 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
         for(int i = 0;i < mListTitleData.size();i++){
             mTabLayout.addTab(mTabLayout.newTab().setText(mListTitleData.get(i)));
         }
-        mTabLayout.setBackgroundResource(R.color.backgroundColor);
+        //mTabLayout.setBackgroundResource(R.color.backgroundColor);
         mTabLayout.setTabTextColors(this.getResources().getColor(R.color.mainTextColor), this.getResources().getColor(R.color.tabSelectTextColor));
         int indicatorColor = this.getResources().getColor(R.color.tabSeperatorLineColor);
         mTabLayout.setSelectedTabIndicatorColor(indicatorColor);
@@ -640,5 +702,26 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
                 break;
         }
         mMoreDialog.dismiss();
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(v == ivSearch){
+            rlTitle.setVisibility(View.GONE);
+            llSearch.setVisibility(View.VISIBLE);
+            etSearchKey.requestFocus();
+        }
+        else if(v == ivScan){
+
+        }
+        else if(v == ivSort){
+
+        }
+        else if(v == tvCancel){
+            etSearchKey.clearFocus();
+            rlTitle.setVisibility(View.VISIBLE);
+            llSearch.setVisibility(View.GONE);
+            mAllSongAdapter.clearSearchkKey();
+        }
     }
 }
