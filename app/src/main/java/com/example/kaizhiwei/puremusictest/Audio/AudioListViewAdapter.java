@@ -150,7 +150,8 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 if(mIsShowHeader){
                     strFirstLetter = entrty.title_letter;
                 }
-                else{
+
+                if(TextUtils.isEmpty(strFirstLetter)) {
                     strFirstLetter = "#";
                 }
 
@@ -422,57 +423,96 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                     listTemp.add(songItemData);
                 }
             }
-        }
-
-        Map<String, List<MediaEntity>> mapFirstLetter = new TreeMap<String, List<MediaEntity>>(new Comparator<String>() {
-            public int compare(String key1, String key2) {
-                return String.CASE_INSENSITIVE_ORDER.compare(key1, key2);
-            }});
-
-        for(int i = 0;i < listTemp.size();i++){
-            List<MediaEntity> list = listTemp.get(i).mListMedia;
-            if(list == null)
-                continue;
-
-            for(int j = 0;j < list.size();j++){
-                List<MediaEntity> listValue = mapFirstLetter.get(list.get(j).title_letter);
-                if(listValue == null){
-                    listValue = new ArrayList<>();
+            else if(mAdapterType == ADAPTER_TYPE_FOLDER){
+                AudioFolderItemData folderItemData = null;
+                if(itemData instanceof AudioFolderItemData){
+                    folderItemData = (AudioFolderItemData) itemData;
                 }
-                listValue.add(list.get(j));
-                mapFirstLetter.put(list.get(j).title_letter, listValue);
-            }
-        }
 
-        for(String key : mapFirstLetter.keySet()) {
-            AudioSongItemData itemCategory = new AudioSongItemData();
-            itemCategory.mItemType = AudioItemData.TYPE_HEADER;
-            itemCategory.mSeparatorTitle = key;
-            mListSearchResultData.add(itemCategory);
-
-            List<MediaEntity> value = mapFirstLetter.get(key);
-            for (int i = 0; i < value.size(); i++) {
-                MediaEntity entrty = value.get(i);
-                if (entrty == null)
+                if(folderItemData == null)
                     continue;
 
-                AudioSongItemData itemData = new AudioSongItemData();
-                itemData.mMainTitle = entrty.getTitle();
-                itemData.mSubTitle = getArtistAlbum(entrty.getArtist());
-                itemData.mSubTitle += " - ";
-                itemData.mSubTitle += getArtistAlbum(entrty.getAlbum());
-                itemData.id = entrty._id;
-                itemData.mItemType = AudioItemData.TYPE_MEDIA;
-                itemData.mListMedia = new ArrayList<>();
-                itemData.mListMedia.add(entrty);
-                mListSearchResultData.add(itemData);
+                if(folderItemData.mFolderName.contains(strSearchKey)){
+                    mListSearchResultData.add(folderItemData);
+                }
+            }
+            else if(mAdapterType == ADAPTER_TYPE_ARTIST || mAdapterType == ADAPTER_TYPE_ALBUM){
+                AudioArtistAlbumItemData aritstAlbumItemData = null;
+                if(itemData instanceof AudioArtistAlbumItemData){
+                    aritstAlbumItemData = (AudioArtistAlbumItemData) itemData;
+                }
+
+                if(aritstAlbumItemData == null)
+                    continue;
+
+                if(aritstAlbumItemData.mArtistAlbumName.contains(strSearchKey)){
+                    mListSearchResultData.add(aritstAlbumItemData);
+                }
             }
         }
 
-        //添加footer
-        AudioSongItemData footerData = new AudioSongItemData();
-        footerData.mItemType = AudioItemData.TYPE_FOOTER;
-        mListSearchResultData.add(footerData);
+        if(mAdapterType == ADAPTER_TYPE_ALLSONG){
+            Map<String, List<MediaEntity>> mapFirstLetter = new TreeMap<String, List<MediaEntity>>(new Comparator<String>() {
+                public int compare(String key1, String key2) {
+                    return String.CASE_INSENSITIVE_ORDER.compare(key1, key2);
+                }});
+
+            for(int i = 0;i < listTemp.size();i++){
+                List<MediaEntity> list = listTemp.get(i).mListMedia;
+                if(list == null)
+                    continue;
+
+                for(int j = 0;j < list.size();j++){
+                    List<MediaEntity> listValue = mapFirstLetter.get(list.get(j).title_letter);
+                    if(listValue == null){
+                        listValue = new ArrayList<>();
+                    }
+                    listValue.add(list.get(j));
+                    mapFirstLetter.put(list.get(j).title_letter, listValue);
+                }
+            }
+
+            for(String key : mapFirstLetter.keySet()) {
+                AudioSongItemData itemCategory = new AudioSongItemData();
+                itemCategory.mItemType = AudioItemData.TYPE_HEADER;
+                itemCategory.mSeparatorTitle = key;
+                mListSearchResultData.add(itemCategory);
+
+                List<MediaEntity> value = mapFirstLetter.get(key);
+                for (int i = 0; i < value.size(); i++) {
+                    MediaEntity entrty = value.get(i);
+                    if (entrty == null)
+                        continue;
+
+                    AudioSongItemData itemData = new AudioSongItemData();
+                    itemData.mMainTitle = entrty.getTitle();
+                    itemData.mSubTitle = getArtistAlbum(entrty.getArtist());
+                    itemData.mSubTitle += " - ";
+                    itemData.mSubTitle += getArtistAlbum(entrty.getAlbum());
+                    itemData.id = entrty._id;
+                    itemData.mItemType = AudioItemData.TYPE_MEDIA;
+                    itemData.mListMedia = new ArrayList<>();
+                    itemData.mListMedia.add(entrty);
+                    mListSearchResultData.add(itemData);
+                }
+            }
+            //添加footer
+            AudioSongItemData footerData = new AudioSongItemData();
+            footerData.mItemType = AudioItemData.TYPE_FOOTER;
+            mListSearchResultData.add(footerData);
+        }
+        else if(mAdapterType == ADAPTER_TYPE_FOLDER){
+            //添加footer
+            AudioFolderItemData footerData = new AudioFolderItemData();
+            footerData.mItemType = AudioItemData.TYPE_FOOTER;
+            mListSearchResultData.add(footerData);
+        }
+        else{
+            //添加footer
+            AudioArtistAlbumItemData footerData = new AudioArtistAlbumItemData();
+            footerData.mItemType = AudioItemData.TYPE_FOOTER;
+            mListSearchResultData.add(footerData);
+        }
 
         notifyDataSetChanged();
     }

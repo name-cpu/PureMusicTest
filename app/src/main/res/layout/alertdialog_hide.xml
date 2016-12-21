@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/backgroundColor"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="隐藏文件夹音频"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/defaultTextColor"
+        android:textSize="15sp"/>
+
+    <TextView
+        android:id="@+id/cbDeleteFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="   此文件夹中音频将不会显示在本地歌曲中,您可在自定义设置-扫描设置中更改此设定"
+        android:drawablePadding="5dp"
+        android:paddingLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:textColor="@color/subTextColor"
+        android:textSize="12sp"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/btnOK"
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:text="确定"
+            android:gravity="center"
+            android:background="@drawable/default_back"
+            android:clickable="true"
+            style="@style/DefaultTextView"
+            android:textColor="@color/tabSelectTextColor"/>
+
+        <TextView
+            android:id="@+id/btnCancel"
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/default_back"
+            android:layout_toLeftOf="@+id/btnOK"
+            android:text="取消"
+            android:gravity="center"
+            android:clickable="true"
+            style="@style/DefaultTextView"
+            android:textColor="@color/tabSelectTextColor"/>
+    </RelativeLayout>
+</LinearLayout>

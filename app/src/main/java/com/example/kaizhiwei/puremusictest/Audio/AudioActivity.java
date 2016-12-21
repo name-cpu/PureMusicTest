@@ -1,14 +1,12 @@
 package com.example.kaizhiwei.puremusictest.Audio;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -16,19 +14,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.provider.MediaStore;
-import android.sax.RootElement;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -40,10 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
-import com.example.kaizhiwei.puremusictest.CommonUI.SystemBarTintManager;
-import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaDataBase;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
@@ -54,8 +44,6 @@ import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,7 +104,21 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
 
         @Override
         public void afterTextChanged(Editable s) {
-            mAllSongAdapter.setSearchKey(s.toString());
+            int curIndex = mViewPager.getCurrentItem();
+            switch (curIndex){
+                case 0:
+                    mAllSongAdapter.setSearchKey(s.toString());
+                    break;
+                case 1:
+                    mSongFolderAdapter.setSearchKey(s.toString());
+                    break;
+                case 2:
+                    mArtistAdapter.setSearchKey(s.toString());
+                    break;
+                case 3:
+                    mAlbumAdapter.setSearchKey(s.toString());
+                    break;
+            }
         }
     };
 
@@ -159,7 +161,6 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
         etSearchKey.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                Log.i("weikaizhi", "hasFocus " + hasFocus);
                 if (!hasFocus) {
                 InputMethodManager imm = (InputMethodManager) getActivity()
                              .getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -587,15 +588,7 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
                 FavoriteDialog dialogFavorite = builderFavorite.create();
                 dialogFavorite.setCancelable(true);
                 dialogFavorite.setFavoritelistData(MediaLibrary.getInstance().getAllFavoriteEntity());
-                if(mLVSongItemData != null){
-                    dialogFavorite.setMediaEntityData(listOperMediaEntity);
-                }
-                else if(mLVFolderItemData != null){
-
-                }
-                else if(mLVArtistAlbumItemData != null){
-
-                }
+                dialogFavorite.setMediaEntityData(listOperMediaEntity);
                 dialogFavorite.show();
                 dialogFavorite.setTitle("添加到歌单");
                 break;
@@ -639,40 +632,72 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
                 if(mLVSongItemData != null){
                     delteOne.setTitle("确定删除\"" + mLVSongItemData.mMainTitle + "\"吗?");
                 }
+                else if(mLVFolderItemData != null){
+                    delteOne.setTitle("确定删除\"" + mLVFolderItemData.mFolderName + "\"下的所有歌曲吗?");
+                }
+                else if(mLVArtistAlbumItemData != null){
+                    delteOne.setTitle("确定删除该歌手/专辑的所有歌曲吗?");
+                }
                 break;
             case MoreOperationDialog.MORE_DOWNLOAD_NORMAL:
                 break;
             case MoreOperationDialog.MORE_HIDE_NORMAL:
+                AlertDialogHide hideOne = new AlertDialogHide(this.getContext());
+                hideOne.show();
+                hideOne.setMediaEntityData(listOperMediaEntity);
                 break;
             case MoreOperationDialog.MORE_LOVE_NORMAL:
                 if(mLVSongItemData == null)
                     return ;
 
-                mediaEntity = MediaLibrary.getInstance().getMediaEntityById(mLVSongItemData.id);
-                if(mediaEntity == null)
-                    return ;
+                //多个文件时仅添加,单个文件可添加 可删除
+                boolean isLovedOnly = listOperMediaEntity.size() > 1 ? true : false;
+                boolean isAddToFavorite = false;
+                int iSuccessNum = 0;
+                for(int i = 0;i < listOperMediaEntity.size();i++){
+                    mediaEntity = listOperMediaEntity.get(i);
+                    if(mediaEntity == null)
+                        continue;
 
-                FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-                favoritesMusicEntity.musicinfo_id = mediaEntity._id;
-                favoritesMusicEntity.artist = mediaEntity.artist;
-                favoritesMusicEntity.album = mediaEntity.album;
-                favoritesMusicEntity.fav_time = System.currentTimeMillis();
-                favoritesMusicEntity.path = mediaEntity._data;
-                favoritesMusicEntity.title = mediaEntity.title;
-                favoritesMusicEntity.favorite_id = MediaLibrary.getInstance().getDefaultFavoriteEntityId();
+                    FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
+                    favoritesMusicEntity.musicinfo_id = mediaEntity._id;
+                    favoritesMusicEntity.artist = mediaEntity.artist;
+                    favoritesMusicEntity.album = mediaEntity.album;
+                    favoritesMusicEntity.fav_time = System.currentTimeMillis();
+                    favoritesMusicEntity.path = mediaEntity._data;
+                    favoritesMusicEntity.title = mediaEntity.title;
+                    favoritesMusicEntity.favorite_id = MediaLibrary.getInstance().getDefaultFavoriteEntityId();
 
-                if(MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mediaEntity._id, favoritesMusicEntity.favorite_id)){
-                    boolean bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(favoritesMusicEntity.musicinfo_id, favoritesMusicEntity.favorite_id);
-                    if(bRet){
-                        Toast.makeText(this.getContext(), "已取消喜欢", Toast.LENGTH_SHORT).show();
+                    if(MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mediaEntity._id, favoritesMusicEntity.favorite_id)){
+                        if(isLovedOnly == false){
+                            boolean bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(favoritesMusicEntity.musicinfo_id, favoritesMusicEntity.favorite_id);
+                            if(bRet){
+                                iSuccessNum++;
+                                isAddToFavorite = false;
+                            }
+                        }
+                    }
+                    else{
+                        boolean bRet = MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
+                        if(bRet){
+                            iSuccessNum++;
+                            isAddToFavorite = true;
+                        }
                     }
                 }
+
+                if(isLovedOnly){
+                    Toast.makeText(this.getContext(), "成功" + iSuccessNum + "首,失败" + (listOperMediaEntity.size() - iSuccessNum) + "首", Toast.LENGTH_SHORT).show();
+                }
                 else{
-                    boolean bRet = MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
-                    if(bRet){
+                    if(!isAddToFavorite){
+                        Toast.makeText(this.getContext(), "已取消喜欢", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
                         Toast.makeText(this.getContext(), "已添加到我喜欢的单曲", Toast.LENGTH_SHORT).show();
                     }
                 }
+
                 break;
             case MoreOperationDialog.MORE_MV_NORMAL:
                 break;

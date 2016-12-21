@@ -122,8 +122,8 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
         }
         //添加到已有的歌单
         else{
-            boolean bExist = false;
             boolean bSuccess = false;
+            int iSuccessCount = 0;
             if(mListMediaEntity != null){
                 boolean isMutil = mListMediaEntity.size() > 1 ? true : false;
                 for(int i = 0;i < mListMediaEntity.size();i++){
@@ -141,25 +141,25 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
                     favoritesMusicEntity.favorite_id = entity._id;
 
                     if(MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mediaEntity._id, favoritesMusicEntity.favorite_id)){
-                        bExist = true;
                     }
                     else{
                         bSuccess= MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
+                        if(bSuccess)
+                            iSuccessCount++;
                     }
                 }
 
                 String strPromt = "";
-                if(bExist){
-                    strPromt = String.format("歌曲已经添加到\"%s\"", entity.strFavoriteName);
-
-                }
-                else{
-                    if(bSuccess){
+                if(!isMutil){
+                    if(iSuccessCount == mListMediaEntity.size()){
                         strPromt = String.format("成功添加到\"%s\"", entity.strFavoriteName);
                     }
                     else{
                         strPromt = String.format("添加失败");
                     }
+                }
+                else{
+                    strPromt = String.format("成功%d首,失败%d首", iSuccessCount, mListMediaEntity.size() - iSuccessCount);
                 }
                 Toast.makeText(this.getContext(), strPromt, Toast.LENGTH_SHORT).show();
             }
