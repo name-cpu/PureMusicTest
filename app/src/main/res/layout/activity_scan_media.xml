@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.example.kaizhiwei.puremusictest.Audio.ScanMediaActivity"
+    android:background="@color/backgroundColor"
+    tools:showIn="@layout/activity_scan_media"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="true">
+
+    <include
+        android:id="@+id/layoutTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/common_title"
+        android:layout_alignParentTop="true"/>
+
+    <ImageView
+        android:id="@+id/ivScan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:layout_below="@id/layoutTitle"
+        android:src="@drawable/scan_first"/>
+
+    <TextView
+        android:id="@+id/tvScan"
+        android:layout_width="100dp"
+        android:layout_height="35dp"
+        android:text="一键全盘扫描"
+        android:layout_marginTop="30dp"
+        android:gravity="center"
+        android:textColor="@color/common_title_backgroundColor"
+        android:background="@color/backgroundColor"
+        android:layout_below="@id/ivScan"
+        android:maxLines="1"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:id="@+id/tvSelectFolder"
+        android:layout_width="100dp"
+        android:layout_height="35dp"
+        android:text="选择文件夹扫描"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        android:textColor="@color/subTextColor"
+        android:background="@drawable/default_back"
+        android:layout_below="@id/tvScan"
+        android:layout_centerHorizontal="true"/>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/bt_playpage_button_setting_normal_new"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentBottom="true"
+        android:text="扫描过滤设置"
+        android:gravity="center"
+        android:layout_marginBottom="10dp"/>
+</RelativeLayout>

@@ -22,4 +22,5 @@
     <string name="jams_is_building_library_info">Feel free to close the app during this process. Swipe down your notification drawer at any time to check the current progress.</string>
     <string name="jams_is_caching_artwork">Jams is caching album art.</string>
     <string name="title_activity_home">HomeActivity</string>
+    <string name="title_activity_scan_media">ScanMediaActivity</string>
 </resources>

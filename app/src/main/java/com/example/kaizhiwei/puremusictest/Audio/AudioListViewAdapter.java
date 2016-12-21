@@ -200,21 +200,9 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
 
                     AudioSongItemData itemData = new AudioSongItemData();
                     itemData.mMainTitle = entrty.getTitle();
-                    if(entrty.getArtist() == null || entrty.getArtist().equals("null")){
-                        itemData.mSubTitle = "unknown artist";
-                    }
-                    else{
-                        itemData.mSubTitle = entrty.getArtist();
-                    }
-
+                    itemData.mSubTitle = getArtistAlbum(entrty.getArtist());
                     itemData.mSubTitle += " - ";
-                    if(entrty.getAlbum() == null || entrty.getAlbum().equals("null")){
-                        itemData.mSubTitle += "unknown album";
-                    }
-                    else{
-                        itemData.mSubTitle = entrty.getAlbum();
-                    }
-
+                    itemData.mSubTitle += getArtistAlbum(entrty.getAlbum());
                     itemData.id = entrty._id;
                     itemData.mItemType = AudioItemData.TYPE_MEDIA;
                     itemData.mListMedia = new ArrayList<>();
@@ -379,18 +367,43 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         return mAdapterType;
     }
 
+    private List<AudioItemData> getCurOperListData(){
+        List<AudioItemData> listData = null;
+        if(isSearching()){
+            listData = mListSearchResultData;
+        }
+        else{
+            listData = mListItemData;
+        }
+        return listData;
+    }
+
     public AudioItemData getAudioItemData(int index){
-        if(index < 0 || index >= mListItemData.size())
+        List<AudioItemData> listData = getCurOperListData();
+
+        if(listData == null || index < 0 || index >= listData.size())
             return null;
 
-        return mListItemData.get(index);
+        return listData.get(index);
+    }
+
+    private String getArtistAlbum(String artist){
+        String strRet = "";
+        if(artist == null || artist.equals("null"))
+            strRet = "<unknown>";
+        else
+            strRet = artist;
+
+        return strRet;
     }
 
     public void setSearchKey(String strSearchKey){
         if(mListSearchResultData == null)
             mListSearchResultData = new ArrayList<>();
         mListSearchResultData.clear();
+        mSearchKey = strSearchKey.replace("\n", "");
 
+        List<AudioItemData> listTemp = new ArrayList<>();
         for(int i = 0;i < mListItemData.size();i++){
             AudioItemData itemData = mListItemData.get(i);
             if(itemData == null || itemData.mItemType != AudioItemData.TYPE_MEDIA)
@@ -406,10 +419,60 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                     continue;
 
                 if(songItemData.mMainTitle.contains(strSearchKey) || songItemData.mSubTitle.contains(strSearchKey)){
-                    mListSearchResultData.add(songItemData);
+                    listTemp.add(songItemData);
                 }
             }
         }
+
+        Map<String, List<MediaEntity>> mapFirstLetter = new TreeMap<String, List<MediaEntity>>(new Comparator<String>() {
+            public int compare(String key1, String key2) {
+                return String.CASE_INSENSITIVE_ORDER.compare(key1, key2);
+            }});
+
+        for(int i = 0;i < listTemp.size();i++){
+            List<MediaEntity> list = listTemp.get(i).mListMedia;
+            if(list == null)
+                continue;
+
+            for(int j = 0;j < list.size();j++){
+                List<MediaEntity> listValue = mapFirstLetter.get(list.get(j).title_letter);
+                if(listValue == null){
+                    listValue = new ArrayList<>();
+                }
+                listValue.add(list.get(j));
+                mapFirstLetter.put(list.get(j).title_letter, listValue);
+            }
+        }
+
+        for(String key : mapFirstLetter.keySet()) {
+            AudioSongItemData itemCategory = new AudioSongItemData();
+            itemCategory.mItemType = AudioItemData.TYPE_HEADER;
+            itemCategory.mSeparatorTitle = key;
+            mListSearchResultData.add(itemCategory);
+
+            List<MediaEntity> value = mapFirstLetter.get(key);
+            for (int i = 0; i < value.size(); i++) {
+                MediaEntity entrty = value.get(i);
+                if (entrty == null)
+                    continue;
+
+                AudioSongItemData itemData = new AudioSongItemData();
+                itemData.mMainTitle = entrty.getTitle();
+                itemData.mSubTitle = getArtistAlbum(entrty.getArtist());
+                itemData.mSubTitle += " - ";
+                itemData.mSubTitle += getArtistAlbum(entrty.getAlbum());
+                itemData.id = entrty._id;
+                itemData.mItemType = AudioItemData.TYPE_MEDIA;
+                itemData.mListMedia = new ArrayList<>();
+                itemData.mListMedia.add(entrty);
+                mListSearchResultData.add(itemData);
+            }
+        }
+
+        //添加footer
+        AudioSongItemData footerData = new AudioSongItemData();
+        footerData.mItemType = AudioItemData.TYPE_FOOTER;
+        mListSearchResultData.add(footerData);
 
         notifyDataSetChanged();
     }
@@ -425,34 +488,22 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
 
     @Override
     public int getCount() {
-        if(isSearching()){
-            if(mListSearchResultData == null)
-                return 0;
+        List<AudioItemData> listData = getCurOperListData();
 
-            return mListSearchResultData.size();
-        }
-        else{
-            if(mListItemData == null)
-                return 0;
+        if(listData == null)
+            return 0;
 
-            return mListItemData.size();
-        }
+        return listData.size();
     }
 
     @Override
     public Object getItem(int position) {
-        if(isSearching()){
-            if(mListItemData == null)
-                return null;
+        List<AudioItemData> listData = getCurOperListData();
 
-            return mListSearchResultData.get(position);
-        }
-        else{
-            if(mListItemData == null)
-                return null;
+        if(listData == null)
+            return null;
 
-            return mListItemData.get(position);
-        }
+        return listData.get(position);
     }
 
     private String getHtmlText(String strPlainText){
@@ -461,7 +512,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             int index = strPlainText.lastIndexOf(mSearchKey);
             if(index >= 0)
                 strHtml = String.format("<font color=black>%s</font><font color=red>%s</font><font color=black>%s</font>", strPlainText.substring(0, index), mSearchKey,
-                    strPlainText.substring(index + mSearchKey.length() + 1, strPlainText.length() - index - mSearchKey.length() - 1));
+                    strPlainText.substring(index + mSearchKey.length(), strPlainText.length()));
             else{
                 strHtml = strPlainText;
             }
@@ -479,22 +530,13 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if(isSearching()){
-            if(mListSearchResultData == null || position < 0 || position >= mListSearchResultData.size())
-                return null;
-        }
-        else{
-            if(mListItemData == null || position < 0 || position >= mListItemData.size())
-                return null;
-        }
+        List<AudioItemData> tempListData = getCurOperListData();
+
+        if(tempListData == null || position < 0 || position >= tempListData.size())
+            return null;
 
         AudioItemData data = null;
-        if(isSearching()) {
-            data = mListSearchResultData.get(position);
-        }
-        else{
-            data = mListItemData.get(position);
-        }
+        data = tempListData.get(position);
         if(data == null)
             return null;
 
@@ -629,51 +671,51 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         }
         else if(getItemViewType(position) == AudioItemData.TYPE_FOOTER){
             AudioListViewFooterHolder holder = null;
+            int iCount = 0;
+            for(int i = 0;i < tempListData.size();i++){
+                AudioItemData tempdata = (AudioItemData)tempListData.get(i);
+                if(tempdata == null || tempdata.mItemType != AudioItemData.TYPE_MEDIA)
+                    continue;
+
+                iCount++;
+            }
+
             if(convertView == null){
                 View view = inflater.inflate(R.layout.audio_footer_item, null);
                 view.setBackgroundResource(R.color.backgroundColor);
                 holder = new AudioListViewFooterHolder(view);
-
-                int iCount = 0;
-                for(int i = 0;i < mListItemData.size();i++){
-                    AudioItemData tempdata = (AudioItemData)mListItemData.get(i);
-                    if(tempdata == null || tempdata.mItemType != AudioItemData.TYPE_MEDIA)
-                        continue;
-
-                    iCount++;
-                }
-
-                String strFooterInfo = "";
-                if(mAdapterType == ADAPTER_TYPE_ALLSONG){
-                    strFooterInfo = String.format("%d首歌曲", iCount);
-                }
-                else if(mAdapterType == ADAPTER_TYPE_FOLDER){
-                    strFooterInfo = String.format("%d个文件夹", iCount);
-                }
-                else if(mAdapterType == ADAPTER_TYPE_ARTIST){
-                    strFooterInfo = String.format("%d位歌手", iCount);
-                }
-                else if(mAdapterType == ADAPTER_TYPE_ALBUM){
-                    strFooterInfo = String.format("%d张专辑", iCount);
-                }
-                holder.tvFooterInfo.setText(strFooterInfo);
                 view.setTag(holder);
                 convertView = view;
             }
             else{
                 holder = (AudioListViewFooterHolder) convertView.getTag();
             }
+            String strFooterInfo = "";
+            if(mAdapterType == ADAPTER_TYPE_ALLSONG){
+                strFooterInfo = String.format("%d首歌曲", iCount);
+            }
+            else if(mAdapterType == ADAPTER_TYPE_FOLDER){
+                strFooterInfo = String.format("%d个文件夹", iCount);
+            }
+            else if(mAdapterType == ADAPTER_TYPE_ARTIST){
+                strFooterInfo = String.format("%d位歌手", iCount);
+            }
+            else if(mAdapterType == ADAPTER_TYPE_ALBUM){
+                strFooterInfo = String.format("%d张专辑", iCount);
+            }
+            holder.tvFooterInfo.setText(strFooterInfo);
         }
 
         return convertView;
     }
 
     public int getItemViewType(int position) {
-        if(mListItemData == null || mListItemData.size() <= 0 ||  position >= mListItemData.size())
+        List<AudioItemData> listData = getCurOperListData();
+        if(listData == null || listData.size() <= 0 ||  position >= listData.size())
             return 0;
 
-        AudioItemData data = mListItemData.get(position);
-        Log.i("weikaizhi", "getItemViewType: " + data.mItemType);
+        AudioItemData data = listData.get(position);
+        //Log.i("weikaizhi", "getItemViewType: " + data.mItemType);
         return data.mItemType;
     }
 
@@ -691,8 +733,12 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
     }
 
     public void setItemPlayState(int index, boolean isPlaying){
-        for(int i = 0;i < mListItemData.size();i++){
-            AudioItemData tempdata = mListItemData.get(i);
+        List<AudioItemData> listData = getCurOperListData();
+        if(listData == null || listData.size() <= 0 ||  index >= listData.size())
+            return ;
+
+        for(int i = 0;i < listData.size();i++){
+            AudioItemData tempdata = listData.get(i);
             if(tempdata == null || tempdata.mItemType != AudioItemData.TYPE_MEDIA)
                 continue;
 
@@ -712,8 +758,12 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
     }
 
     public List<AudioItemData> getAdapterAllData(){
+        List<AudioItemData> listData = getCurOperListData();
+        if(listData == null)
+            return null;
+
         List<AudioItemData> list = new ArrayList<AudioItemData>();
-        list.addAll(mListItemData);
+        list.addAll(listData);
         return  list;
     }
 

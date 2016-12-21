@@ -22,10 +22,10 @@
             <ImageView
                 android:id="@+id/ivArtistAlbumImage"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_launcher"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="5dp"/>
+                android:layout_height="wrap_content"
+                android:src="@drawable/default_live_ic"
+                android:layout_marginRight="5dp"
+                android:adjustViewBounds="true" />
 
             <LinearLayout
                 android:layout_width="0dp"

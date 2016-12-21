@@ -57,6 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_alignParentRight="true"
+            android:visibility="gone"
             android:src="@drawable/ic_localmusic_sort"/>
         <ImageView
             android:id="@+id/ivScan"
@@ -64,6 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_toLeftOf="@id/ivSort"
+            android:visibility="gone"
             android:src="@drawable/ic_localmusic_scan"/>
         <ImageView
             android:id="@+id/ivSearch"
@@ -72,6 +74,7 @@
             android:layout_gravity="center"
             android:src="@drawable/ic_localmusic_search"
             android:layout_toLeftOf="@id/ivScan"
+            android:visibility="gone"
             android:scaleType="fitCenter"/>
     </RelativeLayout>
 </RelativeLayout>

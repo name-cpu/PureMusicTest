@@ -23,6 +23,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -144,10 +145,13 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
         rlTitle = (RelativeLayout) rootView.findViewById(R.id.rlTitle);
         ivSearch = (ImageView) rootView.findViewById(R.id.ivSearch);
         ivSearch.setOnClickListener(this);
+        ivSearch.setVisibility(View.VISIBLE);
         ivScan = (ImageView) rootView.findViewById(R.id.ivScan);
         ivScan.setOnClickListener(this);
+        ivScan.setVisibility(View.VISIBLE);
         ivSort = (ImageView) rootView.findViewById(R.id.ivSort);
         ivSort.setOnClickListener(this);
+        ivSort.setVisibility(View.VISIBLE);
         etSearchKey = (EditText) rootView.findViewById(R.id.etSearchKey);
         etSearchKey.addTextChangedListener(tvSearchTextWatcher);
         etSearchKey.setFocusable(true);
@@ -155,6 +159,7 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
         etSearchKey.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
+                Log.i("weikaizhi", "hasFocus " + hasFocus);
                 if (!hasFocus) {
                 InputMethodManager imm = (InputMethodManager) getActivity()
                              .getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -712,13 +717,14 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
             etSearchKey.requestFocus();
         }
         else if(v == ivScan){
-
+            Intent intent = new Intent(AudioActivity.this.getContext(), ScanMediaActivity.class);
+            startActivity(intent);
         }
         else if(v == ivSort){
 
         }
         else if(v == tvCancel){
-            etSearchKey.clearFocus();
+            etSearchKey.setText("");
             rlTitle.setVisibility(View.VISIBLE);
             llSearch.setVisibility(View.GONE);
             mAllSongAdapter.clearSearchkKey();

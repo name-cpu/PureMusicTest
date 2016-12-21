@@ -50,7 +50,7 @@
     </style>
 
 
-        <!-- ActionSheet进出动画 -->
+    <!-- ActionSheet进出动画 -->
     <style name="ActionSheetDialogAnimation" parent="@android:style/Animation.Dialog">
         <item name="android:windowEnterAnimation">@anim/anim_activty_enter</item>
         <item name="android:windowExitAnimation">@anim/anim_activty_exit</item>

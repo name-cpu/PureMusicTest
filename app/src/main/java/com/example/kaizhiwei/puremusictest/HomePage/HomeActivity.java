@@ -89,7 +89,7 @@ public class HomeActivity extends FragmentActivity {
             setTranslucentStatus(true);
             SystemBarTintManager tintManager = new SystemBarTintManager(this);
             tintManager.setStatusBarTintEnabled(true);
-            tintManager.setStatusBarTintResource(R.color.tabSeperatorLineColor);
+            tintManager.setStatusBarTintResource(R.color.common_title_backgroundColor);
             SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
         }
     }

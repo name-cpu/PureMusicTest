@@ -10,11 +10,11 @@
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
@@ -25,39 +25,38 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity" />
         <activity android:name=".LaunchActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="audio/mpeg"></data>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="audio/mpeg" />
             </intent-filter>
         </activity>
-        <activity android:name=".Welcome.WelcomeActivity"></activity>
-        <activity android:name=".ScanSong.ScanSongActivity"></activity>
+        <activity android:name=".Welcome.WelcomeActivity" />
+        <activity android:name=".ScanSong.ScanSongActivity" />
 
-
-        <service android:name=".Service.PlaybackService"></service>
+        <service android:name=".Service.PlaybackService" />
 
         <activity
             android:name=".HomePage.HomeActivity"
+            android:configChanges="orientation|screenLayout"
             android:label="@string/title_activity_home"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:configChanges="orientation|screenLayout"
-            android:theme="@style/AppTheme.NoActionBar">
-
-        </activity>
-
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name=".Audio.AudioFilterActivity"></activity>
         <activity
-            android:name=".Audio.AudioFilterActivity">
-
-        </activity>
-
+            android:name=".Audio.ScanMediaActivity"
+            android:label="@string/title_activity_scan_media"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
