@@ -28,26 +28,28 @@
 
     <TextView
         android:id="@+id/tvScan"
-        android:layout_width="100dp"
-        android:layout_height="35dp"
+        android:layout_width="140dp"
+        android:layout_height="50dp"
         android:text="一键全盘扫描"
         android:layout_marginTop="30dp"
         android:gravity="center"
+        android:textSize="15sp"
         android:textColor="@color/common_title_backgroundColor"
-        android:background="@color/backgroundColor"
+        android:background="@drawable/scan_textview_background"
         android:layout_below="@id/ivScan"
         android:maxLines="1"
         android:layout_centerHorizontal="true"/>
 
     <TextView
         android:id="@+id/tvSelectFolder"
-        android:layout_width="100dp"
-        android:layout_height="35dp"
+        android:layout_width="140dp"
+        android:layout_height="50dp"
         android:text="选择文件夹扫描"
-        android:layout_marginTop="5dp"
+        android:textSize="15sp"
+        android:layout_marginTop="10dp"
         android:gravity="center"
         android:textColor="@color/subTextColor"
-        android:background="@drawable/default_back"
+        android:background="@drawable/scan_textview_selectfolder"
         android:layout_below="@id/tvScan"
         android:layout_centerHorizontal="true"/>
 
