@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <include
-        android:id="@+id/layoutTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/common_title"
-        android:layout_alignParentTop="true"/>
-
     <TextView
+        android:id="@+id/tvSizeFilter"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:gravity="center_vertical"
+        android:paddingLeft="10dp"
+        android:layout_below="@id/layoutTitle"
         android:text="音乐大小过滤"/>
 
     <RelativeLayout
+        android:id="@+id/rlSizeFilter"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:layout_gravity="center"
+        android:layout_below="@id/tvSizeFilter"
+        android:background="@color/backgroundColor"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
         <TextView
@@ -30,31 +29,39 @@
             android:text="过滤小于60秒音频"/>
 
         <CheckBox
+            android:id="@+id/ckFolderLessthan60"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:button="@drawable/check_box_blue_selector"
             android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
             android:layout_alignParentRight="true"/>
     </RelativeLayout>
 
     <TextView
+        android:id="@+id/tvFolderFilter"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:gravity="center_vertical"
+        android:layout_below="@id/rlSizeFilter"
+        android:paddingLeft="10dp"
         android:text="音乐目录过滤"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:layout_gravity="center"
+        android:background="@color/backgroundColor"
+        android:layout_below="@id/tvFolderFilter"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="10dp"
             android:gravity="center"
             android:textSize="15sp"
-            android:layout_centerVertical="true"
             android:text="无"/>
 
         <TextView
@@ -62,10 +69,44 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp"
             android:textSize="12sp"
             android:textColor="@color/subTextColor"
             android:text="过滤被选中文件夹中的音频"/>
 
-        <>
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyTextView
+            android:id="@+id/tvSetFilterFolder"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
+            android:text="设置"
+            android:gravity="center"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"/>
     </RelativeLayout>
-</LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:layout_marginTop="10dp">
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyTextView
+            android:id="@+id/tvOK"
+            android:layout_width="150dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:text="确定"/>
+
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyTextView
+            android:id="@+id/tvCancel123"
+            android:layout_width="150dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:text="取消"/>
+    </RelativeLayout>
+</RelativeLayout>

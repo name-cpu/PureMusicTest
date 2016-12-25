@@ -1,38 +1,44 @@
-package com.example.kaizhiwei.puremusictest.Audio;
+package com.example.kaizhiwei.puremusictest.CommonUI;
 
+import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import com.example.kaizhiwei.puremusictest.CommonUI.SystemBarTintManager;
 import com.example.kaizhiwei.puremusictest.R;
 
-public class ScanMediaActivity extends AppCompatActivity {
+/**
+ * Created by kaizhiwei on 16/12/25.
+ */
+public class BaseActivty extends Activity implements View.OnClickListener{
+    private TextView tvTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initSystemBar();
-        setContentView(R.layout.activity_scan_media);
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-//
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
     }
 
+    @Override
+    public void setContentView(int resId){
+        super.setContentView(R.layout.baseactivity_layout);
+        LinearLayout ll = (LinearLayout)this.findViewById(R.id.llContent);
+        View view = this.getLayoutInflater().inflate(resId, null);
+        ll.addView(view);
+        tvTitle = (TextView)this.findViewById(R.id.tvTitle);
+        tvTitle.setOnClickListener(this);
+    }
+
+    public void setTitle(String title){
+        if(tvTitle != null){
+            tvTitle.setText(title);
+        }
+    }
 
     private void initSystemBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -54,5 +60,16 @@ public class ScanMediaActivity extends AppCompatActivity {
             winParams.flags &= ~bits;
         }
         win.setAttributes(winParams);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(tvTitle == v){
+            onActictyFinish();
+        }
+    }
+
+    protected void onActictyFinish(){
+        finish();
     }
 }

@@ -17,6 +17,7 @@ public class PreferenceConfig {
     public static final int PLAYMODE_ALLCIRCLE = 2;//整个播放列表循环播放
     public static final int PLAYMODE_RANDOM = 3;    //随机播放
 
+
     private static PreferenceConfig mInstance;
 
     public synchronized static PreferenceConfig getInstance(){

@@ -5,18 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.example.kaizhiwei.puremusictest.Audio.ScanMediaActivity"
+    tools:context=".ScanMedia.ScanMediaActivity"
     android:background="@color/backgroundColor"
     tools:showIn="@layout/activity_scan_media"
     android:fitsSystemWindows="true"
     android:clipToPadding="true">
-
-    <include
-        android:id="@+id/layoutTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/common_title"
-        android:layout_alignParentTop="true"/>
 
     <ImageView
         android:id="@+id/ivScan"
@@ -40,7 +33,7 @@
         android:maxLines="1"
         android:layout_centerHorizontal="true"/>
 
-    <TextView
+    <com.example.kaizhiwei.puremusictest.CommonUI.MyTextView
         android:id="@+id/tvSelectFolder"
         android:layout_width="140dp"
         android:layout_height="50dp"
@@ -49,12 +42,12 @@
         android:layout_marginTop="10dp"
         android:gravity="center"
         android:textColor="@color/subTextColor"
-        android:background="@drawable/scan_textview_selectfolder"
         android:layout_below="@id/tvScan"
         android:layout_centerHorizontal="true"/>
 
 
     <TextView
+        android:id="@+id/tvFilterCondition"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableLeft="@drawable/bt_playpage_button_setting_normal_new"

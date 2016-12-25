@@ -41,7 +41,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".Welcome.WelcomeActivity" />
-        <activity android:name=".ScanSong.ScanSongActivity" />
+        <activity android:name=".ScanMedia.ScanSongActivity" />
 
         <service android:name=".Service.PlaybackService" />
 
@@ -53,10 +53,20 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity android:name=".Audio.AudioFilterActivity"></activity>
+
         <activity
-            android:name=".Audio.ScanMediaActivity"
+            android:name=".ScanMedia.ScanMediaActivity"
             android:label="@string/title_activity_scan_media"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:configChanges="orientation|screenLayout"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".ScanMedia.ScanMediaFilterSetActivity"
+            android:configChanges="orientation|screenLayout"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

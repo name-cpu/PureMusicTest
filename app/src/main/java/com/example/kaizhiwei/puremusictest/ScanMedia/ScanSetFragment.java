@@ -1,4 +1,4 @@
-package com.example.kaizhiwei.puremusictest.ScanSong;
+package com.example.kaizhiwei.puremusictest.ScanMedia;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

@@ -14,4 +14,5 @@
     <color name="common_title_backgroundColor">#00B4FD</color>
     <color name="more_oper_dialog_seperator_line">#fff4f4f4</color>
     <color name="playlist_title_color">#F2F4F5</color>
+    <color name="default_button_pressed_color">#EFEFEF</color>
 </resources>

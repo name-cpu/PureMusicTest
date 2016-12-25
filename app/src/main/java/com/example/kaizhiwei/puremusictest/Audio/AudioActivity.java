@@ -1,7 +1,6 @@
 package com.example.kaizhiwei.puremusictest.Audio;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -38,6 +37,7 @@ import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.ScanMedia.ScanMediaActivity;
 import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
 
 import org.videolan.libvlc.Media;
