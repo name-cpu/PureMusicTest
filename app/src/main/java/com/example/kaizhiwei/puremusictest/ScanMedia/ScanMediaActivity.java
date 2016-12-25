@@ -33,7 +33,8 @@ public class ScanMediaActivity extends BaseActivty{
 
         }
         else if(v == tvSelectFolder){
-
+            Intent intent = new Intent(ScanMediaActivity.this, ScanSelectFolderActivity.class);
+            startActivity(intent);
         }
         else if(v == tvFilterCondition){
             Intent intent = new Intent(ScanMediaActivity.this, ScanMediaFilterSetActivity.class);

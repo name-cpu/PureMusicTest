@@ -658,7 +658,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                     holder = (AudioListViewFolderHolder) convertView.getTag();
                 }
                 holder.ibBtnMore.setTag(position);
-                holder.tvFolderName.setText(folderData.mFolderName);
+                holder.tvFolderName.setText(Html.fromHtml(getHtmlText(folderData.mFolderName)));
                 holder.tvFolderSongCount.setText("" + folderData.mFolderSongCount + "首");
                 holder.tvFolderPath.setText(folderData.mFolderPath);
                 holder.viewSepratorLine.setBackgroundResource(R.color.listviewSeperatorLineColor);
@@ -683,7 +683,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                     holder = (AudioListViewAristAlbumHolder) convertView.getTag();
                 }
                 holder.ibBtnMore.setTag(position);
-                holder.tvArtistAlbumMain.setText(artistData.mArtistAlbumName);
+                holder.tvArtistAlbumMain.setText(Html.fromHtml(getHtmlText(artistData.mArtistAlbumName)));
                 holder.tvArtistAlbumSub.setText("" + artistData.mArtistAlbumSongCount + "首");
                 holder.viewSepratorLine.setBackgroundResource(R.color.listviewSeperatorLineColor);
                 holder.tvArtistAlbumMain.setTextColor(mContext.getResources().getColor(R.color.mainTextColor));

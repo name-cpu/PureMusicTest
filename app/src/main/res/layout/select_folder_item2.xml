@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:weightSum="1">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_folder_nor"
+                android:layout_gravity="center"
+                android:gravity="center_vertical"/>
+            <TextView
+                android:id="@+id/tvFolderName"
+                android:paddingLeft="10dp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/app_name"
+                android:background="@drawable/default_back"
+                android:gravity="center_vertical"/>
+            <CheckBox
+                android:id="@+id/cbFolder"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:drawablePadding="5dp"
+                android:paddingLeft="10dp"
+                android:layout_centerVertical="true"
+                android:textColor="@color/mainTextColor"
+                android:maxLines="1"
+                android:ellipsize="end"
+                style="@style/DefaultCheckbox" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/viewSepratorLine"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/listviewSeperatorLineColor"
+            android:layout_marginLeft="10dp"
+            android:layout_alignParentBottom="true"/>
+    </RelativeLayout>
+
+</RelativeLayout>

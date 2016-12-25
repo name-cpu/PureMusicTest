@@ -57,6 +57,12 @@ public class ScanMediaFilterSetActivity extends BaseActivty implements SelectFol
             mSelectFolderDialog.show();
             mSelectFolderDialog.setTitle("音乐目录过滤");
         }
+        else if(v == tvOK){
+
+        }
+        else if(v == tvCancel123){
+            finish();
+        }
         super.onClick(v);
     }
 
