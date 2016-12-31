@@ -4,13 +4,17 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
@@ -39,6 +43,51 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
     private boolean mIsPlaying;
     private PlaybackService.Client mClient = new PlaybackService.Client(this.getContext(), this);
     private PlaybackService mService;
+    private PlayListDialog mPlayListDialog;
+    private PlayListDialog.IPlayListDialogListener mListener = new PlayListDialog.IPlayListDialogListener() {
+        @Override
+        public void onDeleteClick(PlayListViewAdapter adapter, int position) {
+            if(adapter == null || position < 0)
+                return;
+
+            if(mService == null)
+                return;
+
+            PlayListViewAdapter.PlayListItemData itemData = (PlayListViewAdapter.PlayListItemData)adapter.getItem(position);
+            if(itemData == null || itemData.mediaEntity == null)
+                return;
+
+            MediaEntity curPlayMedia = mService.getCurrentMedia();
+            mPlayListDialog.removeItem(position);
+            mService.deleteMediaById(itemData.mediaEntity._id);
+            if(curPlayMedia != null){
+                if(curPlayMedia._id == itemData.mediaEntity._id){
+                    mService.next(false);
+                }
+            }
+        }
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            if(parent == null || view == null || position < 0 || mService == null)
+                return;
+
+            PlayListViewAdapter adapter = (PlayListViewAdapter)parent.getAdapter();
+            PlayListViewAdapter.PlayListItemData itemData = (PlayListViewAdapter.PlayListItemData)adapter.getItem(position);
+            if(itemData == null || itemData.mediaEntity == null)
+                return;
+
+            mService.play(itemData.mediaEntity);
+        }
+
+        @Override
+        public void onClearPlaylist() {
+            if(mService == null)
+                return;
+
+            mService.clearPlaylist();
+        }
+    };
 
     public NowPlayingLayout(Context context) {
         super(context);
@@ -72,10 +121,6 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
     }
 
     public void init(){
-//        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)this.getLayoutParams();
-//        params.setMargins(0,0,0,0);
-//        this.setLayoutParams(params);
-
         View view = LayoutInflater.from(getContext()).inflate(R.layout.audio_now_playing, null);
         this.addView(view);
 
@@ -104,6 +149,11 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
             return;
 
         if(v == mBtnPlayPause){
+            if(mService.getPlaylistSize() == 0){
+                Toast.makeText(this.getContext(), "当前无可播放的歌曲", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             if(mIsPlaying){
                 mService.pause();
             }
@@ -112,14 +162,23 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
             }
         }
         else if(v == mBtnPlayNext){
+            if(mService.getPlaylistSize() == 0){
+                Toast.makeText(this.getContext(), "当前无可播放的歌曲", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             mService.next(false);
         }
         else if(v == mBtnPlaylist){
-            PlayListDialog.Builder builder = new PlayListDialog.Builder(this.getContext());
-            PlayListDialog dialog = builder.create();
-            dialog.setCancelable(true);
-            dialog.setPlaylistData(mService.getPlaylist());
-            dialog.show();
+            if(mPlayListDialog == null){
+                PlayListDialog.Builder builder = new PlayListDialog.Builder(this.getContext());
+                mPlayListDialog = builder.create();
+            }
+            mPlayListDialog.setCancelable(true);
+            mPlayListDialog.setPlaylistData(mService.getPlaylist());
+            mPlayListDialog.setItemPlayState(mService.getCurrentMedia(), mService.isPlaying(), true);
+            mPlayListDialog.setPlayListAdapterListener(mListener);
+            mPlayListDialog.show();
         }
     }
 
@@ -189,9 +248,42 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
         if(event.type == MediaPlayer.Event.Playing){
             MediaEntity mediaEntity = mService.getCurrentMedia();
             if(mediaEntity != null){
+                resetUI(false);
                 mtvMain.setText(mediaEntity.getTitle());
                 mtvSub.setText(mediaEntity.getArtist());
+                if(mPlayListDialog != null && mPlayListDialog.isShowing()){
+                    mPlayListDialog.setItemPlayState(mediaEntity, true, true);
+                }
             }
         }
+        else if(event.type == MediaPlayer.Event.Paused){
+            MediaEntity mediaEntity = mService.getCurrentMedia();
+            if(mediaEntity != null){
+                if(mPlayListDialog != null && mPlayListDialog.isShowing()){
+                    mPlayListDialog.setItemPlayState(mediaEntity, true, false);
+                }
+            }
+        }
+        else if(event.type == MediaPlayer.Event.Stopped){
+            resetUI(true);
+        }
+    }
+
+    private void resetUI(boolean isStopState){
+        if(isStopState){
+            mtvMain.setText(getResources().getString(R.string.app_name) + " 畅享极致");
+            mtvSub.setText("");
+            mPlayProgress.setProgress(0);
+            mtvSub.setVisibility(View.GONE);
+            mtvMain.setGravity(Gravity.CENTER_VERTICAL);
+        }
+        else{
+            mtvMain.setText("");
+            mtvSub.setText("");
+            mPlayProgress.setProgress(0);
+            mtvSub.setVisibility(View.VISIBLE);
+            mtvMain.setGravity(Gravity.CENTER_VERTICAL);
+        }
+
     }
 }

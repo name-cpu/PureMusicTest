@@ -312,7 +312,7 @@ public class AndroidShare extends Dialog implements AdapterView.OnItemClickListe
 
 			MyImageView iv = new MyImageView(getContext());
 			item.addView(iv);
-			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams((int)(60 * mDensity), (int)(60 * mDensity));
+			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 			layoutParams.setMargins(0,margin,0,margin);
 			iv.setLayoutParams(layoutParams);
 			iv.setId(image_id);

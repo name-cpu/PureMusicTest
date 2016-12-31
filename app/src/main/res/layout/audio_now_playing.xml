@@ -46,7 +46,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/app_name"
-                        android:textSize="12sp"
+                        android:textSize="13sp"
                         android:singleLine="true"
                         android:ellipsize="marquee"
                         android:marqueeRepeatLimit="marquee_forever"
@@ -64,30 +64,29 @@
 
                 <ImageButton
                     android:id="@+id/btnPlayPause"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:background="@drawable/bt_minibar_play_normal"
                     android:layout_marginRight="5dp"/>
 
                 <ImageButton
                     android:id="@+id/btnPlayNext"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:background="@drawable/bt_minibar_next_normal"
                     android:layout_marginRight="5dp"/>
 
                 <ImageButton
                     android:id="@+id/btnPlaylist"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:background="@drawable/bt_minibar_playinglist_normal"
-                    android:layout_marginRight="5dp"/>
+                    android:layout_marginRight="15dp"/>
             </LinearLayout>
         </LinearLayout>
-
 
         <ProgressBar
             android:id="@+id/pbPlay"

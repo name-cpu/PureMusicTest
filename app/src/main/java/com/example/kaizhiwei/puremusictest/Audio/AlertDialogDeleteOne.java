@@ -23,9 +23,15 @@ public class AlertDialogDeleteOne extends AlertDialog implements View.OnClickLis
     private TextView btnCancel;
     private TextView tvTitle;
     private List<MediaEntity> mListMediaEntity;
+    private IOnAlertDialogDeleteListener mListener;
 
-    protected AlertDialogDeleteOne(Context context) {
+    public interface IOnAlertDialogDeleteListener{
+        void OnDeleteClick(AlertDialogDeleteOne dialog, boolean isDeleteFile);
+    }
+
+    protected AlertDialogDeleteOne(Context context, IOnAlertDialogDeleteListener listener) {
         super(context);
+        mListener = listener;
     }
 
     protected AlertDialogDeleteOne(Context context, boolean cancelable, OnCancelListener cancelListener) {
@@ -49,6 +55,9 @@ public class AlertDialogDeleteOne extends AlertDialog implements View.OnClickLis
     }
 
     public void show(){
+        if(ckDeleteFile != null){
+            ckDeleteFile.setChecked(false);
+        }
         super.show();
     }
 
@@ -60,6 +69,10 @@ public class AlertDialogDeleteOne extends AlertDialog implements View.OnClickLis
 
     public void setMediaEntityData(List<MediaEntity> list){
         mListMediaEntity = list;
+    }
+
+    public List<MediaEntity> getMediaEntityData(){
+        return mListMediaEntity;
     }
 
     @Override
@@ -74,34 +87,10 @@ public class AlertDialogDeleteOne extends AlertDialog implements View.OnClickLis
             }
 
             boolean bDeleteFile = ckDeleteFile.isChecked();
-            int successNum = 0;
-            for(int i = 0;i < mListMediaEntity.size();i++){
-                MediaEntity entity = mListMediaEntity.get(i);
-                if(entity == null || entity._id < 0)
-                    continue;
-
-                if(MediaLibrary.getInstance().removeMediaEntity(entity)){
-                    successNum++;
-                }
-                if(bDeleteFile){
-                    File file = new File(entity._data);
-                    if(file.exists()){
-                        file.delete();
-                    }
-                }
+            if(mListener != null){
+                mListener.OnDeleteClick(this, bDeleteFile);
             }
 
-            String strPromt = "";
-            if(successNum == 0){
-                strPromt = "删除失败";
-            }
-            else if(successNum < mListMediaEntity.size()){
-                strPromt = "删除部分成功,部分失败";
-            }
-            else{
-                strPromt = "删除成功";
-            }
-            Toast.makeText(this.getContext(), strPromt, Toast.LENGTH_SHORT).show();
             dismiss();
         }
     }

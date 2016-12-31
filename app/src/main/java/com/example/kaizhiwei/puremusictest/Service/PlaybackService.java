@@ -201,6 +201,13 @@ public class PlaybackService extends Service {
                     if (mWakeLock.isHeld())
                         mWakeLock.release();
                     changeAudioFocus(false);
+                    Media media = mMediaPlayer.getMedia();
+                    if(media != null){
+                        media.setEventListener(null);
+                        mMediaPlayer.setEventListener(null);
+                        mMediaPlayer.setMedia(null);
+                        media.release();
+                    }
                     break;
                 case MediaPlayer.Event.EndReached:
                     Log.i(TAG, "MediaPlayer.Event.EndReached");
@@ -385,6 +392,49 @@ public class PlaybackService extends Service {
 
     }
 
+    public void deleteMediaById(long mediaEntityId){
+        if(mMediaList == null)
+            return;
+
+        int deleteIndex = 0;
+        for(int i = 0;i < mMediaList.size();i++){
+            if(mMediaList.get(i)._id == mediaEntityId){
+                mMediaList.remove(i);
+                deleteIndex = i;
+                break;
+            }
+        }
+
+        if(deleteIndex <= mCurrentIndex && mCurrentIndex != -1)
+            mCurrentIndex--;
+    }
+
+    public void reCalNextPlayIndex(){
+        play(mCurrentIndex, 0);
+    }
+
+
+    public void clearPlaylist(){
+        if(mMediaList == null)
+            return;
+
+        stop();
+        mCurrentIndex = -1;
+        mMediaList.clear();
+    }
+
+    public void play(MediaEntity mediaEntity){
+        if(mediaEntity == null || mMediaList == null || mMediaList.size() == 0)
+            return;
+
+        for(int i = 0;i < mMediaList.size();i++){
+            if(mMediaList.get(i)._id == mediaEntity._id){
+                play(i, 0);
+                break;
+            }
+        }
+    }
+
     public void play(List<MediaEntity> list, int position){
         if(mMediaList != null){
             mMediaList.clear();
@@ -395,15 +445,16 @@ public class PlaybackService extends Service {
             mCurrentIndex = 0;
 
         play(position, 0);
-
-
     }
 
     public void play(int index, int flag){
         if(index < 0 || index >= mMediaList.size())
             mCurrentIndex = 0;
-        else
-            mCurrentIndex = index;
+        else if(mCurrentIndex == index){
+            return;
+        }
+
+        mCurrentIndex = index;
         String filePath = mMediaList.get(index).getFilePath();
         File file = new File(filePath);
         if(file.exists() == false)
@@ -494,11 +545,11 @@ public class PlaybackService extends Service {
 
         Media media = mMediaPlayer.getMedia();
         if(media != null){
-            media.setEventListener(null);
-            mMediaPlayer.setEventListener(null);
+            //media.setEventListener(null);
+            //mMediaPlayer.setEventListener(null);
             mMediaPlayer.stop();
-            mMediaPlayer.setMedia(null);
-            media.release();
+            //mMediaPlayer.setMedia(null);
+            //media.release();
         }
 
         mCurrentIndex = -1;
@@ -509,6 +560,11 @@ public class PlaybackService extends Service {
     }
 
     public void next(boolean bAuto){
+        if(mMediaList.size() == 0){
+            stop();
+            return ;
+        }
+
         int nextPosition = 0;
         switch (mRepeatMode){
             case PreferenceConfig.PLAYMODE_ORDER:
@@ -551,6 +607,12 @@ public class PlaybackService extends Service {
         List<MediaEntity> list = new ArrayList<>();
         list.addAll(mMediaList);
         return list;
+    }
+
+    public int getPlaylistSize(){
+        if(mMediaList == null)
+            return 0;
+        return mMediaList.size();
     }
 
     public void addSongToNext(MediaEntity entity){

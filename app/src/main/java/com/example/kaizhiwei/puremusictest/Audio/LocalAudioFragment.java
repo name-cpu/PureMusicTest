@@ -48,11 +48,10 @@ import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
-
 
 /**
  * Created by kaizhiwei on 16/11/12.
@@ -92,6 +91,70 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
     private RelativeLayout rlLoading;
     private ProgressBar view_loading;
     private Handler loadingHandler = new Handler();
+
+    //删除文件对话框
+    private AlertDialogDeleteOne mAlertDialogDeleteOne;
+    private AlertDialogDeleteOne.IOnAlertDialogDeleteListener mAlertDialogDeleteListener = new AlertDialogDeleteOne.IOnAlertDialogDeleteListener() {
+        @Override
+        public void OnDeleteClick(AlertDialogDeleteOne dialog, boolean isDeleteFile) {
+            if(dialog == null)
+                return;
+
+            List<MediaEntity> listMediaEntity = dialog.getMediaEntityData();
+            if(listMediaEntity == null || listMediaEntity.size() == 0)
+                return;
+
+            //是否包含正在播放的歌曲
+            boolean isContainPlaying = false;
+            MediaEntity curMediaEntity = null;
+            if(mService != null){
+                curMediaEntity = mService.getCurrentMedia();
+            }
+
+            int successNum = 0;
+            for(int i = 0;i < listMediaEntity.size();i++){
+                MediaEntity entity = listMediaEntity.get(i);
+                if(entity == null || entity._id < 0)
+                    continue;
+
+                if(MediaLibrary.getInstance().removeMediaEntity(entity)){
+                    successNum++;
+                }
+                if(isDeleteFile){
+                    if(curMediaEntity != null && curMediaEntity._id == entity._id){
+                        isContainPlaying = true;
+                        mService.pause();
+                    }
+
+                    File file = new File(entity._data);
+                    if(file.exists()){
+                        file.delete();
+                    }
+                }
+
+                if(mService != null){
+                    mService.deleteMediaById(entity._id);
+                }
+            }
+
+            String strPromt = "";
+            if(successNum == 0){
+                strPromt = "删除失败";
+            }
+            else if(successNum < listMediaEntity.size()){
+                strPromt = "删除部分成功,部分失败";
+            }
+            else{
+                strPromt = "删除成功";
+            }
+            Toast.makeText(LocalAudioFragment.this.getActivity(), strPromt, Toast.LENGTH_SHORT).show();
+            initAdapterData();
+
+            if(isContainPlaying && mService != null){
+                mService.reCalNextPlayIndex();
+            }
+        }
+    };
 
     //标题按钮
     private TextView tvTitle;
@@ -677,17 +740,19 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
                 }
                 break;
             case MoreOperationDialog.MORE_DELETE_NORMAL:
-                AlertDialogDeleteOne delteOne = new AlertDialogDeleteOne(this.getActivity());
-                delteOne.show();
-                delteOne.setMediaEntityData(listOperMediaEntity);
+                if(mAlertDialogDeleteOne == null){
+                    mAlertDialogDeleteOne =  new AlertDialogDeleteOne(this.getActivity(), mAlertDialogDeleteListener);
+                }
+                mAlertDialogDeleteOne.show();
+                mAlertDialogDeleteOne.setMediaEntityData(listOperMediaEntity);
                 if(mLVSongItemData != null){
-                    delteOne.setTitle("确定删除\"" + mLVSongItemData.mMainTitle + "\"吗?");
+                    mAlertDialogDeleteOne.setTitle("确定删除\"" + mLVSongItemData.mMainTitle + "\"吗?");
                 }
                 else if(mLVFolderItemData != null){
-                    delteOne.setTitle("确定删除\"" + mLVFolderItemData.mFolderName + "\"下的所有歌曲吗?");
+                    mAlertDialogDeleteOne.setTitle("确定删除\"" + mLVFolderItemData.mFolderName + "\"下的所有歌曲吗?");
                 }
                 else if(mLVArtistAlbumItemData != null){
-                    delteOne.setTitle("确定删除该歌手/专辑的所有歌曲吗?");
+                    mAlertDialogDeleteOne.setTitle("确定删除该歌手/专辑的所有歌曲吗?");
                 }
                 break;
             case MoreOperationDialog.MORE_DOWNLOAD_NORMAL:

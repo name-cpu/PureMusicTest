@@ -130,7 +130,16 @@ public class MediaLibrary {
         if(entity == null || entity._id < 0)
             return false;
 
-        return MediaDataBase.getInstance().deleteMusicInfoByEntityId(entity);
+        boolean bRet = MediaDataBase.getInstance().deleteMusicInfoByEntityId(entity);
+        if(bRet){
+            for(int i = 0;i < mMediaEntityList.size();i++){
+                if(mMediaEntityList.get(i)._id == entity._id){
+                    mMediaEntityList.remove(i);
+                    break;
+                }
+            }
+        }
+        return bRet;
     }
 
     public MediaEntity getMediaEntityById(long id){
