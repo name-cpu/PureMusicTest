@@ -73,6 +73,14 @@
             android:screenOrientation="portrait"
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".ScanMedia.ScanMediaResultActivity"
+            android:configChanges="orientation|screenLayout"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+
     </application>
 
 </manifest>

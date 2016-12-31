@@ -96,7 +96,7 @@ public class ScanSongActivity extends FragmentActivity implements CommonTitleVie
     }
 
     @Override
-    public void onScanCompleted(HashMap<String, String> mapResult) {
+    public void onScanCompleted(HashMap<String, String> mapResult, int filterNum) {
 
     }
 }

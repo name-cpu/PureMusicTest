@@ -129,9 +129,7 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
 
         mtvMain.setText(media.getTitle());
         mtvSub.setText(media.getArtist());
-        //mBtnPlayPause.setBackgroundResource(R.drawable.bt_minibar_pause_normal);
         mPlayProgress.setMax((int)media.getDuration());
-
         mWeakMediaEntity = new WeakReference<MediaEntity>(media);
     }
 
@@ -188,6 +186,12 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
 
     @Override
     public void onMediaPlayerEvent(MediaPlayer.Event event) {
-
+        if(event.type == MediaPlayer.Event.Playing){
+            MediaEntity mediaEntity = mService.getCurrentMedia();
+            if(mediaEntity != null){
+                mtvMain.setText(mediaEntity.getTitle());
+                mtvSub.setText(mediaEntity.getArtist());
+            }
+        }
     }
 }

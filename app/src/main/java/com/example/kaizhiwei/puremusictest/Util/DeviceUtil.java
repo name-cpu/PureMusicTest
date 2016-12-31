@@ -69,4 +69,33 @@ public class DeviceUtil {
 
         return list;
     }
+
+    /**
+     * 获取文件夹大小
+     * @param file File实例
+     * @return long
+     */
+    public static long getFolderSize(java.io.File file){
+
+        long size = 0;
+        try {
+            java.io.File[] fileList = file.listFiles();
+            for (int i = 0; i < fileList.length; i++)
+            {
+                if (fileList[i].isDirectory())
+                {
+                    size = size + getFolderSize(fileList[i]);
+
+                }else{
+                    size = size + fileList[i].length();
+
+                }
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        //return size/1048576;
+        return size;
+    }
 }

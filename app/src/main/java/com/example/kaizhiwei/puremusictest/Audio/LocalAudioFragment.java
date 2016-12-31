@@ -1,6 +1,8 @@
 package com.example.kaizhiwei.puremusictest.Audio;
 
 import android.annotation.TargetApi;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -18,6 +20,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,7 +58,7 @@ import java.util.List;
  * Created by kaizhiwei on 16/11/12.
  */
 @TargetApi(Build.VERSION_CODES.M)
-public class AudioActivity extends Fragment implements ViewPager.OnLongClickListener, ViewPager.OnPageChangeListener
+public class LocalAudioFragment extends android.app.Fragment implements ViewPager.OnLongClickListener, ViewPager.OnPageChangeListener
         ,MediaLibrary.IMediaScanListener, AdapterView.OnItemClickListener, AbsListView.OnScrollListener, AudioListViewAdapter.IAudioListViewListener
         ,PlaybackService.Client.Callback, PlaybackService.Callback, AdapterView.OnItemLongClickListener, MoreOperationDialog.IMoreOperationDialogListener, View.OnClickListener {
     private TabLayout mTabLayout;
@@ -81,6 +86,12 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
     private PlaybackService mService;
     MoreOperationDialog.Builder mMoreDialogbuilder = null;
     MoreOperationDialog mMoreDialog = null;
+
+    //加载控件
+    private int mShowLoadingFlag = 0;
+    private RelativeLayout rlLoading;
+    private ProgressBar view_loading;
+    private Handler loadingHandler = new Handler();
 
     //标题按钮
     private TextView tvTitle;
@@ -122,10 +133,7 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
         }
     };
 
-    //正在播放列表
-    private NowPlayingLayout    mNowPlayingLayout;
-
-    public AudioActivity(){
+    public LocalAudioFragment(){
 
     }
 
@@ -135,7 +143,7 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
         super.onCreate(savedInstanceState);
         View rootView = inflater.inflate(R.layout.activity_audio, null, false);//关联布局文件
 
-        mClient = new PlaybackService.Client(this.getContext(), this);
+        mClient = new PlaybackService.Client(this.getActivity(), this);
         vibrator = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         mTabLayout = (TabLayout) getActivity().findViewById(R.id.tabLayout);
         mTVl = new TabLayout.TabLayoutOnPageChangeListener(mTabLayout);
@@ -182,28 +190,50 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
         mListTitleData.add("专辑");
 
         mAllSongListView = (AudioListView) rootView.findViewById(R.id.lvAllSong);
-        mAllSongAdapter = new AudioListViewAdapter(getContext(), AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, true);
+        mAllSongAdapter = new AudioListViewAdapter(getActivity(), AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, true);
         mAllSongListView.setAdapter(mAllSongAdapter);
         mAllSongListView.setOnItemClickListener(this);
         mAllSongListView.setOnScrollListener(this);
         mAllSongListView.setOnItemLongClickListener(this);
+        mAllSongListView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+             @Override
+             public void onLayoutChange(View v, int left, int top, int right,
+                                        int bottom, int oldLeft, int oldTop, int oldRight,
+                                        int oldBottom) {
+                 mShowLoadingFlag++;
+                 if(mShowLoadingFlag %2 == 0){
+                     loadingHandler.postDelayed(new Runnable() {
+                         @Override
+                         public void run() {
+                             rlLoading.setVisibility(View.GONE);
+                             if(mService != null){
+                                 MediaEntity curMediaEntity = mService.getCurrentMedia();
+                                 if(curMediaEntity != null){
+                                     mAllSongAdapter.setItemPlayState(curMediaEntity, true);
+                                 }
+                             }
+                         }
+                     }, 500);
+                 }
+             }
+         });
 
         mSongFolderListView = (AudioListView) rootView.findViewById(R.id.lvSongFolder);
-        mSongFolderAdapter = new AudioListViewAdapter(getContext(), AudioListViewAdapter.ADAPTER_TYPE_FOLDER, false);
+        mSongFolderAdapter = new AudioListViewAdapter(getActivity(), AudioListViewAdapter.ADAPTER_TYPE_FOLDER, false);
         mSongFolderListView.setAdapter(mSongFolderAdapter);
         mSongFolderListView.setOnItemClickListener(this);
         mSongFolderListView.setOnScrollListener(this);
         mSongFolderListView.setOnItemLongClickListener(this);
 
         mArtistListView = (AudioListView) rootView.findViewById(R.id.lvArtist);
-        mArtistAdapter = new AudioListViewAdapter(getContext(), AudioListViewAdapter.ADAPTER_TYPE_ARTIST, false);
+        mArtistAdapter = new AudioListViewAdapter(getActivity(), AudioListViewAdapter.ADAPTER_TYPE_ARTIST, false);
         mArtistListView.setAdapter(mArtistAdapter);
         mArtistListView.setOnItemClickListener(this);
         mArtistListView.setOnScrollListener(this);
         mArtistListView.setOnItemLongClickListener(this);
 
         mAlbumListViewData = (AudioListView) rootView.findViewById(R.id.lvAlbum);
-        mAlbumAdapter = new AudioListViewAdapter(getContext(), AudioListViewAdapter.ADAPTER_TYPE_ALBUM, false);
+        mAlbumAdapter = new AudioListViewAdapter(getActivity(), AudioListViewAdapter.ADAPTER_TYPE_ALBUM, false);
         mAlbumListViewData.setAdapter(mAlbumAdapter);
         mAlbumListViewData.setOnItemClickListener(this);
         mAlbumListViewData.setOnScrollListener(this);
@@ -234,7 +264,9 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
         mTabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         mTabLayout.setTabMode(TabLayout.MODE_FIXED);
 
-        mNowPlayingLayout = (NowPlayingLayout)rootView.findViewById(R.id.nowPlayingLayout);
+        rlLoading = (RelativeLayout)rootView.findViewById(R.id.rlLoading);
+        rlLoading.setVisibility(View.VISIBLE);
+        view_loading = (ProgressBar)rootView.findViewById(R.id.view_loading);
 
         if(PreferenceConfig.getInstance().getLastFirstLaunch() == false){
             initAdapterData();
@@ -276,6 +308,24 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
     public void onStop() {
         super.onStop();
         mClient.disconnect();
+    }
+
+    public void onDetach() {
+       super.onDetach();
+        Log.i("weikaizhi", "onDetach");
+    }
+
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // TODO Auto-generated method stub
+//        if (keyCode == event.KEYCODE_BACK) {
+//            FragmentManager fragmentManager = this.getActivity().getFragmentManager();
+//            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//            fragmentTransaction.hide(this);
+//            fragmentTransaction.commit();
+//            return true;
+//        }
+
+       return false;
     }
 
     public void initAdapterData(){
@@ -381,13 +431,12 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
             }
 
             mAllSongAdapter.setItemPlayState(position, true);
-            mNowPlayingLayout.setPlayingMediaEntrty(itemData.mListMedia.get(0));
         }
         else if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
             if(itemData instanceof AudioListViewAdapter.AudioFolderItemData){
                 AudioListViewAdapter.AudioFolderItemData folderItemData = (AudioListViewAdapter.AudioFolderItemData)itemData;
 
-                Intent intent = new Intent(this.getContext(), AudioFilterActivity.class);
+                Intent intent = new Intent(this.getActivity(), AudioFilterActivity.class);
                 intent.putExtra(AudioFilterActivity.FILTER_NAME, folderItemData.mFolderPath);
                 intent.putExtra(AudioFilterActivity.FILTER_TYPE, adapterType);
                 intent.putExtra(AudioFilterActivity.TITLE_NAME, folderItemData.mFolderName);
@@ -399,7 +448,7 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
             if(itemData instanceof AudioListViewAdapter.AudioArtistAlbumItemData){
                 AudioListViewAdapter.AudioArtistAlbumItemData artistItemData = (AudioListViewAdapter.AudioArtistAlbumItemData)itemData;
 
-                Intent intent = new Intent(this.getContext(), AudioFilterActivity.class);
+                Intent intent = new Intent(this.getActivity(), AudioFilterActivity.class);
                 intent.putExtra(AudioFilterActivity.FILTER_NAME, artistItemData.mArtistAlbumName);
                 intent.putExtra(AudioFilterActivity.FILTER_TYPE, adapterType);
                 intent.putExtra(AudioFilterActivity.TITLE_NAME, artistItemData.mArtistAlbumName);
@@ -443,7 +492,7 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
             return ;
 
         if(mMoreDialogbuilder == null){
-            mMoreDialogbuilder = new MoreOperationDialog.Builder(this.getContext());
+            mMoreDialogbuilder = new MoreOperationDialog.Builder(this.getActivity());
         }
 
         if(mMoreDialog == null){
@@ -524,25 +573,27 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
 
     @Override
     public void updateProgress() {
-        if(mService == null || mNowPlayingLayout == null)
+        if(mService == null)
             return ;
-
-        int iTime = (int)mService.getTIme();
-        int iLengtht = (int)mService.getLength();
-        //mNowPlayingLayout.updatePlayProgress(iTime, iLengtht);
     }
 
     @Override
     public void onMediaEvent(Media.Event event) {
         if(mService == null || event == null)
             return;
-
-        //mNowPlayingLayout.setPlayPauseState(mService.isPlaying());
     }
 
     @Override
     public void onMediaPlayerEvent(MediaPlayer.Event event) {
+        if(mService == null || event == null)
+            return;
 
+        if(event.type == MediaPlayer.Event.Playing){
+            MediaEntity curMediaEntity = mService.getCurrentMedia();
+            if(curMediaEntity != null && mAllSongAdapter != null){
+                mAllSongAdapter.setItemPlayState(curMediaEntity, true);
+            }
+        }
     }
 
     //MoreOperationDialog.IMoreOperationDialogListener
@@ -578,13 +629,13 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
         }
 
         if(listOperMediaEntity == null || listOperMediaEntity.size() == 0){
-            Toast.makeText(this.getContext(), "data error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.getActivity(), "data error", Toast.LENGTH_SHORT).show();
             return;
         }
 
         switch (tag){
             case MoreOperationDialog.MORE_ADD_NORMA:
-                FavoriteDialog.Builder builderFavorite = new FavoriteDialog.Builder(this.getContext());
+                FavoriteDialog.Builder builderFavorite = new FavoriteDialog.Builder(this.getActivity());
                 FavoriteDialog dialogFavorite = builderFavorite.create();
                 dialogFavorite.setCancelable(true);
                 dialogFavorite.setFavoritelistData(MediaLibrary.getInstance().getAllFavoriteEntity());
@@ -609,7 +660,7 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
                 ContentValues cv = new ContentValues();
                 Uri uri = null, newUri = null;
                 uri = MediaStore.Audio.Media.getContentUriForPath(filePath);
-                Cursor cursor = this.getContext().getContentResolver().query(uri, null, MediaStore.MediaColumns.DATA + "=?", new String[]{filePath}, null);
+                Cursor cursor = this.getActivity().getContentResolver().query(uri, null, MediaStore.MediaColumns.DATA + "=?", new String[]{filePath}, null);
                 if(cursor.moveToFirst() && cursor.getCount() > 0){
                     String _id = cursor.getString(0);
                     cv.put(MediaStore.Audio.Media.IS_RINGTONE, true);
@@ -618,15 +669,15 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
                     cv.put(MediaStore.Audio.Media.IS_MUSIC, false);
 
                     // 把需要设为铃声的歌曲更新铃声库
-                    this.getContext().getContentResolver().update(uri, cv, MediaStore.MediaColumns.DATA + "=?",new String[] { filePath });
+                    this.getActivity().getContentResolver().update(uri, cv, MediaStore.MediaColumns.DATA + "=?",new String[] { filePath });
                     newUri = ContentUris.withAppendedId(uri, Long.valueOf(_id));
-                    RingtoneManager.setActualDefaultRingtoneUri(this.getContext(), RingtoneManager.TYPE_RINGTONE, newUri);
+                    RingtoneManager.setActualDefaultRingtoneUri(this.getActivity(), RingtoneManager.TYPE_RINGTONE, newUri);
                     String strPromt = String.format("已将歌曲\"%s\"设置为铃声",mediaEntity.title);
-                    Toast.makeText(this.getContext(), strPromt, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this.getActivity(), strPromt, Toast.LENGTH_SHORT).show();
                 }
                 break;
             case MoreOperationDialog.MORE_DELETE_NORMAL:
-                AlertDialogDeleteOne delteOne = new AlertDialogDeleteOne(this.getContext());
+                AlertDialogDeleteOne delteOne = new AlertDialogDeleteOne(this.getActivity());
                 delteOne.show();
                 delteOne.setMediaEntityData(listOperMediaEntity);
                 if(mLVSongItemData != null){
@@ -642,7 +693,7 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
             case MoreOperationDialog.MORE_DOWNLOAD_NORMAL:
                 break;
             case MoreOperationDialog.MORE_HIDE_NORMAL:
-                AlertDialogHide hideOne = new AlertDialogHide(this.getContext());
+                AlertDialogHide hideOne = new AlertDialogHide(this.getActivity());
                 hideOne.show();
                 hideOne.setMediaEntityData(listOperMediaEntity);
                 break;
@@ -651,7 +702,7 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
                     return ;
 
                 //多个文件时仅添加,单个文件可添加 可删除
-                boolean isLovedOnly = listOperMediaEntity.size() > 1 ? true : false;
+                boolean isMutil = listOperMediaEntity.size() > 1 ? true : false;
                 boolean isAddToFavorite = false;
                 int iSuccessNum = 0;
                 for(int i = 0;i < listOperMediaEntity.size();i++){
@@ -669,7 +720,7 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
                     favoritesMusicEntity.favorite_id = MediaLibrary.getInstance().getDefaultFavoriteEntityId();
 
                     if(MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mediaEntity._id, favoritesMusicEntity.favorite_id)){
-                        if(isLovedOnly == false){
+                        if(isMutil == false){
                             boolean bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(favoritesMusicEntity.musicinfo_id, favoritesMusicEntity.favorite_id);
                             if(bRet){
                                 iSuccessNum++;
@@ -686,15 +737,15 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
                     }
                 }
 
-                if(isLovedOnly){
-                    Toast.makeText(this.getContext(), "成功" + iSuccessNum + "首,失败" + (listOperMediaEntity.size() - iSuccessNum) + "首", Toast.LENGTH_SHORT).show();
+                if(isMutil){
+                    Toast.makeText(this.getActivity(), "成功" + iSuccessNum + "首,失败" + (listOperMediaEntity.size() - iSuccessNum) + "首", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     if(!isAddToFavorite){
-                        Toast.makeText(this.getContext(), "已取消喜欢", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this.getActivity(), "已取消喜欢", Toast.LENGTH_SHORT).show();
                     }
                     else{
-                        Toast.makeText(this.getContext(), "已添加到我喜欢的单曲", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this.getActivity(), "已添加到我喜欢的单曲", Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -722,7 +773,7 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
                     return ;
 
                 AndroidShare as = new AndroidShare(
-                        this.getContext(),
+                        this.getActivity(),
                         "哈哈---超方便的分享！！！来自allen",
                         "http://img6.cache.netease.com/cnews/news2012/img/logo_news.png");
                 as.show();
@@ -742,7 +793,7 @@ public class AudioActivity extends Fragment implements ViewPager.OnLongClickList
             etSearchKey.requestFocus();
         }
         else if(v == ivScan){
-            Intent intent = new Intent(AudioActivity.this.getContext(), ScanMediaActivity.class);
+            Intent intent = new Intent(LocalAudioFragment.this.getActivity(), ScanMediaActivity.class);
             startActivity(intent);
         }
         else if(v == ivSort){

@@ -56,12 +56,15 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvFilterFOlderName"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginTop="10dp"
-            android:gravity="center"
+            android:gravity="left|center_vertical"
             android:textSize="15sp"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:text="无"/>
 
         <TextView

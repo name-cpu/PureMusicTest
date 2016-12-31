@@ -1,12 +1,18 @@
 package com.example.kaizhiwei.puremusictest.AsyncTask;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.StatFs;
 import android.support.annotation.MainThread;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.example.kaizhiwei.puremusictest.MediaData.VLCInstance;
+import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
+
+import org.videolan.libvlc.Media;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -28,7 +34,7 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
     public interface ScanResultListener{
         public void onScanStart();
         public void onScaning(int process, String strFilePath, boolean bAudioFile);
-        public void onScanCompleted(HashMap<String, String>  mapResult);
+        public void onScanCompleted(HashMap<String, String>  mapResult, int filterNum);
     }
 
     private static final String TAG = "AsyncTaskScanPath";
@@ -38,10 +44,26 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
     private long mScanFileSize;
     private long mAvailableSize;
     private ScanResultListener mListener;
+    private int mMinMediaDuration = 0;
+    private List<String> mListFiletFolderName;
+    private boolean mIsCancel = false;
+    private int mFilterMediaNum = 0;
 
     public AsyncTaskScanPath(ScanResultListener listener, List<String> listScanPath){
         mListener = listener;
         mListScanPath = listScanPath;
+    }
+
+    public void setMinMediaDuration(int minDuration) {
+        mMinMediaDuration = minDuration;
+    }
+
+    public void setFilterFolderPath(List<String> list){
+        mListFiletFolderName = list;
+    }
+
+    public void cancel(){
+        mIsCancel = true;
     }
 
     @MainThread
@@ -66,7 +88,7 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
         }
 
         for(int i = 0;i < mListScanPath.size();i++){
-            mAvailableSize += getPathTotalSize(mListScanPath.get(i)) - getPathAvailableSize(mListScanPath.get(i));
+            mAvailableSize += DeviceUtil.getFolderSize(new File(mListScanPath.get(i))); //new File(mListScanPath.get(i)).getUsableSpace(); //getPathTotalSize(mListScanPath.get(i)) - getPathAvailableSize(mListScanPath.get(i));
         }
 
         if(mListener != null){
@@ -87,7 +109,7 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
     @MainThread
     protected void onPostExecute(HashMap<String, String>  result) {
         if(mListener != null){
-            mListener.onScanCompleted(result);
+            mListener.onScanCompleted(result, mFilterMediaNum);
         }
     }
 
@@ -134,7 +156,7 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
             return;
 
         File root = new File(path);
-        Log.e("weikaizhi", "path: " + path + "###" + root.getAbsolutePath() + " threadId: " + Thread.currentThread().getName());
+        //Log.e("weikaizhi", "path: " + path + "###" + root.getAbsolutePath() + " threadId: " + Thread.currentThread().getName());
         //非utf8文件名称编码会崩溃
         String files[] = root.list();
         if(files != null){
@@ -146,15 +168,35 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
                 else{
                     String strFilePath = file.getPath();
                     mScanFileSize += f.length();
-                    int progress =  (int)(mScanFileSize / mAvailableSize);
+                    int progress = (int)(mScanFileSize * 100.0 / mAvailableSize);
+                    Log.e("weikaizhi", "mScanFileSize: " + mScanFileSize + ",mAvailableSize: " + mAvailableSize);
                     publishProgress(progress);
 
+                    //过滤不需要扫描的文件夹
+                    boolean isContinue = false;
+                    if(mListScanPath != null){
+                        for(int i = 0;i < mListScanPath.size();i++){
+                            if(strFilePath.contains(mListScanPath.get(i))){
+                                isContinue = true;
+                                break;
+                            }
+                        }
+                    }
+                    if(isContinue)
+                        continue;
 
                     int index = strFilePath.lastIndexOf(".");
                     String strFileFormat = strFilePath.substring(index, strFilePath.length()-1);
-                    Log.e("weikaizhi", "strFileFormat:" + strFileFormat);
+                    //Log.e("weikaizhi", "strFileFormat:" + strFileFormat);
                     for(int i = 0;i < mListSupportAudioFormat.size();i++) {
                         if (mListSupportAudioFormat.get(i).compareToIgnoreCase(strFileFormat) == 0) {
+                            Media media = new Media(VLCInstance.getInstance(), Uri.parse(strFilePath));
+                            media.parse();
+                            if(media.getDuration() <= mMinMediaDuration){
+                                media.release();
+                                continue;
+                            }
+
                             mMapScanResult.put(strFilePath, strFileFormat);
                         }
                     }
@@ -171,51 +213,65 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
         if(TextUtils.isEmpty(path))
             return ;
 
-        try {
-            String strSubFile = execCommand("cd " + path + "\n" + "ls\n");
-            List<String> listSubFile = Arrays.asList(strSubFile.split("\n"));
-            for(int i = 0;i < listSubFile.size();i++){
-                String strItem = listSubFile.get(i);
-                if(TextUtils.isEmpty(strItem))
-                    continue;
+        File parentFile = new File(path);
+        if(!parentFile.exists())
+            return;
 
-                Log.e("weikaizhi", "scaning: " + path + File.separator + strItem);
-                File file = new File(path + File.separator + strItem);
-                if(file.isDirectory()){
-                    getDirFile(file.getCanonicalPath());
-                }
-                else{
-                    String strFilePath = file.getCanonicalPath();
-                    mScanFileSize += file.length();
-                    int progress =  (int)(mScanFileSize / mAvailableSize);
-                    publishProgress(progress);
+        if(mIsCancel)
+            return;
 
-                    int index = strFilePath.lastIndexOf(File.separator);
-                    if(index < 0)
-                        return ;
+        //String strSubFile = execCommand("cd " + path + "\n" + "ls\n");
+        List<File> listSubFile = Arrays.asList(parentFile.listFiles()); //Arrays.asList(strSubFile.split("\n"));
+        for(int i = 0;i < listSubFile.size();i++){
+            File file =  listSubFile.get(i);
+            if(file == null)
+                continue;
 
-                    String strFileName = strFilePath.substring(index+1, strFilePath.length());
-                    index = strFileName.lastIndexOf(".");
-                    if(index < 0)
-                        return ;
+            if(file.isHidden())
+                continue;
 
-                    boolean bAudioFile = false;
-                    String strFileFormat = strFileName.substring(index, strFileName.length());
-                    Log.e("weikaizhi", "strFileName:" + strFileName + "###strFileFormat:" + strFileFormat + "mScanFileSize:"+mScanFileSize+ "###mAvailableSize:"+mAvailableSize);
-                    for(int j = 0;j < mListSupportAudioFormat.size();j++) {
-                        if (mListSupportAudioFormat.get(j).compareToIgnoreCase(strFileFormat) == 0) {
+            if(mIsCancel)
+                return;
+
+            Log.e("weikaizhi", "scaning: " + file.getAbsolutePath());
+            if(file.isDirectory()){
+                getDirFile(file.getAbsolutePath());
+            }
+            else{
+                String strFilePath = file.getAbsolutePath();
+                mScanFileSize += file.length();
+                int progress =  (int)(mScanFileSize / mAvailableSize);
+                Log.e("weikaizhi", "mScanFileSize: " + mScanFileSize + ",mAvailableSize: " + mAvailableSize);
+                publishProgress(progress);
+
+                String strFileName = file.getName();
+                boolean bAudioFile = false;
+                int index = strFileName.lastIndexOf(".");
+                if(index < 0)
+                    continue ;
+
+                String strFileFormat = strFileName.substring(index, strFileName.length());
+                //Log.e("weikaizhi", "strFileName:" + strFileName + "###strFileFormat:" + strFileFormat + "mScanFileSize:"+mScanFileSize+ "###mAvailableSize:"+mAvailableSize);
+                for(int j = 0;j < mListSupportAudioFormat.size();j++) {
+                    if (mListSupportAudioFormat.get(j).compareToIgnoreCase(strFileFormat) == 0) {
+                        Media media = new Media(VLCInstance.getInstance(), Uri.parse(strFilePath));
+                        media.parse();
+                        if(media.getDuration() <= mMinMediaDuration * 1000){
+                            mFilterMediaNum++;
+                            continue;
+                        }
+                        else{
                             mMapScanResult.put(strFilePath, strFileFormat);
                             bAudioFile = true;
                         }
-                    }
-
-                    if(mListener != null){
-                        mListener.onScaning(progress, strFilePath, bAudioFile);
+                        media.release();
                     }
                 }
+
+                if(mListener != null){
+                    mListener.onScaning(progress, strFilePath, bAudioFile);
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

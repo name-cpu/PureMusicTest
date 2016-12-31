@@ -8,10 +8,14 @@ import android.widget.TextView;
 import com.example.kaizhiwei.puremusictest.CommonUI.BaseActivty;
 import com.example.kaizhiwei.puremusictest.R;
 
+import java.util.ArrayList;
+
 public class ScanMediaActivity extends BaseActivty{
     private TextView tvFilterCondition;
     private TextView tvSelectFolder;
     private TextView tvScan;
+    ArrayList<String> filterFolerList;
+    private boolean isFilterMediaByDuration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +34,8 @@ public class ScanMediaActivity extends BaseActivty{
     @Override
     public void onClick(View v) {
         if(v == tvScan){
-
+            Intent intent = new Intent(ScanMediaActivity.this, ScanMediaResultActivity.class);
+            startActivity(intent);
         }
         else if(v == tvSelectFolder){
             Intent intent = new Intent(ScanMediaActivity.this, ScanSelectFolderActivity.class);
@@ -38,8 +43,19 @@ public class ScanMediaActivity extends BaseActivty{
         }
         else if(v == tvFilterCondition){
             Intent intent = new Intent(ScanMediaActivity.this, ScanMediaFilterSetActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, ScanMediaFilterSetActivity.RETURN_CODE);
         }
         super.onClick(v);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(data == null)
+            return;
+
+        if(resultCode == ScanMediaFilterSetActivity.RETURN_CODE){
+            filterFolerList = data.getStringArrayListExtra(ScanMediaFilterSetActivity.FILTER_FOLDER);
+            isFilterMediaByDuration = data.getBooleanExtra(ScanMediaFilterSetActivity.FILDTER_LESS_THAN60, false);
+        }
     }
 }

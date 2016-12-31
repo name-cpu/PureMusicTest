@@ -91,6 +91,7 @@
 
         <ProgressBar
             android:id="@+id/pbPlay"
+            style="@android:style/Widget.ProgressBar.Horizontal"
             android:indeterminateOnly="false"
             android:mirrorForRtl="true"
             android:layout_width="match_parent"
@@ -100,6 +101,7 @@
             android:layout_toRightOf="@+id/progressBarV"
             android:indeterminate="false"
             android:progressDrawable="@drawable/progress_horizontal"
-            android:indeterminateDrawable="@color/tabSeperatorLineColor"/>
+            android:progress="20"
+            android:max="100"/>
     </LinearLayout>
 </LinearLayout>

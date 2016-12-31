@@ -12,7 +12,7 @@ import com.example.kaizhiwei.puremusictest.R;
  * Created by kaizhiwei on 16/11/12.
  */
 public class AudioListView extends ListView {
-    private AudioActivity mContext;
+    private LocalAudioFragment mContext;
 
     public AudioListView(Context context) {
         super(context);

@@ -310,7 +310,7 @@ public class PlaybackService extends Service {
         mMediaSession.setMetadata(bob.build());
     }
 
-    private MediaEntity getCurrentMedia() {
+    public MediaEntity getCurrentMedia() {
         if(mCurrentIndex < 0 || mCurrentIndex >= mMediaList.size())
             return null;
         

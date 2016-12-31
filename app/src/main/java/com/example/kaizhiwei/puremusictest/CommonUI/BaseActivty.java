@@ -16,7 +16,7 @@ import com.example.kaizhiwei.puremusictest.R;
  * Created by kaizhiwei on 16/12/25.
  */
 public class BaseActivty extends Activity implements View.OnClickListener{
-    private TextView tvTitle;
+    protected TextView tvTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

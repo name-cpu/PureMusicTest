@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
+import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
 
 import java.io.File;
@@ -127,21 +128,35 @@ public class SelectFolderDialog extends Dialog implements View.OnClickListener{
 
         List<Integer> listChecked = mAdapter.getCheckedItems();
         for(int i = 0;i < listChecked.size();i++){
-            listFilterFolder.add((String)mAdapter.getItem(listChecked.get(i)));
+            SelectFolderAdapter.FolderItemData itemData = (SelectFolderAdapter.FolderItemData)mAdapter.getItem(listChecked.get(i));
+            listFilterFolder.add(itemData.strFolderName);
         }
 
         return listFilterFolder;
     }
 
-    public void setMediaEntityData(List<MediaEntity> list){
-        if(list == null)
+    public void setMediaEntityData(List<MediaEntity> list, List<String> listFilterFolder){
+        if(list == null || listFilterFolder == null)
             return;
 
-        List<String> listFolderData = new ArrayList<>();
+        Map<String, String> map = new HashMap();
         for(int i = 0;i < list.size();i++){
-            if(listFolderData.contains(list.get(i).save_path) == false){
-                listFolderData.add(list.get(i).save_path);
+            File file = new File(list.get(i).save_path);
+            if(file.exists() == false)
+                continue;
+
+            map.put(list.get(i).save_path, list.get(i).save_path);
+        }
+
+        List<SelectFolderAdapter.FolderItemData> listFolderData = new ArrayList<>();
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            String strFolderName = entry.getValue();
+            SelectFolderAdapter.FolderItemData itemData = new SelectFolderAdapter.FolderItemData();
+            if(listFilterFolder.contains(strFolderName)){
+                itemData.isSelecetd = true;
             }
+            itemData.strFolderName = strFolderName;
+            listFolderData.add(itemData);
         }
 
         mAdapter = new SelectFolderAdapter(this.getContext(), listFolderData);

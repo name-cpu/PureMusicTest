@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.example.kaizhiwei.puremusictest.R;
@@ -15,10 +16,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 /**
  * Created by kaizhiwei on 16/12/25.
  */
-public class SelectFolderAdapter2 extends BaseAdapter implements View.OnClickListener {
+public class SelectFolderAdapter2 extends BaseAdapter implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
     private Context mContext;
     private List<FolderItemData> mListData;
     private Map<Integer, View> mMapViewItem;
@@ -51,8 +53,8 @@ public class SelectFolderAdapter2 extends BaseAdapter implements View.OnClickLis
             if(tag == null)
                 continue;
 
-            if(tag instanceof SelectFolderAdapterHolder){
-                SelectFolderAdapterHolder holderTag = (SelectFolderAdapterHolder)tag;
+            if(tag instanceof SelectFolderAdapterHolder2){
+                SelectFolderAdapterHolder2 holderTag = (SelectFolderAdapterHolder2)tag;
                 if(holderTag.cbFolder.isChecked()){
                     listChecked.add(entry.getKey());
                 }
@@ -99,18 +101,18 @@ public class SelectFolderAdapter2 extends BaseAdapter implements View.OnClickLis
         FolderItemData itemData = mListData.get(position);
         LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        SelectFolderAdapterHolder holder = null;
+        SelectFolderAdapterHolder2 holder = null;
         if(convertView == null){
             View view = inflater.inflate(R.layout.select_folder_item2, null);
             view.setBackgroundResource(R.color.backgroundColor);
-            holder = new SelectFolderAdapterHolder(view);
+            holder = new SelectFolderAdapterHolder2(view);
             holder.tvFolderName.setOnClickListener(this);
             holder.cbFolder.setOnClickListener(this);
             view.setTag(holder);
             convertView = view;
         }
         else{
-            holder = (SelectFolderAdapterHolder) convertView.getTag();
+            holder = (SelectFolderAdapterHolder2) convertView.getTag();
         }
         holder.cbFolder.setTag(position);
         holder.tvFolderName.setTag(position);
@@ -122,22 +124,37 @@ public class SelectFolderAdapter2 extends BaseAdapter implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
-        if(v.getTag() == null)
+        if(mListener == null || v.getTag() == null)
             return;
 
         int position = (int)v.getTag();
-        if((v instanceof TextView) == true && mListener != null){
+        if(v.getClass().getName().equals("android.widget.TextView")){
             mListener.onFolderItemClick(this, position);
         }
-        else if((v instanceof CheckBox) && mListener != null){
-            mListener.onItemChecked(this, position, ((CheckBox)v).isChecked());
+        else if(v.getClass().getName().equals("android.widget.CheckBox")){
+            CheckBox checkBox = (CheckBox)v;
+            boolean isChecked = checkBox.isChecked();
+            mListener.onItemChecked(this, position, isChecked);
         }
     }
 
-    private static class SelectFolderAdapterHolder{
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if(buttonView.getTag() == null)
+            return;
+
+        int position = (int)buttonView.getTag();
+        if(mListener != null){
+            mListener.onItemChecked(this, position, isChecked);
+        }
+    }
+
+
+    private static class SelectFolderAdapterHolder2{
         public CheckBox cbFolder;
         public TextView tvFolderName;
-        public SelectFolderAdapterHolder(View view){
+        public SelectFolderAdapterHolder2(View view){
             cbFolder = (CheckBox)view.findViewById(R.id.cbFolder);
             tvFolderName = (TextView)view.findViewById(R.id.tvFolderName);
         }

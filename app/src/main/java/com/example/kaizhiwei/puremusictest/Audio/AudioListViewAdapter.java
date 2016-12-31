@@ -772,6 +772,42 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         }
     }
 
+    public void setItemPlayState(MediaEntity mediaEntity, boolean isPlaying){
+        List<AudioItemData> listData = getCurOperListData();
+        if(listData == null || listData.size() <= 0 || mediaEntity == null)
+            return ;
+
+        for(int i = 0;i < listData.size();i++){
+            AudioItemData tempdata = listData.get(i);
+            if(tempdata == null || tempdata.mItemType != AudioItemData.TYPE_MEDIA)
+                continue;
+
+            if((tempdata instanceof AudioSongItemData) == false)
+                continue;
+
+            boolean isFind = false;
+            for(int j = 0;j < tempdata.mListMedia.size();j++){
+                MediaEntity tempMedia = tempdata.mListMedia.get(j);
+                if(tempMedia == null)
+                    continue;
+
+                if(tempMedia._id == mediaEntity._id){
+                    isFind = true;
+                    break;
+                }
+            }
+
+            AudioSongItemData songData = (AudioSongItemData)tempdata;
+            if(isFind) {
+                songData.isPlaying = isPlaying;
+            }
+            else{
+                songData.isPlaying = false;
+            }
+        }
+        notifyDataSetChanged();
+    }
+
     public void setItemPlayState(int index, boolean isPlaying){
         List<AudioItemData> listData = getCurOperListData();
         if(listData == null || listData.size() <= 0 ||  index >= listData.size())

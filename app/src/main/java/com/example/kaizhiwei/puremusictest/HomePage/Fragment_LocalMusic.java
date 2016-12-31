@@ -14,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.Audio.AlertDialogFavorite;
-import com.example.kaizhiwei.puremusictest.Audio.AudioActivity;
 import com.example.kaizhiwei.puremusictest.Audio.FavoriteListViewAdapter;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;

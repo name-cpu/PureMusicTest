@@ -48,11 +48,11 @@
 
     <TextView
         android:id="@+id/tvFilterCondition"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
         android:drawableLeft="@drawable/bt_playpage_button_setting_normal_new"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="10dp"
+        android:layout_marginRight="20dp"
         android:layout_alignParentBottom="true"
         android:text="扫描过滤设置"
         android:gravity="center"

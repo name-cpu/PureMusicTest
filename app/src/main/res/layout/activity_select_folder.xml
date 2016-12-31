@@ -46,8 +46,8 @@
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:text="全选"
-            android:gravity="center_vertical"
-            android:background="@drawable/default_back" />
+            android:clickable="true"
+            android:gravity="center_vertical" />
         <CheckBox
             android:id="@+id/ckCheckAll"
             android:layout_width="wrap_content"

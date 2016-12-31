@@ -43,6 +43,13 @@ public class MediaScanHelper implements AsyncTaskScanPath.ScanResultListener{
         mListListener.add(listener);
     }
 
+    public void removeScanListener(AsyncTaskScanPath.ScanResultListener listener){
+        if(listener == null || mListListener == null)
+            return;
+
+        mListListener.remove(listener);
+    }
+
     /**
      * 扫描一个媒体文件
      * @param strFilePath 要扫描的媒体文件
@@ -62,6 +69,8 @@ public class MediaScanHelper implements AsyncTaskScanPath.ScanResultListener{
     public void scanFiles(Context context, List<String> filePaths){
         mContext = context;
         AsyncTaskScanPath task = new AsyncTaskScanPath(this, filePaths);
+        task.setMinMediaDuration(PreferenceConfig.getInstance().getScanFilterByDuration() ? 60 : 0);
+        task.setFilterFolderPath(PreferenceConfig.getInstance().getScanFilterByFolderName());
         task.execute();
     }
 
@@ -104,7 +113,7 @@ public class MediaScanHelper implements AsyncTaskScanPath.ScanResultListener{
     }
 
     @Override
-    public void onScanCompleted(final HashMap<String, String> mapResult) {
+    public void onScanCompleted(final HashMap<String, String> mapResult,final int filterNum) {
         if(mListListener == null || mListListener.size() == 0)
             return ;
 
@@ -125,7 +134,7 @@ public class MediaScanHelper implements AsyncTaskScanPath.ScanResultListener{
                     if(listener == null)
                         continue;
 
-                    listener.onScanCompleted(mapResult);
+                    listener.onScanCompleted(mapResult, filterNum);
                 }
             }
         });

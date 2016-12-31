@@ -64,4 +64,20 @@
     <style name="DefaultCheckbox" parent="@android:style/Widget.CompoundButton.CheckBox">
         <item name="android:button">@drawable/check_box_blue_selector</item>
     </style>
+
+    <style name="LoadingProgressBar">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:background">@drawable/bg_loading</item>
+        <item name="android:paddingLeft">5.0dip</item>
+        <item name="android:paddingTop">2.0dip</item>
+        <item name="android:paddingRight">2.0dip</item>
+        <item name="android:paddingBottom">2.0dip</item>
+        <item name="android:layout_width">41.5dip</item>
+        <item name="android:layout_height">38.5dip</item>
+        <item name="android:indeterminate">true</item>
+        <item name="android:indeterminateOnly">true</item>
+        <item name="android:indeterminateDrawable">@drawable/loading</item>
+        <item name="android:indeterminateDuration">2000</item>
+        <item name="android:indeterminateBehavior">repeat</item>
+    </style>
 </resources>

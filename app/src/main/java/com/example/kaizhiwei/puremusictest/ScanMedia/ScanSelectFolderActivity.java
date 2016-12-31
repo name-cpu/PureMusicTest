@@ -4,23 +4,20 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.example.kaizhiwei.puremusictest.CommonUI.BaseActivty;
-import com.example.kaizhiwei.puremusictest.CommonUI.MyTextView;
 import com.example.kaizhiwei.puremusictest.R;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 /**
  * Created by kaizhiwei on 16/12/25.
  */
-public class ScanSelectFolderActivity extends BaseActivty implements SelectFolderAdapter2.ISelectFolderAdapter2Listener {
+public class ScanSelectFolderActivity extends BaseActivty implements SelectFolderAdapter2.ISelectFolderAdapter2Listener, CompoundButton.OnCheckedChangeListener {
     private SelectFolderAdapter2 mAdapter;
     private ListView lvFolder;
     private TextView tvParentDir;
@@ -49,6 +46,7 @@ public class ScanSelectFolderActivity extends BaseActivty implements SelectFolde
     }
 
     private void initData(){
+        resetChcekState();
         List<SelectFolderAdapter2.FolderItemData> listAdapterData = new ArrayList<>();
         File file = new File(mCurParentDir);
         if(file.exists() && file.isDirectory()){
@@ -56,6 +54,9 @@ public class ScanSelectFolderActivity extends BaseActivty implements SelectFolde
             for(int i = 0;i < listSubFile.size();i++){
                 File subFile = listSubFile.get(i);
                 if(subFile.isDirectory() == false)
+                    continue;
+
+                if(subFile.isHidden())
                     continue;
 
                 SelectFolderAdapter2.FolderItemData itemData = new SelectFolderAdapter2.FolderItemData();
@@ -90,18 +91,25 @@ public class ScanSelectFolderActivity extends BaseActivty implements SelectFolde
         }
     }
 
+    private void resetChcekState(){
+        if(ckCheckAll != null && tvCheckAll != null){
+            ckCheckAll.setChecked(false);
+            tvCheckAll.setText("全选");
+        }
+    }
+
     @Override
     public void onItemChecked(SelectFolderAdapter2 adapter, int position, boolean isChecked) {
         if(adapter == null || position < 0)
             return;
 
-        ckCheckAll.setChecked(false);
         List<Integer> listItems = adapter.getCheckedItems();
-        if(listItems.size() == 0){
-            ckCheckAll.setChecked(false);
-        }
-        else if(listItems.size() == adapter.getCount()){
+        if(listItems.size() == adapter.getCount()){
             ckCheckAll.setChecked(true);
+            tvCheckAll.setText("取消全选");
+        }
+        else{
+            resetChcekState();
         }
     }
 
@@ -118,9 +126,16 @@ public class ScanSelectFolderActivity extends BaseActivty implements SelectFolde
     @Override
     public void onClick(View v) {
         if(tvCheckAll == v){
+            if(ckCheckAll.isChecked()){
+                ckCheckAll.setChecked(false);
+            }
+            else{
+                ckCheckAll.setChecked(true);
+            }
             checkAllDir();
         }
         else if(ckCheckAll == v){
+            boolean isChecked = ckCheckAll.isChecked();
             checkAllDir();
         }
         else if(tvParentDir == v){
@@ -134,13 +149,18 @@ public class ScanSelectFolderActivity extends BaseActivty implements SelectFolde
     }
 
     private void checkAllDir(){
-        if(!ckCheckAll.isChecked()){
-            mAdapter.setAllChcked(false);
-            ckCheckAll.setChecked(false);
+        if(ckCheckAll.isChecked()){
+            mAdapter.setAllChcked(true);
+            tvCheckAll.setText("取消全选");
         }
         else{
-            mAdapter.setAllChcked(true);
-            ckCheckAll.setChecked(true);
+            mAdapter.setAllChcked(false);
+            tvCheckAll.setText("全选");
         }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        checkAllDir();
     }
 }

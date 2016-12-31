@@ -126,6 +126,7 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
             int iSuccessCount = 0;
             if(mListMediaEntity != null){
                 boolean isMutil = mListMediaEntity.size() > 1 ? true : false;
+                boolean isExist = false;
                 for(int i = 0;i < mListMediaEntity.size();i++){
                     MediaEntity mediaEntity = mListMediaEntity.get(i);
                     if(mediaEntity == null)
@@ -141,6 +142,7 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
                     favoritesMusicEntity.favorite_id = entity._id;
 
                     if(MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mediaEntity._id, favoritesMusicEntity.favorite_id)){
+                        isExist = true;
                     }
                     else{
                         bSuccess= MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
@@ -151,8 +153,11 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
 
                 String strPromt = "";
                 if(!isMutil){
-                    if(iSuccessCount == mListMediaEntity.size()){
+                    if(iSuccessCount == mListMediaEntity.size() && isExist == false){
                         strPromt = String.format("成功添加到\"%s\"", entity.strFavoriteName);
+                    }
+                    else if(iSuccessCount == mListMediaEntity.size() && isExist == true){
+                        strPromt = String.format("已经添加到\"%s\"", entity.strFavoriteName);
                     }
                     else{
                         strPromt = String.format("添加失败");
