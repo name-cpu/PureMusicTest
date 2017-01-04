@@ -68,6 +68,8 @@ public class PlaybackService extends Service {
     private AudioManager.OnAudioFocusChangeListener mAudioFocusListener;
 
     private ArrayList<Callback> mCallbacks = new ArrayList<Callback>();
+    private boolean mPausable;
+    private boolean mSeekable;
 
     private static final int SHOW_PROGRESS = 0;
     private Handler mHandler = new AudioServiceHandler(this);
@@ -249,10 +251,10 @@ public class PlaybackService extends Service {
                 case MediaPlayer.Event.ESDeleted:
                     break;
                 case MediaPlayer.Event.PausableChanged:
-                    //mPausable = event.getPausable();
+                    mPausable = event.getPausable();
                     break;
                 case MediaPlayer.Event.SeekableChanged:
-                    //mSeekable = event.getSeekable();
+                    mSeekable = event.getSeekable();
                     break;
             }
             for (Callback callback : mCallbacks)
@@ -524,6 +526,7 @@ public class PlaybackService extends Service {
             }
         }
 
+        mPausable = mSeekable = true;
         mCurrentIndex = index;
         PreferenceConfig.getInstance().setPositionInPlaylist(mCurrentIndex);
         String filePath = mMediaList.get(index).getFilePath();
@@ -541,6 +544,17 @@ public class PlaybackService extends Service {
             mMediaPlayer.play();
         }
         mHandler.sendEmptyMessage(SHOW_PROGRESS);
+    }
+
+    public void setPosition(float position){
+        if(mSeekable && mMediaPlayer != null){
+            mMediaPlayer.setPosition(position);
+        }
+    }
+
+    public void setTime(long time) {
+        if (mSeekable && mMediaPlayer != null)
+            mMediaPlayer.setTime(time);
     }
 
     private boolean hasCurrentMedia() {

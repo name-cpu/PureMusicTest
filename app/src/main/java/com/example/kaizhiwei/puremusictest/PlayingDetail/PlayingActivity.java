@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.SeekBar;
@@ -30,10 +31,11 @@ import org.videolan.libvlc.MediaPlayer;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * Created by kaizhiwei on 17/1/4.
  */
-public class PlayingActivity extends FragmentActivity implements View.OnClickListener, PlaybackService.Client.Callback, PlaybackService.Callback {
+public class PlayingActivity extends FragmentActivity implements View.OnClickListener, PlaybackService.Client.Callback, PlaybackService.Callback, SeekBar.OnSeekBarChangeListener {
     private MyImageView mivLike;
     private MyImageView mivDownload;
     private MyImageView mivShare;
@@ -56,6 +58,8 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
     private TextView tvCurTime;
     private TextView tvTotalTime;
     private SeekBar sbProgress;
+    private boolean isUpdateCurTimeFromUser = false;
+
     private List<List<Integer>> listPLaymodeImageRes;
 
     private PlaybackService.Client mClient = null;
@@ -125,7 +129,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
         mivLike.setOnClickListener(this);
 
         mivDownload = (MyImageView)this.findViewById(R.id.mivDownload);
-        mivDownload.setResId(R.drawable.bt_playpage_button_like_normal_new, R.drawable.bt_playpage_button_like_press_new);
+        mivDownload.setResId(R.drawable.bt_playpage_button_download_normal_new, R.drawable.bt_playpage_button_download_press_new);
         mivDownload.setOnClickListener(this);
 
         mivShare = (MyImageView)this.findViewById(R.id.mivShare);
@@ -137,7 +141,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
         mivComment.setOnClickListener(this);
 
         mivMore = (MyImageView)this.findViewById(R.id.mivMore);
-        mivMore.setResId(R.drawable.bt_playpage_moreactions_normal, R.drawable.bt_playpage_moreactions_press_new);
+        mivMore.setResId(R.drawable.bt_playpage_moreactions_normal_new, R.drawable.bt_playpage_moreactions_press_new);
         mivMore.setOnClickListener(this);
 
         mivPlayMode = (MyImageView)this.findViewById(R.id.mivPlayMode);
@@ -175,6 +179,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
         viewPager.setOffscreenPageLimit(3);
 
         linePageIndicator.setViewPager(viewPager);
+        viewPager.setCurrentItem(1);
         final float density = getResources().getDisplayMetrics().density;
         linePageIndicator.setFillColor(0x880099CC);
         linePageIndicator.setPageColor(0xFF4F4F4F);
@@ -184,6 +189,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
         tvCurTime = (TextView) this.findViewById(R.id.tvCurTime);
         tvTotalTime = (TextView) this.findViewById(R.id.tvTotalTime);
         sbProgress = (SeekBar)this.findViewById(R.id.sbProgress);
+        sbProgress.setOnSeekBarChangeListener(this);
         mClient = new PlaybackService.Client(this, this);
 
         listPLaymodeImageRes = new ArrayList<>();
@@ -222,6 +228,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
         MediaEntity curMediaEntity = mService.getCurrentMedia();
         if(curMediaEntity != null){
             artistInfoFragment.setArtistAlbumInfo(curMediaEntity);
+            musicInfoFragment.setMusciInfo(curMediaEntity);
             boolean bFavorite = MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(curMediaEntity._id, MediaLibrary.getInstance().getDefaultFavoriteEntityId());
             updateLoveState(bFavorite);
         }
@@ -230,7 +237,9 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
     private void updatePlayProgress(int iCur, int iMax){
         sbProgress.setMax(iMax);
         sbProgress.setProgress(iCur);
-        tvCurTime.setText(formatTime(iCur));
+        if(isUpdateCurTimeFromUser == false){
+            tvCurTime.setText(formatTime(iCur));
+        }
         tvTotalTime.setText(formatTime(iMax));
     }
 
@@ -333,7 +342,8 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
 
         }
         else if(v == mivMore){
-
+            PlayingMoreOperDialog dialog = new PlayingMoreOperDialog(this);
+            dialog.show();
         }
         else if(v == mivPlayMode){
             int playMode = mService.getRepeatMode();
@@ -438,6 +448,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
                 updatePlayPauseState(true);
             }
             artistInfoFragment.setArtistAlbumInfo(mService.getCurrentMedia());
+            musicInfoFragment.setMusciInfo(mService.getCurrentMedia());
             if(mPlayListDialog != null && mPlayListDialog.isShowing()){
                 mPlayListDialog.setItemPlayState(mService.getCurPlayMediaIndex(), true, true);
             }
@@ -451,6 +462,26 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
         else if(event.type == MediaPlayer.Event.Stopped){
             resetUI();
         }
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if(fromUser){
+            isUpdateCurTimeFromUser = true;
+            tvCurTime.setText(formatTime(progress));
+        }
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        if(mService != null){
+            mService.setPosition((float)(seekBar.getProgress()*1.0/seekBar.getMax()));
+        }
+        isUpdateCurTimeFromUser = false;
     }
 
     class PlayingPagerAdapter extends FragmentStatePagerAdapter {

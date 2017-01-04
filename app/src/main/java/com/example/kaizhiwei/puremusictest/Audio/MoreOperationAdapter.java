@@ -19,6 +19,7 @@ import java.util.Map;
  * Created by kaizhiwei on 16/11/26.
  */
 public class MoreOperationAdapter extends BaseAdapter {
+
     static public class MoreOperationItemData{
         public int id;
         public String strText;

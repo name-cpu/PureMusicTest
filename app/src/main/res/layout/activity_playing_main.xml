@@ -35,7 +35,7 @@
             android:id="@+id/mivDownload"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/bt_playpage_button_like_normal_new"
+            android:src="@drawable/bt_playpage_button_download_normal_new"
             android:layout_marginLeft="20dp"
             android:layout_toLeftOf="@id/mivShare"/>
 
@@ -60,7 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:src="@drawable/bt_playpage_moreactions_normal"
+            android:src="@drawable/bt_playpage_moreactions_press_new"
             android:layout_toRightOf="@id/mivComment"
             android:layout_marginLeft="20dp"/>
     </RelativeLayout>
@@ -70,7 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:orientation="horizontal"
         android:weightSum="1">
@@ -87,8 +87,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="center"
-            android:layout_marginLeft="2dp"
-            android:layout_marginRight="2dp"/>
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="2dp"
+            android:maxHeight="2.0dip"
+            android:minHeight="2.0dip"
+            android:progressDrawable="@drawable/playing_seekbar"
+            android:thumb="@drawable/playing_seekbar_thumb"/>
         <TextView
             android:id="@+id/tvTotalTime"
             android:layout_width="wrap_content"
@@ -101,7 +105,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp">
+        android:layout_marginBottom="20dp">
         <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
             android:id="@+id/mivPlayPause"
             android:layout_width="wrap_content"
