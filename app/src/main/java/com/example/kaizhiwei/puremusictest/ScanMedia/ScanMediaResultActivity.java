@@ -1,12 +1,14 @@
 package com.example.kaizhiwei.puremusictest.ScanMedia;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.kaizhiwei.puremusictest.AsyncTask.AsyncTaskScanPath;
 import com.example.kaizhiwei.puremusictest.CommonUI.BaseActivty;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaScanHelper;
 import com.example.kaizhiwei.puremusictest.R;
 import com.hp.hpl.sparta.Text;
@@ -38,6 +40,7 @@ public class ScanMediaResultActivity extends BaseActivty implements AsyncTaskSca
 
             }
         });
+        setTitle("歌曲扫描中...");
         pbScanProgring.setProgress(0);
         pbScanProgring.setMax(100);
     }
@@ -46,7 +49,7 @@ public class ScanMediaResultActivity extends BaseActivty implements AsyncTaskSca
     protected void onResume(){
         super.onResume();
         MediaScanHelper.getInstance().addScanListener(this);
-        MediaScanHelper.getInstance().scanFile(this,"");
+        MediaScanHelper.getInstance().scanFile(ScanMediaResultActivity.this,"");
     }
 
     @Override
@@ -57,7 +60,8 @@ public class ScanMediaResultActivity extends BaseActivty implements AsyncTaskSca
 
     @Override
     public void onScanStart() {
-
+        tvScanResult.setText("正在扫描...");
+        tvScanProgressing.setText("正在计算文件夹大小...");
     }
 
     @Override
@@ -69,7 +73,9 @@ public class ScanMediaResultActivity extends BaseActivty implements AsyncTaskSca
     @Override
     public void onScanCompleted(HashMap<String, String> mapResult, int filterNum) {
         tvFinish.setVisibility(View.VISIBLE);
-        tvScanResult.setText("扫描完毕共" + mapResult.size() + "首" + ",过滤" + filterNum + "首");
+        tvScanResult.setText("扫描完毕共" + mapResult.size() + "首");
+        tvScanProgressing.setText("为您过滤" + filterNum + "个音乐片段");
         pbScanProgring.setProgress(100);
+        MediaLibrary.getInstance().resetAllMediaEntityInfo(mapResult);
     }
 }

@@ -18,10 +18,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
+import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
+import com.hp.hpl.sparta.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +33,12 @@ import java.util.List;
  * Created by kaizhiwei on 16/11/27.
  */
 public class PlayListDialog extends Dialog implements View.OnClickListener, AdapterView.OnItemClickListener {
-    private ImageView ivPlayMode;
+    private MyImageView ivPlayMode;
+    private List<List<Integer>> listPLaymodeImageRes;
     private ListView lvPlaylist;
     private TextView tvClearAll;
     private TextView tvPromt;
+    private TextView tvClose;
     private PlayListViewAdapter mPlaylistAdapter;
     private IPlayListDialogListener mDialogListener;
     private PlayListViewAdapter.IPlayListViewAdapterListener mPlaylistAdapterListener = new PlayListViewAdapter.IPlayListViewAdapterListener(){
@@ -46,36 +51,75 @@ public class PlayListDialog extends Dialog implements View.OnClickListener, Adap
         }
     };
 
-    interface IPlayListDialogListener{
+    public interface IPlayListDialogListener{
         void onDeleteClick(PlayListViewAdapter adapter, int position);
         void onItemClick(AdapterView<?> parent, View view, int position, long id);
         void onClearPlaylist();
+        void onChangePlayMode();
     }
 
     public PlayListDialog(Context context) {
         super(context);
+        init();
     }
 
     protected PlayListDialog(Context context, boolean cancelable, OnCancelListener cancelListener) {
         super(context, cancelable, cancelListener);
+        init();
     }
 
     public PlayListDialog(Context context, int themeResId) {
         super(context, themeResId);
+        init();
     }
 
-    public void setContentView(View view) {
+    private void init(){
+        listPLaymodeImageRes = new ArrayList<>();
+        List<Integer> list = new ArrayList<>();
+        list.add(R.drawable.bt_list_order_normal);
+        list.add(R.drawable.bt_list_order_press);
+        list.add(R.string.play_mode_order);
+        listPLaymodeImageRes.add(list);
+
+        list = new ArrayList<>();
+        list.add(R.drawable.bt_list_roundsingle_normal);
+        list.add(R.drawable.bt_list_roundsingle_press);
+        list.add(R.string.play_mode_roundsingle);
+        listPLaymodeImageRes.add(list);
+
+        list = new ArrayList<>();
+        list.add(R.drawable.bt_list_button_roundplay_normal);
+        list.add(R.drawable.bt_list_button_roundplay_press);
+        list.add(R.string.play_mode_round);
+        listPLaymodeImageRes.add(list);
+
+        list = new ArrayList<>();
+        list.add(R.drawable.bt_list_random_normal);
+        list.add(R.drawable.bt_list_random_press);
+        list.add(R.string.play_mode_random);
+        listPLaymodeImageRes.add(list);
+    }
+
+    public void setContentView(View view, boolean isShowClose) {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams. FLAG_FULLSCREEN , WindowManager.LayoutParams. FLAG_FULLSCREEN);
 
         super.setContentView(view);
         tvClearAll = (TextView) view.findViewById(R.id.tvClearAll);
-        ivPlayMode = (ImageView) view.findViewById(R.id.ivPlayMode);
+        ivPlayMode = (MyImageView) view.findViewById(R.id.ivPlayMode);
         lvPlaylist = (ListView) view.findViewById(R.id.lvPlaylist);
+        tvClose = (TextView)view.findViewById(R.id.tvClose);
         lvPlaylist.setOnItemClickListener(this);
         tvClearAll.setOnClickListener(this);
         ivPlayMode.setOnClickListener(this);
+        tvClose.setOnClickListener(this);
         tvPromt = (TextView)view.findViewById(R.id.tvPromt);
+        if(isShowClose){
+            tvClose.setVisibility(View.VISIBLE);
+        }
+        else{
+            tvClose.setVisibility(View.GONE);
+        }
 
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         Window window = this.getWindow();
@@ -85,16 +129,17 @@ public class PlayListDialog extends Dialog implements View.OnClickListener, Adap
         // 可以在此设置显示动画
         WindowManager.LayoutParams wl = window.getAttributes();
         wl.x = 0;
-        wl.y = (int)(50*displayMetrics.density);
+        wl.y = 0;
         // 以下这两句是为了保证按钮可以水平满屏
         wl.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        wl.height = (int)(300*displayMetrics.density);
+        wl.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         wl.gravity = Gravity.BOTTOM;
 
         window.setAttributes(wl);
     }
 
     public void setPlaylistData(List<MediaEntity> list){
+        mPlaylistAdapter = null;
         mPlaylistAdapter = new PlayListViewAdapter(this.getContext(), list);
         mPlaylistAdapter.notifyDataSetChanged();
         lvPlaylist.setAdapter(mPlaylistAdapter);
@@ -110,11 +155,11 @@ public class PlayListDialog extends Dialog implements View.OnClickListener, Adap
         }
     }
 
-    public void setItemPlayState(MediaEntity mediaEntity,boolean isCurPlay, boolean isPlaying){
-        if(mPlaylistAdapter == null || mediaEntity == null)
+    public void setItemPlayState(int curPlayMediaIndex, boolean isCurPlay, boolean isPlaying){
+        if(mPlaylistAdapter == null || curPlayMediaIndex < 0)
             return;
 
-        mPlaylistAdapter.setItemPlayState(mediaEntity, isCurPlay, isPlaying);
+        mPlaylistAdapter.setItemPlayState(curPlayMediaIndex, isCurPlay, isPlaying);
     }
 
     public void setPlayListAdapterListener(PlayListDialog.IPlayListDialogListener listener){
@@ -162,6 +207,14 @@ public class PlayListDialog extends Dialog implements View.OnClickListener, Adap
                 lvPlaylist.setVisibility(View.GONE);
             }
         }
+        else if(v == ivPlayMode){
+            if(mDialogListener != null){
+                mDialogListener.onChangePlayMode();
+            }
+        }
+        else if(v == tvClose){
+            dismiss();
+        }
     }
 
     @Override
@@ -175,21 +228,37 @@ public class PlayListDialog extends Dialog implements View.OnClickListener, Adap
         mDialogListener.onItemClick(parent, view, position, id);
     }
 
+    public void updatePlaymodeImg(int playMode, boolean isShowToast){
+        if(playMode < PreferenceConfig.PLAYMODE_ORDER)
+            playMode = PreferenceConfig.PLAYMODE_ORDER;
+
+        if(playMode > PreferenceConfig.PLAYMODE_RANDOM)
+            playMode = PreferenceConfig.PLAYMODE_RANDOM;
+
+        if(listPLaymodeImageRes == null || ivPlayMode == null)
+            return;
+
+        List<Integer> list = listPLaymodeImageRes.get(playMode);
+        ivPlayMode.setResId(list.get(0), list.get(1));
+        if(isShowToast){
+            Toast.makeText(this.getContext(), getContext().getString(list.get(2)), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public static class Builder {
         private Context context;
-
 
         public Builder(Context context) {
             this.context = context;
         }
 
-        public PlayListDialog create() {
+        public PlayListDialog create(boolean isShowClose) {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             final PlayListDialog dialog = new PlayListDialog(context,R.style.Dialog);
             View layout = inflater.inflate(R.layout.playlist_dialog, null);
 
-            dialog.setContentView(layout);
+            dialog.setContentView(layout, isShowClose);
 
             return dialog;
         }

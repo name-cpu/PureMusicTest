@@ -23,4 +23,9 @@
     <string name="jams_is_caching_artwork">Jams is caching album art.</string>
     <string name="title_activity_home">HomeActivity</string>
     <string name="title_activity_scan_media">ScanMediaActivity</string>
+    
+    <string name="play_mode_round">循环播放</string>
+    <string name="play_mode_order">顺序播放</string>
+    <string name="play_mode_random">随机播放</string>
+    <string name="play_mode_roundsingle">单曲循环</string>
 </resources>

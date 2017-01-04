@@ -21,7 +21,12 @@ public class AlertDialogHide extends AlertDialog implements View.OnClickListener
     private TextView btnOK;
     private TextView btnCancel;
     private TextView tvTitle;
+    private IAlertDialogHideListener mListener;
     private List<MediaEntity> mListMediaEntity;
+
+    interface IAlertDialogHideListener{
+        void onAlterDialogHideOk(String strFolderPath);
+    }
 
     protected AlertDialogHide(Context context) {
         super(context);
@@ -44,6 +49,10 @@ public class AlertDialogHide extends AlertDialog implements View.OnClickListener
 
     public void setContentView(){
 
+    }
+
+    public void setAlertDialogListener(IAlertDialogHideListener listener){
+        mListener = listener;
     }
 
     public void show(){
@@ -84,16 +93,20 @@ public class AlertDialogHide extends AlertDialog implements View.OnClickListener
 
             String strPromt = "";
             if(successNum == 0){
-                strPromt = "删除失败";
+                strPromt = "隐藏失败";
             }
             else if(successNum < mListMediaEntity.size()){
-                strPromt = "删除部分成功,部分失败";
+                strPromt = "隐藏成功" + successNum + "首,失败" + (mListMediaEntity.size() - successNum) + "首";
             }
             else{
-                strPromt = "删除成功";
+                strPromt = "隐藏成功";
             }
             Toast.makeText(this.getContext(), strPromt, Toast.LENGTH_SHORT).show();
             dismiss();
+
+            if(mListener != null && mListMediaEntity != null && mListMediaEntity.size() > 0){
+                mListener.onAlterDialogHideOk(mListMediaEntity.get(0).save_path);
+            }
         }
     }
 }

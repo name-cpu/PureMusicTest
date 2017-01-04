@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="350dp"
+    android:weightSum="1"
     android:background="@color/backgroundColor">
 
     <LinearLayout
@@ -10,13 +11,13 @@
         android:background="@color/playlist_title_color"
         android:weightSum="1">
 
-        <ImageView
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
             android:id="@+id/ivPlayMode"
             android:layout_marginLeft="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:src="@drawable/bt_widget_mode_cycle_press"/>
+            android:src="@drawable/bt_list_button_roundplay_normal"/>
 
         <TextView
             android:layout_width="0dp"
@@ -42,16 +43,30 @@
         android:text="音乐空空如也"
         android:gravity="center"
         android:textSize="15sp"
-        android:textColor="@color/subTextColor"
-        android:layout_marginBottom="40dp"/>
+        android:textColor="@color/subTextColor" />
 
-    <ListView
-        android:id="@+id/lvPlaylist"
-        android:dividerHeight="1dp"
-        android:divider="@color/listviewSeperatorLineColor"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:cacheColorHint="#000000"
-        android:scrollbars="none">
-    </ListView>
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <ListView
+            android:id="@+id/lvPlaylist"
+            android:dividerHeight="1dp"
+            android:divider="@color/listviewSeperatorLineColor"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:cacheColorHint="#000000"
+            android:scrollbars="none">
+        </ListView>
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvClose"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="关闭"
+        android:gravity="center"
+        android:textSize="15sp"
+        android:background="@color/playlist_title_color"
+        android:textColor="@color/mainTextColor"/>
 </LinearLayout>

@@ -4,10 +4,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
+import com.example.kaizhiwei.puremusictest.CommonUI.BaseFragment;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
 
@@ -18,7 +21,7 @@ import java.util.List;
 /**
  * Created by kaizhiwei on 16/11/21.
  */
-public class AudioFilterActivity extends Activity implements MediaLibrary.IMediaScanListener, AdapterView.OnItemClickListener, AudioListViewAdapter.IAudioListViewListener {
+public class AudioFilterFragment extends BaseFragment implements AdapterView.OnItemClickListener, AudioListViewAdapter.IAudioListViewListener {
     private TextView   mtvTitle;
     private AudioListView mAudioListView;
     private AudioListViewAdapter mListViewAdapter;
@@ -31,20 +34,20 @@ public class AudioFilterActivity extends Activity implements MediaLibrary.IMedia
     public static final String TITLE_NAME = "TITLE_NAME";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = super.onCreateView(inflater, container, savedInstanceState);
         setContentView(R.layout.activty_audio_filter);
-        mtvTitle = (TextView)this.findViewById(R.id.tvTitle);
-        mAudioListView = (AudioListView)this.findViewById(R.id.lvFilter);
-        mListViewAdapter = new AudioListViewAdapter(this, AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, false);
+        mtvTitle = (TextView)rootView.findViewById(R.id.tvTitle);
+        mAudioListView = (AudioListView)rootView.findViewById(R.id.lvFilter);
+        mListViewAdapter = new AudioListViewAdapter(this.getActivity(), AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, false);
         mAudioListView.setAdapter(mListViewAdapter);
         //mAllSongListView.setOnItemClickListener(this);
         //mAllSongListView.setOnScrollListener(this);
-
-        Intent intent = getIntent();
-        int filterType = intent.getIntExtra(FILTER_TYPE, AudioListViewAdapter.ADAPTER_TYPE_FOLDER);
-        String strFilterData = intent.getStringExtra(FILTER_NAME);
-        String strTitleName = intent.getStringExtra(TITLE_NAME);
+        Bundle bundle = getArguments();
+        int filterType = bundle.getInt(FILTER_TYPE, AudioListViewAdapter.ADAPTER_TYPE_FOLDER);
+        String strFilterData = bundle.getString(FILTER_NAME);
+        String strTitleName = bundle.getString(TITLE_NAME);
         if(filterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
             mListViewAdapter.setFilterFolder(strFilterData);
         }
@@ -58,44 +61,18 @@ public class AudioFilterActivity extends Activity implements MediaLibrary.IMedia
         mFilterData = strFilterData;
 
         mListViewAdapter.initData(MediaLibrary.getInstance().getAllMediaEntrty());
-        mtvTitle.setText(strTitleName);
+        setTitle(strTitleName);
+        return rootView;
     }
 
-    @Override
-    protected void onResume(){
+    public void onResume(){
         super.onResume();
-        MediaLibrary.getInstance().registerListener(this);
         mListViewAdapter.registerListener(this);
     }
 
-    @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
-        MediaLibrary.getInstance().unregisterListener(this);
         mListViewAdapter.unregisterListener(this);
-    }
-
-    @Override
-    public void onScanStart() {
-
-    }
-
-    @Override
-    public void onScaning(String fileInfo, float progress) {
-
-    }
-
-    @Override
-    public void onScanFinish() {
-        final WeakReference<MediaLibrary> mlibrary = new WeakReference<MediaLibrary>(MediaLibrary.getInstance());
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if(mlibrary.get() != null){
-                    mListViewAdapter.initData(mlibrary.get().getAllMediaEntrty());
-                }
-            }
-        });
     }
 
     @Override
@@ -105,7 +82,7 @@ public class AudioFilterActivity extends Activity implements MediaLibrary.IMedia
 
     @Override
     public void onMoreBtnClick(AudioListViewAdapter adapter, int position) {
-        MoreOperationDialog.Builder builder = new MoreOperationDialog.Builder(this);
+        MoreOperationDialog.Builder builder = new MoreOperationDialog.Builder(this.getActivity());
         MoreOperationDialog dialog = builder.create();
         List<Integer> list = new ArrayList<>();
 
@@ -131,5 +108,15 @@ public class AudioFilterActivity extends Activity implements MediaLibrary.IMedia
         dialog.setMoreOperData(list);
         dialog.setCancelable(true);
         dialog.show();
+    }
+
+    @Override
+    public void onRandomPlayClick(AudioListViewAdapter adapter) {
+
+    }
+
+    @Override
+    public void onBatchMgrClick(AudioListViewAdapter adapter) {
+
     }
 }

@@ -11,21 +11,13 @@
     android:orientation="vertical"
     android:weightSum="1">
 
-    <include
-        android:id="@+id/layoutTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/common_title"
-        android:layout_alignParentTop="true"/>
-
     <android.support.design.widget.TabLayout
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:tabIndicatorHeight="2dp"
-        app:tabMode="scrollable"
-        android:layout_below="@id/layoutTitle">
+        app:tabMode="scrollable">
     </android.support.design.widget.TabLayout>
 
     <FrameLayout
@@ -71,7 +63,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:background="@color/backgroundColor">
+            android:background="@color/backgroundColor"
+            android:visibility="gone">
             <ProgressBar
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -79,7 +72,7 @@
                 style="@style/LoadingProgressBar"
                 android:layout_centerInParent="true"/>
             <TextView
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="音乐马上回来"
@@ -87,6 +80,41 @@
                 android:layout_below="@id/view_loading"
                 android:gravity="center"
                 android:textSize="13sp"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rlEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:background="@color/backgroundColor">
+            <ImageView
+                android:id="@+id/ivEmpty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/img_spacepage_nocontent"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="120dp"/>
+
+            <TextView
+                android:id="@+id/tvEmpty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="音乐空空如也"
+                android:layout_marginTop="2dp"
+                android:layout_below="@id/ivEmpty"
+                android:layout_centerHorizontal="true"/>
+
+            <com.example.kaizhiwei.puremusictest.CommonUI.MyTextView
+                android:id="@+id/mtvScanMedia"
+                android:layout_width="120dp"
+                android:layout_height="30dp"
+                android:text="扫描手机歌曲"
+                android:layout_below="@id/tvEmpty"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"
+                android:layout_marginTop="15dp"/>
         </RelativeLayout>
     </FrameLayout>
 </LinearLayout>

@@ -2,6 +2,7 @@ package com.example.kaizhiwei.puremusictest.Audio;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -16,8 +17,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
+import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
+import com.example.kaizhiwei.puremusictest.PlayingDetail.PlayingActivity;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
 
@@ -39,8 +43,10 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
     private TextView   mtvSub;
     private ImageView  mImArtist;
     private ProgressBar mPlayProgress;
+    private LinearLayout llControl;
     private WeakReference<MediaEntity>  mWeakMediaEntity;
     private boolean mIsPlaying;
+    private HomeActivity mHomePage;
     private PlaybackService.Client mClient = new PlaybackService.Client(this.getContext(), this);
     private PlaybackService mService;
     private PlayListDialog mPlayListDialog;
@@ -87,21 +93,35 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
 
             mService.clearPlaylist();
         }
+
+        @Override
+        public void onChangePlayMode() {
+            if(mService == null || mPlayListDialog == null)
+                return;
+
+            int curPlayMode = mService.getRepeatMode();
+            int nextPlayMode = (curPlayMode + 1)%(PreferenceConfig.PLAYMODE_NUM);
+            mService.setRepeatMode(nextPlayMode);
+            mPlayListDialog.updatePlaymodeImg(nextPlayMode, true);
+        }
     };
 
     public NowPlayingLayout(Context context) {
         super(context);
         init();
+        mHomePage = (HomeActivity)context;
     }
 
     public NowPlayingLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
+        mHomePage = (HomeActivity)context;
     }
 
     public NowPlayingLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
+        mHomePage = (HomeActivity)context;
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -137,6 +157,25 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
         mImArtist = (ImageView)view.findViewById(R.id.ivArtist);
         mPlayProgress = (ProgressBar) view.findViewById(R.id.pbPlay);
         mPlayProgress.setProgress(0);
+        llControl = (LinearLayout)view.findViewById(R.id.llControl);
+        llControl.setOnClickListener(this);
+    }
+
+    private void initData(){
+        if(mService == null)
+            return;
+
+        int size = mService.getPlaylistSize();
+        if(size == 0){
+            resetUI(true);
+        }
+        else{
+            MediaEntity curMedia = mService.getCurrentMedia();
+            if(curMedia != null){
+                mtvMain.setText(curMedia.title);
+                mtvSub.setText(curMedia.artist);
+            }
+        }
     }
 
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -172,13 +211,18 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
         else if(v == mBtnPlaylist){
             if(mPlayListDialog == null){
                 PlayListDialog.Builder builder = new PlayListDialog.Builder(this.getContext());
-                mPlayListDialog = builder.create();
+                mPlayListDialog = builder.create(false);
             }
             mPlayListDialog.setCancelable(true);
             mPlayListDialog.setPlaylistData(mService.getPlaylist());
-            mPlayListDialog.setItemPlayState(mService.getCurrentMedia(), mService.isPlaying(), true);
+            mPlayListDialog.setItemPlayState(mService.getCurPlayMediaIndex(), true, mService.isPlaying());
             mPlayListDialog.setPlayListAdapterListener(mListener);
+            mPlayListDialog.updatePlaymodeImg(mService.getRepeatMode(), false);
             mPlayListDialog.show();
+        }
+        else if(llControl == v){
+            Intent intent = new Intent(this.getContext(), PlayingActivity.class);
+            mHomePage.startActivity(intent);
         }
     }
 
@@ -212,6 +256,7 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
     public void onConnected(PlaybackService service) {
         mService = service;
         mService.addCallback(this);
+        initData();
     }
 
     @Override
@@ -252,7 +297,7 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
                 mtvMain.setText(mediaEntity.getTitle());
                 mtvSub.setText(mediaEntity.getArtist());
                 if(mPlayListDialog != null && mPlayListDialog.isShowing()){
-                    mPlayListDialog.setItemPlayState(mediaEntity, true, true);
+                    mPlayListDialog.setItemPlayState(mService.getCurPlayMediaIndex(), true, true);
                 }
             }
         }
@@ -260,7 +305,7 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
             MediaEntity mediaEntity = mService.getCurrentMedia();
             if(mediaEntity != null){
                 if(mPlayListDialog != null && mPlayListDialog.isShowing()){
-                    mPlayListDialog.setItemPlayState(mediaEntity, true, false);
+                    mPlayListDialog.setItemPlayState(mService.getCurPlayMediaIndex(), true, false);
                 }
             }
         }

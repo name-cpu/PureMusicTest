@@ -16,6 +16,9 @@ import com.example.kaizhiwei.puremusictest.R;
 public class MyTextView extends TextView {
     private GradientDrawable mNormalDrawable;
     private GradientDrawable mPressedDrawable;
+    private int mBorderColor;
+    private int mNormalBackgroundColor;
+    private int mPressedBackGroundColor;
 
     public MyTextView(Context context) {
         super(context);
@@ -33,15 +36,48 @@ public class MyTextView extends TextView {
     }
 
     private void init(){
-        this.setClickable(true);
-        mNormalDrawable = new GradientDrawable();
-        mNormalDrawable.setShape(GradientDrawable.RECTANGLE); // 画框
-        mNormalDrawable.setStroke(1, getResources().getColor(R.color.subTextColor)); // 边框内部颜色
+        mBorderColor = getResources().getColor(R.color.subTextColor);
+        mNormalBackgroundColor = getResources().getColor(R.color.backgroundColor);
+        mPressedBackGroundColor = getResources().getColor(R.color.default_button_pressed_color);
 
-        mPressedDrawable = new GradientDrawable();
-        mPressedDrawable.setShape(GradientDrawable.RECTANGLE); // 画框
-        mPressedDrawable.setColor(getResources().getColor(R.color.default_button_pressed_color)); // 边框内部颜色
+        this.setClickable(true);
+        setBorderColor(mBorderColor);
+        //setNormalBackgroundColor(mNormalBackgroundColor);
+        setPressedBackgroundColor(mPressedBackGroundColor);
         this.setBackgroundDrawable(mNormalDrawable);
+    }
+
+    public void setBorderColor(int color){
+        mBorderColor = color;
+        if(mNormalDrawable == null){
+            mNormalDrawable = new GradientDrawable();
+        }
+
+        if(mNormalDrawable != null){
+            mNormalDrawable.setShape(GradientDrawable.RECTANGLE);
+            mNormalDrawable.setStroke(1, mBorderColor);
+        }
+    }
+
+    public void setNormalBackgroundColor(int color){
+        mNormalBackgroundColor = color;
+        if(mNormalDrawable == null){
+            mNormalDrawable = new GradientDrawable();
+        }
+
+        if(mNormalDrawable != null){
+            mNormalDrawable.setShape(GradientDrawable.RECTANGLE);
+            mNormalDrawable.setColor(mNormalBackgroundColor);
+        }
+    }
+
+    public void setPressedBackgroundColor(int color){
+        mPressedBackGroundColor = color;
+        if(mPressedDrawable == null){
+            mPressedDrawable = new GradientDrawable();
+        }
+        mPressedDrawable.setShape(GradientDrawable.RECTANGLE);
+        mPressedDrawable.setColor(mPressedBackGroundColor);
     }
 
     @Override

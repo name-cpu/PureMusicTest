@@ -29,6 +29,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.MediaData.VLCInstance;
 import com.example.kaizhiwei.puremusictest.Util.WeakHandler;
@@ -41,20 +42,20 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by kaizhiwei on 16/11/13.
  */
 public class PlaybackService extends Service {
     private static final String TAG = "PlaybackService";
-    private static final String PREF_MEDIA_LIST = "PREF_MEDIA_LIST";
-    private static final String PREF_POSITION_IN_LIST = "PREF_POSITION_IN_LIST";
-    private static final String PREF_POSITION_IN_SONG = "PREF_POSITION_IN_SONG";
-    private static final String PREF_REPEAT_MODE = "PREF_REPEAT_MODE";
     private static final long PLAYBACK_ACTIONS = PlaybackStateCompat.ACTION_PAUSE
             | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_STOP
             | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
 
+    private List<MediaEntity> mLastMediaList = new ArrayList<>();
     private List<MediaEntity>  mMediaList = new ArrayList<>();
     private int                 mCurrentIndex;
     private int                 mCurrentTime;
@@ -70,6 +71,7 @@ public class PlaybackService extends Service {
 
     private static final int SHOW_PROGRESS = 0;
     private Handler mHandler = new AudioServiceHandler(this);
+    private ExecutorService mThreadPool = Executors.newFixedThreadPool(2);
 
     private LocalBinder mBinder = new LocalBinder();
     public class LocalBinder extends Binder {
@@ -281,6 +283,7 @@ public class PlaybackService extends Service {
         mMediaPlayer = new MediaPlayer(VLCInstance.getInstance());
         PowerManager powerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
         mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+        restorePrefData();
     }
 
     private void initMediaSession(Context context) {
@@ -369,27 +372,28 @@ public class PlaybackService extends Service {
     }
 
     public void restorePrefData(){
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        String strMediaList = pref.getString(PREF_MEDIA_LIST, "");
-        List<String> listMedia = Arrays.asList(strMediaList.split(" "));
-        mCurrentIndex = pref.getInt(PREF_POSITION_IN_LIST, 0);
-        mCurrentTime = pref.getInt(PREF_POSITION_IN_SONG, 0);
-        mRepeatMode = pref.getInt(PREF_REPEAT_MODE, 0);
+        if(mThreadPool != null){
+            mThreadPool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    List<String> listMedia = PreferenceConfig.getInstance().getPlaylist();
+                    for(int i = 0;i < listMedia.size();i++){
+                        long mediaEntityId = Long.valueOf(listMedia.get(i));
+                        if(mediaEntityId <= 0)
+                            continue;
 
-        for(int i = 0;i < listMedia.size();i++){
-            Media media = new Media(VLCInstance.getInstance(), Uri.parse(listMedia.get(i)));
-            MediaEntity entrty = new MediaEntity(media);
-            mMediaList.add(entrty);
+                        MediaEntity entity = MediaLibrary.getInstance().getMediaEntityById(mediaEntityId);
+                        mMediaList.add(entity);
+                    }
+                    mLastMediaList.addAll(mMediaList);
+
+                    mCurrentIndex = PreferenceConfig.getInstance().getPositionInPlaylist();
+                    mCurrentTime = PreferenceConfig.getInstance().getPositionInMedia();
+                    mRepeatMode = PreferenceConfig.getInstance().getPlayMode();
+                    play(mCurrentIndex, false);
+                }
+            });
         }
-    }
-
-    public void savePrefData(){
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-
-        pref.edit().putInt(PREF_POSITION_IN_LIST, mCurrentIndex).commit();
-        pref.edit().putInt(PREF_POSITION_IN_SONG, mCurrentTime).commit();
-        pref.edit().putInt(PREF_REPEAT_MODE, mRepeatMode).commit();
-
     }
 
     public void deleteMediaById(long mediaEntityId){
@@ -407,12 +411,33 @@ public class PlaybackService extends Service {
 
         if(deleteIndex <= mCurrentIndex && mCurrentIndex != -1)
             mCurrentIndex--;
+        savePlaylistToPrefFile(mMediaList);
+    }
+
+    public void mutilDeleteMediaByList(List<MediaEntity> list){
+        if(mMediaList == null)
+            return;
+
+        for(int i = 0;i < mMediaList.size();i++) {
+            for (int j = 0; j < list.size(); j++) {
+                if (mMediaList.get(i)._id == list.get(j)._id) {
+                    if(i == mCurrentIndex){
+                        pause();
+                    }
+                    if ((i < mCurrentIndex || (i == list.size() - 1)) && mCurrentIndex != -1)
+                        mCurrentIndex--;
+
+                    mMediaList.remove(i);
+                    i--;
+                }
+            }
+        }
+        savePlaylistToPrefFile(mMediaList);
     }
 
     public void reCalNextPlayIndex(){
-        play(mCurrentIndex, 0);
+        play(mCurrentIndex, true);
     }
-
 
     public void clearPlaylist(){
         if(mMediaList == null)
@@ -423,38 +448,84 @@ public class PlaybackService extends Service {
         mMediaList.clear();
     }
 
+    public MediaEntity getLastMediaEntityByIndex(int index){
+        if(index < 0 || index >= mLastMediaList.size())
+            return null;
+
+        return mLastMediaList.get(index);
+    }
+
+    public MediaEntity getMediaEntityByIndex(int index){
+        if(index < 0 || index >= mMediaList.size())
+            return null;
+
+        return mMediaList.get(index);
+    }
+
+    private void savePlaylistToPrefFile(List<MediaEntity> list){
+        if(list == null)
+            return;
+
+        final List<String> listPref = new ArrayList<>();
+        for(int i = 0;i < list.size();i++){
+            listPref.add("" + list.get(i)._id);
+        }
+
+        if(mThreadPool != null){
+            mThreadPool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    PreferenceConfig.getInstance().setPlaylist(listPref);
+                }
+            });
+        }
+    }
+
     public void play(MediaEntity mediaEntity){
         if(mediaEntity == null || mMediaList == null || mMediaList.size() == 0)
             return;
 
         for(int i = 0;i < mMediaList.size();i++){
             if(mMediaList.get(i)._id == mediaEntity._id){
-                play(i, 0);
+                play(i, true);
                 break;
             }
         }
     }
 
     public void play(List<MediaEntity> list, int position){
-        if(mMediaList != null){
+        if(mMediaList != null && mLastMediaList != null){
+            mLastMediaList.clear();
+            mLastMediaList.addAll(mMediaList);
             mMediaList.clear();
             mMediaList.addAll(list);
+            savePlaylistToPrefFile(mMediaList);
         }
-
-        if(position < 0 || position >= list.size())
-            mCurrentIndex = 0;
-
-        play(position, 0);
+        play(position, true);
     }
 
-    public void play(int index, int flag){
+    public void play(int index, boolean isPlayNow){
         if(index < 0 || index >= mMediaList.size())
-            mCurrentIndex = 0;
-        else if(mCurrentIndex == index){
             return;
+
+        //如果之前播放过则对比上次和这次的是否是统一首歌
+        if(mCurrentIndex >= 0 && isPlayNow){
+            MediaEntity oldMediaEntity = getLastMediaEntityByIndex(mCurrentIndex);
+            MediaEntity newMediaEntity = getMediaEntityByIndex(index);
+            if(oldMediaEntity == null || newMediaEntity == null)
+                return;
+
+            if(oldMediaEntity._id == newMediaEntity._id && mRepeatMode != PreferenceConfig.PLAYMODE_ONECIRCLE){
+                mCurrentIndex = index;
+                if(!isPlaying()){
+
+                }
+                return;
+            }
         }
 
         mCurrentIndex = index;
+        PreferenceConfig.getInstance().setPositionInPlaylist(mCurrentIndex);
         String filePath = mMediaList.get(index).getFilePath();
         File file = new File(filePath);
         if(file.exists() == false)
@@ -466,7 +537,9 @@ public class PlaybackService extends Service {
         media.release();
         mMediaPlayer.setVideoTitleDisplay(MediaPlayer.Position.Disable, 0);
         mMediaPlayer.setEventListener(mMediaPlayerListener);
-        mMediaPlayer.play();
+        if(isPlayNow){
+            mMediaPlayer.play();
+        }
         mHandler.sendEmptyMessage(SHOW_PROGRESS);
     }
 
@@ -517,6 +590,15 @@ public class PlaybackService extends Service {
         return mMediaPlayer.isPlaying();
     }
 
+    public int getRepeatMode(){
+        return mRepeatMode;
+    }
+
+    public void setRepeatMode(int mode){
+        mRepeatMode = mode;
+        PreferenceConfig.getInstance().setPlayMode(mode);
+    }
+
     public void play(){
         if(hasCurrentMedia()){
             mMediaPlayer.play();
@@ -559,6 +641,49 @@ public class PlaybackService extends Service {
         changeAudioFocus(false);
     }
 
+    public void previous(boolean bAuto){
+        if(mMediaList.size() == 0){
+            stop();
+            return;
+        }
+
+        int previousPosition = 0;
+        switch (mRepeatMode){
+            case PreferenceConfig.PLAYMODE_ORDER:
+                if(bAuto){
+                    if(mCurrentIndex != mMediaList.size() - 1){
+                        previousPosition = mCurrentIndex - 1;
+                    }
+                    else{
+                        mCurrentIndex = -1;
+                        previousPosition = -1;
+                        stop();
+                        return ;
+                    }
+                }
+                else{
+                    previousPosition = (mCurrentIndex - 1)%mMediaList.size();
+                }
+                break;
+            case PreferenceConfig.PLAYMODE_ONECIRCLE:
+                if(bAuto){
+                    previousPosition = mCurrentIndex;
+                }
+                else{
+                    previousPosition = (mCurrentIndex - 1)%mMediaList.size();
+                }
+                break;
+            case PreferenceConfig.PLAYMODE_ALLCIRCLE:
+                previousPosition = (mCurrentIndex - 1)%mMediaList.size();
+                break;
+            case PreferenceConfig.PLAYMODE_RANDOM:
+                previousPosition = (int)(Math.random()*(mMediaList.size()));
+                break;
+        }
+
+        play(previousPosition, true);
+    }
+
     public void next(boolean bAuto){
         if(mMediaList.size() == 0){
             stop();
@@ -595,11 +720,11 @@ public class PlaybackService extends Service {
                 nextPosition = (mCurrentIndex + 1)%mMediaList.size();
                 break;
             case PreferenceConfig.PLAYMODE_RANDOM:
-                nextPosition = (int)Math.random()%mMediaList.size();
+                nextPosition = (int)(Math.random()*(mMediaList.size()));
                 break;
         }
 
-        play(nextPosition, 0);
+        play(nextPosition, true);
         //onMediaChanged();
     }
 
@@ -609,17 +734,32 @@ public class PlaybackService extends Service {
         return list;
     }
 
+    public int getCurPlayMediaIndex(){
+        return mCurrentIndex;
+    }
+
     public int getPlaylistSize(){
         if(mMediaList == null)
             return 0;
         return mMediaList.size();
     }
 
-    public void addSongToNext(MediaEntity entity){
-        if(entity == null || entity._id < 0)
-            return;
+    public boolean addSongToNext(MediaEntity entity){
+        if(entity == null || entity._id < 0 || mMediaList == null)
+            return false;
 
-        mMediaList.add(mCurrentIndex+1, entity);
+        boolean isExist = false;
+        for(int i = 0;i < mMediaList.size();i++){
+            if(mMediaList.get(i)._id == entity._id){
+                isExist = true;
+                break;
+            }
+        }
+        if(isExist == false) {
+            mMediaList.add(mCurrentIndex + 1, entity);
+            savePlaylistToPrefFile(mMediaList);
+        }
+        return true;
     }
 //    /**
 //     * Set up the remote control and tell the system we want to be the default receiver for the MEDIA buttons

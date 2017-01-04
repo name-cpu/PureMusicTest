@@ -32,9 +32,9 @@ import java.util.List;
  */
 public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer, HashMap<String, String>> {
     public interface ScanResultListener{
-        public void onScanStart();
-        public void onScaning(int process, String strFilePath, boolean bAudioFile);
-        public void onScanCompleted(HashMap<String, String>  mapResult, int filterNum);
+        void onScanStart();
+        void onScaning(int process, String strFilePath, boolean bAudioFile);
+        void onScanCompleted(HashMap<String, String>  mapResult, int filterNum);
     }
 
     private static final String TAG = "AsyncTaskScanPath";
@@ -82,22 +82,21 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
         mListSupportAudioFormat.add(".Ogg");
         mListSupportAudioFormat.add(".PCM");
 
+        if(mListener != null){
+            mListener.onScanStart();
+        }
+
         if(mListScanPath == null || mListScanPath.size() == 0){
             mListScanPath = new ArrayList<>();
             mListScanPath.add(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator);
-        }
-
-        for(int i = 0;i < mListScanPath.size();i++){
-            mAvailableSize += DeviceUtil.getFolderSize(new File(mListScanPath.get(i))); //new File(mListScanPath.get(i)).getUsableSpace(); //getPathTotalSize(mListScanPath.get(i)) - getPathAvailableSize(mListScanPath.get(i));
-        }
-
-        if(mListener != null){
-            mListener.onScanStart();
         }
     }
 
     @Override
     protected HashMap<String, String> doInBackground(HashMap<String, String>... params) {
+        for(int i = 0;i < mListScanPath.size();i++){
+            mAvailableSize += DeviceUtil.getFolderSize(new File(mListScanPath.get(i))); //new File(mListScanPath.get(i)).getUsableSpace(); //getPathTotalSize(mListScanPath.get(i)) - getPathAvailableSize(mListScanPath.get(i));
+        }
 
         for(int i = 0; i < mListScanPath.size();i++){
             getDirFile(mListScanPath.get(i));
@@ -235,7 +234,17 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
 
             Log.e("weikaizhi", "scaning: " + file.getAbsolutePath());
             if(file.isDirectory()){
-                getDirFile(file.getAbsolutePath());
+                boolean isFilter = false;
+                if(mListFiletFolderName != null){
+                    for(int j = 0;j < mListFiletFolderName.size();j++){
+                        if(mListFiletFolderName.get(j).equalsIgnoreCase(file.getAbsolutePath())){
+                            isFilter = true;
+                        }
+                    }
+                }
+                if(!isFilter){
+                    getDirFile(file.getAbsolutePath());
+                }
             }
             else{
                 String strFilePath = file.getAbsolutePath();
@@ -256,11 +265,12 @@ public class AsyncTaskScanPath extends AsyncTask<HashMap<String,String>, Integer
                     if (mListSupportAudioFormat.get(j).compareToIgnoreCase(strFileFormat) == 0) {
                         Media media = new Media(VLCInstance.getInstance(), Uri.parse(strFilePath));
                         media.parse();
-                        if(media.getDuration() <= mMinMediaDuration * 1000){
-                            mFilterMediaNum++;
-                            continue;
-                        }
-                        else{
+//                        if(media.getDuration() <= mMinMediaDuration * 1000){
+//                            mFilterMediaNum++;
+//                            continue;
+//                        }
+//                        else
+                        {
                             mMapScanResult.put(strFilePath, strFileFormat);
                             bAudioFile = true;
                         }

@@ -30,6 +30,9 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
     private RelativeLayout ryLastPlay;
     private RelativeLayout ryDownload;
     private FavoriteLayout favoriteLayout;
+    private TextView tvLocalSub;
+    private TextView tvLastPlaySub;
+    private TextView tvDonwloadSub;
     private TextView tvAddFavorite;
     private TextView tvManageFavorite;
     private HomeActivity mHomeActivity;
@@ -43,6 +46,7 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_home_localmusic, null, false);//关联布局文件
         ryLocal = (RelativeLayout) rootView.findViewById(R.id.ryLocal);
+
         ryLastPlay = (RelativeLayout) rootView.findViewById(R.id.ryLastPlay);
         ryDownload = (RelativeLayout) rootView.findViewById(R.id.ryDownload);
         ryLocal.setOnClickListener(this);
@@ -60,6 +64,12 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
         tvManageFavorite = (TextView) rootView.findViewById(R.id.tvManageFavorite);
         tvAddFavorite.setOnClickListener(this);
         tvManageFavorite.setOnClickListener(this);
+
+        tvLocalSub = (TextView)rootView.findViewById(R.id.tvLocalSub);
+        tvLastPlaySub = (TextView)rootView.findViewById(R.id.tvLastPlaySub);
+        tvDonwloadSub = (TextView)rootView.findViewById(R.id.tvDonwloadSub);
+
+        tvLocalSub.setText(MediaLibrary.getInstance().getMediaEntitySize() + "首");
         return rootView;
     }
 

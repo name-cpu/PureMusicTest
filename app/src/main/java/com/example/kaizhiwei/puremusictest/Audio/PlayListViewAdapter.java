@@ -36,10 +36,10 @@ public class PlayListViewAdapter extends BaseAdapter implements View.OnClickList
         void onDeleteClick(PlayListViewAdapter adapter, int position);
     }
 
-    static class PlayListItemData {
-        MediaEntity mediaEntity;
-        boolean isPlaying;  //是否正在播放
-        boolean isCurPlay;  //是否是当前播放的音乐
+    static public class PlayListItemData {
+        public MediaEntity mediaEntity;
+        public boolean isPlaying;  //是否正在播放
+        public boolean isCurPlay;  //是否是当前播放的音乐
     }
 
     public PlayListViewAdapter(Context context, List<MediaEntity> list){
@@ -121,8 +121,13 @@ public class PlayListViewAdapter extends BaseAdapter implements View.OnClickList
             holder = (PlayListViewAdapterHolder) convertView.getTag();
         }
 
-        if(itemData.isCurPlay && itemData.isPlaying) {
-            holder.playingAnimView.startAnim();
+        if(itemData.isCurPlay) {
+            if(itemData.isPlaying){
+                holder.playingAnimView.startAnim();
+            }
+            else{
+                holder.playingAnimView.stopAnim();
+            }
             holder.playingAnimView.setVisibility(View.VISIBLE);
             holder.tvMainTitle.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
             holder.tvSubTitle.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
@@ -140,8 +145,8 @@ public class PlayListViewAdapter extends BaseAdapter implements View.OnClickList
         return convertView;
     }
 
-    public void setItemPlayState(MediaEntity mediaEntity,boolean isCurPlay, boolean isPlaying){
-        if(listData == null || listData.size() <= 0 || mediaEntity == null)
+    public void setItemPlayState(int curPlayMediaIndex, boolean isCurPlay, boolean isPlaying){
+        if(listData == null || listData.size() <= 0 || curPlayMediaIndex < 0 || curPlayMediaIndex >= listData.size())
             return ;
 
         for(int j = 0;j < listData.size();j++){
@@ -149,16 +154,11 @@ public class PlayListViewAdapter extends BaseAdapter implements View.OnClickList
             if(itemData == null)
                 continue;
 
-            if(itemData.mediaEntity._id == mediaEntity._id){
-                itemData.isCurPlay = isCurPlay;
-                itemData.isPlaying = isPlaying;
-            }
-            else{
-                itemData.isCurPlay = false;
-                itemData.isPlaying = false;
-            }
+            itemData.isCurPlay = false;
+            itemData.isPlaying = false;
         }
-
+        listData.get(curPlayMediaIndex).isCurPlay = isCurPlay;
+        listData.get(curPlayMediaIndex).isPlaying = isPlaying;
         notifyDataSetChanged();
     }
 

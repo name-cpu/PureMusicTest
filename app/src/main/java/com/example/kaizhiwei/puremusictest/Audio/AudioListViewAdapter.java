@@ -41,13 +41,19 @@ import java.util.TreeMap;
 public class AudioListViewAdapter extends BaseAdapter implements View.OnClickListener {
 
     public interface IAudioListViewListener{
-        public void onMoreBtnClick(AudioListViewAdapter adapter, int position);
+        void onMoreBtnClick(AudioListViewAdapter adapter, int position);
+        void onRandomPlayClick(AudioListViewAdapter adapter);
+        void onBatchMgrClick(AudioListViewAdapter adapter);
     }
 
     public static final int ADAPTER_TYPE_ALLSONG = 1;
     public static final int ADAPTER_TYPE_FOLDER = 2;
     public static final int ADAPTER_TYPE_ARTIST = 3;
     public static final int ADAPTER_TYPE_ALBUM = 4;
+
+    //操作栏tag
+    private static final int OPERATORBAR_RANDOM_PLAY = -1;
+    private static final int OPERATORBAR_BATCHMGR = -2;
 
     private int mAdapterType;
     private List<MediaEntity> mListOrigin;
@@ -294,10 +300,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                     strInfo = entrty.getAlbum();
                 }
 
-                if (strInfo == null) {
-                    strInfo = "<unknown>";
-                }
-
+                strInfo = getArtistAlbum(strInfo);
                 List<MediaEntity> value = mapArtist.get(strInfo);
                 if(value != null){
 
@@ -322,7 +325,6 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 itemData.mArtistAlbumSongCount = value.size();
                 itemData.mListMedia = new ArrayList<>();
                 itemData.mListMedia.addAll(value);
-                itemData.mListMedia = new ArrayList<>();
                 mListItemData.add(itemData);
             }
 
@@ -392,8 +394,8 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
 
     private String getArtistAlbum(String artist){
         String strRet = "";
-        if(artist == null || artist.equals("null"))
-            strRet = "<unknown>";
+        if(artist == null || TextUtils.isEmpty(artist) || artist.equals("null"))
+            strRet = "unknown";
         else
             strRet = artist;
 
@@ -559,9 +561,11 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 strHtml = strPlainText;
             }
         }
-        else{
+        else
+        {
             strHtml = strPlainText;
         }
+        Log.i("weikaizhi", "strPlainText#" + strPlainText + ",strHtml#" + strHtml);
         return strHtml;
     }
 
@@ -608,8 +612,10 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 holder = new AudioOperatioinBarHolder(view);
                 view.setTag(holder);
                 convertView = view;
-                //holder.btnRandom.setOnClickListener(this);
-                //holder.btnBatchMgr.setOnClickListener(this);
+                holder.btnRandom.setOnClickListener(this);
+                holder.btnBatchMgr.setOnClickListener(this);
+                holder.btnRandom.setTag(OPERATORBAR_RANDOM_PLAY);
+                holder.btnBatchMgr.setTag(OPERATORBAR_BATCHMGR);
             }
             else{
                 holder = (AudioOperatioinBarHolder) convertView.getTag();
@@ -767,9 +773,21 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
+        if(v.getTag() == null)
+            return;
+
+        int tag = (int)v.getTag();
         for(IAudioListViewListener key : mMapListener.keySet()){
             if(key != null){
-                key.onMoreBtnClick(this, (int)v.getTag());
+                if(tag >= 0){
+                    key.onMoreBtnClick(this, (int)v.getTag());
+                }
+                else if(tag == OPERATORBAR_RANDOM_PLAY){
+                    key.onRandomPlayClick(this);
+                }
+                else if(tag == OPERATORBAR_BATCHMGR){
+                    key.onBatchMgrClick(this);
+                }
             }
         }
     }

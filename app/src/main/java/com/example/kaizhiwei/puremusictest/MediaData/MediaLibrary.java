@@ -81,6 +81,34 @@ public class MediaLibrary {
         mPool = Executors.newFixedThreadPool(1);
     }
 
+    public void resetAllMediaEntityInfo(HashMap<String, String> mapResult){
+        if(mapResult == null)
+            return;
+
+        MediaDataBase.getInstance().deleteAllMusicInfo();
+        mMediaEntityListLock.writeLock().lock();
+        mMediaEntityList.clear();
+        for(HashMap.Entry<String, String> entry : mapResult.entrySet()){
+            File file = new File(entry.getKey());
+            if(file.exists() == false)
+                continue;
+
+            String fileUri = Uri.fromFile(file).toString();
+            Media media = new Media(VLCInstance.getInstance(), Uri.parse(fileUri));
+            media.parse();
+            if(media.getDuration() <= 0 || (media.getTrackCount() != 0 && TextUtils.isEmpty(media.getTrack(0).codec))){
+                media.release();
+                continue;
+            }
+
+            MediaEntity mediaEntity = new MediaEntity(media);
+            media.release();
+            MediaDataBase.getInstance().insertMusicInfo(mediaEntity);
+            mMediaEntityList.add(mediaEntity);
+        }
+        mMediaEntityListLock.writeLock().unlock();
+    }
+
     public void initData(){
         if(mMediaEntityList == null || mMediaEntityList.size() == 0){
             mMediaEntityListLock.writeLock().lock();
@@ -126,6 +154,13 @@ public class MediaLibrary {
         return newList;
     }
 
+    public int getMediaEntitySize(){
+        if(mMediaEntityList == null)
+            return 0;
+
+        return mMediaEntityList.size();
+    }
+
     public boolean removeMediaEntity(MediaEntity entity){
         if(entity == null || entity._id < 0)
             return false;
@@ -142,7 +177,31 @@ public class MediaLibrary {
         return bRet;
     }
 
+    public boolean mutilRemoveMediaEntity(List<MediaEntity> list){
+        if(list == null)
+            return false;
+
+        boolean bRet = false;
+        for(int i = 0;i < mMediaEntityList.size();i++){
+            for(int j = 0;j < list.size();j++){
+                if(mMediaEntityList.get(i)._id == list.get(j)._id){
+                    bRet = MediaDataBase.getInstance().deleteMusicInfoByEntityId(list.get(j));
+                    if(bRet){
+                        mMediaEntityList.remove(i);
+                        i--;
+                        break;
+                    }
+                }
+            }
+        }
+        return bRet;
+    }
+
     public MediaEntity getMediaEntityById(long id){
+        if(mMediaEntityList == null || mMediaEntityList.size() == 0){
+            return MediaDataBase.getInstance().queryMusicInfoById(id);
+        }
+
         MediaEntity entity = null;
         for(int i = 0;i < mMediaEntityList.size();i++){
             if(mMediaEntityList.get(i)._id == id){

@@ -45,6 +45,15 @@ public class MediaDataBase{
         return false;
     }
 
+    public void insertMusicInfos(List<MediaEntity> list){
+        if(list == null)
+            return;
+
+        for(int i = 0;i < list.size();i++){
+            insertMusicInfo(list.get(i));
+        }
+    }
+
     public void insertMusicInfo(MediaEntity entity){
         if(mDB == null || entity == null)
             return ;
@@ -96,6 +105,71 @@ public class MediaDataBase{
         String strDeleteSql = String.format("update %s set is_deleted = 1 where _id = %d;", TABLE_MUSIC_INFO, entity._id);
         mDB.execSQL(strDeleteSql);
         return true;
+    }
+
+    public MediaEntity queryMusicInfoById(long musicId){
+        if(mDB == null)
+            return null;
+
+        MediaEntity entity = null;
+        String strSelectMusicInfo = String.format("select * from %s where is_deleted = 0 and skip_auto_scan = 0 and _id = %d;",TABLE_MUSIC_INFO, musicId);
+        Cursor c =  mDB.rawQuery(strSelectMusicInfo, null);
+        while (c.moveToNext()){
+            entity = new MediaEntity();
+
+            entity._id = c.getInt(c.getColumnIndex("_id"));
+            entity._data = c.getString(c.getColumnIndex("_data"));
+            entity._size = c.getLong(c.getColumnIndex("_size"));
+            entity._display_name = c.getString(c.getColumnIndex("_display_name"));
+            entity.title = c.getString(c.getColumnIndex("title"));
+            entity.title_key = c.getString(c.getColumnIndex("title_key"));
+            entity.title_letter = c.getString(c.getColumnIndex("title_letter"));
+            entity.date_added = c.getLong(c.getColumnIndex("date_added"));
+            entity.date_modified = c.getLong(c.getColumnIndex("date_modified"));
+            entity.mime_type = c.getString(c.getColumnIndex("mime_type"));
+            entity.duration = c.getLong(c.getColumnIndex("duration"));
+            entity.bookmark = c.getLong(c.getColumnIndex("bookmark"));
+            entity.artist = c.getString(c.getColumnIndex("artist"));
+            entity.artist_key = c.getString(c.getColumnIndex("artist_key"));
+            entity.composer = c.getString(c.getColumnIndex("composer"));
+            entity.album = c.getString(c.getColumnIndex("album"));
+            entity.album_key = c.getString(c.getColumnIndex("album_key"));
+            entity.album_art = c.getString(c.getColumnIndex("album_art"));
+            entity.track = c.getLong(c.getColumnIndex("track"));
+            entity.year = c.getLong(c.getColumnIndex("year"));
+            entity.mediastore_id = c.getLong(c.getColumnIndex("mediastore_id"));
+            entity.lyric_path = c.getString(c.getColumnIndex("lyric_path"));
+            entity.is_lossless = c.getLong(c.getColumnIndex("is_lossless"));
+            entity.artist_image = c.getString(c.getColumnIndex("artist_image"));
+            entity.album_image = c.getString(c.getColumnIndex("album_image"));
+            entity.last_playtime = c.getLong(c.getColumnIndex("last_playtime"));
+            entity.play_times = c.getLong(c.getColumnIndex("play_times"));
+            entity.data_from = c.getLong(c.getColumnIndex("data_from"));
+            entity.save_path = c.getString(c.getColumnIndex("save_path"));
+            entity.is_played = c.getLong(c.getColumnIndex("is_played"));
+            entity.song_id = c.getLong(c.getColumnIndex("song_id"));
+            entity.equalizer_level = c.getLong(c.getColumnIndex("equalizer_level"));
+            entity.replay_gain_level = c.getLong(c.getColumnIndex("replay_gain_level"));
+            entity.is_offline_cache = c.getLong(c.getColumnIndex("is_offline_cache"));
+            entity.is_faved = c.getLong(c.getColumnIndex("is_faved"));
+            entity.have_high = c.getLong(c.getColumnIndex("have_high"));
+            entity.bitrate = c.getLong(c.getColumnIndex("bitrate"));
+            entity.has_original = c.getLong(c.getColumnIndex("has_original"));
+            entity.flag = c.getLong(c.getColumnIndex("flag"));
+            entity.original_rate = c.getString(c.getColumnIndex("original_rate"));
+            entity.all_rates = c.getString(c.getColumnIndex("all_rates"));
+            entity.is_deleted = c.getLong(c.getColumnIndex("is_deleted"));
+            entity.skip_auto_scan = c.getLong(c.getColumnIndex("skip_auto_scan"));
+            entity.is_offline = c.getLong(c.getColumnIndex("is_offline"));
+            entity.has_pay_status = c.getLong(c.getColumnIndex("has_pay_status"));
+            entity.version = c.getString(c.getColumnIndex("version"));
+            entity.cache_path = c.getString(c.getColumnIndex("cache_path"));
+            entity.play_type = c.getLong(c.getColumnIndex("play_type"));
+            entity.file_url = c.getString(c.getColumnIndex("file_url"));
+            entity.file_hash = c.getString(c.getColumnIndex("file_hash"));
+        }
+
+        return entity;
     }
 
     public List<MediaEntity> queryAllMusicInfo(){

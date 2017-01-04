@@ -41,18 +41,14 @@
                     android:layout_weight="1"
                     android:text="123456789"
                     android:gravity="bottom"
-                    android:lines="1"
-                    android:ellipsize="end"
-                    android:textSize="14sp"/>
+                    style="@style/DefaultMainTextView"/>
                 <TextView android:id="@+id/tvArtistAlbumSub"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:text="123456789"
                     android:gravity="top"
-                    android:lines="1"
-                    android:ellipsize="end"
-                    android:textSize="12sp" />
+                    style="@style/DefaultSubTextView" />
             </LinearLayout>
 
             <ImageView

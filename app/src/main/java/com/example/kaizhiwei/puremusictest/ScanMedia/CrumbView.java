@@ -41,6 +41,7 @@ public class CrumbView extends HorizontalScrollView {
     }
 
     private void initView(Context context) {
+        this.setHorizontalScrollBarEnabled(false);
         mContainer = new LinearLayout(context);
         mContainer.setOrientation(LinearLayout.HORIZONTAL);
         mContainer.setPadding(10, 0,

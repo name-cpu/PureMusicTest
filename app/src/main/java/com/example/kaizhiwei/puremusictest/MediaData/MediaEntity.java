@@ -130,7 +130,7 @@ public class MediaEntity implements Serializable, Parcelable {
         }
         else
         {
-            artist = "<unknown>";
+            artist = "unknown";
         }
 
         arrayPinYin =  getPinYin(artist);
@@ -145,7 +145,7 @@ public class MediaEntity implements Serializable, Parcelable {
         }
         else
         {
-            album = "<unknown>";
+            album = "unknown";
         }
 
         arrayPinYin =  getPinYin(album);

@@ -21,17 +21,23 @@ import java.util.Set;
 public class PreferenceConfig {
     private static final String LAST_FIRST_LAUNCH = "LAST_FIRST_LAUNCH";
     private static final String FIRST_LAUNCH = "FIRST_LAUNCH";
-    private static final String PLAY_MODE = "PLAY_MODE";
 
     //扫描过滤设置
     private static final String SCAN_FILTER_BY_DURATION = "SCAN_FILTER_BY_DURATION";
     private static final String SCAN_FILTER_BY_FOLERNAME = "SCAN_FILTER_BY_FOLERNAME";
 
+    //播放模式
+    private static final String PLAY_MODE = "PLAY_MODE";
     public static final int PLAYMODE_ORDER = 0;    //顺序播放
     public static final int PLAYMODE_ONECIRCLE = 1;//单曲循环
     public static final int PLAYMODE_ALLCIRCLE = 2;//整个播放列表循环播放
     public static final int PLAYMODE_RANDOM = 3;    //随机播放
+    public static final int PLAYMODE_NUM = 4;
 
+    //播放列表
+    private static final String PLAY_LIST = "PLAY_LIST";
+    private static final String POSITION_IN_PLAY_LIST = "POSITION_IN_PLAY_LIST";
+    private static final String POSITION_IN_MEDIA = "POSITION_IN_MEDIA";
 
     private static PreferenceConfig mInstance;
 
@@ -106,6 +112,53 @@ public class PreferenceConfig {
             setFilter.add(list.get(i));
         }
         editor.putStringSet(SCAN_FILTER_BY_FOLERNAME, setFilter);
+        editor.commit();
+    }
+
+    public List<String> getPlaylist(){
+        String strPlaylist = PreferenceManager.getDefaultSharedPreferences(PureMusicApplication.getInstance()).getString(PLAY_LIST, "");
+        List<String> list = new ArrayList<>();
+        String[] strArray = strPlaylist.split("\\|");
+        for(String str : strArray){
+            list.add(str);
+        }
+        if(list.size() >= 1){
+            list.remove(list.size() - 1);
+        }
+        return list;
+    }
+
+    public void setPlaylist(List<String> list){
+        if(list == null)
+            return;
+
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(PureMusicApplication.getInstance()).edit();
+        StringBuilder builder = new StringBuilder();
+        for(int i = 0;i < list.size();i++) {
+            builder.append(list.get(i));
+            builder.append("|");
+        }
+        editor.putString(PLAY_LIST, builder.toString());
+        editor.commit();
+    }
+
+    public int getPositionInPlaylist(){
+        return PreferenceManager.getDefaultSharedPreferences(PureMusicApplication.getInstance()).getInt(POSITION_IN_PLAY_LIST, 0);
+    }
+
+    public void setPositionInPlaylist(int position){
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(PureMusicApplication.getInstance()).edit();
+        editor.putInt(POSITION_IN_PLAY_LIST, position);
+        editor.commit();
+    }
+
+    public int getPositionInMedia(){
+        return PreferenceManager.getDefaultSharedPreferences(PureMusicApplication.getInstance()).getInt(POSITION_IN_MEDIA, 0);
+    }
+
+    public void setPositionInMedia(int position){
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(PureMusicApplication.getInstance()).edit();
+        editor.putInt(POSITION_IN_MEDIA, position);
         editor.commit();
     }
 }

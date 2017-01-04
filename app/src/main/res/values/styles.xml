@@ -61,6 +61,22 @@
         <item name="android:ellipsize">end</item>
     </style>
 
+    <style name="DefaultMainTextView">
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">@color/mainTextColor</item>
+        <item name="android:textSize">@dimen/default_main_textsize</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="DefaultSubTextView">
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">@color/subTextColor</item>
+        <item name="android:textSize">@dimen/default_sub_textsize</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
     <style name="DefaultCheckbox" parent="@android:style/Widget.CompoundButton.CheckBox">
         <item name="android:button">@drawable/check_box_blue_selector</item>
     </style>

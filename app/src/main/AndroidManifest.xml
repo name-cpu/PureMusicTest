@@ -52,7 +52,6 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity android:name=".Audio.AudioFilterActivity"></activity>
 
         <activity
             android:name=".ScanMedia.ScanMediaActivity"
@@ -80,7 +79,17 @@
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
 
+        <activity android:name=".Audio.BatchMgrAudioActivity"
+            android:configChanges="orientation|screenLayout"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"
+            android:theme="@style/AppTheme.NoActionBar"/>
 
+        <activity android:name=".PlayingDetail.PlayingActivity"
+            android:configChanges="orientation|screenLayout"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

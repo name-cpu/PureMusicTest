@@ -1,8 +1,6 @@
 package com.example.kaizhiwei.puremusictest.Audio;
 
 import android.annotation.TargetApi;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -16,7 +14,6 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -37,6 +34,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
+import com.example.kaizhiwei.puremusictest.CommonUI.BaseFragment;
+import com.example.kaizhiwei.puremusictest.CommonUI.MyTextView;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
@@ -57,9 +56,11 @@ import java.util.List;
  * Created by kaizhiwei on 16/11/12.
  */
 @TargetApi(Build.VERSION_CODES.M)
-public class LocalAudioFragment extends android.app.Fragment implements ViewPager.OnLongClickListener, ViewPager.OnPageChangeListener
+public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLongClickListener, ViewPager.OnPageChangeListener
         ,MediaLibrary.IMediaScanListener, AdapterView.OnItemClickListener, AbsListView.OnScrollListener, AudioListViewAdapter.IAudioListViewListener
-        ,PlaybackService.Client.Callback, PlaybackService.Callback, AdapterView.OnItemLongClickListener, MoreOperationDialog.IMoreOperationDialogListener, View.OnClickListener {
+        ,PlaybackService.Client.Callback, PlaybackService.Callback, AdapterView.OnItemLongClickListener, MoreOperationDialog.IMoreOperationDialogListener,
+        View.OnClickListener {
+    private static LocalAudioFragment mInstance;
     private TabLayout mTabLayout;
     private TabLayout.TabLayoutOnPageChangeListener mTVl;
     private ViewPager mViewPager;
@@ -91,6 +92,8 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
     private RelativeLayout rlLoading;
     private ProgressBar view_loading;
     private Handler loadingHandler = new Handler();
+    private RelativeLayout rlEmpty;
+    private MyTextView mtvScanMedia;
 
     //删除文件对话框
     private AlertDialogDeleteOne mAlertDialogDeleteOne;
@@ -104,60 +107,24 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
             if(listMediaEntity == null || listMediaEntity.size() == 0)
                 return;
 
-            //是否包含正在播放的歌曲
-            boolean isContainPlaying = false;
-            MediaEntity curMediaEntity = null;
-            if(mService != null){
-                curMediaEntity = mService.getCurrentMedia();
-            }
+            handleDeleteMedia(listMediaEntity, isDeleteFile);
+        }
+    };
 
-            int successNum = 0;
-            for(int i = 0;i < listMediaEntity.size();i++){
-                MediaEntity entity = listMediaEntity.get(i);
-                if(entity == null || entity._id < 0)
-                    continue;
+    //隐藏对话框监听
+    private AlertDialogHide.IAlertDialogHideListener mAlertDialogHideListener = new AlertDialogHide.IAlertDialogHideListener(){
 
-                if(MediaLibrary.getInstance().removeMediaEntity(entity)){
-                    successNum++;
-                }
-                if(isDeleteFile){
-                    if(curMediaEntity != null && curMediaEntity._id == entity._id){
-                        isContainPlaying = true;
-                        mService.pause();
-                    }
-
-                    File file = new File(entity._data);
-                    if(file.exists()){
-                        file.delete();
-                    }
-                }
-
-                if(mService != null){
-                    mService.deleteMediaById(entity._id);
-                }
-            }
-
-            String strPromt = "";
-            if(successNum == 0){
-                strPromt = "删除失败";
-            }
-            else if(successNum < listMediaEntity.size()){
-                strPromt = "删除部分成功,部分失败";
-            }
-            else{
-                strPromt = "删除成功";
-            }
-            Toast.makeText(LocalAudioFragment.this.getActivity(), strPromt, Toast.LENGTH_SHORT).show();
+        @Override
+        public void onAlterDialogHideOk(String strFolderPath) {
             initAdapterData();
-
-            if(isContainPlaying && mService != null){
-                mService.reCalNextPlayIndex();
-            }
+            List<String> list = PreferenceConfig.getInstance().getScanFilterByFolderName();
+            if(!list.contains(strFolderPath))
+                list.add(strFolderPath);
+            PreferenceConfig.getInstance().setScanFilterByFolderName(list);
         }
     };
 
     //标题按钮
-    private TextView tvTitle;
     private LinearLayout llSearch;
     private RelativeLayout rlTitle;
     private ImageView ivSearch;
@@ -200,19 +167,22 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
 
     }
 
+    public static LocalAudioFragment getInstance(){
+        return mInstance;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        View rootView = inflater.inflate(R.layout.activity_audio, null, false);//关联布局文件
+        View rootView = super.onCreateView(inflater, container, savedInstanceState);
+        setContentView(R.layout.activity_audio);
 
         mClient = new PlaybackService.Client(this.getActivity(), this);
         vibrator = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         mTabLayout = (TabLayout) getActivity().findViewById(R.id.tabLayout);
         mTVl = new TabLayout.TabLayoutOnPageChangeListener(mTabLayout);
         mViewPager = (ViewPager) rootView.findViewById(R.id.viewPager);
-        tvTitle = (TextView) rootView.findViewById(R.id.tvTitle);
-        tvTitle.setText("本地音乐");
+        setTitle("本地音乐");
 
         llSearch = (LinearLayout) rootView.findViewById(R.id.llSearch);
         rlTitle = (RelativeLayout) rootView.findViewById(R.id.rlTitle);
@@ -270,6 +240,13 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
                          public void run() {
                              rlLoading.setVisibility(View.GONE);
                              if(mService != null){
+                                 int size = MediaLibrary.getInstance().getMediaEntitySize();
+                                 if(size <= 0){
+                                     rlEmpty.setVisibility(View.VISIBLE);
+                                 }
+                                 else {
+                                     rlEmpty.setVisibility(View.GONE);
+                                 }
                                  MediaEntity curMediaEntity = mService.getCurrentMedia();
                                  if(curMediaEntity != null){
                                      mAllSongAdapter.setItemPlayState(curMediaEntity, true);
@@ -315,10 +292,6 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
         AudioViewPagerAdapter adapter = new AudioViewPagerAdapter(mListViewData, mListTitleData);
         mViewPager.setAdapter(adapter);
 
-        for(int i = 0;i < mListTitleData.size();i++){
-            mTabLayout.addTab(mTabLayout.newTab().setText(mListTitleData.get(i)));
-        }
-        //mTabLayout.setBackgroundResource(R.color.backgroundColor);
         mTabLayout.setTabTextColors(this.getResources().getColor(R.color.mainTextColor), this.getResources().getColor(R.color.tabSelectTextColor));
         int indicatorColor = this.getResources().getColor(R.color.tabSeperatorLineColor);
         mTabLayout.setSelectedTabIndicatorColor(indicatorColor);
@@ -330,11 +303,14 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
         rlLoading = (RelativeLayout)rootView.findViewById(R.id.rlLoading);
         rlLoading.setVisibility(View.VISIBLE);
         view_loading = (ProgressBar)rootView.findViewById(R.id.view_loading);
+        rlEmpty = (RelativeLayout)rootView.findViewById(R.id.rlEmpty);
+        rlEmpty.setVisibility(View.GONE);
+        mtvScanMedia = (MyTextView)rootView.findViewById(R.id.mtvScanMedia);
+        mtvScanMedia.setOnClickListener(this);
 
-        if(PreferenceConfig.getInstance().getLastFirstLaunch() == false){
-            initAdapterData();
-        }
+        initAdapterData();
 
+        mInstance = this;
         return rootView;
     }
 
@@ -476,11 +452,14 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
                     if(tempData.mItemType != AudioListViewAdapter.AudioItemData.TYPE_MEDIA)
                         continue;
 
-                    if(bAdd == true && tempData != itemData){
-                        realPosition ++;
+                    if(tempData == itemData){
+                        realPosition++;
+                        bAdd = false;
                     }
                     else{
-                        bAdd = false;
+                        if(bAdd){
+                            realPosition++;
+                        }
                     }
 
                     if(tempData.mListMedia != null){
@@ -489,7 +468,7 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
                 }
 
                 if(realPosition >= 0){
-                    mService.play(listMediaEntity, realPosition+1);
+                    mService.play(listMediaEntity, realPosition);
                 }
             }
 
@@ -498,25 +477,35 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
         else if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
             if(itemData instanceof AudioListViewAdapter.AudioFolderItemData){
                 AudioListViewAdapter.AudioFolderItemData folderItemData = (AudioListViewAdapter.AudioFolderItemData)itemData;
-
-                Intent intent = new Intent(this.getActivity(), AudioFilterActivity.class);
-                intent.putExtra(AudioFilterActivity.FILTER_NAME, folderItemData.mFolderPath);
-                intent.putExtra(AudioFilterActivity.FILTER_TYPE, adapterType);
-                intent.putExtra(AudioFilterActivity.TITLE_NAME, folderItemData.mFolderName);
+                AudioFilterFragment audioFilterActivity = new AudioFilterFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString(AudioFilterFragment.FILTER_NAME, folderItemData.mFolderPath);
+                bundle.putInt(AudioFilterFragment.FILTER_TYPE, adapterType);
+                bundle.putString(AudioFilterFragment.TITLE_NAME, folderItemData.mFolderName);
                 //overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-                startActivity(intent);
+                audioFilterActivity.setArguments(bundle);
+                android.support.v4.app.FragmentTransaction transaction = this.getActivity().getSupportFragmentManager().beginTransaction();
+                getFragmentManager().executePendingTransactions();
+                transaction.add(R.id.flContent, audioFilterActivity);
+                transaction.addToBackStack(null);
+                transaction.commit();
             }
         }
         else if(adapterType == AudioListViewAdapter.ADAPTER_TYPE_ARTIST || adapterType == AudioListViewAdapter.ADAPTER_TYPE_ALBUM){
             if(itemData instanceof AudioListViewAdapter.AudioArtistAlbumItemData){
                 AudioListViewAdapter.AudioArtistAlbumItemData artistItemData = (AudioListViewAdapter.AudioArtistAlbumItemData)itemData;
-
-                Intent intent = new Intent(this.getActivity(), AudioFilterActivity.class);
-                intent.putExtra(AudioFilterActivity.FILTER_NAME, artistItemData.mArtistAlbumName);
-                intent.putExtra(AudioFilterActivity.FILTER_TYPE, adapterType);
-                intent.putExtra(AudioFilterActivity.TITLE_NAME, artistItemData.mArtistAlbumName);
+                AudioFilterFragment audioFilterActivity = new AudioFilterFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString(AudioFilterFragment.FILTER_NAME, artistItemData.mArtistAlbumName);
+                bundle.putInt(AudioFilterFragment.FILTER_TYPE, adapterType);
+                bundle.putString(AudioFilterFragment.TITLE_NAME, artistItemData.mArtistAlbumName);
                 //overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-                startActivity(intent);
+                audioFilterActivity.setArguments(bundle);
+                android.support.v4.app.FragmentTransaction transaction = this.getActivity().getSupportFragmentManager().beginTransaction();
+                getFragmentManager().executePendingTransactions();
+                transaction.add(R.id.flContent, audioFilterActivity);
+                transaction.addToBackStack(null);
+                transaction.commit();
             }
         }
     }
@@ -616,6 +605,22 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
         mMoreDialog.show();
     }
 
+    @Override
+    public void onRandomPlayClick(AudioListViewAdapter adapter) {
+        if(adapter == null || mService == null)
+            return;
+
+        mService.setRepeatMode(PreferenceConfig.PLAYMODE_RANDOM);
+        mService.next(false);
+    }
+
+    @Override
+    public void onBatchMgrClick(AudioListViewAdapter adapter) {
+        Intent intent = new Intent(this.getActivity(), BatchMgrAudioActivity.class);
+        startActivity(intent);
+        getActivity().overridePendingTransition(R.anim.anim_left_enter, R.anim.anim_right_exit);
+    }
+
     //PlaybackService.Client.Callback
     @Override
     public void onConnected(PlaybackService service) {
@@ -655,6 +660,13 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
             MediaEntity curMediaEntity = mService.getCurrentMedia();
             if(curMediaEntity != null && mAllSongAdapter != null){
                 mAllSongAdapter.setItemPlayState(curMediaEntity, true);
+            }
+        }
+        else if(event.type == MediaPlayer.Event.Stopped){
+            if(mAllSongAdapter != null){
+                MediaEntity tempEntity = new MediaEntity();
+                tempEntity._id = 0;
+                mAllSongAdapter.setItemPlayState(tempEntity, false);
             }
         }
     }
@@ -740,20 +752,17 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
                 }
                 break;
             case MoreOperationDialog.MORE_DELETE_NORMAL:
-                if(mAlertDialogDeleteOne == null){
-                    mAlertDialogDeleteOne =  new AlertDialogDeleteOne(this.getActivity(), mAlertDialogDeleteListener);
-                }
-                mAlertDialogDeleteOne.show();
-                mAlertDialogDeleteOne.setMediaEntityData(listOperMediaEntity);
+                String strTitle = "";
                 if(mLVSongItemData != null){
-                    mAlertDialogDeleteOne.setTitle("确定删除\"" + mLVSongItemData.mMainTitle + "\"吗?");
+                    strTitle = "确定删除\"" + mLVSongItemData.mMainTitle + "\"吗?";
                 }
                 else if(mLVFolderItemData != null){
-                    mAlertDialogDeleteOne.setTitle("确定删除\"" + mLVFolderItemData.mFolderName + "\"下的所有歌曲吗?");
+                    strTitle = "确定删除\"" + mLVFolderItemData.mFolderName + "\"下的所有歌曲吗?";
                 }
                 else if(mLVArtistAlbumItemData != null){
-                    mAlertDialogDeleteOne.setTitle("确定删除该歌手/专辑的所有歌曲吗?");
+                    strTitle = "确定删除该歌手/专辑的所有歌曲吗?";
                 }
+                showDeleteAlterDialog(this.getActivity(), listOperMediaEntity, strTitle, false);
                 break;
             case MoreOperationDialog.MORE_DOWNLOAD_NORMAL:
                 break;
@@ -761,6 +770,7 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
                 AlertDialogHide hideOne = new AlertDialogHide(this.getActivity());
                 hideOne.show();
                 hideOne.setMediaEntityData(listOperMediaEntity);
+                hideOne.setAlertDialogListener(mAlertDialogHideListener);
                 break;
             case MoreOperationDialog.MORE_LOVE_NORMAL:
                 if(mLVSongItemData == null)
@@ -826,10 +836,17 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
                     return ;
 
                 if(mLVSongItemData != null){
-                    mService.addSongToNext(mediaEntity);
+                    boolean bRet = mService.addSongToNext(mediaEntity);
+                    if(bRet){
+                        Toast.makeText(this.getActivity(), "已添加到播放列表", Toast.LENGTH_SHORT).show();
+                    }
                 }
                 break;
             case MoreOperationDialog.MORE_PLAY_NORMAL:
+                if(mService != null){
+                    mService.play(listOperMediaEntity, 0);
+                    //mAllSongAdapter.setItemPlayState(listOperMediaEntity.get(0), true);
+                }
                 break;
             case MoreOperationDialog.MORE_REMOVE_NORMAL:
                 break;
@@ -857,7 +874,7 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
             llSearch.setVisibility(View.VISIBLE);
             etSearchKey.requestFocus();
         }
-        else if(v == ivScan){
+        else if(v == ivScan || v == mtvScanMedia){
             Intent intent = new Intent(LocalAudioFragment.this.getActivity(), ScanMediaActivity.class);
             startActivity(intent);
         }
@@ -870,5 +887,75 @@ public class LocalAudioFragment extends android.app.Fragment implements ViewPage
             llSearch.setVisibility(View.GONE);
             mAllSongAdapter.clearSearchkKey();
         }
+        super.onClick(v);
+    }
+
+    public void showDeleteAlterDialog(Context context, List<MediaEntity> listOperMediaEntity, String strTitle, boolean isNeedReCreate){
+        if(isNeedReCreate){
+            mAlertDialogDeleteOne = new AlertDialogDeleteOne(context, mAlertDialogDeleteListener);
+        }
+
+        if(mAlertDialogDeleteOne == null){
+            mAlertDialogDeleteOne =  new AlertDialogDeleteOne(context, mAlertDialogDeleteListener);
+        }
+
+        mAlertDialogDeleteOne.show();
+        mAlertDialogDeleteOne.setMediaEntityData(listOperMediaEntity);
+        mAlertDialogDeleteOne.setTitle(strTitle);
+    }
+
+    public void handleDeleteMedia(List<MediaEntity> listMediaEntity, boolean isDeleteFile){
+        if(listMediaEntity == null)
+            return;
+
+        //是否包含正在播放的歌曲
+        boolean isContainPlaying = false;
+        MediaEntity curMediaEntity = null;
+        curMediaEntity = mService.getCurrentMedia();
+
+        int successNum = 0;
+        for(int i = 0;i < listMediaEntity.size();i++){
+            MediaEntity entity = listMediaEntity.get(i);
+            if(entity == null || entity._id < 0)
+                continue;
+
+            if(isDeleteFile){
+                File file = new File(entity._data);
+                if(file.exists()){
+                    boolean bRet = file.delete();
+                    if(bRet)
+                        successNum++;
+                }
+            }
+            else{
+                successNum++;
+            }
+
+            if(curMediaEntity != null){
+                if(curMediaEntity._id == entity._id){
+                    isContainPlaying = true;
+                }
+            }
+        }
+
+        mService.mutilDeleteMediaByList(listMediaEntity);
+        MediaLibrary.getInstance().mutilRemoveMediaEntity(listMediaEntity);
+
+        String strPromt = "";
+        if(successNum == 0){
+            strPromt = "删除失败";
+        }
+        else if(successNum < listMediaEntity.size()){
+            strPromt = "删除部分成功,部分失败";
+        }
+        else{
+            strPromt = "删除成功";
+        }
+        Toast.makeText(this.getActivity(), strPromt, Toast.LENGTH_SHORT).show();
+
+        if(isContainPlaying && mService != null){
+            mService.reCalNextPlayIndex();
+        }
+        initAdapterData();
     }
 }

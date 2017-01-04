@@ -191,7 +191,7 @@ public class HomeActivity extends FragmentActivity {
             mLocalAudioFragment = new LocalAudioFragment();
         }
         //mSlidingMenu.showMenu(true);
-        android.app.FragmentTransaction transaction = this.getFragmentManager().beginTransaction();
+        FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
         getFragmentManager().executePendingTransactions();
         if(mLocalAudioFragment.isAdded() == false){
             transaction.add(R.id.flContent, mLocalAudioFragment);
@@ -199,7 +199,7 @@ public class HomeActivity extends FragmentActivity {
         else{
             transaction.show(mLocalAudioFragment);
         }
-        transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
+        //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
         transaction.addToBackStack(null);
         transaction.commit();
     }

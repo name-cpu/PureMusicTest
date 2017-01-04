@@ -138,9 +138,6 @@ public class MediaScanHelper implements AsyncTaskScanPath.ScanResultListener{
                 }
             }
         });
-
-        ScanClient client = new ScanClient(mContext, listScanFile);
-        client.connectAndScan();
     }
 }
 

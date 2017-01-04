@@ -8,7 +8,6 @@
         android:layout_height="30dp"
         android:gravity="center_vertical"
         android:paddingLeft="10dp"
-        android:layout_below="@id/layoutTitle"
         android:text="音乐大小过滤"/>
 
     <RelativeLayout

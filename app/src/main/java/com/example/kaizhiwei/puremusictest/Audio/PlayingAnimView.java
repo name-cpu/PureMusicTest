@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by kaizhiwei on 16/12/31.
+ * Created by kaizhiwei on 17/1/4.
  */
 //正在播放动画控件
 public class PlayingAnimView extends View{
@@ -24,6 +24,7 @@ public class PlayingAnimView extends View{
     private int mMaxNum = 3;
     private int mLineWidth = 5;
     private int mLineSperetorWidth = 5;
+    private boolean isStarted = false;
     private Paint mLinePaint;
     private Handler handler = new Handler();
     private Runnable runnable = new Runnable() {
@@ -119,10 +120,15 @@ public class PlayingAnimView extends View{
     }
 
     public void startAnim(){
+        if(isStarted)
+            return;
+
         handler.postDelayed(runnable, 100);
+        isStarted = true;
     }
 
     public void stopAnim(){
+        isStarted = false;
         handler.removeCallbacks(runnable);
     }
 

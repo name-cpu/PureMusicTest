@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    android:weightSum="1">
+
+    <com.viewpagerindicator.CirclePageIndicator
+        android:id="@+id/linePageIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:padding="20dip">
+    </com.viewpagerindicator.CirclePageIndicator>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+    </android.support.v4.view.ViewPager>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
+            android:id="@+id/mivShare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/bt_playpage_button_share_normal_new"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="20dp"/>
+
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
+            android:id="@+id/mivDownload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/bt_playpage_button_like_normal_new"
+            android:layout_marginLeft="20dp"
+            android:layout_toLeftOf="@id/mivShare"/>
+
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
+            android:id="@+id/mivLike"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/bt_playpage_button_like_normal_new"
+            android:layout_toLeftOf="@id/mivDownload"
+            android:layout_marginLeft="20dp"/>
+
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
+            android:id="@+id/mivComment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/bt_playpage_button_comment_normal"
+            android:layout_toRightOf="@id/mivShare"
+            android:layout_marginLeft="20dp"/>
+
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
+            android:id="@+id/mivMore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@drawable/bt_playpage_moreactions_normal"
+            android:layout_toRightOf="@id/mivComment"
+            android:layout_marginLeft="20dp"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        android:weightSum="1">
+        <TextView
+            android:id="@+id/tvCurTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textSize="12sp"
+            android:layout_gravity="center_vertical"/>
+        <SeekBar
+            android:id="@+id/sbProgress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"/>
+        <TextView
+            android:id="@+id/tvTotalTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textSize="12sp"
+            android:layout_gravity="center_vertical" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp">
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
+            android:id="@+id/mivPlayPause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/bt_playpage_button_play_normal_new"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="30dp"/>
+
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
+            android:id="@+id/mivPre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/bt_playpage_button_previous_normal_new"
+            android:layout_marginLeft="20dp"
+            android:layout_toLeftOf="@id/mivPlayPause"/>
+
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
+            android:id="@+id/mivPlayMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/bt_playpage_loop_normal_new"
+            android:layout_toLeftOf="@id/mivPre"
+            android:layout_marginLeft="20dp"/>
+
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
+            android:id="@+id/mivNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/bt_playpage_button_next_normal_new"
+            android:layout_toRightOf="@id/mivPlayPause"
+            android:layout_marginLeft="30dp"/>
+
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
+            android:id="@+id/mivPlaylist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@drawable/bt_playpage_button_list_normal_new"
+            android:layout_toRightOf="@id/mivNext"
+            android:layout_marginLeft="20dp"/>
+    </RelativeLayout>
+</LinearLayout>

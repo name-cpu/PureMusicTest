@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1"
+    android:background="@color/backgroundColor">
+    <CheckBox
+        android:id="@+id/ckCheckAll"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:button="@drawable/check_box_blue_selector"
+        android:checked="true"
+        android:text="全选"
+        android:paddingLeft="10dp"
+        android:layout_marginLeft="10dp"
+        android:drawablePadding="10dp"/>
+
+    <View
+        android:id="@+id/viewSepratorLine"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/listviewSeperatorLineColor" />
+
+    <ListView
+        android:id="@+id/lvBatchMgr"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@android:color/transparent">
+    </ListView>
+
+    <View
+        android:id="@+id/viewSepratorLine2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/listviewSeperatorLineColor" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp">
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyTextView
+            android:id="@+id/mtvAddTo"
+            android:layout_width="150dp"
+            android:layout_height="40dp"
+            android:text="添加到"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"/>
+
+        <com.example.kaizhiwei.puremusictest.CommonUI.MyTextView
+            android:id="@+id/mtvDelete"
+            android:layout_width="150dp"
+            android:layout_height="40dp"
+            android:text="删除"
+            android:textColor="#ffffff"
+            android:gravity="center"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"/>
+    </RelativeLayout>
+</LinearLayout>

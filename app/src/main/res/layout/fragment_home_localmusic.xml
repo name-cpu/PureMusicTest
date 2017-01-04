@@ -23,10 +23,10 @@
             <RelativeLayout
                 android:id="@+id/ryLocal"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="55dp"
                 android:gravity="center_vertical"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
                 android:background="@drawable/default_selector">
                 <ImageView
                     android:id="@+id/ivIcon"
@@ -40,12 +40,11 @@
                     android:id="@+id/tvLocalMain"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:textColor="@color/mainTextColor"
+                    style="@style/DefaultMainTextView"
                     android:layout_toRightOf="@id/ivIcon"
                     android:layout_marginLeft="10dp"
-                    android:text="本地音乐"
                     android:textSize="14sp"
-                    android:gravity="center_vertical"/>
+                    android:text="本地音乐" />
 
                 <TextView
                     android:id="@+id/tvLocalSub"
@@ -77,10 +76,10 @@
             <RelativeLayout
                 android:id="@+id/ryLastPlay"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="55dp"
                 android:gravity="center_vertical"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
                 android:background="@drawable/default_selector">
                 <ImageView
                     android:id="@+id/ivIconLastPlay"
@@ -94,12 +93,11 @@
                     android:id="@+id/tvLastPlayMain"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:textColor="@color/mainTextColor"
+                    style="@style/DefaultMainTextView"
                     android:text="最近播放"
-                    android:textSize="14sp"
                     android:layout_toRightOf="@id/ivIconLastPlay"
                     android:layout_marginLeft="10dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"/>
 
                 <TextView
                     android:id="@+id/tvLastPlaySub"
@@ -131,10 +129,10 @@
             <RelativeLayout
                 android:id="@+id/ryDownload"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="55dp"
                 android:gravity="center_vertical"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
                 android:background="@drawable/default_selector">
                 <ImageView
                     android:id="@+id/ivIconDownload"
@@ -142,18 +140,17 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:layout_centerVertical="true"
-                    android:src="@drawable/ic_mymusic_play_normal"/>
+                    android:src="@drawable/ic_mymusic_download_normal"/>
 
                 <TextView
                     android:id="@+id/tvDonwloadMain"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:textColor="@color/mainTextColor"
                     android:text="我的下载"
-                    android:textSize="14sp"
+                    style="@style/DefaultMainTextView"
                     android:layout_toRightOf="@id/ivIconDownload"
                     android:layout_marginLeft="10dp"
-                    android:gravity="center_vertical"/>
+                    android:textSize="14sp"/>
 
                 <TextView
                     android:id="@+id/tvDonwloadSub"
@@ -182,12 +179,11 @@
                 android:background="@color/more_oper_dialog_seperator_line"/>
 
             <LinearLayout android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="30dp"
                 android:orientation="horizontal"
                 android:layout_marginTop="10dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="4dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
                 android:weightSum="1">
                 <TextView
                     android:layout_width="0dp"

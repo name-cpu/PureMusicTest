@@ -41,28 +41,17 @@
                     android:layout_height="wrap_content"
                     android:maxLines="1"
                     android:text="123456789"
-                    android:gravity="center_vertical"
-                    android:lines="1"
-                    android:ellipsize="end"
-                    android:textSize="14sp"/>
+                    style="@style/DefaultMainTextView"/>
                 <TextView android:id="@+id/tvFolderSongCount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLines="1"
                     android:text="123456789"
-                    android:gravity="center_vertical"
-                    android:lines="1"
-                    android:ellipsize="end"
-                    android:textSize="12sp" />
+                    style="@style/DefaultSubTextView" />
                 <TextView android:id="@+id/tvFolderPath"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLines="1"
                     android:text="123456789"
-                    android:gravity="center_vertical"
-                    android:lines="1"
-                    android:ellipsize="end"
-                    android:textSize="12sp"/>
+                    style="@style/DefaultSubTextView"/>
             </LinearLayout>
 
             <ImageView
