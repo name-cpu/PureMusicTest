@@ -11,6 +11,7 @@ import android.widget.ImageView;
  * Created by kaizhiwei on 16/12/11.
  */
 public class MyImageView extends ImageView{
+    private int mDisableResId;
     private int mNormalResId;
     private int mPressResId;
 
@@ -38,7 +39,19 @@ public class MyImageView extends ImageView{
         this.setImageResource(mNormalResId);
     }
 
+    public void setDisableResId(int disableResId){
+        mDisableResId = disableResId;
+        if(!this.isEnabled()) {
+            this.setImageResource(mDisableResId);
+        }
+    }
+
     public boolean onTouchEvent(MotionEvent event) {
+        if(!this.isEnabled()){
+            this.setImageResource(mDisableResId);
+            return super.onTouchEvent(event);
+        }
+
         if(event.getAction() == MotionEvent.ACTION_DOWN){
             this.setImageResource(mPressResId);
             Log.i("weikaizhi", "MotionEvent.ACTION_DOWN");

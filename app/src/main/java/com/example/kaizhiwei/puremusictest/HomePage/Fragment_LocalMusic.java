@@ -1,12 +1,16 @@
 package com.example.kaizhiwei.puremusictest.HomePage;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Vibrator;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -15,17 +19,19 @@ import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.Audio.AlertDialogFavorite;
 import com.example.kaizhiwei.puremusictest.Audio.FavoriteListViewAdapter;
+import com.example.kaizhiwei.puremusictest.CommonUI.MyTextView;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
 
 
 /**
  * Created by kaizhiwei on 16/12/16.
  */
-public class Fragment_LocalMusic extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener, AlertDialogFavorite.OnAlterDialogFavoriteListener, FavoriteLayout.IFavoriteOperListener {
+public class Fragment_LocalMusic extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener, AlertDialogFavorite.OnAlterDialogFavoriteListener, FavoriteLayout.IFavoriteOperListener, PlaybackService.Client.Callback {
     private RelativeLayout ryLocal;
     private RelativeLayout ryLastPlay;
     private RelativeLayout ryDownload;
@@ -34,8 +40,16 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
     private TextView tvLastPlaySub;
     private TextView tvDonwloadSub;
     private TextView tvAddFavorite;
-    private TextView tvManageFavorite;
+    private MyTextView mtvManageFavorite;
     private HomeActivity mHomeActivity;
+    private ImageView ivPlay;
+    private Vibrator vibrator;
+    private PlaybackService.Client mClient;
+    private PlaybackService mService;
+
+    public Fragment_LocalMusic(){
+        super();
+    }
 
     public Fragment_LocalMusic(HomeActivity home){
         mHomeActivity = home;
@@ -46,12 +60,11 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_home_localmusic, null, false);//关联布局文件
         ryLocal = (RelativeLayout) rootView.findViewById(R.id.ryLocal);
-
         ryLastPlay = (RelativeLayout) rootView.findViewById(R.id.ryLastPlay);
         ryDownload = (RelativeLayout) rootView.findViewById(R.id.ryDownload);
         ryLocal.setOnClickListener(this);
         ryLastPlay.setOnClickListener(this);
-        ryLastPlay.setOnClickListener(this);
+        ryDownload.setOnClickListener(this);
 
         favoriteLayout = (FavoriteLayout) rootView.findViewById(R.id.favoriteLayout);
         favoriteLayout.setFavoriteEntityData(MediaLibrary.getInstance().getAllFavoriteEntity());
@@ -61,16 +74,38 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
         favoriteLayout.show();
 
         tvAddFavorite = (TextView) rootView.findViewById(R.id.tvAddFavorite);
-        tvManageFavorite = (TextView) rootView.findViewById(R.id.tvManageFavorite);
+        mtvManageFavorite = (MyTextView) rootView.findViewById(R.id.mtvManageFavorite);
         tvAddFavorite.setOnClickListener(this);
-        tvManageFavorite.setOnClickListener(this);
+        mtvManageFavorite.setOnClickListener(this);
 
         tvLocalSub = (TextView)rootView.findViewById(R.id.tvLocalSub);
         tvLastPlaySub = (TextView)rootView.findViewById(R.id.tvLastPlaySub);
         tvDonwloadSub = (TextView)rootView.findViewById(R.id.tvDonwloadSub);
+        ivPlay = (ImageView)rootView.findViewById(R.id.ivPlay);
+        ivPlay.setOnClickListener(this);
 
         tvLocalSub.setText(MediaLibrary.getInstance().getMediaEntitySize() + "首");
+        vibrator = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         return rootView;
+    }
+
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if(mClient == null){
+            mClient = new PlaybackService.Client(this.getActivity(), this);
+        }
+        mClient.connect();
+    }
+
+    public void onDetach() {
+        super.onDetach();
+        if(mClient != null){
+            mClient.disconnect();
+        }
     }
 
     @Override
@@ -78,14 +113,14 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
         if(v == ryLocal){
             mHomeActivity.switchToAudioFragment();
         }
-        else if(v == tvManageFavorite){
+        else if(v == mtvManageFavorite){
             if(favoriteLayout.getMode() == FavoriteListViewAdapter.READONLY_MODE){
                 favoriteLayout.setMode(FavoriteListViewAdapter.EDIT_MODE);
-                tvManageFavorite.setText("完成");
+                mtvManageFavorite.setText("完成");
             }
             else{
                 favoriteLayout.setMode(FavoriteListViewAdapter.READONLY_MODE);
-                tvManageFavorite.setText("管理");
+                mtvManageFavorite.setText("管理");
             }
         }
         else if(v == tvAddFavorite){
@@ -93,6 +128,11 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
             favoriteDialog.show();
             favoriteDialog.setAlertFavoriteListener(this);
             favoriteDialog.setOperType(AlertDialogFavorite.ADD_FAVORITE);
+        }
+        else if(v == ivPlay){
+            if(mService != null){
+                mService.next(false);
+            }
         }
     }
 
@@ -104,7 +144,7 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
     @Override
     public void OnFinish(AlertDialogFavorite dialog, int operType, String strFavoriteName) {
         favoriteLayout.setMode(FavoriteLayout.READONLY_MODE);
-        tvManageFavorite.setText("管理");
+        mtvManageFavorite.setText("管理");
         if(operType == AlertDialogFavorite.USER_CANCEL){
 
         }
@@ -159,7 +199,7 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
     }
 
     @Override
-    public void OnModifyClick(FavoriteLayout layout, int position) {
+    public void onModifyClick(FavoriteLayout layout, int position) {
         AlertDialogFavorite favoriteDialog = new AlertDialogFavorite(this.getContext(), this);
         favoriteDialog.show();
         favoriteDialog.setFavoriteEntity((FavoriteEntity)layout.getItem(position));
@@ -167,7 +207,7 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
     }
 
     @Override
-    public void OnDeleteClick(FavoriteLayout layout, int position) {
+    public void onDeleteClick(FavoriteLayout layout, int position) {
         FavoriteEntity favoriteEntity = (FavoriteEntity)layout.getItem(position);
         if(favoriteEntity == null || favoriteEntity._id < 0)
             return;
@@ -177,5 +217,21 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
             return;
         }
         favoriteLayout.removeView(favoriteEntity);
+    }
+
+    @Override
+    public void onItemLongClick(FavoriteLayout layout, int position) {
+        vibrator.vibrate(30);
+        onClick(mtvManageFavorite);
+    }
+
+    @Override
+    public void onConnected(PlaybackService service) {
+        mService = service;
+    }
+
+    @Override
+    public void onDisconnected() {
+        mService = null;
     }
 }

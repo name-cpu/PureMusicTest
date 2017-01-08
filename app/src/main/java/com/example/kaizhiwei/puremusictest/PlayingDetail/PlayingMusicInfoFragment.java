@@ -18,6 +18,7 @@ public class PlayingMusicInfoFragment  extends Fragment implements View.OnClickL
     private ImageView ivArtist;
     private TextView tvSongName;
     private TextView tvArtistName;
+    private MediaEntity mediaEntity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -27,6 +28,11 @@ public class PlayingMusicInfoFragment  extends Fragment implements View.OnClickL
         tvSongName = (TextView)rootView.findViewById(R.id.tvSongName);
         tvArtistName = (TextView)rootView.findViewById(R.id.tvArtistName);
         ivArtist.setOnClickListener(this);
+
+        if(mediaEntity != null){
+            tvSongName.setText(mediaEntity.title);
+            tvArtistName.setText(mediaEntity.artist);
+        }
         return rootView;
     }
 
@@ -39,11 +45,10 @@ public class PlayingMusicInfoFragment  extends Fragment implements View.OnClickL
         if(entity == null)
             return;
 
-        if(tvSongName != null){
-            tvSongName.setText(entity.title);
-        }
-        if(tvArtistName != null){
-            tvArtistName.setText(entity.artist);
+        mediaEntity = entity;
+        if(mediaEntity != null && tvSongName != null && tvArtistName != null){
+            tvSongName.setText(mediaEntity.title);
+            tvArtistName.setText(mediaEntity.artist);
         }
     }
 }

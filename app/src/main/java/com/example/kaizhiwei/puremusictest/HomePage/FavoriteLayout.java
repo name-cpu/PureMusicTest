@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Created by kaizhiwei on 16/12/18.
  */
-public class FavoriteLayout extends LinearLayout implements View.OnClickListener{
+public class FavoriteLayout extends LinearLayout implements View.OnClickListener, View.OnLongClickListener {
     private List<FavoriteEntity> mFavoriteListData;
     private List<View> mFavoriteItemView;
     private Context mContext;
@@ -40,16 +40,27 @@ public class FavoriteLayout extends LinearLayout implements View.OnClickListener
 
         int tag = (int)v.getTag() - Delete_Flag;
         if(tag >= 0){
-            mListener.OnDeleteClick(this, tag);
+            mListener.onDeleteClick(this, tag);
         }
         else{
-            mListener.OnModifyClick(this, tag + Delete_Flag - Modify_Flag);
+            mListener.onModifyClick(this, tag + Delete_Flag - Modify_Flag);
         }
     }
 
+    @Override
+    public boolean onLongClick(View v) {
+        if(v == null || v.getTag() == null || mListener == null)
+            return true;
+
+        FavoriteLayoutHolder holder = (FavoriteLayoutHolder)v.getTag();
+        mListener.onItemLongClick(this, holder.position);
+        return true;
+    }
+
     public interface IFavoriteOperListener{
-        void OnModifyClick(FavoriteLayout layout, int position);
-        void OnDeleteClick(FavoriteLayout layout, int position);
+        void onModifyClick(FavoriteLayout layout, int position);
+        void onDeleteClick(FavoriteLayout layout, int position);
+        void onItemLongClick(FavoriteLayout layout, int position);
     }
 
     public FavoriteLayout(Context context) {
@@ -232,6 +243,7 @@ public class FavoriteLayout extends LinearLayout implements View.OnClickListener
             holder = new FavoriteLayoutHolder(view);
             holder.ibBtnEdit.setOnClickListener(this);
             holder.ibBtnDelete.setOnClickListener(this);
+            view.setOnLongClickListener(this);
             view.setTag(holder);
             convertView = view;
         }
@@ -239,6 +251,7 @@ public class FavoriteLayout extends LinearLayout implements View.OnClickListener
             holder = (FavoriteLayoutHolder) convertView.getTag();
         }
 
+        holder.setPosition(position);
         holder.ibBtnEdit.setTag(position + Modify_Flag);
         holder.ibBtnDelete.setTag(position + Delete_Flag);
         holder.tvFavoriteMain.setTextColor(mContext.getResources().getColor(R.color.mainTextColor));
@@ -257,6 +270,11 @@ public class FavoriteLayout extends LinearLayout implements View.OnClickListener
         public ImageView ibBtnMore;
         public ImageView ibBtnEdit;
         public ImageView ibBtnDelete;
+        public int position;
+
+        public void setPosition(int position){
+            this.position = position;
+        }
 
         public FavoriteLayoutHolder(View view){
             ivSongImage = (ImageView)view.findViewById(R.id.ivSongImage);

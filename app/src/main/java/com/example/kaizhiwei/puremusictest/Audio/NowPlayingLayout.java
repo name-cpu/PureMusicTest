@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -222,6 +223,7 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
         }
         else if(llControl == v){
             Intent intent = new Intent(this.getContext(), PlayingActivity.class);
+            intent.putExtra(PlayingActivity.PLAYING_MEDIA_ENTITY, (Parcelable) mService.getCurrentMedia());
             mHomePage.startActivity(intent);
         }
     }

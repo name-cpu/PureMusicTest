@@ -9,6 +9,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.R;
 
@@ -17,6 +18,7 @@ import com.example.kaizhiwei.puremusictest.R;
  */
 public class BaseActivty extends Activity implements View.OnClickListener{
     protected TextView tvTitle;
+    private Toast mToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,5 +73,14 @@ public class BaseActivty extends Activity implements View.OnClickListener{
 
     protected void onActictyFinish(){
         finish();
+    }
+
+    public void toast(String str){
+        if(mToast == null){
+            mToast = Toast.makeText(this, str, Toast.LENGTH_SHORT);
+        }
+
+        mToast.setText(str);
+        mToast.show();
     }
 }

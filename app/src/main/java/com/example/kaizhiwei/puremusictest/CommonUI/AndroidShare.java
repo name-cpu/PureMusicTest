@@ -121,10 +121,10 @@ public class AndroidShare extends Dialog implements AdapterView.OnItemClickListe
 				"com.tencent.mobileqq.activity.JumpActivity", "com.tencent.mobileqq"));
 		this.mListData.add(new ShareItem("QQ空间", R.drawable.bt_share_qqzone_normal, R.drawable.bt_share_qqzone_press,
 				"com.qzone.ui.operation.QZonePublishMoodActivity", "com.qzone"));
-		this.mListData.add(new ShareItem("新浪微博", R.drawable.bt_share_sinaweibo_normal, R.drawable.bt_share_sinaweibo_press,
-				"com.sina.weibo.EditActivity", "com.sina.weibo"));
-		this.mListData.add(new ShareItem("其他", R.drawable.bt_share_wechat_normal, R.drawable.bt_share_wechat_press,
-				"", ""));
+//		this.mListData.add(new ShareItem("新浪微博", R.drawable.bt_share_sinaweibo_normal, R.drawable.bt_share_sinaweibo_press,
+//				"com.sina.weibo.EditActivity", "com.sina.weibo"));
+//		this.mListData.add(new ShareItem("其他", R.drawable.bt_share_wechat_normal, R.drawable.bt_share_wechat_press,
+//				"", ""));
 	}
 
 	public List<ComponentName> queryPackage() {
@@ -305,7 +305,7 @@ public class AndroidShare extends Dialog implements AdapterView.OnItemClickListe
 		private View getItemView() {
 			LinearLayout item = new LinearLayout(getContext());
 			item.setOrientation(LinearLayout.VERTICAL);
-			int margin = (int) (5.0F * mDensity);
+			int margin = (int) (10.0F * mDensity);
 			AbsListView.LayoutParams param = new AbsListView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 			item.setLayoutParams(param);
 			item.setGravity(Gravity.CENTER);

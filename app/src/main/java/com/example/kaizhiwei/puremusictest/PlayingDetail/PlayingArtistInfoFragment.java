@@ -16,6 +16,7 @@ import com.example.kaizhiwei.puremusictest.R;
 public class PlayingArtistInfoFragment extends Fragment {
     private TextView tvArtist;
     private TextView tvAlbum;
+    private MediaEntity mediaEntity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -23,18 +24,21 @@ public class PlayingArtistInfoFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_playing_atristinfo, null, false);
         tvArtist = (TextView)rootView.findViewById(R.id.tvArtist);
         tvAlbum = (TextView)rootView.findViewById(R.id.tvAlbum);
+
+        if(mediaEntity != null){
+            tvArtist.setText(mediaEntity.artist);
+            tvAlbum.setText(mediaEntity.album);
+        }
         return rootView;
     }
 
     public void setArtistAlbumInfo(MediaEntity entity){
         if(entity == null)
             return;
-
-        if(tvArtist != null){
-            tvArtist.setText(entity.artist);
-        }
-        if(tvAlbum != null){
-            tvAlbum.setText(entity.album);
+        mediaEntity = entity;
+        if(mediaEntity != null && tvArtist != null && tvAlbum != null){
+            tvArtist.setText(mediaEntity.artist);
+            tvAlbum.setText(mediaEntity.album);
         }
     }
 }

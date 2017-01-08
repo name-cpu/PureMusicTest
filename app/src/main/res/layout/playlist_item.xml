@@ -26,16 +26,16 @@
                 android:layout_weight="1"
                 android:gravity="bottom"
                 android:text="@string/app_name"
-                android:maxLines="1"
-                android:ellipsize="end"/>
+                style="@style/DefaultMainTextView"
+                android:textSize="@dimen/large_text_size"/>
             <TextView
                 android:id="@+id/tvSubTitle"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:gravity="top"
-                android:maxLines="1"
-                android:ellipsize="end"
+                style="@style/DefaultSubTextView"
+                android:textSize="@dimen/mini_text_size"
                 android:text="@string/app_name"/>
         </LinearLayout>
 

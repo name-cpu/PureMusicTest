@@ -17,4 +17,10 @@
     <color name="default_button_pressed_color">#EFEFEF</color>
     <color name="delete_btn_color">#E55A4F</color>
     <color name="delete_btn_pressed_color">#AF423A</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="red">#FF0000</color>
+    <color name="green">#00FF00</color>
+    <color name="blue">#0000FF</color>
 </resources>

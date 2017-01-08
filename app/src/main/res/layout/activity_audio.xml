@@ -33,29 +33,41 @@
                 android:id="@+id/lvAllSong"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@drawable/default_back"
                 android:scrollbarStyle="outsideOverlay"
-                android:background="@drawable/default_back"/>
+                android:scrollbarThumbVertical="@drawable/scrollbar_vertical_thumb"
+                android:scrollbarSize="5dp"
+                android:scrollbars="vertical"/>
 
             <com.example.kaizhiwei.puremusictest.Audio.AudioListView
                 android:id="@+id/lvSongFolder"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scrollbarStyle="outsideOverlay"
-                android:background="@drawable/default_back"/>
+                android:background="@drawable/default_back"
+                android:scrollbarThumbVertical="@drawable/scrollbar_vertical_thumb"
+                android:scrollbarSize="5dp"
+                android:scrollbars="vertical"/>
 
             <com.example.kaizhiwei.puremusictest.Audio.AudioListView
                 android:id="@+id/lvArtist"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scrollbarStyle="outsideOverlay"
-                android:background="@drawable/default_back"/>
+                android:background="@drawable/default_back"
+                android:scrollbarThumbVertical="@drawable/scrollbar_vertical_thumb"
+                android:scrollbarSize="5dp"
+                android:scrollbars="vertical"/>
 
             <com.example.kaizhiwei.puremusictest.Audio.AudioListView
                 android:id="@+id/lvAlbum"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scrollbarStyle="outsideOverlay"
-                android:background="@drawable/default_back"/>
+                android:background="@drawable/default_back"
+                android:scrollbarThumbVertical="@drawable/scrollbar_vertical_thumb"
+                android:scrollbarSize="5dp"
+                android:scrollbars="vertical"/>
         </android.support.v4.view.ViewPager>
 
         <RelativeLayout

@@ -1,5 +1,6 @@
 package com.example.kaizhiwei.puremusictest.PlayingDetail;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -36,6 +37,7 @@ import java.util.List;
  * Created by kaizhiwei on 17/1/4.
  */
 public class PlayingActivity extends FragmentActivity implements View.OnClickListener, PlaybackService.Client.Callback, PlaybackService.Callback, SeekBar.OnSeekBarChangeListener {
+    private MyImageView mivBack;
     private MyImageView mivLike;
     private MyImageView mivDownload;
     private MyImageView mivShare;
@@ -51,6 +53,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
     private CirclePageIndicator linePageIndicator;
     private PlayingPagerAdapter mPagerAdapter;
     private List<Fragment> mListFragment;
+    private PlayingMoreOperDialog mPlayingMoreOperDialog;
     private PlayingArtistInfoFragment artistInfoFragment;
     private PlayingLyricInfoFragment lyricInfoFragment;
     private PlayingMusicInfoFragment musicInfoFragment;
@@ -60,6 +63,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
     private SeekBar sbProgress;
     private boolean isUpdateCurTimeFromUser = false;
 
+    public static final String PLAYING_MEDIA_ENTITY = "PLAYING_MEDIA_ENTITY";
     private List<List<Integer>> listPLaymodeImageRes;
 
     private PlaybackService.Client mClient = null;
@@ -125,6 +129,10 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
     protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playing_main);
+        mivBack = (MyImageView)this.findViewById(R.id.mivBack);
+        mivBack.setResId(R.drawable.bt_playpage_button_return_normal_new, R.drawable.bt_playpage_button_return_press_new);
+        mivBack.setOnClickListener(this);
+
         mivLike = (MyImageView)this.findViewById(R.id.mivLike);
         mivLike.setOnClickListener(this);
 
@@ -181,8 +189,8 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
         linePageIndicator.setViewPager(viewPager);
         viewPager.setCurrentItem(1);
         final float density = getResources().getDisplayMetrics().density;
-        linePageIndicator.setFillColor(0x880099CC);
-        linePageIndicator.setPageColor(0xFF4F4F4F);
+        linePageIndicator.setFillColor(0xFF0000);
+        linePageIndicator.setPageColor(0x00FF00);
         linePageIndicator.setStrokeWidth(2 * density);
 //        linePageIndicator.setLineWidth(30 * density);
 
@@ -216,6 +224,11 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
         list.add(R.drawable.bt_playpage_random_press_new);
         list.add(R.string.play_mode_random);
         listPLaymodeImageRes.add(list);
+
+       // Intent intent =  getIntent();
+        //Bundle extras = intent.getExtras();
+        //MediaEntity mediaEntity = (MediaEntity)extras.getParcelable(PLAYING_MEDIA_ENTITY);
+        initUI();
     }
 
     private void initUI(){
@@ -224,6 +237,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
 
         updatePlayPauseState(mService.isPlaying());
         int playMode = mService.getRepeatMode();
+
         updatePlaymodeState(playMode, false);
         MediaEntity curMediaEntity = mService.getCurrentMedia();
         if(curMediaEntity != null){
@@ -331,19 +345,28 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
 
         }
         else if(v == mivShare){
+            MediaEntity mediaEntity = mService.getCurrentMedia();
+            if(mediaEntity == null)
+                return;
+
+            String strShareTitle = getResources().getString(R.string.app_name);
+            strShareTitle = String.format("分享一首%s的%s - 来自%s", mediaEntity.artist, mediaEntity.title, strShareTitle);
             AndroidShare as = new AndroidShare(
                     this,
-                    "哈哈---超方便的分享！！！来自allen",
+                    strShareTitle,
                     "http://img6.cache.netease.com/cnews/news2012/img/logo_news.png");
             as.show();
-            as.setTitle("分享 - " );
+            as.setTitle("分享 - " + mediaEntity.title);
         }
         else if(v == mivComment){
 
         }
         else if(v == mivMore){
-            PlayingMoreOperDialog dialog = new PlayingMoreOperDialog(this);
-            dialog.show();
+            if(mPlayingMoreOperDialog == null){
+                mPlayingMoreOperDialog = new PlayingMoreOperDialog(this);
+            }
+            mPlayingMoreOperDialog.show();
+            mPlayingMoreOperDialog.setCurrentMediaEntity(mService.getCurrentMedia());
         }
         else if(v == mivPlayMode){
             int playMode = mService.getRepeatMode();
@@ -391,6 +414,9 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
             mPlayListDialog.setPlayListAdapterListener(mListener);
             mPlayListDialog.updatePlaymodeImg(mService.getRepeatMode(), false);
             mPlayListDialog.show();
+        }
+        else if(v == mivBack){
+            finish();
         }
     }
 
@@ -452,6 +478,10 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
             if(mPlayListDialog != null && mPlayListDialog.isShowing()){
                 mPlayListDialog.setItemPlayState(mService.getCurPlayMediaIndex(), true, true);
             }
+
+            if(mPlayingMoreOperDialog != null){
+                mPlayingMoreOperDialog.setCurrentMediaEntity(mService.getCurrentMedia());
+            }
         }
         else if(event.type == MediaPlayer.Event.Paused){
             updatePlayPauseState(false);
@@ -461,6 +491,11 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
         }
         else if(event.type == MediaPlayer.Event.Stopped){
             resetUI();
+        }
+        else if(event.type == MediaPlayer.Event.TimeChanged){
+            if(lyricInfoFragment != null){
+                lyricInfoFragment.updateLyric(mService.getTIme());
+            }
         }
     }
 

@@ -22,8 +22,12 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.example.kaizhiwei.puremusictest.Audio.FavoriteDialog;
 import com.example.kaizhiwei.puremusictest.Audio.MoreOperationAdapter;
+import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
 
 import java.util.ArrayList;
@@ -37,11 +41,62 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
     private MyImageView mivClose;
     private GridView gvMoreOper;
     private SeekBar sbVolume;
-    private PlayingMoreOperAdapter mAdapter;
     private List<PlayingMoreOperAdapter.PlayingMoreOperItemData> mListData;
     private AudioManager mAudioManager;
+    private MediaEntity mediaEntity;
     private int mLastVolume;
     private MyVolumeReceiver mVolumeReceiver;
+    private static final int MORE_OPER_SEARCHLYRIC = 0;
+    private static final int MORE_OPER_SHAREMEDIA = 1;
+    private static final int MORE_OPER_ADDTO = 2;
+    private static final int MORE_OPER_SETEQ = 3;
+    private static final int MORE_OPER_FILEINFO = 4;
+    private PlayingMoreOperAdapter mAdapter;
+    private PlayingMoreOperAdapter.IPlayingMoreOperListener mMoreOperListener = new PlayingMoreOperAdapter.IPlayingMoreOperListener() {
+        @Override
+        public void onItemClicked(PlayingMoreOperAdapter adpter, int tag) {
+            switch(tag){
+                case MORE_OPER_SEARCHLYRIC:
+                    break;
+                case MORE_OPER_SHAREMEDIA:
+                    if(mediaEntity == null)
+                        return;
+
+                    dismiss();
+                    String strShareTitle = PlayingMoreOperDialog.this.getContext().getResources().getString(R.string.app_name);
+                    strShareTitle = String.format("分享一首%s的%s - 来自%s", mediaEntity.artist, mediaEntity.title, strShareTitle);
+                    AndroidShare as = new AndroidShare(
+                            PlayingMoreOperDialog.this.getContext(),
+                            strShareTitle,
+                            "http://img6.cache.netease.com/cnews/news2012/img/logo_news.png");
+                    as.show();
+                    as.setTitle("分享 - " + mediaEntity.title);
+                    break;
+                case MORE_OPER_ADDTO:
+                    dismiss();
+                    FavoriteDialog.Builder builderFavorite = new FavoriteDialog.Builder(PlayingMoreOperDialog.this.getContext());
+                    FavoriteDialog dialogFavorite = builderFavorite.create();
+                    dialogFavorite.setCancelable(true);
+                    dialogFavorite.setFavoritelistData(MediaLibrary.getInstance().getAllFavoriteEntity());
+                    List<MediaEntity> list = new ArrayList<>();
+                    if(mediaEntity != null){
+                        list.add(mediaEntity);
+                    }
+                    dialogFavorite.setMediaEntityData(list);
+                    dialogFavorite.show();
+                    dialogFavorite.setTitle("添加到歌单");
+                    break;
+                case MORE_OPER_SETEQ:
+                    break;
+                case MORE_OPER_FILEINFO:
+                    dismiss();
+                    AlterDialogMediaInfo dialog = new AlterDialogMediaInfo(PlayingMoreOperDialog.this.getContext());
+                    dialog.show();
+                    dialog.setMediaEntity(mediaEntity);
+                    break;
+            }
+        }
+    };
 
     public PlayingMoreOperDialog(Context context, int themeResId) {
         super(context,R.style.Dialog);
@@ -66,7 +121,7 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
         wl.x = 0;
         // 以下这两句是为了保证按钮可以水平满屏
         wl.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        wl.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        wl.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         wl.gravity = Gravity.BOTTOM;
 
         window.setAttributes(wl);
@@ -92,31 +147,23 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
 
     private void initData(){
         mListData = new ArrayList<>();
-        PlayingMoreOperAdapter.PlayingMoreOperItemData itemData = new PlayingMoreOperAdapter.PlayingMoreOperItemData(R.drawable.bt_playpage_button_searchpicandlyric_press_black,
-            R.drawable.bt_playpage_button_searchpicandlyric_press, "查找歌曲", true);
+        PlayingMoreOperAdapter.PlayingMoreOperItemData itemData = new PlayingMoreOperAdapter.PlayingMoreOperItemData(R.drawable.bt_playpage_button_searchpicandlyric_normal,
+            R.drawable.bt_playpage_button_searchpicandlyric_press, "查找歌曲", MORE_OPER_SEARCHLYRIC, true);
         mListData.add(itemData);
-        itemData = new PlayingMoreOperAdapter.PlayingMoreOperItemData(R.drawable.bt_playpage_button_searchpicandlyric_press_black,
-                R.drawable.bt_playpage_button_searchpicandlyric_press, "查找歌曲", true);
+        itemData = new PlayingMoreOperAdapter.PlayingMoreOperItemData(R.drawable.bt_playpage_button_share_normal,
+                R.drawable.bt_playpage_button_share_press, "歌曲分享", MORE_OPER_SHAREMEDIA, true);
         mListData.add(itemData);
-        itemData = new PlayingMoreOperAdapter.PlayingMoreOperItemData(R.drawable.bt_playpage_button_searchpicandlyric_press_black,
-                R.drawable.bt_playpage_button_searchpicandlyric_press, "查找歌曲", true);
+        itemData = new PlayingMoreOperAdapter.PlayingMoreOperItemData(R.drawable.bt_playpage_button_addto_normal,
+                R.drawable.bt_playpage_button_addto_press, "添加到", MORE_OPER_ADDTO, true);
         mListData.add(itemData);
-        itemData = new PlayingMoreOperAdapter.PlayingMoreOperItemData(R.drawable.bt_playpage_button_searchpicandlyric_press_black,
-                R.drawable.bt_playpage_button_searchpicandlyric_press, "查找歌曲", true);
+        itemData = new PlayingMoreOperAdapter.PlayingMoreOperItemData(R.drawable.bt_playpage_button_eq_normal,
+                R.drawable.bt_playpage_button_eq_press, "音效设置", MORE_OPER_SETEQ, true);
         mListData.add(itemData);
-        itemData = new PlayingMoreOperAdapter.PlayingMoreOperItemData(R.drawable.bt_playpage_button_searchpicandlyric_press_black,
-                R.drawable.bt_playpage_button_searchpicandlyric_press, "查找歌曲", true);
-        mListData.add(itemData);
-        itemData = new PlayingMoreOperAdapter.PlayingMoreOperItemData(R.drawable.bt_playpage_button_searchpicandlyric_press_black,
-                R.drawable.bt_playpage_button_searchpicandlyric_press, "查找歌曲", true);
-        mListData.add(itemData);
-        itemData = new PlayingMoreOperAdapter.PlayingMoreOperItemData(R.drawable.bt_playpage_button_searchpicandlyric_press_black,
-                R.drawable.bt_playpage_button_searchpicandlyric_press, "查找歌曲", true);
-        mListData.add(itemData);
-        itemData = new PlayingMoreOperAdapter.PlayingMoreOperItemData(R.drawable.bt_playpage_button_searchpicandlyric_press_black,
-                R.drawable.bt_playpage_button_searchpicandlyric_press, "查找歌曲", true);
+        itemData = new PlayingMoreOperAdapter.PlayingMoreOperItemData(R.drawable.bt_playpage_button_fileinformation_normal,
+                R.drawable.bt_playpage_button_fileinformation_press, "文件详情", MORE_OPER_FILEINFO, true);
         mListData.add(itemData);
         mAdapter = new PlayingMoreOperAdapter(this.getContext(), mListData);
+        mAdapter.setPlayingMoreOperListener(mMoreOperListener);
         gvMoreOper.setAdapter(mAdapter);
     }
 
@@ -158,6 +205,10 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
         return super.onKeyDown(keyCode, event);
     }
 
+    public void setCurrentMediaEntity(MediaEntity mediaEntity){
+        this.mediaEntity = mediaEntity;
+    }
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
@@ -165,7 +216,9 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
 
     @Override
     public void onClick(View v) {
-
+        if(v == mivClose){
+            dismiss();
+        }
     }
 
     @Override
@@ -174,9 +227,7 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
             if(seekBar == null || mAudioManager == null)
                 return;
 
-            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, AudioManager.FLAG_PLAY_SOUND);//  3 代表  AudioManager.STREAM_MUSIC
-
-
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, AudioManager.FLAG_PLAY_SOUND|AudioManager.FX_KEY_CLICK);//  3 代表  AudioManager.STREAM_MUSIC
         }
         mLastVolume = progress;
     }
@@ -188,15 +239,10 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-
-
-        sbVolume.setOnSeekBarChangeListener(null);
         int iInc = seekBar.getProgress() - mLastVolume;
         int index = iInc > 0 ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
         for(int i = 0;i < Math.abs(iInc);i++){
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, index, AudioManager.FLAG_PLAY_SOUND);
         }
-
-
     }
 }
