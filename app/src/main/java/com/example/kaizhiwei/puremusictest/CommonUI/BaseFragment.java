@@ -20,6 +20,7 @@ import com.example.kaizhiwei.puremusictest.R;
  */
 public class BaseFragment extends Fragment implements View.OnClickListener{
     protected TextView tvTitle;
+    protected TextView tvRight;
     private LinearLayout llContent;
 
     @Override
@@ -29,6 +30,9 @@ public class BaseFragment extends Fragment implements View.OnClickListener{
         llContent = (LinearLayout)rootView.findViewById(R.id.llContent);
         tvTitle = (TextView)rootView.findViewById(R.id.tvTitle);
         tvTitle.setOnClickListener(this);
+        tvRight = (TextView)rootView.findViewById(R.id.tvRight);
+        tvRight.setOnClickListener(this);
+        tvRight.setVisibility(View.GONE);
         return rootView;
     }
 

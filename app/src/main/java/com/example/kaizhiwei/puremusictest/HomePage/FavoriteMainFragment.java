@@ -1,6 +1,7 @@
 package com.example.kaizhiwei.puremusictest.HomePage;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -10,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,18 +21,25 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.Audio.AudioListViewAdapter;
+import com.example.kaizhiwei.puremusictest.Audio.BatchMgrAudioActivity;
 import com.example.kaizhiwei.puremusictest.Audio.LocalBaseMediaLayout;
+import com.example.kaizhiwei.puremusictest.Audio.MoreOperationDialog;
 import com.example.kaizhiwei.puremusictest.CommonUI.BaseFragment;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
+import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.Util.FastBlur;
+import com.example.kaizhiwei.puremusictest.Util.ImageUtil;
 import com.hp.hpl.sparta.Text;
 
+import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +51,7 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
     private TextView tvTitle;
     private MyImageView mivEdit;
     private MyImageView mivMoreOper;
+    private ImageView ivIcon;
     private TextView tvPlayAll;
     private TextView tvFavoriteNum;
     private TextView tvManager;
@@ -50,14 +60,46 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
     private List<MediaEntity> mListFavoriteData;
     private Handler mHandler = new Handler();
     private LinearLayout llTitle;
+    private FavoriteEntity mFavoriteEntity;
 
     public static final String FAVORITE_ID = "FAVORITE_ID";
     public static final String FAVORITE_NAME = "FAVORITE_NAME";
 
-    private LocalBaseMediaLayout.IFragmentInitListener mSubFragmentListener= new LocalBaseMediaLayout.IFragmentInitListener() {
+    private LocalBaseMediaLayout.ILocalBaseListener mSubFragmentListener= new LocalBaseMediaLayout.ILocalBaseListener() {
         @Override
         public void onFragmentInitFinish(LinearLayout fragment) {
 
+        }
+
+        @Override
+        public void onMoreOperClick(LocalBaseMediaLayout layout, int flag, Object obj) {
+            if(obj == null | mFavoriteEntity == null)
+                return;
+
+            boolean bRet = false;
+            List<MediaEntity> list = (List<MediaEntity>)obj;
+            if(flag == MoreOperationDialog.MORE_REMOVE_NORMAL){
+                for(int i = 0;i < list.size();i++){
+                    bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(list.get(i)._id, mFavoriteEntity._id);
+                }
+            }
+
+            initAdapterData();
+            final boolean finalBRet = bRet;
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    String strPromt = "";
+                    if(finalBRet){
+                        strPromt = "移除成功";
+                    }
+                    else{
+                        strPromt = "移除失败";
+                    }
+
+                    Toast.makeText(FavoriteMainFragment.this.getActivity(), strPromt, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     };
 
@@ -79,6 +121,7 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
         mivMoreOper.setOnClickListener(this);
         tvPlayAll = (TextView)rootView.findViewById(R.id.tvPlayAll);
         tvManager = (TextView)rootView.findViewById(R.id.tvManager);
+        tvManager.setOnClickListener(this);
         lbmLayout = new LocalBaseMediaLayout(this.getActivity(), mSubFragmentListener);
         lbmLayout.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, false, false, false);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -86,12 +129,34 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
         params.addRule(RelativeLayout.BELOW, R.id.viewSepratorLine);
         lbmLayout.setLayoutParams(params);
         rlMain.addView(lbmLayout);
-        initData();
-
+        ivIcon = (ImageView)rootView.findViewById(R.id.ivIcon);
         llTitle = (LinearLayout)rootView.findViewById(R.id.llTitle);
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_playlist_default);
-        Drawable drawable = FastBlur.BoxBlurFilter(bitmap);
-        llTitle.setBackground(drawable);
+        initData();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                boolean bDefault = true;
+                if(mFavoriteEntity != null && TextUtils.isEmpty(mFavoriteEntity.strFavoriteImgPath) == false){
+                    File file = new File(mFavoriteEntity.strFavoriteImgPath);
+                    if(file.exists()){
+                        bDefault = false;
+                    }
+                }
+
+//                if(bDefault){
+//                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_playlist_default);
+//                    Drawable drawable = FastBlur.BoxBlurFilter(bitmap);
+//                    llTitle.setBackground(drawable);
+//                }
+//                else{
+//                    Bitmap bitmap = BitmapFactory.decodeFile(mFavoriteEntity.strFavoriteImgPath);
+//                    Drawable drawable = FastBlur.BoxBlurFilter(bitmap);
+//                    llTitle.setBackground(drawable);
+//
+//                }
+            }
+        }, 500);
+
         return rootView;
     }
 
@@ -99,13 +164,41 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
         Bundle bundle = getArguments();
         final long favoriteId = bundle.getLong(FAVORITE_ID);
         String strFavoriteName = bundle.getString(FAVORITE_NAME);
-        tvTitle.setText(strFavoriteName);
+        FavoriteEntity entity = MediaLibrary.getInstance().getFavoriteEntityById(favoriteId);
+        if(entity == null)
+            return;
 
+        setFavoriteImage(entity.strFavoriteImgPath, ivIcon, 300, 300);
+        tvTitle.setText(strFavoriteName);
+        mFavoriteEntity = entity;
+        if(favoriteId == MediaLibrary.getInstance().getDefaultFavoriteEntityId()){
+            hideShowCtrlBtn(false);
+        }
+        else{
+            hideShowCtrlBtn(true);
+        }
+
+        List<Integer> list = new ArrayList<>();
+        list.add(MoreOperationDialog.MORE_NEXTPLAY_NORMAL);
+        list.add(MoreOperationDialog.MORE_LOVE_NORMAL);
+        list.add(MoreOperationDialog.MORE_BELL_NORMAL);
+        list.add(MoreOperationDialog.MORE_SHARE_NORMAL);
+        list.add(MoreOperationDialog.MORE_ADD_NORMA);
+        list.add(MoreOperationDialog.MORE_REMOVE_NORMAL);
+        lbmLayout.setMoreOperDialogData(list);
+    }
+
+    private void hideShowCtrlBtn(boolean isShow){
+        mivEdit.setVisibility(isShow ? View.VISIBLE : View.GONE);
+        mivMoreOper.setVisibility(isShow ? View.VISIBLE : View.GONE);
+    }
+
+    private void initAdapterData(){
         mListFavoriteData = new ArrayList<>();
         new Thread(new Runnable() {
             @Override
             public void run() {
-                List<FavoritesMusicEntity> list = MediaLibrary.getInstance().getFavoriteMusicById(favoriteId);
+                List<FavoritesMusicEntity> list = MediaLibrary.getInstance().getFavoriteMusicById(mFavoriteEntity._id);
                 for(int i = 0;i < list.size();i++){
                     MediaEntity mediaEntity = MediaLibrary.getInstance().getMediaEntityById(list.get(i).musicinfo_id);
                     if(mediaEntity == null)
@@ -133,6 +226,7 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
     public void onResume(){
         super.onResume();
         lbmLayout.onResume();
+        initAdapterData();
     }
 
     public void onPause() {
@@ -156,6 +250,56 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
 
     @Override
     public void onClick(View v) {
+        if(mFavoriteEntity == null)
+            return;
 
+        if(mivEdit == v){
+            Intent intent = new Intent(HomeActivity.getInstance(), FavoriteEditInfoActivity.class);
+            intent.putExtra(FAVORITE_ID, mFavoriteEntity._id);
+            HomeActivity.getInstance().startActivity(intent);
+        }
+        else if(v == tvManager){
+            Intent intent = new Intent(this.getActivity(), BatchMgrAudioActivity.class);
+            List<MediaEntity> listTemp = new ArrayList<>();
+            List<MediaEntity> temp = lbmLayout.getAdapterOriginData();
+            if(temp != null){
+                listTemp.addAll(temp);
+            }
+            intent.putExtra(BatchMgrAudioActivity.INTENT_LIST_DATA, (Serializable)listTemp);
+            intent.putExtra(BatchMgrAudioActivity.INTENT_RIGHTBTNISDELETE, false);
+            intent.putExtra(BatchMgrAudioActivity.INTENT_RIGHTBTNISREMOVE, true);
+            intent.putExtra(BatchMgrAudioActivity.INTENT_FAVORITEID, mFavoriteEntity._id);
+            HomeActivity.getInstance().startActivityForResult(intent, 2);
+            HomeActivity.getInstance().overridePendingTransition(R.anim.anim_left_enter, R.anim.anim_right_exit);
+        }
+    }
+
+    public void setFavoriteImage(String strPath, ImageView ivImage, int reqWidth, int reqHeight){
+        if(ivImage == null)
+            return;
+
+        Bitmap bitmap = null;
+        File file = null;
+        boolean bDefault = false;
+        if(TextUtils.isEmpty(strPath)){
+            bDefault = true;
+        }
+
+        file = new File(strPath);
+        if(file.exists() == false){
+            bDefault = true;
+        }
+        else{
+            bDefault = false;
+        }
+
+        if(bDefault){
+            bitmap = ImageUtil.decodeSampledBitmapFromResource(HomeActivity.getInstance().getResources(), R.drawable.ic_playlist_default, reqWidth, reqHeight);
+            ivImage.setImageBitmap(bitmap);
+        }
+        else{
+            bitmap = ImageUtil.decodeSampledBitmapFromPath(strPath, reqWidth, reqHeight);
+            ivImage.setImageBitmap(bitmap);
+        }
     }
 }

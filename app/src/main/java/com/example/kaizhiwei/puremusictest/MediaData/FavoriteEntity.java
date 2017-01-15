@@ -12,6 +12,8 @@ public class FavoriteEntity {
 
     public long _id;
     public String strFavoriteName;
+    public String strFavoriteDesc;
+    public String strFavoriteImgPath;
     public long favoriteType; //0 默认 1 自定义
     public long favoriteMusicNum;
     public List<FavoritesMusicEntity> listFavoriteInfo;

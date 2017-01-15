@@ -331,7 +331,17 @@ public class MediaLibrary {
         if(entity == null || entity._id < 0)
             return false;
 
-        return MediaDataBase.getInstance().modifyFavoriteInfo(entity);
+        boolean bRet = MediaDataBase.getInstance().modifyFavoriteInfo(entity);
+        if(bRet){
+            for(int i = 0;i < mFavoriteListData.size();i++){
+                if(mFavoriteListData.get(i)._id == entity._id){
+                    mFavoriteListData.get(i).strFavoriteName = entity.strFavoriteName;
+                    mFavoriteListData.get(i).strFavoriteDesc = entity.strFavoriteDesc;
+                    mFavoriteListData.get(i).strFavoriteImgPath = entity.strFavoriteImgPath;
+                }
+            }
+        }
+        return bRet;
     }
 
     public boolean removeFavoriteEntity(FavoriteEntity entity){

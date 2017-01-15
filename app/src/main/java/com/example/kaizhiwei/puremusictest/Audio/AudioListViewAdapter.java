@@ -883,6 +883,20 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         return  list;
     }
 
+    public List<MediaEntity> getAdapterOriginData(){
+        List<MediaEntity> listData = new ArrayList<>();
+        for(int i = 0;i < mListItemData.size();i++){
+            AudioItemData itemData = mListItemData.get(i);
+            if(itemData.mItemType != AudioItemData.TYPE_MEDIA)
+                continue;
+
+            if(itemData.mListMedia != null){
+                listData.addAll(itemData.mListMedia);
+            }
+        }
+        return listData;
+    }
+
     //所有歌曲操作栏视图
     private class AudioOperatioinBarHolder{
         public TextView btnRandom;

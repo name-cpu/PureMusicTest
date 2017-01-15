@@ -32,9 +32,14 @@ public class AudioFilterFragment extends BaseFragment{
     public static final String FILTER_TYPE = "FILTER_TYPE";
     public static final String FILTER_NAME = "FILTER_NAME";
     public static final String TITLE_NAME = "TITLE_NAME";
-    private LocalBaseMediaLayout.IFragmentInitListener mSubFragmentListener= new LocalBaseMediaLayout.IFragmentInitListener() {
+    private LocalBaseMediaLayout.ILocalBaseListener mSubFragmentListener= new LocalBaseMediaLayout.ILocalBaseListener() {
         @Override
         public void onFragmentInitFinish(LinearLayout fragment) {
+
+        }
+
+        @Override
+        public void onMoreOperClick(LocalBaseMediaLayout layout, int flag, Object obj) {
 
         }
     };

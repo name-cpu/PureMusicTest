@@ -1,7 +1,12 @@
 package com.example.kaizhiwei.puremusictest.HomePage;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -14,7 +19,10 @@ import android.widget.TextView;
 
 import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.Util.ImageUtil;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,7 +95,7 @@ public class FavoriteLayout extends LinearLayout{
                 continue;
 
             FavoriteLayoutHolder holder = (FavoriteLayoutHolder)childView.getTag();
-            holder.setFavoriteType((int) mFavoriteListData.get(i).favoriteType, mOperMode);
+            holder.setFavoriteType((int) mFavoriteListData.get(i).favoriteType, mOperMode, mFavoriteListData.get(i).strFavoriteImgPath);
         }
     }
 
@@ -268,7 +276,7 @@ public class FavoriteLayout extends LinearLayout{
         holder.tvFavoriteSub.setTextColor(mContext.getResources().getColor(R.color.subTextColor));
         holder.tvFavoriteMain.setText(entity.strFavoriteName);
         holder.tvFavoriteSub.setText(entity.favoriteMusicNum + "首");
-        holder.setFavoriteType((int) entity.favoriteType, mOperMode);
+        holder.setFavoriteType((int) entity.favoriteType, mOperMode, entity.strFavoriteImgPath);
 
         return convertView;
     }
@@ -297,7 +305,7 @@ public class FavoriteLayout extends LinearLayout{
             ibBtnDelete.setClickable(true);
         }
 
-        public void setFavoriteType(int favoriteType, int mode){
+        public void setFavoriteType(int favoriteType, int mode, String strPath){
             if(favoriteType == FavoriteEntity.DEFAULT_ADDONE_TYPE){
                 ivSongImage.setImageResource(R.drawable.ic_mymusic_add_nor);
                 tvFavoriteSub.setVisibility(View.GONE);
@@ -320,7 +328,8 @@ public class FavoriteLayout extends LinearLayout{
                 ibBtnDelete.setVisibility(View.GONE);
             }
             else{
-                ivSongImage.setImageResource(R.drawable.ic_mymusic_list_item);
+                //ivSongImage.setImageResource(R.drawable.ic_mymusic_list_item);
+                setFavoriteImage(strPath, ivSongImage);
                 if(mode == EDIT_MODE){
                     ibBtnMore.setVisibility(View.GONE);
                     ibBtnEdit.setVisibility(View.VISIBLE);
@@ -331,6 +340,35 @@ public class FavoriteLayout extends LinearLayout{
                     ibBtnEdit.setVisibility(View.GONE);
                     ibBtnDelete.setVisibility(View.GONE);
                 }
+            }
+        }
+
+        public void setFavoriteImage(String strPath, ImageView ivImage){
+            if(ivImage == null)
+                return;
+
+            Bitmap bitmap = null;
+            File file = null;
+            boolean bDefault = false;
+            if(TextUtils.isEmpty(strPath)){
+                bDefault = true;
+            }
+
+            file = new File(strPath);
+            if(file.exists() == false){
+                bDefault = true;
+            }
+            else{
+                bDefault = false;
+            }
+
+            if(bDefault){
+                bitmap = ImageUtil.decodeSampledBitmapFromResource(HomeActivity.getInstance().getResources(), R.drawable.ic_playlist_default, 100, 100);
+                ivImage.setImageBitmap(bitmap);
+            }
+            else{
+                bitmap = ImageUtil.decodeSampledBitmapFromPath(strPath, 100, 100);
+                ivImage.setImageBitmap(bitmap);
             }
         }
     }

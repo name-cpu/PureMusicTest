@@ -287,7 +287,10 @@ public class HomeActivity extends FragmentActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         // TODO Auto-generated method stub
-
-        return super.onKeyDown(keyCode, event);
+        boolean bRet = super.onKeyDown(keyCode, event);
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            mListFragment.get(0).updateData();
+        }
+        return bRet;
     }
 }

@@ -44,6 +44,7 @@ import com.example.kaizhiwei.puremusictest.Util.BusinessCode;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
 import java.io.File;
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,13 +66,13 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
     private PlaybackService mService;
     private MoreOperationDialog.Builder mMoreDialogbuilder = null;
     private MoreOperationDialog mMoreDialog = null;
+    private List<Integer> mListMoreOperData;
 
     //加载控件
-    private int mShowLoadingFlag = 0;
     private RelativeLayout rlLoading;
     private ProgressBar view_loading;
     private Handler loadingHandler = new Handler();
-    private IFragmentInitListener mListener;
+    private ILocalBaseListener mListener;
 
     //删除文件对话框
     private AlertDialogDeleteOne mAlertDialogDeleteOne;
@@ -102,8 +103,9 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         }
     };
 
-    public interface IFragmentInitListener{
+    public interface ILocalBaseListener{
         void onFragmentInitFinish(LinearLayout fragment);
+        void onMoreOperClick(LocalBaseMediaLayout layout, int flag, Object obj);
     }
 
     public LocalBaseMediaLayout(Context context) {
@@ -113,7 +115,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         initView(layoutInflater);
     }
 
-    public LocalBaseMediaLayout(Context context, IFragmentInitListener listener) {
+    public LocalBaseMediaLayout(Context context, ILocalBaseListener listener) {
         super(context, null);
         mListener = listener;
         mContext = context;
@@ -136,7 +138,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         initView(layoutInflater);
     }
 
-    public void setBaseMediaListener(IFragmentInitListener listener){
+    public void setBaseMediaListener(ILocalBaseListener listener){
         mListener = listener;
     }
 
@@ -284,6 +286,23 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
                 }
             }
         }, 50);
+    }
+
+    public void setMoreOperDialogData(List<Integer> list){
+        if(list == null || list.size() ==0)
+            return;
+
+        if(mListMoreOperData == null){
+            mListMoreOperData = new ArrayList<>();
+        }
+        mListMoreOperData.addAll(list);
+    }
+
+    public List<MediaEntity> getAdapterOriginData(){
+        if(mAllSongAdapter != null)
+            return mAllSongAdapter.getAdapterOriginData();
+
+        return null;
     }
 
     //MediaLibrary.IMediaScanListener
@@ -480,7 +499,12 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         }
 
         mMoreDialog.setMoreLVData(adapterType, itemData);
-        mMoreDialog.setMoreOperData(list);
+        if(mListMoreOperData == null){
+            mMoreDialog.setMoreOperData(list);
+        }
+        else{
+            mMoreDialog.setMoreOperData(mListMoreOperData);
+        }
         mMoreDialog.setCancelable(true);
         mMoreDialog.show();
     }
@@ -497,6 +521,12 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
     @Override
     public void onBatchMgrClick(AudioListViewAdapter adapter) {
         Intent intent = new Intent(mContext, BatchMgrAudioActivity.class);
+        List<MediaEntity> listTemp = new ArrayList<>();
+        List<MediaEntity> temp = mAllSongAdapter.getAdapterOriginData();
+        if(temp != null){
+            listTemp.addAll(temp);
+        }
+        intent.putExtra(BatchMgrAudioActivity.INTENT_LIST_DATA, (Serializable)listTemp);
         HomeActivity.getInstance().startActivity(intent);
         HomeActivity.getInstance().overridePendingTransition(R.anim.anim_left_enter, R.anim.anim_right_exit);
     }
@@ -745,6 +775,9 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
                 break;
         }
         mMoreDialog.dismiss();
+        if(mListener != null){
+            mListener.onMoreOperClick(this, tag, listOperMediaEntity);
+        }
     }
 
     @Override

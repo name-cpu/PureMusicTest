@@ -10,9 +10,8 @@ import android.graphics.drawable.Drawable;
  */
 public class FastBlur {
     /** 水平方向模糊度 */
-    private static float hRadius = 20;
+    private static float hRadius = 10;
     /** 竖直方向模糊度 */
-    private static float vRadius = 20;
     /** 模糊迭代度 */
     private static int iterations = 7;
 

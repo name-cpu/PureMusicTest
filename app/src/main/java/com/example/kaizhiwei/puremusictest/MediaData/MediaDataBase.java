@@ -342,6 +342,8 @@ public class MediaDataBase{
             entity._id = c.getLong(c.getColumnIndex("_id"));
             entity.strFavoriteName = c.getString(c.getColumnIndex("favoriteName"));
             entity.favoriteType = c.getLong(c.getColumnIndex("favoriteType"));
+            entity.strFavoriteDesc = c.getString(c.getColumnIndex("favoriteDesc"));
+            entity.strFavoriteImgPath = c.getString(c.getColumnIndex("favoriteImgPath"));
             listFavoriteEntity.add(entity);
         }
 
@@ -353,9 +355,9 @@ public class MediaDataBase{
             return false;
 
         String strInsertData = String.format("insert into %s (" +
-                        "\"favoriteName\", \"favoriteType\")" +
-                        "values(\"%s\", %d);", TABLE_FAVORITES,
-                entity.strFavoriteName, entity.favoriteType);
+                        "\"favoriteName\", \"favoriteDesc\", \"favoriteImgPath\", \"favoriteType\") " +
+                        "values(\"%s\",\"%s\",\"%s\", %d);", TABLE_FAVORITES,
+                entity.strFavoriteName, entity.strFavoriteDesc, entity.strFavoriteImgPath, entity.favoriteType);
 
         mDB.execSQL(strInsertData);
 
@@ -377,8 +379,8 @@ public class MediaDataBase{
             return false;
 
         String strUpdateData = String.format("update %s set " +
-                        "favoriteName = \"%s\"" + " where _id = %d;",
-                        TABLE_FAVORITES,  entity.strFavoriteName, entity._id);
+                        "favoriteName = \"%s\", favoriteDesc = \"%s\", favoriteImgPath = \"%s\"" + " where _id = %d;",
+                        TABLE_FAVORITES,  entity.strFavoriteName, entity.strFavoriteDesc, entity.strFavoriteImgPath, entity._id);
 
         mDB.execSQL(strUpdateData);
         return true;
@@ -502,11 +504,13 @@ public class MediaDataBase{
             String strFarovites = "CREATE TABLE IF NOT EXISTS " + TABLE_FAVORITES + " (\n" +
                     " _id integer PRIMARY KEY AUTOINCREMENT,\n" +
                     " favoriteName text,\n" +
+                    " favoriteDesc text,\n" +
+                    " favoriteImgPath text,\n" +
                     " favoriteType integer DEFAULT(0)\n" +
                     ");";
             db.execSQL(strFarovites);
 
-            String strDefaultFavorite = "insert into " + TABLE_FAVORITES + " values (null, '我喜欢的单曲'" + ", " + FavoriteEntity.DEFAULT_FAVORITE_TYPE + ");";
+            String strDefaultFavorite = String.format("insert into %s values(null, \"我喜欢的单曲\", \"\", \"\", %d);",TABLE_FAVORITES,FavoriteEntity.DEFAULT_FAVORITE_TYPE);
             db.execSQL(strDefaultFavorite);
         }
 

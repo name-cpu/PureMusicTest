@@ -85,9 +85,14 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
         }
     };
 
-    private LocalBaseMediaLayout.IFragmentInitListener mSubFragmentListener= new LocalBaseMediaLayout.IFragmentInitListener() {
+    private LocalBaseMediaLayout.ILocalBaseListener mSubFragmentListener= new LocalBaseMediaLayout.ILocalBaseListener() {
         @Override
         public void onFragmentInitFinish(LinearLayout fragment) {
+
+        }
+
+        @Override
+        public void onMoreOperClick(LocalBaseMediaLayout layout, int flag, Object obj) {
 
         }
     };
@@ -182,10 +187,7 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
     }
 
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        mAllSongFragement.initAdapterData();
-        mSongFolderFragement.initAdapterData();
-        mArtistFragement.initAdapterData();
-        mAlbumFragement.initAdapterData();
+
     }
 
     public void onDestory(){
@@ -202,6 +204,10 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
         mSongFolderFragement.onResume();
         mArtistFragement.onResume();
         mAlbumFragement.onResume();
+        mAllSongFragement.initAdapterData();
+        mSongFolderFragement.initAdapterData();
+        mArtistFragement.initAdapterData();
+        mAlbumFragement.initAdapterData();
     }
 
     public void onPause() {

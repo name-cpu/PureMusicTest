@@ -18,6 +18,7 @@ import com.example.kaizhiwei.puremusictest.R;
  */
 public class BaseActivty extends Activity implements View.OnClickListener{
     protected TextView tvTitle;
+    protected TextView tvRight;
     private Toast mToast;
 
     @Override
@@ -33,12 +34,22 @@ public class BaseActivty extends Activity implements View.OnClickListener{
         View view = this.getLayoutInflater().inflate(resId, null);
         ll.addView(view);
         tvTitle = (TextView)this.findViewById(R.id.tvTitle);
+        tvRight = (TextView)this.findViewById(R.id.tvRight);
         tvTitle.setOnClickListener(this);
+        tvRight.setOnClickListener(this);
+        tvRight.setVisibility(View.GONE);
     }
 
     public void setTitle(String title){
         if(tvTitle != null){
             tvTitle.setText(title);
+        }
+    }
+
+    public void setRightTest(String title){
+        if(tvRight != null){
+            tvRight.setVisibility(View.VISIBLE);
+            tvRight.setText(title);
         }
     }
 
@@ -67,6 +78,9 @@ public class BaseActivty extends Activity implements View.OnClickListener{
     @Override
     public void onClick(View v) {
         if(tvTitle == v){
+            onActictyFinish();
+        }
+        else if(tvRight == v){
             onActictyFinish();
         }
     }

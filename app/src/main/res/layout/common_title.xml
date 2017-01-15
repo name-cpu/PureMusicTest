@@ -25,7 +25,8 @@
             android:paddingLeft="10dp"
             android:maxLines="1"
             android:focusableInTouchMode="true"
-            android:hint="输入关键字,快速搜索"/>
+            android:hint="输入关键字,快速搜索"
+            android:textCursorDrawable="@drawable/color_cursor"/>
         <TextView
             android:id="@+id/tvCancel"
             android:layout_marginLeft="10dp"
@@ -76,5 +77,16 @@
             android:layout_toLeftOf="@id/ivScan"
             android:visibility="gone"
             android:scaleType="fitCenter"/>
+
+        <TextView
+            android:id="@+id/tvRight"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:text="保存"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:layout_marginRight="10dp"/>
     </RelativeLayout>
 </RelativeLayout>

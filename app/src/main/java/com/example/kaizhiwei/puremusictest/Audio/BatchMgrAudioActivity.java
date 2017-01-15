@@ -3,6 +3,7 @@ package com.example.kaizhiwei.puremusictest.Audio;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ListView;
@@ -13,6 +14,7 @@ import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
+import com.r0adkll.slidr.Slidr;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,11 +57,21 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
                 return;
 
             handleDeleteMedia(listMediaEntity, isDeleteFile);
+            finish();
         }
     };
 
+    private boolean mRightBtnIsDelete = true;
+    private boolean mRightBtnIsRemove = false;
+    private long mFavoriteId = -1;
     private PlaybackService.Client mClient = null;
     private PlaybackService mService;
+    private Handler mHandler = new Handler();
+
+    public static final String INTENT_LIST_DATA = "INTENT_LIST_DATA";
+    public static final String INTENT_RIGHTBTNISDELETE = "INTENT_RIGHTBTNISDELETE";     //显示删除按钮
+    public static final String INTENT_RIGHTBTNISREMOVE = "INTENT_RIGHTBTNISREMOVE";     //显示移除收藏按钮
+    public static final String INTENT_FAVORITEID = "INTENT_FAVORITEID";                 //收藏夹ID号
 
     @Override
     public void onConnected(PlaybackService service) {
@@ -90,6 +102,7 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
         mtvDelete.setPressedBackgroundColor(getResources().getColor(R.color.delete_btn_pressed_color));
         initData();
         mClient = new PlaybackService.Client(this, this);
+        Slidr.attach(this);
     }
 
     public void onStart() {
@@ -103,8 +116,20 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
     }
 
     private void initData(){
+        Intent intent = getIntent();
+        List<MediaEntity> list = (ArrayList<MediaEntity>)intent.getSerializableExtra(INTENT_LIST_DATA);
+        mRightBtnIsDelete = intent.getBooleanExtra(INTENT_RIGHTBTNISDELETE, true);
+        mRightBtnIsRemove = intent.getBooleanExtra(INTENT_RIGHTBTNISREMOVE, false);
+        mFavoriteId = intent.getLongExtra(INTENT_FAVORITEID, -1);
+
         List<BatchMgrAudioAdapter.BatchMgrAudioItemData> listAdapterData = new ArrayList<>();
-        List<MediaEntity> listMediaEntity = MediaLibrary.getInstance().getAllMediaEntrty();
+        List<MediaEntity> listMediaEntity = new ArrayList<>();
+        if(list == null){
+            listMediaEntity = MediaLibrary.getInstance().getAllMediaEntrty();
+        }
+        else{
+            listMediaEntity.addAll(list);
+        }
         for(int i = 0;i < listMediaEntity.size();i++){
             BatchMgrAudioAdapter.BatchMgrAudioItemData itemData = new BatchMgrAudioAdapter.BatchMgrAudioItemData();
             itemData.isSelected = false;
@@ -149,7 +174,13 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
             dialogFavorite.setTitle("添加到歌单");
         }
         else if(v == mtvDelete){
-            showDeleteAlterDialog(this, listChecked,"确定删除所选的" + listChecked.size() + "首歌曲吗?", true);
+            if(mRightBtnIsDelete){
+                showDeleteAlterDialog(this, listChecked,"确定删除所选的" + listChecked.size() + "首歌曲吗?", true);
+            }
+            if(mRightBtnIsRemove){
+                handleRemoveFromFavorite(listChecked);
+                finish();
+            }
         }
     }
 
@@ -166,10 +197,18 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
         mtvAddTo.setText(strAddTo);
 
         String strDelete = "";
-        if(listChecked.size() == 0)
-            strDelete = "删除";
-        else
-            strDelete = String.format("删除(%d)", listChecked.size());
+        if(mRightBtnIsDelete){
+            if(listChecked.size() == 0)
+                strDelete = "删除";
+            else
+                strDelete = String.format("删除(%d)", listChecked.size());
+        }
+        if(mRightBtnIsRemove){
+            if(listChecked.size() == 0)
+                strDelete = "移出列表";
+            else
+                strDelete = String.format("移出列表(%d)", listChecked.size());
+        }
         mtvDelete.setText(strDelete);
     }
 
@@ -194,59 +233,108 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
         mAlertDialogDeleteOne.setTitle(strTitle);
     }
 
-    public void handleDeleteMedia(List<MediaEntity> listMediaEntity, boolean isDeleteFile){
+    private void handleRemoveFromFavorite(final List<MediaEntity> listMediaEntity){
         if(listMediaEntity == null || mService == null)
             return;
 
-        //是否包含正在播放的歌曲
-        boolean isContainPlaying = false;
-        MediaEntity curMediaEntity = null;
-        curMediaEntity = mService.getCurrentMedia();
-
-        int successNum = 0;
-        for(int i = 0;i < listMediaEntity.size();i++){
-            MediaEntity entity = listMediaEntity.get(i);
-            if(entity == null || entity._id < 0)
-                continue;
-
-            if(isDeleteFile){
-                File file = new File(entity._data);
-                if(file.exists()){
-                    boolean bRet = file.delete();
-                    if(bRet)
-                      successNum++;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int successNum = 0;
+                boolean bRet = false;
+                for(int i = 0;i < listMediaEntity.size();i++){
+                    bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(listMediaEntity.get(i)._id, mFavoriteId);
+                    if(bRet){
+                        successNum++;
+                    }
                 }
-            }
-            else{
-                successNum++;
-            }
 
-            if(curMediaEntity != null){
-                if(curMediaEntity._id == entity._id){
-                    isContainPlaying = true;
+                final int finalSuccessNum = successNum;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        String strPromt = "";
+                        if(finalSuccessNum == 0){
+                            strPromt = "移除失败";
+                        }
+                        else if(finalSuccessNum < listMediaEntity.size()){
+                            strPromt = String.format("%d移除成功,%d移除失败", finalSuccessNum, listMediaEntity.size()- finalSuccessNum);
+                        }
+                        else{
+                            strPromt = "移除成功";
+                        }
+                        Toast.makeText(BatchMgrAudioActivity.this, strPromt, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void handleDeleteMedia(final List<MediaEntity> listMediaEntity, final boolean isDeleteFile){
+        if(listMediaEntity == null || mService == null)
+            return;
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                //是否包含正在播放的歌曲
+                boolean isContainPlaying = false;
+                MediaEntity curMediaEntity = null;
+                curMediaEntity = mService.getCurrentMedia();
+                int successNum = 0;
+                for(int i = 0;i < listMediaEntity.size();i++){
+                    MediaEntity entity = listMediaEntity.get(i);
+                    if(entity == null || entity._id < 0)
+                        continue;
+
+                    if(isDeleteFile){
+                        File file = new File(entity._data);
+                        if(file.exists()){
+                            boolean bRet = file.delete();
+                            if(bRet)
+                                successNum++;
+                        }
+                    }
+                    else{
+                        successNum++;
+                    }
+
+                    if(curMediaEntity != null){
+                        if(curMediaEntity._id == entity._id){
+                            isContainPlaying = true;
+                        }
+                    }
                 }
+
+                mService.mutilDeleteMediaByList(listMediaEntity);
+                MediaLibrary.getInstance().mutilRemoveMediaEntity(listMediaEntity);
+
+                final int finalSuccessNum = successNum;
+                final boolean finalIsContainPlaying = isContainPlaying;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        String strPromt = "";
+                        if(finalSuccessNum == 0){
+                            strPromt = "删除失败";
+                        }
+                        else if(finalSuccessNum < listMediaEntity.size()){
+                            strPromt = "删除部分成功,部分失败";
+                        }
+                        else{
+                            strPromt = "删除成功";
+                        }
+                        Toast.makeText(BatchMgrAudioActivity.this, strPromt, Toast.LENGTH_SHORT).show();
+
+                        if(finalIsContainPlaying && mService != null){
+                            mService.reCalNextPlayIndex();
+                        }
+                        initData();
+                        updateUI();
+                    }
+                });
             }
-        }
-
-        mService.mutilDeleteMediaByList(listMediaEntity);
-        MediaLibrary.getInstance().mutilRemoveMediaEntity(listMediaEntity);
-
-        String strPromt = "";
-        if(successNum == 0){
-            strPromt = "删除失败";
-        }
-        else if(successNum < listMediaEntity.size()){
-            strPromt = "删除部分成功,部分失败";
-        }
-        else{
-            strPromt = "删除成功";
-        }
-        Toast.makeText(this, strPromt, Toast.LENGTH_SHORT).show();
-
-        if(isContainPlaying && mService != null){
-            mService.reCalNextPlayIndex();
-        }
-        initData();
-        updateUI();
+        }).start();
     }
 }

@@ -108,13 +108,32 @@ public class LocalMusicMainFragment extends Fragment implements View.OnClickList
         }
     }
 
-    @CallSuper
-    public void onResume() {
-        super.onResume();
+    public void updateData(){
         if(favoriteLayout != null){
             favoriteLayout.setFavoriteEntityData(MediaLibrary.getInstance().getAllFavoriteEntity());
             favoriteLayout.show();
         }
+    }
+
+    @CallSuper
+    public void onResume() {
+        super.onResume();
+        updateData();
+    }
+
+    public void onPause() {
+        super.onPause();
+        //lbmLayout.onPause();
+    }
+
+    public void onStart() {
+        super.onStart();
+        //lbmLayout.onStart();
+    }
+
+    public void onStop() {
+        super.onStop();
+        //lbmLayout.onStop();
     }
 
     @Override

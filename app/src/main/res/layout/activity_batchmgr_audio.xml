@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:weightSum="1"
@@ -13,31 +13,22 @@
         android:text="全选"
         android:paddingLeft="10dp"
         android:layout_marginLeft="10dp"
+        android:textColor="@color/black"
+        android:textSize="@dimen/large_text_size"
         android:drawablePadding="10dp"/>
 
     <View
         android:id="@+id/viewSepratorLine"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/listviewSeperatorLineColor" />
-
-    <ListView
-        android:id="@+id/lvBatchMgr"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:divider="@android:color/transparent">
-    </ListView>
-
-    <View
-        android:id="@+id/viewSepratorLine2"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/listviewSeperatorLineColor" />
+        android:background="@color/listviewSeperatorLineColor"
+        android:layout_below="@id/ckCheckAll"/>
 
     <RelativeLayout
+        android:id="@+id/rlBtn"
         android:layout_width="match_parent"
-        android:layout_height="70dp">
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true">
         <com.example.kaizhiwei.puremusictest.CommonUI.MyTextView
             android:id="@+id/mtvAddTo"
             android:layout_width="150dp"
@@ -58,4 +49,27 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="20dp"/>
     </RelativeLayout>
-</LinearLayout>
+
+    <View
+        android:id="@+id/viewSepratorLine2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/listviewSeperatorLineColor"
+        android:layout_above="@id/rlBtn"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/viewSepratorLine"
+        android:layout_above="@id/viewSepratorLine2">
+        <ListView
+            android:id="@+id/lvBatchMgr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="@android:color/transparent"
+            android:cacheColorHint="@android:color/transparent">
+        </ListView>
+    </FrameLayout>
+
+
+</RelativeLayout>

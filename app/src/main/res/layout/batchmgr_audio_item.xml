@@ -15,9 +15,10 @@
             android:drawablePadding="5dp"
             android:paddingLeft="10dp"
             android:layout_centerVertical="true"
-            android:textColor="@color/mainTextColor"
+            android:textColor="@color/black"
             android:maxLines="1"
             android:ellipsize="end"
+            android:textSize="@dimen/large_text_size"
             style="@style/DefaultCheckbox" />
 
         <View
