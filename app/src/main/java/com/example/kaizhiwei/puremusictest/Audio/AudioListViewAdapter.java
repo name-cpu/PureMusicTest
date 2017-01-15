@@ -62,7 +62,11 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
     private String mSearchKey;
     private Context mContext;
     private Map<IAudioListViewListener, Object> mMapListener;
-    private boolean mIsShowHeader;
+    private boolean mIsShowOperBar = true;
+    private boolean mIsShowIndex = true;
+    private boolean mIsShowFooter = true;
+    private static final int VIEW_TYPE_COUNT = 4;
+
     private int mListViewItemTypeCount;
     private String mFilterFolder;
     private String mFilterArtist;
@@ -72,7 +76,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         public static final int TYPE_MEDIA = 0;
         public static final int TYPE_FOOTER = 1;
         public static final int TYPE_OPERBAR = 2;
-        public static final int TYPE_HEADER = 3;
+        public static final int TYPE_INDEX = 3;
 
         public long id;
         public int mItemType;
@@ -119,20 +123,30 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         }
     }
 
-    public AudioListViewAdapter(Context context, int adapterType, boolean isShowHeader){
-
+    public AudioListViewAdapter(Context context, int adapterType, boolean isShowIndex){
         mContext = context;
         mAdapterType = adapterType;
         mListItemData = new ArrayList<>();
         mMapListener = new HashMap<>();
-        mIsShowHeader = isShowHeader;
+        mIsShowIndex = isShowIndex;
 
-        if(mAdapterType == ADAPTER_TYPE_ALLSONG && mIsShowHeader)
-            mListViewItemTypeCount = 4;
-        else if(mAdapterType == ADAPTER_TYPE_ALLSONG && !mIsShowHeader)
-            mListViewItemTypeCount = 3;
+        mListViewItemTypeCount = VIEW_TYPE_COUNT;
+        if(mAdapterType == ADAPTER_TYPE_ALLSONG)
+        {
+            if(mIsShowIndex == false){
+                mListViewItemTypeCount--;
+            }
+        }
         else
             mListViewItemTypeCount = 2;
+    }
+
+    public void setShowOperBar(boolean isShow){
+        mIsShowOperBar = isShow;
+    }
+
+    public void setShowFooter(boolean isShow){
+        mIsShowFooter = isShow;
     }
 
     public void initData(List<MediaEntity> list){
@@ -155,9 +169,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                     continue;
 
                 String strFirstLetter = "";
-                if(mIsShowHeader){
-                    strFirstLetter = entrty.title_letter;
-                }
+                strFirstLetter = entrty.title_letter;
 
                 if(TextUtils.isEmpty(strFirstLetter)) {
                     strFirstLetter = "#";
@@ -181,9 +193,9 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                     if(entrty == null)
                         continue ;
 
-                    if(i == 0 && mIsShowHeader){
+                    if(i == 0 && mIsShowIndex){
                         AudioSongItemData itemCategory = new AudioSongItemData();
-                        itemCategory.mItemType = AudioItemData.TYPE_HEADER;
+                        itemCategory.mItemType = AudioItemData.TYPE_INDEX;
                         itemCategory.mSeparatorTitle = key;
                         mListItemData.add(itemCategory);
                     }
@@ -221,15 +233,19 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             }
 
             if(mListItemData.size() > 0){
-                //添加操作栏
-                AudioSongItemData operBarData = new AudioSongItemData();
-                operBarData.mItemType = AudioItemData.TYPE_OPERBAR;
-                mListItemData.add(0, operBarData);
+                if(mIsShowOperBar){
+                    //添加操作栏
+                    AudioSongItemData operBarData = new AudioSongItemData();
+                    operBarData.mItemType = AudioItemData.TYPE_OPERBAR;
+                    mListItemData.add(0, operBarData);
+                }
 
-                //添加footer
-                AudioSongItemData footerData = new AudioSongItemData();
-                footerData.mItemType = AudioItemData.TYPE_FOOTER;
-                mListItemData.add(footerData);
+                if(mIsShowFooter){
+                    //添加footer
+                    AudioSongItemData footerData = new AudioSongItemData();
+                    footerData.mItemType = AudioItemData.TYPE_FOOTER;
+                    mListItemData.add(footerData);
+                }
             }
         }
         else if(mAdapterType == ADAPTER_TYPE_FOLDER){
@@ -274,10 +290,12 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             }
 
             if(mListItemData.size() > 0){
-                //添加footer
-                AudioFolderItemData footerData = new AudioFolderItemData();
-                footerData.mItemType = AudioItemData.TYPE_FOOTER;
-                mListItemData.add(footerData);
+                if(mIsShowFooter){
+                    //添加footer
+                    AudioFolderItemData footerData = new AudioFolderItemData();
+                    footerData.mItemType = AudioItemData.TYPE_FOOTER;
+                    mListItemData.add(footerData);
+                }
             }
         }
         else if(mAdapterType == ADAPTER_TYPE_ARTIST || mAdapterType == ADAPTER_TYPE_ALBUM){
@@ -329,10 +347,12 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             }
 
             if(mListItemData.size() > 0){
-                //添加footer
-                AudioArtistAlbumItemData footerData = new AudioArtistAlbumItemData();
-                footerData.mItemType = AudioItemData.TYPE_FOOTER;
-                mListItemData.add(footerData);
+                if(mIsShowFooter){
+                    //添加footer
+                    AudioArtistAlbumItemData footerData = new AudioArtistAlbumItemData();
+                    footerData.mItemType = AudioItemData.TYPE_FOOTER;
+                    mListItemData.add(footerData);
+                }
             }
         }
         notifyDataSetChanged();
@@ -478,7 +498,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
 
             for(String key : mapFirstLetter.keySet()) {
                 AudioSongItemData itemCategory = new AudioSongItemData();
-                itemCategory.mItemType = AudioItemData.TYPE_HEADER;
+                itemCategory.mItemType = AudioItemData.TYPE_INDEX;
                 itemCategory.mSeparatorTitle = key;
                 mListSearchResultData.add(itemCategory);
 
@@ -698,7 +718,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 holder.tvArtistAlbumSub.setTextColor(mContext.getResources().getColor(R.color.subTextColor));
             }
         }
-        else if(getItemViewType(position) == AudioItemData.TYPE_HEADER) {
+        else if(getItemViewType(position) == AudioItemData.TYPE_INDEX) {
             AudioListViewAdapterHeaderHolder holder = null;
             if (convertView == null) {
                 View view = inflater.inflate(R.layout.audio_seperator_item, null);

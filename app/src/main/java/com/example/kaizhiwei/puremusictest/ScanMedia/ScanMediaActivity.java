@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import com.example.kaizhiwei.puremusictest.CommonUI.BaseActivty;
 import com.example.kaizhiwei.puremusictest.R;
+import com.r0adkll.slidr.Slidr;
 
 import java.util.ArrayList;
 
@@ -27,7 +28,7 @@ public class ScanMediaActivity extends BaseActivty{
         tvFilterCondition.setOnClickListener(this);
         tvSelectFolder.setOnClickListener(this);
         tvScan.setOnClickListener(this);
-
+        Slidr.attach(this);
         setTitle("扫描歌曲");
     }
 

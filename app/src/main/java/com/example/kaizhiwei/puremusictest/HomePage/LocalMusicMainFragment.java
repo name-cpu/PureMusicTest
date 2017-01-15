@@ -3,8 +3,10 @@ package com.example.kaizhiwei.puremusictest.HomePage;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,7 @@ import android.widget.Toast;
 import com.example.kaizhiwei.puremusictest.Audio.AlertDialogFavorite;
 import com.example.kaizhiwei.puremusictest.Audio.FavoriteListViewAdapter;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyTextView;
+import com.example.kaizhiwei.puremusictest.CommonUI.StatusBarUtil;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
@@ -31,7 +34,7 @@ import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
 /**
  * Created by kaizhiwei on 16/12/16.
  */
-public class Fragment_LocalMusic extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener, AlertDialogFavorite.OnAlterDialogFavoriteListener, FavoriteLayout.IFavoriteOperListener, PlaybackService.Client.Callback {
+public class LocalMusicMainFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener, AlertDialogFavorite.OnAlterDialogFavoriteListener, FavoriteLayout.IFavoriteOperListener, PlaybackService.Client.Callback {
     private RelativeLayout ryLocal;
     private RelativeLayout ryLastPlay;
     private RelativeLayout ryDownload;
@@ -41,18 +44,16 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
     private TextView tvDonwloadSub;
     private TextView tvAddFavorite;
     private MyTextView mtvManageFavorite;
-    private HomeActivity mHomeActivity;
     private ImageView ivPlay;
     private Vibrator vibrator;
     private PlaybackService.Client mClient;
     private PlaybackService mService;
 
-    public Fragment_LocalMusic(){
+    public LocalMusicMainFragment(){
         super();
     }
 
-    public Fragment_LocalMusic(HomeActivity home){
-        mHomeActivity = home;
+    public LocalMusicMainFragment(Context home){
     }
 
     @Override
@@ -67,11 +68,9 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
         ryDownload.setOnClickListener(this);
 
         favoriteLayout = (FavoriteLayout) rootView.findViewById(R.id.favoriteLayout);
-        favoriteLayout.setFavoriteEntityData(MediaLibrary.getInstance().getAllFavoriteEntity());
         favoriteLayout.setMode(FavoriteLayout.READONLY_MODE);
         favoriteLayout.setIsHomePage(true);
         favoriteLayout.setFavoriteLayoutListener(this);
-        favoriteLayout.show();
 
         tvAddFavorite = (TextView) rootView.findViewById(R.id.tvAddFavorite);
         mtvManageFavorite = (MyTextView) rootView.findViewById(R.id.mtvManageFavorite);
@@ -86,6 +85,7 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
 
         tvLocalSub.setText(MediaLibrary.getInstance().getMediaEntitySize() + "首");
         vibrator = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+
         return rootView;
     }
 
@@ -108,10 +108,19 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
         }
     }
 
+    @CallSuper
+    public void onResume() {
+        super.onResume();
+        if(favoriteLayout != null){
+            favoriteLayout.setFavoriteEntityData(MediaLibrary.getInstance().getAllFavoriteEntity());
+            favoriteLayout.show();
+        }
+    }
+
     @Override
     public void onClick(View v) {
         if(v == ryLocal){
-            mHomeActivity.switchToAudioFragment();
+            HomeActivity.getInstance().switchToAudioFragment();
         }
         else if(v == mtvManageFavorite){
             if(favoriteLayout.getMode() == FavoriteListViewAdapter.READONLY_MODE){
@@ -223,6 +232,21 @@ public class Fragment_LocalMusic extends Fragment implements View.OnClickListene
     public void onItemLongClick(FavoriteLayout layout, int position) {
         vibrator.vibrate(30);
         onClick(mtvManageFavorite);
+    }
+
+    @Override
+    public void onItemClick(FavoriteLayout layout, int position) {
+        if(layout == null)
+            return;
+
+        FavoriteEntity  favoriteEntity = (FavoriteEntity)layout.getItem(position);
+        if(favoriteEntity == null)
+            return;
+
+        Bundle bundle = new Bundle();
+        bundle.putLong(FavoriteMainFragment.FAVORITE_ID, favoriteEntity._id);
+        bundle.putString(FavoriteMainFragment.FAVORITE_NAME, favoriteEntity.strFavoriteName);
+        HomeActivity.getInstance().switchToFavoriteFragment(bundle);
     }
 
     @Override

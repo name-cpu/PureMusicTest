@@ -1,8 +1,11 @@
 package com.example.kaizhiwei.puremusictest.MediaData;
 
 import android.net.Uri;
+import android.os.Message;
 import android.text.TextUtils;
 
+import com.example.kaizhiwei.puremusictest.Util.BaseHandler;
+import com.example.kaizhiwei.puremusictest.Util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
 import com.example.kaizhiwei.puremusictest.Util.ExtensionUtil;
 import com.example.kaizhiwei.puremusictest.Util.StringUtil;
@@ -140,18 +143,29 @@ public class MediaLibrary {
     public List<MediaEntity> getAllMediaEntrty(){
 
         if(mMediaEntityList == null || mMediaEntityList.size() == 0){
-            mMediaEntityListLock.writeLock().lock();
-            List<MediaEntity> list = MediaDataBase.getInstance().queryAllMusicInfo();
-            mMediaEntityList.addAll(list);
-            mMediaEntityListLock.writeLock().unlock();
+            getAllFavoriteMusicEntity();
         }
 
-        getAllFavoriteMusicEntity();
         mMediaEntityListLock.readLock().lock();
         List<MediaEntity> newList = new ArrayList<>();
         newList.addAll(mMediaEntityList);
         mMediaEntityListLock.readLock().unlock();
         return newList;
+    }
+
+    public void asyncGetAllMediaEntity(final BaseHandler handler){
+        if(mPool == null || handler == null){
+            return;
+        }
+
+        mPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                List<MediaEntity> list = getAllMediaEntrty();
+                Message msg = handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, list);
+                handler.sendMessage(msg);
+            }
+        });
     }
 
     public int getMediaEntitySize(){

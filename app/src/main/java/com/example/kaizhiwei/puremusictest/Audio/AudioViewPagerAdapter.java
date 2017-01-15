@@ -10,12 +10,12 @@ import java.util.List;
  * Created by kaizhiwei on 16/11/12.
  */
 public class AudioViewPagerAdapter extends PagerAdapter {
-    private List<View>  mListView;
+    private List<View>  mListData;
     private List<String> mListTitle;
 
     public AudioViewPagerAdapter(List<View> list, List<String> listTitle){
         if(list != null)
-            mListView = list;
+            mListData = list;
 
         if(listTitle != null)
             mListTitle = listTitle;
@@ -23,7 +23,7 @@ public class AudioViewPagerAdapter extends PagerAdapter {
 
     @Override
     public int getCount() {
-        return mListView.size();
+        return mListData.size();
     }
 
     @Override
@@ -32,10 +32,10 @@ public class AudioViewPagerAdapter extends PagerAdapter {
     }
 
     public Object instantiateItem(ViewGroup container, int position) {
-        if(position <0 || mListView == null || mListView.size() <= position)
+        if(position <0 || mListData == null || mListData.size() <= position)
             return  null;
 
-        View view = mListView.get(position);
+        View view = mListData.get(position);
         container.addView(view);
         return view;
     }
@@ -51,12 +51,12 @@ public class AudioViewPagerAdapter extends PagerAdapter {
      * {@link #instantiateItem(View, int)}.
      */
     public void destroyItem(ViewGroup container, int position, Object object) {
-        if(position <0 || mListView == null || mListView.size() <= position)
+        if(position <0 || mListData == null || mListData.size() <= position)
             return ;
 
-        View view = mListView.get(position);
+        View view = mListData.get(position);
         container.removeView(view);
-        mListView.remove(position);
+        mListData.remove(position);
     }
 
     public CharSequence getPageTitle(int position) {

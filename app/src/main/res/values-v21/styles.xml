@@ -1,9 +1,108 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="backgroundColor">@color/backgroundColor</item>
+        <item name="mainTextColor">@color/mainTextColor</item>
+        <item name="subTextColor">@color/subTextColor</item>
+        <item name="tabSeperatorLineColor">@color/tabSeperatorLineColor</item>
+        <item name="tabSelectTextColor">@color/tabSelectTextColor</item>
+        <item name="listviewSeperatorLineColor">@color/listviewSeperatorLineColor</item>
+        <item name="common_title_backgroundColor">@color/common_title_backgroundColor</item>
+
+        <!-- Customize your theme here. -->
+        <item name="android:textAllCaps">false</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+
+    </style>
+
+    <style name="PureMusic.Apearance" parent="AppTheme">
+        <item name="tab_background_color">@color/colorPrimary</item>
+        <item name="tab_textColor">@color/colorPrimary</item>
+        <item name="tab_select_text_color">@color/colorPrimary</item>
+        <item name="tab_indicator_text_color">@color/colorPrimary</item>
+
+        <item name="android:windowTranslucentStatus" tools:targetApi="19">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="windowActionBar">false</item>
+
+    </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Dialog" parent="android:style/Theme.Dialog" type="text/css">
+        <!-- 设置无边框 -->
+        <item name="android:windowFrame">@null</item>
+        <item name="android:background">#00000000</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <!-- 设置屏幕变暗 -->
+        <!--<item name="android:backgroundDimEnabled">true</item>-->
+        <item name="android:windowAnimationStyle">@style/ActionSheetDialogAnimation</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+
+    <!-- ActionSheet进出动画 -->
+    <style name="ActionSheetDialogAnimation" parent="@android:style/Animation.Dialog">
+        <item name="android:windowEnterAnimation">@anim/anim_activty_enter</item>
+        <item name="android:windowExitAnimation">@anim/anim_activty_exit</item>
+    </style>
+
+    <style name="DefaultTextView">
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="DefaultMainTextView">
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">@color/mainTextColor</item>
+        <item name="android:textSize">@dimen/default_main_textsize</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="DefaultSubTextView">
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">@color/subTextColor</item>
+        <item name="android:textSize">@dimen/default_sub_textsize</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="DefaultCheckbox" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/check_box_blue_selector</item>
+    </style>
+
+    <style name="LoadingProgressBar">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:background">@drawable/bg_loading</item>
+        <item name="android:paddingLeft">5.0dip</item>
+        <item name="android:paddingTop">2.0dip</item>
+        <item name="android:paddingRight">2.0dip</item>
+        <item name="android:paddingBottom">2.0dip</item>
+        <item name="android:layout_width">41.5dip</item>
+        <item name="android:layout_height">38.5dip</item>
+        <item name="android:indeterminate">true</item>
+        <item name="android:indeterminateOnly">true</item>
+        <item name="android:indeterminateDrawable">@drawable/loading</item>
+        <item name="android:indeterminateDuration">2000</item>
+        <item name="android:indeterminateBehavior">repeat</item>
     </style>
 </resources>

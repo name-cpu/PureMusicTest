@@ -16,6 +16,7 @@ import com.example.kaizhiwei.puremusictest.CommonUI.MyTextView;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
+import com.r0adkll.slidr.Slidr;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,7 @@ public class ScanMediaFilterSetActivity extends BaseActivty implements SelectFol
         ckFolderLessthan60.setChecked(PreferenceConfig.getInstance().getScanFilterByDuration());
         mListFilterFoler = PreferenceConfig.getInstance().getScanFilterByFolderName();
         updateFilterFolderTextView();
+        Slidr.attach(this);
     }
 
     @Override

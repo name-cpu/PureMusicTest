@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
@@ -32,6 +34,7 @@ public class AlertDialogFavorite extends AlertDialog implements View.OnClickList
     public static final int USER_CANCEL = -1;
     public static final int ADD_FAVORITE = 0;
     public static final int MODIFY_FAVORITE = 1;
+    private Handler mHandler = new Handler();
 
     public interface OnAlterDialogFavoriteListener{
         public void OnFinish(AlertDialogFavorite dialog, int operType, String strFavoriteName);
@@ -56,6 +59,10 @@ public class AlertDialogFavorite extends AlertDialog implements View.OnClickList
         tvTitle = (TextView) this.findViewById(R.id.tvTitle);
         btnDelete.setOnClickListener(this);
         btnCancel.setOnClickListener(this);
+
+//        this.getWindow().setFlags(
+//                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM,
+//                WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
     }
 
     public void setOperType(int type){
@@ -67,15 +74,20 @@ public class AlertDialogFavorite extends AlertDialog implements View.OnClickList
             tvTitle.setText("重命名");
             if(mFavoriteEntity != null){
                 etFavoriteName.setText(mFavoriteEntity.strFavoriteName);
+                etFavoriteName.setSelection(mFavoriteEntity.strFavoriteName.length());
+                //etFavoriteName.setInputType(InputType.TYPE_CLASS_TEXT);
+                etFavoriteName.requestFocus();
             }
         }
 
-        //this.getWindow().setBackgroundDrawable(new ColorDrawable(0));
-
-//        //etFavoriteName.requestFocus();
-//        etFavoriteName.requestFocus();
-//        InputMethodManager imm = (InputMethodManager) etFavoriteName.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-//        imm.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
+//        mHandler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                InputMethodManager imm = (InputMethodManager) etFavoriteName.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+//                imm.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
+//                //etFavoriteName.requestFocus();
+//            }
+//        }, 500);
 
         this.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE |
@@ -104,6 +116,10 @@ public class AlertDialogFavorite extends AlertDialog implements View.OnClickList
 
     @Override
     public void onClick(View v) {
+//        InputMethodManager imm = (InputMethodManager) etFavoriteName.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+//        imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+//        etFavoriteName.clearFocus();
+
         if(v == btnCancel){
             if(mListener != null){
                 mListener.OnFinish(this, USER_CANCEL, "");

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:clickable="true"
+    android:id="@+id/rlMain"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:id="@+id/llTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            android:weightSum="1"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
+            <ImageView
+                android:id="@+id/ivBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_title_return"
+                android:layout_gravity="center_vertical"/>
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/app_name"
+                android:textColor="@color/white"
+                android:textSize="@dimen/large_text_size"/>
+
+            <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
+                android:id="@+id/mivEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/btn_edit_playlist_normol"
+                android:layout_gravity="center_vertical"/>
+
+            <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
+                android:id="@+id/mivMoreOper"
+                android:layout_marginLeft="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/btn_menu_more"
+                android:layout_gravity="center_vertical"/>
+        </LinearLayout>
+        <RelativeLayout
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_playlist_default"/>
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:background="@color/backgroundColor"
+        android:id="@+id/llControl"
+        android:layout_below="@id/llTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+        <TextView
+            android:id="@+id/tvPlayAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/btn_online_topic_detail_playall_normal"
+            android:gravity="center"
+            android:drawablePadding="5dp"
+            android:text="播放全部"/>
+
+        <TextView
+            android:id="@+id/tvFavoriteNum"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textColor="@color/subTextColor"
+            android:textSize="@dimen/mini_text_size"
+            android:text="/10首"/>
+
+        <TextView
+            android:id="@+id/tvManager"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/bt_localmusic_edit_nor"
+            android:gravity="center"
+            android:drawablePadding="5dp"
+            android:text="管理"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/viewSepratorLine"
+        android:layout_below="@id/llControl"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/listviewSeperatorLineColor"/>
+
+</RelativeLayout>

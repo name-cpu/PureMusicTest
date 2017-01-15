@@ -17,23 +17,28 @@
     <EditText
         android:id="@+id/etFavoriteName"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:drawablePadding="5dp"
         android:paddingLeft="10dp"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
         android:textColor="@color/subTextColor"
         android:hint="歌单名称"
         android:textColorHint="@color/subTextColor"
         android:inputType="text"
         android:focusable="true"
-        android:textSize="12sp"
-        android:focusableInTouchMode="true"
-        style="@style/DefaultCheckbox" />
+        android:textSize="@dimen/mini_text_size"
+        android:background="@android:color/transparent"
+        android:focusableInTouchMode="true" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/listviewSeperatorLineColor"/>
 
     <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
 
         <TextView
             android:id="@+id/btnDelete"

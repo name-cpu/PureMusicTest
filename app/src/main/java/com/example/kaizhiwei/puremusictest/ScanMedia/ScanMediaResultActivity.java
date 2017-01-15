@@ -12,6 +12,7 @@ import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaScanHelper;
 import com.example.kaizhiwei.puremusictest.R;
 import com.hp.hpl.sparta.Text;
+import com.r0adkll.slidr.Slidr;
 
 import java.util.HashMap;
 
@@ -43,6 +44,7 @@ public class ScanMediaResultActivity extends BaseActivty implements AsyncTaskSca
         setTitle("歌曲扫描中...");
         pbScanProgring.setProgress(0);
         pbScanProgring.setMax(100);
+        Slidr.attach(this);
     }
 
     @Override

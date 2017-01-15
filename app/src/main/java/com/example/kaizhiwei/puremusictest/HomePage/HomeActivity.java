@@ -1,6 +1,7 @@
 package com.example.kaizhiwei.puremusictest.HomePage;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -18,9 +20,9 @@ import android.view.WindowManager;
 
 import com.example.kaizhiwei.puremusictest.Audio.LocalAudioFragment;
 import com.example.kaizhiwei.puremusictest.Audio.NowPlayingLayout;
+import com.example.kaizhiwei.puremusictest.CommonUI.StatusBarUtil;
 import com.example.kaizhiwei.puremusictest.CommonUI.SystemBarTintManager;
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.SlideMenu.BaseSlidingFragmentActivity;
 import com.example.kaizhiwei.puremusictest.SlideMenu.SlidingMenu;
 
 import java.util.ArrayList;
@@ -32,9 +34,14 @@ public class HomeActivity extends FragmentActivity {
     private List<String> mListTitleData;
     private ViewPager mViewPager;
     protected SlidingMenu mSlidingMenu;
-    private LocalAudioFragment mLocalAudioFragment;
 
-    private List<Fragment_LocalMusic> mListFragment;
+    private static HomeActivity mInstance;
+
+    private LocalMusicMainFragment mLocalAudioMainFragment;
+    private LocalAudioFragment mLocalAudioFragment;
+    private FavoriteMainFragment mFavoriteMainFragment;
+
+    private List<LocalMusicMainFragment> mListFragment;
     private FragmentPagerAdapter mFragemtnPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
         @Override
         public Fragment getItem(int position) {
@@ -53,21 +60,25 @@ public class HomeActivity extends FragmentActivity {
         }
     };
 
+    public static HomeActivity getInstance(){
+        return mInstance;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        //getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         //initSlidingMenu();
         setContentView(R.layout.activity_home);
         mViewPager = (ViewPager) this.findViewById(R.id.viewPager);
         mTabLayout = (TabLayout) this.findViewById(R.id.tabLayout);
         initSystemBar();
 
-        mListTitleData = new ArrayList<String>();
+        mListTitleData = new ArrayList<>();
         mListTitleData.add("歌曲");
 
         mListFragment = new ArrayList<>();
-        mListFragment.add(new Fragment_LocalMusic(this));
+        mListFragment.add(new LocalMusicMainFragment(this));
 
         mViewPager.setLongClickable(true);
         //mViewPager.setOnLongClickListener(this);
@@ -88,7 +99,10 @@ public class HomeActivity extends FragmentActivity {
         mTabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         mTabLayout.setTabMode(TabLayout.MODE_FIXED);
         //createFloatView();
+        mInstance = this;
 
+        //StatusBarUtil.setTranslucentForImageView(HomeActivity.this, null);
+        //StatusBarUtil.setTranslucentForImageView(HomeActivity.this, 0, null);
     }
 
     private void initSlidingMenu() {
@@ -190,28 +204,90 @@ public class HomeActivity extends FragmentActivity {
         if(mLocalAudioFragment == null){
             mLocalAudioFragment = new LocalAudioFragment();
         }
-        //mSlidingMenu.showMenu(true);
         FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
-        getFragmentManager().executePendingTransactions();
+        //getFragmentManager().executePendingTransactions();
         if(mLocalAudioFragment.isAdded() == false){
             transaction.add(R.id.flContent, mLocalAudioFragment);
         }
         else{
             transaction.show(mLocalAudioFragment);
         }
+
+        if(mLocalAudioMainFragment != null){
+            transaction.hide(mLocalAudioMainFragment);
+        }
+
+        if(mFavoriteMainFragment != null){
+            transaction.hide(mFavoriteMainFragment);
+        }
         //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
-        transaction.addToBackStack(null);
+        transaction.addToBackStack("mLocalAudioFragment");
         transaction.commit();
+        getSupportFragmentManager().executePendingTransactions();
+    }
+
+
+    public void switchToFavoriteFragment(Bundle bundle ){
+//        if(mFavoriteMainFragment == null){
+//            mFavoriteMainFragment = new FavoriteMainFragment();
+//        }
+
+        mFavoriteMainFragment = new FavoriteMainFragment();
+        FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
+        //getFragmentManager().executePendingTransactions();
+        if(mFavoriteMainFragment.isAdded() == false){
+            transaction.add(R.id.flContent, mFavoriteMainFragment);
+        }
+        else{
+            transaction.show(mFavoriteMainFragment);
+        }
+        mFavoriteMainFragment.setArguments(bundle);
+        if(mLocalAudioMainFragment != null){
+            transaction.hide(mLocalAudioMainFragment);
+        }
+
+        if(mLocalAudioFragment != null){
+            transaction.hide(mLocalAudioFragment);
+        }
+        //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
+        transaction.addToBackStack("mFavoriteMainFragment");
+        transaction.commit();
+        getSupportFragmentManager().executePendingTransactions();
+//        Intent intent = new Intent(HomeActivity.this, TestActivity.class);
+//        startActivity(intent);
+    }
+
+
+    public void switchToLocalMusicMain(){
+        mLocalAudioMainFragment = (LocalMusicMainFragment) this.getSupportFragmentManager().findFragmentByTag("mLocalAudioMainFragment");
+        if(mLocalAudioMainFragment == null){
+            mLocalAudioMainFragment = new LocalMusicMainFragment();
+        }
+        FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
+        if(mLocalAudioMainFragment.isAdded() == false){
+            transaction.add(R.id.flContent, mLocalAudioMainFragment);
+        }
+        else{
+            transaction.show(mLocalAudioMainFragment);
+        }
+
+        if(mLocalAudioFragment != null){
+            transaction.hide(mLocalAudioFragment);
+        }
+
+        if(mFavoriteMainFragment != null){
+            transaction.hide(mFavoriteMainFragment);
+        }
+        //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
+        transaction.addToBackStack("mLocalAudioMainFragment");
+        transaction.commitAllowingStateLoss();
+        getSupportFragmentManager().executePendingTransactions();
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         // TODO Auto-generated method stub
-        if(mLocalAudioFragment != null){
-            boolean bRet = mLocalAudioFragment.onKeyDown(keyCode, event);
-            if(bRet)
-                return true;
-        }
+
         return super.onKeyDown(keyCode, event);
     }
 }

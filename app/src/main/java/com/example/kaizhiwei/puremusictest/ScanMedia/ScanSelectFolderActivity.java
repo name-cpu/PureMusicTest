@@ -9,6 +9,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import com.example.kaizhiwei.puremusictest.CommonUI.BaseActivty;
 import com.example.kaizhiwei.puremusictest.R;
+import com.r0adkll.slidr.Slidr;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +45,7 @@ public class ScanSelectFolderActivity extends BaseActivty implements SelectFolde
         ckCheckAll.setChecked(false);
         mCurParentDir = HIGNEST_DIR;
         initData();
+        Slidr.attach(this);
     }
 
     private void initData(){

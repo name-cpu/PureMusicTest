@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Created by kaizhiwei on 16/12/18.
  */
-public class FavoriteLayout extends LinearLayout implements View.OnClickListener, View.OnLongClickListener {
+public class FavoriteLayout extends LinearLayout{
     private List<FavoriteEntity> mFavoriteListData;
     private List<View> mFavoriteItemView;
     private Context mContext;
@@ -29,38 +29,13 @@ public class FavoriteLayout extends LinearLayout implements View.OnClickListener
     private boolean mIsHomePage;
     public static final int EDIT_MODE = 0;
     public static final int READONLY_MODE = 1;
-    private int Modify_Flag = 1000;
-    private int Delete_Flag = 2000;
     private IFavoriteOperListener mListener;
-
-    @Override
-    public void onClick(View v) {
-        if(mListener == null)
-            return;
-
-        int tag = (int)v.getTag() - Delete_Flag;
-        if(tag >= 0){
-            mListener.onDeleteClick(this, tag);
-        }
-        else{
-            mListener.onModifyClick(this, tag + Delete_Flag - Modify_Flag);
-        }
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        if(v == null || v.getTag() == null || mListener == null)
-            return true;
-
-        FavoriteLayoutHolder holder = (FavoriteLayoutHolder)v.getTag();
-        mListener.onItemLongClick(this, holder.position);
-        return true;
-    }
 
     public interface IFavoriteOperListener{
         void onModifyClick(FavoriteLayout layout, int position);
         void onDeleteClick(FavoriteLayout layout, int position);
         void onItemLongClick(FavoriteLayout layout, int position);
+        void onItemClick(FavoriteLayout layout, int position);
     }
 
     public FavoriteLayout(Context context) {
@@ -136,6 +111,9 @@ public class FavoriteLayout extends LinearLayout implements View.OnClickListener
     }
 
     public void show(){
+        if(mFavoriteListData == null)
+            return;
+
         FavoriteEntity addOne = new FavoriteEntity();
         addOne.favoriteType = FavoriteEntity.DEFAULT_ADDONE_TYPE;
         addOne._id = -1;
@@ -228,7 +206,7 @@ public class FavoriteLayout extends LinearLayout implements View.OnClickListener
         return mFavoriteListData.get(position);
     }
 
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         if(mFavoriteListData == null || position >= mFavoriteListData.size())
             return null;
 
@@ -241,9 +219,43 @@ public class FavoriteLayout extends LinearLayout implements View.OnClickListener
             View view = inflater.inflate(R.layout.favorite_dialog_item, null);
             view.setBackgroundResource(R.color.backgroundColor);
             holder = new FavoriteLayoutHolder(view);
-            holder.ibBtnEdit.setOnClickListener(this);
-            holder.ibBtnDelete.setOnClickListener(this);
-            view.setOnLongClickListener(this);
+            holder.ibBtnEdit.setOnClickListener(new View.OnClickListener(){
+
+                @Override
+                public void onClick(View v) {
+                    if(mListener != null)
+                    mListener.onDeleteClick(FavoriteLayout.this, position);
+                }
+            });
+
+            holder.ibBtnDelete.setOnClickListener(new View.OnClickListener(){
+
+                @Override
+                public void onClick(View v) {
+                    if(mListener != null)
+                        mListener.onDeleteClick(FavoriteLayout.this, position);
+                }
+            });
+
+            view.setOnLongClickListener(new View.OnLongClickListener(){
+
+                @Override
+                public boolean onLongClick(View v) {
+                    if(mListener != null){
+                        mListener.onItemLongClick(FavoriteLayout.this, position);
+                    }
+                    return false;
+                }
+            });
+            view.setOnClickListener(new View.OnClickListener(){
+
+                @Override
+                public void onClick(View v) {
+                    if(mListener != null)
+                        mListener.onItemClick(FavoriteLayout.this, position);
+                }
+            });
+
             view.setTag(holder);
             convertView = view;
         }
@@ -252,8 +264,6 @@ public class FavoriteLayout extends LinearLayout implements View.OnClickListener
         }
 
         holder.setPosition(position);
-        holder.ibBtnEdit.setTag(position + Modify_Flag);
-        holder.ibBtnDelete.setTag(position + Delete_Flag);
         holder.tvFavoriteMain.setTextColor(mContext.getResources().getColor(R.color.mainTextColor));
         holder.tvFavoriteSub.setTextColor(mContext.getResources().getColor(R.color.subTextColor));
         holder.tvFavoriteMain.setText(entity.strFavoriteName);

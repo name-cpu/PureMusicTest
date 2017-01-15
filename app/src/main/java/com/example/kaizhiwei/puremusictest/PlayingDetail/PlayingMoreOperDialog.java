@@ -1,13 +1,18 @@
 package com.example.kaizhiwei.puremusictest.PlayingDetail;
 
+import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -29,6 +34,7 @@ import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.Util.FastBlur;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,6 +112,7 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
         super(context);
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -143,6 +150,10 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
         sbVolume.setMax(mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
         sbVolume.setProgress(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
         mLastVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+        Bitmap bitmap = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.bg_gedancover);
+        Drawable drawable = FastBlur.BoxBlurFilter(bitmap);
+        rlContent.setBackground(drawable);
     }
 
     private void initData(){

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <com.example.kaizhiwei.puremusictest.Audio.AudioListView
+        android:id="@+id/lvAllSong"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbarStyle="outsideOverlay"
+        android:background="@drawable/default_back"
+        android:scrollbarThumbVertical="@drawable/scrollbar_vertical_thumb"
+        android:scrollbarSize="5dp"
+        android:scrollbars="vertical"
+        android:visibility="visible"/>
+
+    <RelativeLayout
+        android:id="@+id/rlLoading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:background="@color/backgroundColor"
+        android:visibility="gone">
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/view_loading"
+            style="@style/LoadingProgressBar"
+            android:layout_centerInParent="true"/>
+        <TextView
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="音乐马上回来"
+            android:textColor="@color/subTextColor"
+            android:layout_below="@id/view_loading"
+            android:gravity="center"
+            android:textSize="13sp"/>
+    </RelativeLayout>
+</LinearLayout>
