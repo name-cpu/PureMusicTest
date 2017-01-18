@@ -1,233 +1,236 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:scrollbars="none"
-    android:fillViewport="false">
+    android:background="@color/white">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical" android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical" android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scaleType="fitXY"
-            android:src="@drawable/skin_default_preview_pic_up"/>
-
-        <LinearLayout
-            android:id="@+id/llContent"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <RelativeLayout
-                android:id="@+id/ryLocal"
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:gravity="center_vertical"
-                android:paddingLeft="15dp"
-                android:paddingRight="15dp"
-                android:background="@drawable/default_selector">
-                <ImageView
-                    android:id="@+id/ivIcon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:layout_centerVertical="true"
-
-                    android:src="@drawable/ic_mymusic_local_normal"/>
-
-                <TextView
-                    android:id="@+id/tvLocalMain"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    style="@style/DefaultMainTextView"
-                    android:layout_toRightOf="@id/ivIcon"
-                    android:layout_marginLeft="10dp"
-                    android:textSize="14sp"
-                    android:text="本地音乐" />
-
-                <TextView
-                    android:id="@+id/tvLocalSub"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textColor="@color/subTextColor"
-                    android:layout_marginLeft="10dp"
-                    android:textSize="12sp"
-                    android:text="本地音乐"
-                    android:layout_toRightOf="@id/tvLocalMain"
-                    android:gravity="center_vertical"/>
-
-                <ImageView
-                    android:id="@+id/ivPlay"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/bt_localmusic_play_nor"
-                    android:gravity="center_vertical"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="12dp"
-                    android:layout_alignParentRight="true"/>
-
-                <View android:layout_width="wrap_content"
-                    android:layout_height="1dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginLeft="35dp"
-                    android:layout_marginRight="15dp"
-                    android:background="@color/more_oper_dialog_seperator_line"/>
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/ryLastPlay"
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:gravity="center_vertical"
-                android:paddingLeft="15dp"
-                android:paddingRight="15dp"
-                android:background="@drawable/default_selector">
-                <ImageView
-                    android:id="@+id/ivIconLastPlay"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/ic_mymusic_play_normal"/>
-
-                <TextView
-                    android:id="@+id/tvLastPlayMain"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    style="@style/DefaultMainTextView"
-                    android:text="最近播放"
-                    android:layout_toRightOf="@id/ivIconLastPlay"
-                    android:layout_marginLeft="10dp"
-                    android:textSize="14sp"/>
-
-                <TextView
-                    android:id="@+id/tvLastPlaySub"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textColor="@color/subTextColor"
-                    android:layout_marginLeft="10dp"
-                    android:textSize="12sp"
-                    android:text="0首"
-                    android:layout_toRightOf="@id/tvLastPlayMain"
-                    android:gravity="center_vertical"/>
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_songlist_detail_nor"
-                    android:gravity="center_vertical"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentRight="true"/>
-
-                <View android:layout_width="wrap_content"
-                    android:layout_height="1dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginLeft="35dp"
-                    android:layout_marginRight="15dp"
-                    android:background="@color/more_oper_dialog_seperator_line"/>
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/ryDownload"
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:gravity="center_vertical"
-                android:paddingLeft="15dp"
-                android:paddingRight="15dp"
-                android:background="@drawable/default_selector">
-                <ImageView
-                    android:id="@+id/ivIconDownload"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/ic_mymusic_download_normal"/>
-
-                <TextView
-                    android:id="@+id/tvDonwloadMain"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="我的下载"
-                    style="@style/DefaultMainTextView"
-                    android:layout_toRightOf="@id/ivIconDownload"
-                    android:layout_marginLeft="10dp"
-                    android:textSize="14sp"/>
-
-                <TextView
-                    android:id="@+id/tvDonwloadSub"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textColor="@color/subTextColor"
-                    android:layout_marginLeft="10dp"
-                    android:textSize="12sp"
-                    android:text="0首"
-                    android:layout_toRightOf="@id/tvDonwloadMain"
-                    android:gravity="center_vertical"/>
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_songlist_detail_nor"
-                    android:gravity="center_vertical"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentRight="true"/>
-            </RelativeLayout>
-
-            <View android:layout_width="wrap_content"
-                android:layout_height="1dp"
-                android:layout_alignParentBottom="true"
-                android:background="@color/more_oper_dialog_seperator_line"/>
-
-            <LinearLayout android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:orientation="horizontal"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:weightSum="1">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:textColor="@color/mainTextColor"
-                    android:text="自建歌单"
-                    android:textSize="14sp"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"/>
-
-                <TextView
-                    android:id="@+id/tvAddFavorite"
-                    android:layout_width="40dp"
-                    android:layout_height="25dp"
-                    android:textColor="@color/subTextColor"
-                    android:text="新建"
-                    android:textSize="@dimen/mini_text_size"
-                    android:layout_marginRight="15dp"
-                    android:gravity="center"/>
-
-                <com.example.kaizhiwei.puremusictest.CommonUI.MyTextView
-                    android:id="@+id/mtvManageFavorite"
-                    android:layout_width="40dp"
-                    android:layout_height="25dp"
-                    android:textColor="@color/subTextColor"
-                    android:text="管理"
-                    android:textSize="@dimen/mini_text_size"
-                    android:gravity="center"
-                    android:layout_marginRight="12dp" />
-            </LinearLayout>
-
-            <View android:layout_width="wrap_content"
-                android:layout_height="1dp"
-                android:layout_alignParentBottom="true"
-                android:background="@color/more_oper_dialog_seperator_line"/>
-
-            <com.example.kaizhiwei.puremusictest.HomePage.FavoriteLayout
-                android:id="@+id/favoriteLayout"
+            <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center">
-            </com.example.kaizhiwei.puremusictest.HomePage.FavoriteLayout>
+                android:scaleType="fitXY"
+                android:src="@drawable/skin_default_preview_pic_up"/>
+
+            <LinearLayout
+                android:id="@+id/llContent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <RelativeLayout
+                    android:id="@+id/ryLocal"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:background="@drawable/default_selector">
+                    <ImageView
+                        android:id="@+id/ivIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:layout_centerVertical="true"
+
+                        android:src="@drawable/ic_mymusic_local_normal"/>
+
+                    <TextView
+                        android:id="@+id/tvLocalMain"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        style="@style/DefaultMainTextView"
+                        android:layout_toRightOf="@id/ivIcon"
+                        android:layout_marginLeft="10dp"
+                        android:textSize="14sp"
+                        android:text="本地音乐" />
+
+                    <TextView
+                        android:id="@+id/tvLocalSub"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textColor="@color/subTextColor"
+                        android:layout_marginLeft="10dp"
+                        android:textSize="12sp"
+                        android:text="本地音乐"
+                        android:layout_toRightOf="@id/tvLocalMain"
+                        android:gravity="center_vertical"/>
+
+                    <ImageView
+                        android:id="@+id/ivPlay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/bt_localmusic_play_nor"
+                        android:gravity="center_vertical"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="12dp"
+                        android:layout_alignParentRight="true"/>
+
+                    <View android:layout_width="wrap_content"
+                        android:layout_height="1dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginLeft="35dp"
+                        android:layout_marginRight="15dp"
+                        android:background="@color/more_oper_dialog_seperator_line"/>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/ryLastPlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:background="@drawable/default_selector">
+                    <ImageView
+                        android:id="@+id/ivIconLastPlay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_mymusic_play_normal"/>
+
+                    <TextView
+                        android:id="@+id/tvLastPlayMain"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        style="@style/DefaultMainTextView"
+                        android:text="最近播放"
+                        android:layout_toRightOf="@id/ivIconLastPlay"
+                        android:layout_marginLeft="10dp"
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:id="@+id/tvLastPlaySub"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textColor="@color/subTextColor"
+                        android:layout_marginLeft="10dp"
+                        android:textSize="12sp"
+                        android:text="0首"
+                        android:layout_toRightOf="@id/tvLastPlayMain"
+                        android:gravity="center_vertical"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_songlist_detail_nor"
+                        android:gravity="center_vertical"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentRight="true"/>
+
+                    <View android:layout_width="wrap_content"
+                        android:layout_height="1dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginLeft="35dp"
+                        android:layout_marginRight="15dp"
+                        android:background="@color/more_oper_dialog_seperator_line"/>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/ryDownload"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:background="@drawable/default_selector">
+                    <ImageView
+                        android:id="@+id/ivIconDownload"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_mymusic_download_normal"/>
+
+                    <TextView
+                        android:id="@+id/tvDonwloadMain"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="我的下载"
+                        style="@style/DefaultMainTextView"
+                        android:layout_toRightOf="@id/ivIconDownload"
+                        android:layout_marginLeft="10dp"
+                        android:textSize="14sp"/>
+
+                    <TextView
+                        android:id="@+id/tvDonwloadSub"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:textColor="@color/subTextColor"
+                        android:layout_marginLeft="10dp"
+                        android:textSize="12sp"
+                        android:text="0首"
+                        android:layout_toRightOf="@id/tvDonwloadMain"
+                        android:gravity="center_vertical"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_songlist_detail_nor"
+                        android:gravity="center_vertical"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentRight="true"/>
+                </RelativeLayout>
+
+                <View android:layout_width="wrap_content"
+                    android:layout_height="1dp"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/more_oper_dialog_seperator_line"/>
+
+                <LinearLayout android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp"
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:weightSum="1">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:textColor="@color/mainTextColor"
+                        android:text="自建歌单"
+                        android:textSize="14sp"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"/>
+
+                    <TextView
+                        android:id="@+id/tvAddFavorite"
+                        android:layout_width="40dp"
+                        android:layout_height="25dp"
+                        android:textColor="@color/subTextColor"
+                        android:text="新建"
+                        android:textSize="@dimen/mini_text_size"
+                        android:layout_marginRight="15dp"
+                        android:gravity="center"/>
+
+                    <com.example.kaizhiwei.puremusictest.CommonUI.MyTextView
+                        android:id="@+id/mtvManageFavorite"
+                        android:layout_width="40dp"
+                        android:layout_height="25dp"
+                        android:textColor="@color/subTextColor"
+                        android:text="管理"
+                        android:textSize="@dimen/mini_text_size"
+                        android:gravity="center"
+                        android:layout_marginRight="8dp" />
+                </LinearLayout>
+
+                <View android:layout_width="wrap_content"
+                    android:layout_height="1dp"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/more_oper_dialog_seperator_line"/>
+
+                <com.example.kaizhiwei.puremusictest.HomePage.FavoriteLayout
+                    android:id="@+id/favoriteLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center">
+                </com.example.kaizhiwei.puremusictest.HomePage.FavoriteLayout>
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</LinearLayout>

@@ -29,6 +29,7 @@ import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
 
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -223,7 +224,6 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
         }
         else if(llControl == v){
             Intent intent = new Intent(this.getContext(), PlayingActivity.class);
-            intent.putExtra(PlayingActivity.PLAYING_MEDIA_ENTITY, (Parcelable) mService.getCurrentMedia());
             mHomePage.startActivity(intent);
         }
     }

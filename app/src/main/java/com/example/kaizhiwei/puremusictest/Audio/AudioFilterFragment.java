@@ -75,7 +75,7 @@ public class AudioFilterFragment extends BaseFragment{
     }
 
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        lbmLayout.initAdapterData();
+
     }
 
     public void onDestory(){
@@ -86,6 +86,7 @@ public class AudioFilterFragment extends BaseFragment{
     public void onResume(){
         super.onResume();
         lbmLayout.onResume();
+        lbmLayout.initAdapterData();
     }
 
     public void onPause() {

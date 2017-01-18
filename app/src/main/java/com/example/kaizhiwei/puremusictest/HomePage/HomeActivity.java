@@ -71,8 +71,8 @@ public class HomeActivity extends FragmentActivity {
         //initSlidingMenu();
         setContentView(R.layout.activity_home);
         mViewPager = (ViewPager) this.findViewById(R.id.viewPager);
-        mTabLayout = (TabLayout) this.findViewById(R.id.tabLayout);
-        initSystemBar();
+        mTabLayout = (TabLayout) this.findViewById(R.id.tabLayoutMain);
+        //initSystemBar();
 
         mListTitleData = new ArrayList<>();
         mListTitleData.add("歌曲");
@@ -90,8 +90,8 @@ public class HomeActivity extends FragmentActivity {
         for(int i = 0;i < mListTitleData.size();i++){
             mTabLayout.addTab(mTabLayout.newTab().setText(mListTitleData.get(i)));
         }
-        mTabLayout.setBackgroundResource(R.color.backgroundColor);
-        mTabLayout.setTabTextColors(this.getResources().getColor(R.color.mainTextColor), this.getResources().getColor(R.color.tabSelectTextColor));
+        mTabLayout.setBackgroundResource(android.R.color.transparent);
+        mTabLayout.setTabTextColors(this.getResources().getColor(R.color.white), this.getResources().getColor(R.color.tabSelectTextColor));
         int indicatorColor = this.getResources().getColor(R.color.tabSeperatorLineColor);
         mTabLayout.setSelectedTabIndicatorColor(indicatorColor);
 
@@ -206,20 +206,7 @@ public class HomeActivity extends FragmentActivity {
         }
         FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
         //getFragmentManager().executePendingTransactions();
-        if(mLocalAudioFragment.isAdded() == false){
-            transaction.add(R.id.flContent, mLocalAudioFragment);
-        }
-        else{
-            transaction.show(mLocalAudioFragment);
-        }
-
-        if(mLocalAudioMainFragment != null){
-            transaction.hide(mLocalAudioMainFragment);
-        }
-
-        if(mFavoriteMainFragment != null){
-            transaction.hide(mFavoriteMainFragment);
-        }
+        transaction.replace(R.id.flContent, mLocalAudioFragment);
         //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
         transaction.addToBackStack("mLocalAudioFragment");
         transaction.commit();
@@ -235,12 +222,7 @@ public class HomeActivity extends FragmentActivity {
         mFavoriteMainFragment = new FavoriteMainFragment();
         FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
         //getFragmentManager().executePendingTransactions();
-        if(mFavoriteMainFragment.isAdded() == false){
-            transaction.add(R.id.flContent, mFavoriteMainFragment);
-        }
-        else{
-            transaction.show(mFavoriteMainFragment);
-        }
+        transaction.replace(R.id.flContent, mFavoriteMainFragment);
         mFavoriteMainFragment.setArguments(bundle);
         if(mLocalAudioMainFragment != null){
             transaction.hide(mLocalAudioMainFragment);
@@ -252,7 +234,7 @@ public class HomeActivity extends FragmentActivity {
         //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
         transaction.addToBackStack("mFavoriteMainFragment");
         transaction.commit();
-        getSupportFragmentManager().executePendingTransactions();
+//        getSupportFragmentManager().executePendingTransactions();
 //        Intent intent = new Intent(HomeActivity.this, TestActivity.class);
 //        startActivity(intent);
     }

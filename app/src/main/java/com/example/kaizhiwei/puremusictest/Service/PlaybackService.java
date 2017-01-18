@@ -420,17 +420,17 @@ public class PlaybackService extends Service {
         if(mMediaList == null)
             return;
 
-        for(int i = 0;i < mMediaList.size();i++) {
-            for (int j = 0; j < list.size(); j++) {
-                if (mMediaList.get(i)._id == list.get(j)._id) {
-                    if(i == mCurrentIndex){
+        for (int i = 0; i < list.size(); i++) {
+            for(int j = 0;j < mMediaList.size();j++) {
+                if (mMediaList.get(j)._id == list.get(i)._id) {
+                    if(j == mCurrentIndex){
                         pause();
                     }
-                    if ((i < mCurrentIndex || (i == list.size() - 1)) && mCurrentIndex != -1)
+                    if ((j < mCurrentIndex || (j == list.size() - 1)) && mCurrentIndex != -1)
                         mCurrentIndex--;
 
-                    mMediaList.remove(i);
-                    i--;
+                    mMediaList.remove(j);
+                    j--;
                 }
             }
         }

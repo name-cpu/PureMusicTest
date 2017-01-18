@@ -57,7 +57,6 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
                 return;
 
             handleDeleteMedia(listMediaEntity, isDeleteFile);
-            finish();
         }
     };
 
@@ -330,8 +329,7 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
                         if(finalIsContainPlaying && mService != null){
                             mService.reCalNextPlayIndex();
                         }
-                        initData();
-                        updateUI();
+                        finish();
                     }
                 });
             }

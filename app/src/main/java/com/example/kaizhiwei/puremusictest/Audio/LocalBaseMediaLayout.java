@@ -31,6 +31,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyTextView;
+import com.example.kaizhiwei.puremusictest.CommonUI.NestedListView;
 import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
@@ -56,7 +57,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         ,PlaybackService.Client.Callback, PlaybackService.Callback, AdapterView.OnItemLongClickListener, MoreOperationDialog.IMoreOperationDialogListener,
         View.OnClickListener {
     private Context mContext;
-    private AudioListView mAllSongListView;
+    private NestedListView mAllSongListView;
     private AudioListViewAdapter mAllSongAdapter;
 
     private Handler mHandler = new Handler();
@@ -147,7 +148,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         mClient = new PlaybackService.Client(mContext, this);
         vibrator = (Vibrator)mContext.getSystemService(Context.VIBRATOR_SERVICE);
 
-        mAllSongListView = (AudioListView) rootView.findViewById(R.id.lvAllSong);
+        mAllSongListView = (NestedListView) rootView.findViewById(R.id.lvAllSong);
         mAllSongListView.setOnItemClickListener(this);
         mAllSongListView.setOnScrollListener(this);
         mAllSongListView.setOnItemLongClickListener(this);
@@ -247,7 +248,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
                 int what = msg.what;
                 if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
                    final List<MediaEntity> list = (List<MediaEntity>)msg.obj;
-                    if(list.size() > 0){
+                    if(list.size() >= 0){
                         mHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {

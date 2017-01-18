@@ -124,8 +124,11 @@ public class FavoriteEditInfoActivity extends BaseActivty {
         File file = null;
         boolean bDefault = false;
         if(TextUtils.isEmpty(strPath)){
-            file = new File(strPath);
             bDefault = true;
+        }
+
+        if(bDefault == false){
+            file = new File(strPath);
             if(file.exists() == false){
                 bDefault = true;
             }
@@ -152,12 +155,14 @@ public class FavoriteEditInfoActivity extends BaseActivty {
             bDefault = true;
         }
 
-        file = new File(strPath);
-        if(file.exists() == false){
-            bDefault = true;
-        }
-        else{
-            bDefault = false;
+        if(bDefault == false){
+            file = new File(strPath);
+            if(file.exists() == false){
+                bDefault = true;
+            }
+            else{
+                bDefault = false;
+            }
         }
 
         if(bDefault){

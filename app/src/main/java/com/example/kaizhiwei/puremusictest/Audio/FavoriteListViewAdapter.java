@@ -205,12 +205,14 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
                 bDefault = true;
             }
 
-            file = new File(strPath);
-            if(file.exists() == false){
-                bDefault = true;
-            }
-            else{
-                bDefault = false;
+            if(bDefault == false){
+                file = new File(strPath);
+                if(file.exists() == false){
+                    bDefault = true;
+                }
+                else{
+                    bDefault = false;
+                }
             }
 
             if(bDefault){

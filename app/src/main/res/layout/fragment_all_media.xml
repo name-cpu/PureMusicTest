@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <com.example.kaizhiwei.puremusictest.Audio.AudioListView
+    <com.example.kaizhiwei.puremusictest.CommonUI.NestedListView
         android:id="@+id/lvAllSong"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -12,15 +12,17 @@
         android:scrollbarThumbVertical="@drawable/scrollbar_vertical_thumb"
         android:scrollbarSize="5dp"
         android:scrollbars="vertical"
-        android:visibility="visible"/>
+        android:divider="@null"
+        android:listSelector="@null"
+        android:cacheColorHint="@android:color/transparent"
+        android:visibility="gone"/>
 
     <RelativeLayout
         android:id="@+id/rlLoading"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerInParent="true"
         android:background="@color/backgroundColor"
-        android:visibility="gone">
+        android:visibility="visible">
         <ProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

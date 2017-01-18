@@ -55,7 +55,7 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
     private TextView tvPlayAll;
     private TextView tvFavoriteNum;
     private TextView tvManager;
-    private RelativeLayout rlMain;
+    private LinearLayout llMain;
     private LocalBaseMediaLayout lbmLayout;
     private List<MediaEntity> mListFavoriteData;
     private Handler mHandler = new Handler();
@@ -108,7 +108,7 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.activity_favorite_main, container, false);
-        rlMain = (RelativeLayout)rootView.findViewById(R.id.rlMain);
+        llMain = (LinearLayout) rootView.findViewById(R.id.llMain);
         ivBack = (ImageView)rootView.findViewById(R.id.ivBack);
         ivBack.setOnClickListener(this);
         tvTitle = (TextView)rootView.findViewById(R.id.tvTitle);
@@ -128,7 +128,7 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
         params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         params.addRule(RelativeLayout.BELOW, R.id.viewSepratorLine);
         lbmLayout.setLayoutParams(params);
-        rlMain.addView(lbmLayout);
+        llMain.addView(lbmLayout);
         ivIcon = (ImageView)rootView.findViewById(R.id.ivIcon);
         llTitle = (LinearLayout)rootView.findViewById(R.id.llTitle);
         initData();
@@ -272,6 +272,9 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
             HomeActivity.getInstance().startActivityForResult(intent, 2);
             HomeActivity.getInstance().overridePendingTransition(R.anim.anim_left_enter, R.anim.anim_right_exit);
         }
+        else if(v == ivBack){
+            this.getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+        }
     }
 
     public void setFavoriteImage(String strPath, ImageView ivImage, int reqWidth, int reqHeight){
@@ -285,12 +288,14 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
             bDefault = true;
         }
 
-        file = new File(strPath);
-        if(file.exists() == false){
-            bDefault = true;
-        }
-        else{
-            bDefault = false;
+        if(bDefault == false){
+            file = new File(strPath);
+            if(file.exists() == false){
+                bDefault = true;
+            }
+            else{
+                bDefault = false;
+            }
         }
 
         if(bDefault){

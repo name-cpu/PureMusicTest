@@ -29,4 +29,5 @@ dependencies {
     compile files('libs/pinyin4j-2.5.0.jar')
     //compile files('libs/slidableactivity-2.0.5-sources.jar')
     compile 'com.r0adkll:slidableactivity:2.0.5'
+    compile 'com.android.support:support-v4:23.0.1'
 }

@@ -107,7 +107,7 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
         setContentView(R.layout.activity_audio);
 
-        mTabLayout = (TabLayout) getActivity().findViewById(R.id.tabLayout);
+        mTabLayout = (TabLayout) rootView.findViewById(R.id.tabLayout);
         mTVl = new TabLayout.TabLayoutOnPageChangeListener(mTabLayout);
         mViewPager = (ViewPager) rootView.findViewById(R.id.viewPager);
         setTitle("本地音乐");

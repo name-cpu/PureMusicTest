@@ -225,8 +225,8 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
         mAllSongListView = (AudioListView) rootView.findViewById(R.id.lvAllSong);
         mAllSongAdapter = new AudioListViewAdapter(getActivity(), AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, true);
         mAllSongListView.setAdapter(mAllSongAdapter);
-        mAllSongListView.setOnItemClickListener(this);
-        mAllSongListView.setOnScrollListener(this);
+        //mAllSongListView.setOnItemClickListener(this);
+        //mAllSongListView.setOnScrollListener(this);
         mAllSongListView.setOnItemLongClickListener(this);
         mAllSongListView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
              @Override
@@ -261,22 +261,22 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
         mSongFolderListView = (AudioListView) rootView.findViewById(R.id.lvSongFolder);
         mSongFolderAdapter = new AudioListViewAdapter(getActivity(), AudioListViewAdapter.ADAPTER_TYPE_FOLDER, false);
         mSongFolderListView.setAdapter(mSongFolderAdapter);
-        mSongFolderListView.setOnItemClickListener(this);
-        mSongFolderListView.setOnScrollListener(this);
+        //mSongFolderListView.setOnItemClickListener(this);
+        //mSongFolderListView.setOnScrollListener(this);
         mSongFolderListView.setOnItemLongClickListener(this);
 
         mArtistListView = (AudioListView) rootView.findViewById(R.id.lvArtist);
         mArtistAdapter = new AudioListViewAdapter(getActivity(), AudioListViewAdapter.ADAPTER_TYPE_ARTIST, false);
         mArtistListView.setAdapter(mArtistAdapter);
-        mArtistListView.setOnItemClickListener(this);
-        mArtistListView.setOnScrollListener(this);
+        //mArtistListView.setOnItemClickListener(this);
+        //mArtistListView.setOnScrollListener(this);
         mArtistListView.setOnItemLongClickListener(this);
 
         mAlbumListViewData = (AudioListView) rootView.findViewById(R.id.lvAlbum);
         mAlbumAdapter = new AudioListViewAdapter(getActivity(), AudioListViewAdapter.ADAPTER_TYPE_ALBUM, false);
         mAlbumListViewData.setAdapter(mAlbumAdapter);
-        mAlbumListViewData.setOnItemClickListener(this);
-        mAlbumListViewData.setOnScrollListener(this);
+        //mAlbumListViewData.setOnItemClickListener(this);
+        //mAlbumListViewData.setOnScrollListener(this);
         mAlbumListViewData.setOnItemLongClickListener(this);
 
         mListViewData = new ArrayList<View>();
