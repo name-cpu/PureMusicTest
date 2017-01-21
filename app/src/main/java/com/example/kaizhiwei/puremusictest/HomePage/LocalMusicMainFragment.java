@@ -53,9 +53,6 @@ public class LocalMusicMainFragment extends Fragment implements View.OnClickList
         super();
     }
 
-    public LocalMusicMainFragment(Context home){
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

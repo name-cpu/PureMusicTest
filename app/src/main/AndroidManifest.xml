@@ -51,7 +51,7 @@
             android:label="@string/title_activity_home"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme" />
 
         <activity
             android:name=".ScanMedia.ScanMediaActivity"
@@ -90,6 +90,18 @@
             android:screenOrientation="portrait"
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".HomePage.TestActivity"
+            android:configChanges="orientation|screenLayout"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"/>
+
+        <activity android:name=".HomePage.FavoriteEditInfoActivity"
+            android:configChanges="orientation|screenLayout"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"/>
+
+        TestActivity
     </application>
 
 </manifest>

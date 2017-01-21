@@ -21,10 +21,15 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:contentScrim="?attr/colorPrimary"
+            android:background="@drawable/ic_playlist_default"
             app:expandedTitleMarginEnd="10dp"
             app:expandedTitleMarginStart="10dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#ff0000"/>
 
             <ImageView
                 android:id="@+id/ivIcon"
@@ -153,6 +158,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
         android:clickable="true"
+        android:visibility="gone"
         android:src="@drawable/ic_launcher"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|right|end" />

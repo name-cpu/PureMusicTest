@@ -78,9 +78,6 @@ public class NestedListView extends ListView implements View.OnTouchListener,
     }
 
     public boolean onTouch(View v, MotionEvent event) {
-        if(event.getAction() == MotionEvent.ACTION_DOWN){
-            return true;
-        }
         if (getAdapter() != null
                 && getAdapter().getCount() > MAXIMUM_LIST_ITEMS_VIEWABLE) {
             if (listViewTouchAction == MotionEvent.ACTION_MOVE) {

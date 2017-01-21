@@ -7,9 +7,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -23,6 +25,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.Audio.AudioListViewAdapter;
 import com.example.kaizhiwei.puremusictest.Audio.BatchMgrAudioActivity;
 import com.example.kaizhiwei.puremusictest.Audio.LocalBaseMediaLayout;
@@ -43,6 +46,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.wasabeef.glide.transformations.BlurTransformation;
+
 /**
  * Created by kaizhiwei on 17/1/11.
  */
@@ -61,6 +66,7 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
     private Handler mHandler = new Handler();
     private LinearLayout llTitle;
     private FavoriteEntity mFavoriteEntity;
+    private CollapsingToolbarLayout collapsing_toolbar;
 
     public static final String FAVORITE_ID = "FAVORITE_ID";
     public static final String FAVORITE_NAME = "FAVORITE_NAME";
@@ -131,6 +137,7 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
         llMain.addView(lbmLayout);
         ivIcon = (ImageView)rootView.findViewById(R.id.ivIcon);
         llTitle = (LinearLayout)rootView.findViewById(R.id.llTitle);
+        collapsing_toolbar = (CollapsingToolbarLayout)rootView.findViewById(R.id.collapsing_toolbar);
         initData();
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -168,6 +175,8 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
         if(entity == null)
             return;
 
+        Uri uri = Uri.parse(entity.strFavoriteImgPath);
+        //Glide.with(this).load(uri).bitmapTransform(new BlurTransformation(this.getActivity(), 25)).crossFade(1000)
         setFavoriteImage(entity.strFavoriteImgPath, ivIcon, 300, 300);
         tvTitle.setText(strFavoriteName);
         mFavoriteEntity = entity;

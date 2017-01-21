@@ -27,7 +27,7 @@ import java.util.Locale;
 
 
 
-public class MediaEntity implements Serializable, Parcelable {
+public class MediaEntity implements Serializable {
 
     public long _id;
     public String _data;
@@ -164,70 +164,70 @@ public class MediaEntity implements Serializable, Parcelable {
         mMedia = media;
     }
 
-    protected MediaEntity(Parcel in) {
-        _id = in.readLong();
-        _data = in.readString();
-        _size = in.readLong();
-        _display_name = in.readString();
-        title = in.readString();
-        title_key = in.readString();
-        title_letter = in.readString();
-        date_added = in.readLong();
-        date_modified = in.readLong();
-        mime_type = in.readString();
-        duration = in.readLong();
-        bookmark = in.readLong();
-        artist = in.readString();
-        artist_key = in.readString();
-        composer = in.readString();
-        album = in.readString();
-        album_key = in.readString();
-        album_art = in.readString();
-        track = in.readLong();
-        year = in.readLong();
-        mediastore_id = in.readInt();
-        lyric_path = in.readString();
-        is_lossless = in.readLong();
-        artist_image = in.readString();
-        album_image = in.readString();
-        last_playtime = in.readLong();
-        play_times = in.readLong();
-        data_from = in.readLong();
-        save_path = in.readString();
-        is_played = in.readLong();
-        song_id = in.readLong();
-        equalizer_level = in.readLong();
-        replay_gain_level = in.readLong();
-        is_offline_cache = in.readLong();
-        is_faved = in.readLong();
-        have_high = in.readLong();
-        bitrate = in.readLong();
-        has_original = in.readLong();
-        flag = in.readLong();
-        original_rate = in.readString();
-        all_rates = in.readString();
-        is_deleted = in.readLong();
-        skip_auto_scan = in.readLong();
-        is_offline = in.readLong();
-        has_pay_status = in.readLong();
-        version = in.readString();
-        cache_path = in.readString();
-        play_type = in.readLong();
-        file_url = in.readString();
-        file_hash = in.readString();
-    }
+//    protected MediaEntity(Parcel in) {
+//        _id = in.readLong();
+//        _data = in.readString();
+//        _size = in.readLong();
+//        _display_name = in.readString();
+//        title = in.readString();
+//        title_key = in.readString();
+//        title_letter = in.readString();
+//        date_added = in.readLong();
+//        date_modified = in.readLong();
+//        mime_type = in.readString();
+//        duration = in.readLong();
+//        bookmark = in.readLong();
+//        artist = in.readString();
+//        artist_key = in.readString();
+//        composer = in.readString();
+//        album = in.readString();
+//        album_key = in.readString();
+//        album_art = in.readString();
+//        track = in.readLong();
+//        year = in.readLong();
+//        mediastore_id = in.readInt();
+//        lyric_path = in.readString();
+//        is_lossless = in.readLong();
+//        artist_image = in.readString();
+//        album_image = in.readString();
+//        last_playtime = in.readLong();
+//        play_times = in.readLong();
+//        data_from = in.readLong();
+//        save_path = in.readString();
+//        is_played = in.readLong();
+//        song_id = in.readLong();
+//        equalizer_level = in.readLong();
+//        replay_gain_level = in.readLong();
+//        is_offline_cache = in.readLong();
+//        is_faved = in.readLong();
+//        have_high = in.readLong();
+//        bitrate = in.readLong();
+//        has_original = in.readLong();
+//        flag = in.readLong();
+//        original_rate = in.readString();
+//        all_rates = in.readString();
+//        is_deleted = in.readLong();
+//        skip_auto_scan = in.readLong();
+//        is_offline = in.readLong();
+//        has_pay_status = in.readLong();
+//        version = in.readString();
+//        cache_path = in.readString();
+//        play_type = in.readLong();
+//        file_url = in.readString();
+//        file_hash = in.readString();
+//    }
 
-    public static final Creator<MediaEntity> CREATOR = new Creator<MediaEntity>() {
-        @Override
-        public MediaEntity createFromParcel(Parcel in) {
-            return new MediaEntity(in);
-        }
-
-        @Override
-        public MediaEntity[] newArray(int size) {
-            return new MediaEntity[size];
-        }
-    };
+//    public static final Creator<MediaEntity> CREATOR = new Creator<MediaEntity>() {
+//        @Override
+//        public MediaEntity createFromParcel(Parcel in) {
+//            return new MediaEntity(in);
+//        }
+//
+//        @Override
+//        public MediaEntity[] newArray(int size) {
+//            return new MediaEntity[size];
+//        }
+//    };
 
     public ArrayList<String> getPinYin(String strData){
         String str = strData.replaceAll("[`~!@#$%^&*()+=|{}':;',\\[\\][1-9].<>/?~！@#￥%……& amp;*（）——+|{}【】‘；：”“’。，、？|-]", "");
@@ -302,62 +302,62 @@ public class MediaEntity implements Serializable, Parcelable {
     }
 
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(_id);
-        dest.writeString(_data);
-        dest.writeLong(_size);
-        dest.writeString(_display_name);
-        dest.writeString(title);
-        dest.writeString(title_key);
-        dest.writeString(title_letter);
-        dest.writeLong(date_added);
-        dest.writeLong(date_modified);
-        dest.writeString(mime_type);
-        dest.writeLong(duration);
-        dest.writeLong(bookmark);
-        dest.writeString(artist);
-        dest.writeString(artist_key);
-        dest.writeString(composer);
-        dest.writeString(album);
-        dest.writeString(album_key);
-        dest.writeString(album_art);
-        dest.writeLong(track);
-        dest.writeLong(year);
-        dest.writeLong(mediastore_id);
-        dest.writeString(lyric_path);
-        dest.writeLong(is_lossless);
-        dest.writeString(artist_image);
-        dest.writeString(album_image);
-        dest.writeLong(last_playtime);
-        dest.writeLong(play_times);
-        dest.writeLong(data_from);
-        dest.writeString(save_path);
-        dest.writeLong(is_played);
-        dest.writeLong(song_id);
-        dest.writeLong(equalizer_level);
-        dest.writeLong(replay_gain_level);
-        dest.writeLong(is_offline_cache);
-        dest.writeLong(is_faved);
-        dest.writeLong(have_high);
-        dest.writeLong(bitrate);
-        dest.writeLong(has_original);
-        dest.writeLong(flag);
-        dest.writeString(original_rate);
-        dest.writeString(all_rates);
-        dest.writeLong(is_deleted);
-        dest.writeLong(skip_auto_scan);
-        dest.writeLong(is_offline);
-        dest.writeLong(has_pay_status);
-        dest.writeString(version);
-        dest.writeString(cache_path);
-        dest.writeLong(play_type);
-        dest.writeString(file_url);
-        dest.writeString(file_hash);
-    }
+//    @Override
+//    public int describeContents() {
+//        return 0;
+//    }
+//
+//    @Override
+//    public void writeToParcel(Parcel dest, int flags) {
+//        dest.writeLong(_id);
+//        dest.writeString(_data);
+//        dest.writeLong(_size);
+//        dest.writeString(_display_name);
+//        dest.writeString(title);
+//        dest.writeString(title_key);
+//        dest.writeString(title_letter);
+//        dest.writeLong(date_added);
+//        dest.writeLong(date_modified);
+//        dest.writeString(mime_type);
+//        dest.writeLong(duration);
+//        dest.writeLong(bookmark);
+//        dest.writeString(artist);
+//        dest.writeString(artist_key);
+//        dest.writeString(composer);
+//        dest.writeString(album);
+//        dest.writeString(album_key);
+//        dest.writeString(album_art);
+//        dest.writeLong(track);
+//        dest.writeLong(year);
+//        dest.writeLong(mediastore_id);
+//        dest.writeString(lyric_path);
+//        dest.writeLong(is_lossless);
+//        dest.writeString(artist_image);
+//        dest.writeString(album_image);
+//        dest.writeLong(last_playtime);
+//        dest.writeLong(play_times);
+//        dest.writeLong(data_from);
+//        dest.writeString(save_path);
+//        dest.writeLong(is_played);
+//        dest.writeLong(song_id);
+//        dest.writeLong(equalizer_level);
+//        dest.writeLong(replay_gain_level);
+//        dest.writeLong(is_offline_cache);
+//        dest.writeLong(is_faved);
+//        dest.writeLong(have_high);
+//        dest.writeLong(bitrate);
+//        dest.writeLong(has_original);
+//        dest.writeLong(flag);
+//        dest.writeString(original_rate);
+//        dest.writeString(all_rates);
+//        dest.writeLong(is_deleted);
+//        dest.writeLong(skip_auto_scan);
+//        dest.writeLong(is_offline);
+//        dest.writeLong(has_pay_status);
+//        dest.writeString(version);
+//        dest.writeString(cache_path);
+//        dest.writeLong(play_type);
+//        dest.writeString(file_url);
+//        dest.writeString(file_hash);
+//    }
 }
