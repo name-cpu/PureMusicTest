@@ -26,6 +26,7 @@ import com.example.kaizhiwei.puremusictest.Audio.LocalAudioFragment;
 import com.example.kaizhiwei.puremusictest.Audio.NowPlayingLayout;
 import com.example.kaizhiwei.puremusictest.CommonUI.StatusBarUtil;
 import com.example.kaizhiwei.puremusictest.CommonUI.SystemBarTintManager;
+import com.example.kaizhiwei.puremusictest.NetAudio.NetAudioFragment;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.SlideMenu.SlidingMenu;
 
@@ -45,7 +46,7 @@ public class HomeActivity extends FragmentActivity {
     private LocalAudioFragment mLocalAudioFragment;
     private FavoriteMainFragment mFavoriteMainFragment;
 
-    private List<LocalMusicMainFragment> mListFragment;
+    private List<Fragment> mListFragment;
     private FragmentPagerAdapter mFragemtnPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
         @Override
         public Fragment getItem(int position) {
@@ -79,10 +80,12 @@ public class HomeActivity extends FragmentActivity {
         //initSystemBar();
 
         mListTitleData = new ArrayList<>();
-        mListTitleData.add("歌曲");
+        mListTitleData.add("我的");
+        mListTitleData.add("音乐");
 
         mListFragment = new ArrayList<>();
         mListFragment.add(new LocalMusicMainFragment());
+        mListFragment.add(new NetAudioFragment());
 
         mViewPager.setLongClickable(true);
         //mViewPager.setOnLongClickListener(this);
@@ -275,7 +278,7 @@ public class HomeActivity extends FragmentActivity {
         // TODO Auto-generated method stub
         boolean bRet = super.onKeyDown(keyCode, event);
         if(keyCode == KeyEvent.KEYCODE_BACK){
-            mListFragment.get(0).updateData();
+            //mListFragment.get(0).updateData();
         }
         return bRet;
     }

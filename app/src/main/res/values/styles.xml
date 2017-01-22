@@ -13,6 +13,11 @@
         <item name="tabSelectTextColor">@color/tabSelectTextColor</item>
         <item name="listviewSeperatorLineColor">@color/listviewSeperatorLineColor</item>
         <item name="common_title_backgroundColor">@color/common_title_backgroundColor</item>
+
+        <item name="android:textAllCaps">false</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="PureMusic.Apearance" parent="AppTheme">
