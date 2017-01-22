@@ -4,11 +4,12 @@
     android:layout_height="wrap_content">
     <ImageView
         android:id="@+id/ivIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:adjustViewBounds="true"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/ic_launcher" />
+        android:src="@drawable/ic_launcher"
+        android:background="@drawable/default_back"/>
     <TextView
         android:id="@+id/tvDesc"
         android:layout_width="match_parent"
@@ -16,7 +17,8 @@
         android:maxLines="2"
         android:ellipsize="end"
         android:textSize="12sp"
-        android:gravity="center_horizontal"
+        android:gravity="left"
+        android:textColor="@color/black"
         android:text="231231231231231244235345345345435345345345345454534545435345345345345435345" />
 
     <TextView
