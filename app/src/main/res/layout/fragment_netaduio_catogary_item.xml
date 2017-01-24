@@ -17,6 +17,7 @@
         android:ellipsize="end"
         android:textSize="12sp"
         android:gravity="center_horizontal"
+        android:textColor="@color/tabSelectTextColor"
         android:text="134" />
     <TextView
         android:id="@+id/tvSub"

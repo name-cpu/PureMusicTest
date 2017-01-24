@@ -22,6 +22,7 @@ import java.util.List;
 import com.example.kaizhiwei.puremusictest.NetAudio.Entity.*;
 import com.example.kaizhiwei.puremusictest.Util.BaseHandler;
 import com.example.kaizhiwei.puremusictest.Util.BusinessCode;
+import com.viewpagerindicator.LinePageIndicator;
 
 
 public class NetAudioFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -32,6 +33,7 @@ public class NetAudioFragment extends Fragment implements SwipeRefreshLayout.OnR
     private LinearLayout llMain;
     private NetPlazaIndexData mMusicData;
     private Handler mHandler = new Handler();
+    private LinePageIndicator linePageIndicator;
     private float density;
 
     @Override
@@ -46,6 +48,7 @@ public class NetAudioFragment extends Fragment implements SwipeRefreshLayout.OnR
         vpFocus = (ViewPager)rootView.findViewById(R.id.vpFocus);
         llMain = (LinearLayout)rootView.findViewById(R.id.llMain);
         gvCatogary = (AutoHeightGridView)rootView.findViewById(R.id.gvCatogary);
+        linePageIndicator = (LinePageIndicator)rootView.findViewById(R.id.linePageIndicator);
         updateRecommandData();
         return rootView;
     }
@@ -85,6 +88,13 @@ public class NetAudioFragment extends Fragment implements SwipeRefreshLayout.OnR
         FocusPagerAdapter adapter = new FocusPagerAdapter();
         vpFocus.setAdapter(adapter);
         vpFocus.setOffscreenPageLimit(4);
+
+        linePageIndicator.setViewPager(vpFocus);
+        final float density = getResources().getDisplayMetrics().density;
+        linePageIndicator.setSelectedColor(getResources().getColor(R.color.common_title_backgroundColor));
+        linePageIndicator.setUnselectedColor(getResources().getColor(R.color.lightgray));
+        linePageIndicator.setStrokeWidth(6 * density);
+        linePageIndicator.setLineWidth(8 * density);
     }
 
     private void initCategaryGridView(NetPlazaIndexData data){
