@@ -7,9 +7,9 @@
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/ic_launcher" />
+        android:src="@drawable/default_live_ic" />
     <TextView
-        android:id="@+id/tvDesc"
+        android:id="@+id/tvMain"
         android:layout_marginTop="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

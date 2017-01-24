@@ -203,7 +203,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
     }
 
     public void setAdapterType(int adapterType, boolean isShowHead, boolean isShowOperBar, boolean isShowFooter){
-        if(adapterType < AudioListViewAdapter.ADAPTER_TYPE_ALLSONG || adapterType > AudioListViewAdapter.ADAPTER_TYPE_ALBUM)
+        if(adapterType < AudioListViewAdapter.ADAPTER_TYPE_ALLSONG || adapterType > AudioListViewAdapter.ADAPTER_TYPE_NETWORK)
             return;
 
         mAllSongAdapter = new AudioListViewAdapter(mContext, adapterType, isShowHead);
@@ -279,6 +279,23 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
                 mAllSongListView.setVisibility(View.VISIBLE);
                 rlLoading.setVisibility(View.GONE);
                 mAllSongAdapter.initData(list);
+                if(mService != null){
+                    MediaEntity curMediaEntity = mService.getCurrentMedia();
+                    if(curMediaEntity != null){
+                        mAllSongAdapter.setItemPlayState(curMediaEntity, true);
+                    }
+                }
+            }
+        }, 50);
+    }
+
+    public void initNetworkAdapterData(final List<AudioListViewAdapter.AudioNetWorkItemData> list){
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mAllSongListView.setVisibility(View.VISIBLE);
+                rlLoading.setVisibility(View.GONE);
+                mAllSongAdapter.initNetworkData(list);
                 if(mService != null){
                     MediaEntity curMediaEntity = mService.getCurrentMedia();
                     if(curMediaEntity != null){

@@ -6,4 +6,5 @@ package com.example.kaizhiwei.puremusictest.Util;
 public class BusinessCode {
 
     public static final int BUSINESS_CODE_SUCCESS = 0;
+    public static final int BUSINESS_CODE_ERROR = 1;
 }

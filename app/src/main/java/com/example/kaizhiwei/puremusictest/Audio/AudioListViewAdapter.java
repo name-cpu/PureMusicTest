@@ -50,6 +50,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
     public static final int ADAPTER_TYPE_FOLDER = 2;
     public static final int ADAPTER_TYPE_ARTIST = 3;
     public static final int ADAPTER_TYPE_ALBUM = 4;
+    public static final int ADAPTER_TYPE_NETWORK = 5;   //显示网络数据
 
     //操作栏tag
     private static final int OPERATORBAR_RANDOM_PLAY = -1;
@@ -72,7 +73,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
     private String mFilterArtist;
     private String mFilterAlbum;
 
-    public class AudioItemData{
+    static public class AudioItemData{
         public static final int TYPE_MEDIA = 0;
         public static final int TYPE_FOOTER = 1;
         public static final int TYPE_OPERBAR = 2;
@@ -88,7 +89,17 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         }
     }
 
-    public class AudioSongItemData extends AudioItemData{
+    static public class AudioNetWorkItemData extends AudioItemData{
+        public String strMain;
+        public String strSub;
+        public String strKey;
+
+        public AudioNetWorkItemData(){
+
+        }
+    }
+
+    static public class AudioSongItemData extends AudioItemData{
         public String mFirstLetterPinYin;
         public String mMainTitle;
         public String mSubTitle;
@@ -101,7 +112,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         }
     }
 
-    public class AudioFolderItemData extends AudioItemData{
+    static public class AudioFolderItemData extends AudioItemData{
         public String mFolderName;
         public int mFolderSongCount;
         public String mFolderPath;
@@ -112,7 +123,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         }
     }
 
-    public class AudioArtistAlbumItemData extends AudioItemData{
+    static public class AudioArtistAlbumItemData extends AudioItemData{
         public String mArtistAlbumImagePath;
         public String mArtistAlbumName;
         public int mArtistAlbumSongCount;
@@ -355,6 +366,22 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 }
             }
         }
+        notifyDataSetChanged();
+    }
+
+    public void initNetworkData(List<AudioNetWorkItemData> list){
+        if(mListItemData == null){
+            mListItemData = new ArrayList<>();
+        }
+        mListItemData.clear();
+        for(int i = 0;i < list.size();i++){
+            list.get(i).mItemType = AudioItemData.TYPE_MEDIA;
+        }
+        mListItemData.addAll(list);
+        AudioNetWorkItemData footerItemData = new AudioNetWorkItemData();
+        footerItemData.mItemType = AudioItemData.TYPE_FOOTER;
+        footerItemData.mFooterInfo = "没有更多了";
+        mListItemData.add(footerItemData);
         notifyDataSetChanged();
     }
 
@@ -609,6 +636,7 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
         AudioSongItemData songData = null;
         AudioFolderItemData folderData = null;
         AudioArtistAlbumItemData artistData = null;
+        AudioNetWorkItemData networkData = null;
 
         switch(mAdapterType){
             case ADAPTER_TYPE_ALLSONG:
@@ -621,6 +649,8 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             case ADAPTER_TYPE_ALBUM:
                 artistData = (AudioArtistAlbumItemData)data;
                 break;
+            case ADAPTER_TYPE_NETWORK:
+                networkData = (AudioNetWorkItemData)data;
         }
 
         LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -717,6 +747,27 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
                 holder.tvArtistAlbumMain.setTextColor(mContext.getResources().getColor(R.color.mainTextColor));
                 holder.tvArtistAlbumSub.setTextColor(mContext.getResources().getColor(R.color.subTextColor));
             }
+            else if(mAdapterType == ADAPTER_TYPE_NETWORK){
+                if(networkData == null)
+                    return null;
+
+                AudioListViewAdapterHolder holder = null;
+                if(convertView == null){
+                    View view = inflater.inflate(R.layout.audio_allsong_item, null);
+                    view.setBackgroundResource(R.color.backgroundColor);
+                    holder = new AudioListViewAdapterHolder(view);
+                    view.setTag(holder);
+                    convertView = view;
+                    holder.ibBtnMore.setOnClickListener(this);
+                }
+                else{
+                    holder = (AudioListViewAdapterHolder) convertView.getTag();
+                }
+                holder.ibBtnMore.setTag(position);
+                holder.tvSongMain.setText(networkData.strMain);
+                holder.tvSongSub.setText(networkData.strSub);
+                holder.viewSepratorLine.setBackgroundResource(R.color.listviewSeperatorLineColor);
+            }
         }
         else if(getItemViewType(position) == AudioItemData.TYPE_INDEX) {
             AudioListViewAdapterHeaderHolder holder = null;
@@ -770,6 +821,9 @@ public class AudioListViewAdapter extends BaseAdapter implements View.OnClickLis
             }
             else if(mAdapterType == ADAPTER_TYPE_ALBUM){
                 strFooterInfo = String.format("%d张专辑", iCount);
+            }
+            else if(mAdapterType == ADAPTER_TYPE_NETWORK){
+                strFooterInfo = networkData.mFooterInfo;
             }
             holder.tvFooterInfo.setText(strFooterInfo);
         }

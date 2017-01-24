@@ -26,9 +26,11 @@ import com.example.kaizhiwei.puremusictest.Audio.LocalAudioFragment;
 import com.example.kaizhiwei.puremusictest.Audio.NowPlayingLayout;
 import com.example.kaizhiwei.puremusictest.CommonUI.StatusBarUtil;
 import com.example.kaizhiwei.puremusictest.CommonUI.SystemBarTintManager;
+import com.example.kaizhiwei.puremusictest.NetAudio.AlbumMainFragment;
 import com.example.kaizhiwei.puremusictest.NetAudio.NetAudioFragment;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.SlideMenu.SlidingMenu;
+import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +79,10 @@ public class HomeActivity extends FragmentActivity {
         setContentView(R.layout.activity_home);
         mViewPager = (ViewPager) this.findViewById(R.id.viewPager);
         mTabLayout = (TabLayout) this.findViewById(R.id.tabLayoutMain);
-        //initSystemBar();
+        initSystemBar();
+
+        DeviceUtil.getIMEI();
+        DeviceUtil.getUniquePsuedoID();
 
         mListTitleData = new ArrayList<>();
         mListTitleData.add("我的");

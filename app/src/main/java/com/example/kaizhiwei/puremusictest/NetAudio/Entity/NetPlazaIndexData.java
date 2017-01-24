@@ -1,5 +1,7 @@
 package com.example.kaizhiwei.puremusictest.NetAudio.Entity;
 
+import android.text.TextUtils;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -7,7 +9,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NetMusicData {
+public class NetPlazaIndexData {
     public List<MixData> mListMix;
     public Diy mDiy;
     public Focus mFocus;
@@ -16,6 +18,18 @@ public class NetMusicData {
     public RecSong mRecSong;
     public Radio mRadio;
     public Module mModule;
+
+    public MixData findMixDataByModuleKey(String strKey){
+        if(mListMix == null || TextUtils.isEmpty(strKey))
+            return null;
+
+        for(int i = 0;i < mListMix.size();i++){
+            if(mListMix.get(i).moduleKey.equalsIgnoreCase(strKey))
+                return mListMix.get(i);
+        }
+
+        return null;
+    }
 
     public boolean parser(String strJson){
         JSONObject jsonArray = null;
@@ -81,6 +95,7 @@ public class NetMusicData {
         }
         catch (Exception e){
             e.printStackTrace();
+            return false;
         }
 
         return true;
@@ -289,6 +304,18 @@ public class NetMusicData {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        }
+
+        public ModuleItem getModuleItemByKey(String strKey){
+            if(listModule == null || listModule.size() == 0 || TextUtils.isEmpty(strKey))
+                return null;
+
+            for(int i = 0;i < listModule.size();i++){
+                if(listModule.get(i).key.equalsIgnoreCase(strKey)){
+                    return listModule.get(i);
+                }
+            }
+            return null;
         }
     }
 

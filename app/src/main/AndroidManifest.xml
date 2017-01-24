@@ -101,7 +101,12 @@
             android:screenOrientation="portrait"
             android:launchMode="standard"/>
 
-        TestActivity
+        <activity android:name=".NetAudio.AlbumMainFragment"
+            android:configChanges="orientation|screenLayout"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
     </application>
 
 </manifest>

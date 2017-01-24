@@ -1,6 +1,9 @@
 package com.example.kaizhiwei.puremusictest.NetAudio;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Message;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,7 +11,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
+import com.example.kaizhiwei.puremusictest.NetAudio.Entity.NetGetAlbumInfoRequest;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.Util.BaseHandler;
+
 import java.util.List;
 
 
@@ -22,7 +29,8 @@ public class GridViewAdapter extends BaseAdapter {
     private int mItemResId;
 
     static public class GridViewAdapterItemData{
-        public String desc;
+        public String strMain;
+        public String strSub;
         public String strIconUrl;
         public String strkey;
 
@@ -67,18 +75,37 @@ public class GridViewAdapter extends BaseAdapter {
             holder = (GridViewAdapterHolder)convertView.getTag();
         }
 
+        holder.ivIcon.setTag(R.id.selected_view, entity.strkey);
+        holder.ivIcon.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                String str = (String) v.getTag(R.id.selected_view);
+                Intent intent = new Intent(HomeActivity.getInstance(), AlbumMainFragment.class);
+                intent.putExtra(AlbumMainFragment.ALBUM_KEY, str);
+                HomeActivity.getInstance().startActivity(intent);
+
+            }
+        });
         Glide.with(convertView.getContext()).load(entity.strIconUrl).into(holder.ivIcon);
-        holder.tvDesc.setText(entity.desc);
+        holder.tvMain.setText(entity.strMain);
+        boolean isSubEmpty = TextUtils.isEmpty(entity.strSub);
+        holder.tvSub.setVisibility(isSubEmpty ? View.GONE : View.VISIBLE);
+        if(!isSubEmpty){
+            holder.tvSub.setText(entity.strSub);
+        }
         return convertView;
     }
 
     private class GridViewAdapterHolder{
         public ImageView ivIcon;
-        public TextView tvDesc;
+        public TextView tvMain;
+        public TextView tvSub;
 
         public GridViewAdapterHolder(View view){
             ivIcon = (ImageView)view.findViewById(R.id.ivIcon);
-            tvDesc = (TextView)view.findViewById(R.id.tvDesc);
+            tvMain = (TextView)view.findViewById(R.id.tvMain);
+            tvSub = (TextView)view.findViewById(R.id.tvSub);
         }
     }
 }

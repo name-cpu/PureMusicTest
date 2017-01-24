@@ -23,14 +23,17 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.Audio.FavoriteDialog;
 import com.example.kaizhiwei.puremusictest.Audio.MoreOperationAdapter;
 import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
+import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
@@ -38,6 +41,8 @@ import com.example.kaizhiwei.puremusictest.Util.FastBlur;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import jp.wasabeef.glide.transformations.BlurTransformation;
 
 /**
  * Created by kaizhiwei on 17/1/4.
@@ -47,6 +52,7 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
     private MyImageView mivClose;
     private GridView gvMoreOper;
     private SeekBar sbVolume;
+    private ImageView ivBackground;
     private List<PlayingMoreOperAdapter.PlayingMoreOperItemData> mListData;
     private AudioManager mAudioManager;
     private MediaEntity mediaEntity;
@@ -135,6 +141,7 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
 
         //按空白处不能取消动画
         setCanceledOnTouchOutside(false);
+        ivBackground = (ImageView)this.findViewById(R.id.ivBackground);
         rlContent = (RelativeLayout)this.findViewById(R.id.rlContent);
         rlContent.setOnClickListener(this);
         mivClose = (MyImageView)this.findViewById(R.id.mivClose);
@@ -151,9 +158,11 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
         sbVolume.setProgress(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
         mLastVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 
-        Bitmap bitmap = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.bg_gedancover);
-        Drawable drawable = FastBlur.BoxBlurFilter(bitmap);
-        rlContent.setBackground(drawable);
+//        Bitmap bitmap = BitmapFactory.decodeResource(this.getContext().getResources(), R.drawable.bg_gedancover);
+//        Drawable drawable = FastBlur.BoxBlurFilter(bitmap);
+//        rlContent.setBackground(drawable);
+
+        Glide.with(HomeActivity.getInstance()).load(R.drawable.bg_gedancover).bitmapTransform(new BlurTransformation(HomeActivity.getInstance(), 25)).into(ivBackground);
     }
 
     private void initData(){

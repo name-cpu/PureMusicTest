@@ -4,22 +4,21 @@
     android:layout_height="wrap_content">
     <ImageView
         android:id="@+id/ivIcon"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="105dp"
+        android:layout_height="105dp"
         android:adjustViewBounds="true"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/ic_launcher"
-        android:background="@drawable/default_back"/>
+        android:src="@drawable/default_live_ic" />
     <TextView
-        android:id="@+id/tvDesc"
+        android:id="@+id/tvMain"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:maxLines="2"
         android:ellipsize="end"
         android:textSize="12sp"
-        android:gravity="left"
         android:textColor="@color/black"
-        android:text="231231231231231244235345345345435345345345345454534545435345345345345435345" />
+        android:gravity="left|center_vertical"
+        android:text="123" />
 
     <TextView
         android:id="@+id/tvSub"
@@ -28,6 +27,7 @@
         android:maxLines="1"
         android:ellipsize="end"
         android:textSize="12sp"
-        android:gravity="center"
+        android:gravity="left|center_vertical"
+        android:textColor="@color/gray"
         android:text="123" />
 </LinearLayout>
