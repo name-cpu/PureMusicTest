@@ -5,12 +5,14 @@ import android.util.Log;
 
 import com.example.kaizhiwei.puremusictest.NetAudio.Entity.NetAlbumInfoData;
 import com.example.kaizhiwei.puremusictest.NetAudio.Entity.NetConfig;
-import com.example.kaizhiwei.puremusictest.NetAudio.Entity.NetPlazaIndexData;
 import com.example.kaizhiwei.puremusictest.NetAudio.Entity.NetRequest;
 import com.example.kaizhiwei.puremusictest.NetAudio.Entity.NetResponse;
-import com.example.kaizhiwei.puremusictest.Util.BaseHandler;
 import com.example.kaizhiwei.puremusictest.Util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
+import com.example.kaizhiwei.puremusictest.base.BaseHandler;
+import com.example.kaizhiwei.puremusictest.base.BaseRunnable;
+import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
+
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -37,41 +39,35 @@ public class NetEngine {
         mThreadPool = Executors.newFixedThreadPool(4);
     }
 
-    public void asyncGetRecommandInfo(final NetRequest request, final BaseHandler handler){
-        if(request == null || handler == null)
-            return;
-
-        mThreadPool.execute(new Runnable() {
+    public void netGet(final String host, final String url, final Map<String, String> mapQuery, final BaseHandler handler){
+        BaseRunnable runnable = new BaseRunnable(handler) {
             @Override
-            public void run() {
+            public void doBusiness() throws Exception {
                 StringBuilder sb = new StringBuilder();
-                String strRequestUrlBase = String.format("http://%s/%s?from=%s&version=%s", NetConfig.HOST, NetConfig.URL, NetConfig.DEVICE_TYPE, NetConfig.APP_VERSION);
+                String strRequestUrlBase = String.format("http://%s/%s?from=%s&version=%s", host, url, PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION);
                 sb.append(strRequestUrlBase);
 
-                Map<String, String> mapParams = request.getParams();
-                if(mapParams != null && mapParams.size() > 0){
-                    Set<String> setKey = mapParams.keySet();
+                if(mapQuery != null && mapQuery.size() > 0){
+                    Set<String> setKey = mapQuery.keySet();
                     for(String key : setKey){
-                        sb.append("&" + key + "=" + mapParams.get(key));
+                        sb.append("&" + key + "=" + mapQuery.get(key));
                     }
                 }
 
-                NetResponse response = executeRequest(sb.toString(), request.getRequestType());
-                Message message = handler.obtainMessage();
+                NetResponse response = executeRequest(sb.toString(), "GET");
+                Message message = new Message();
                 if(response == null || response.getResponseCode() != 200){
                     message.what = BusinessCode.BUSINESS_CODE_ERROR;
                 }
                 else{
                     message.what = BusinessCode.BUSINESS_CODE_SUCCESS;
-                    NetPlazaIndexData data = new NetPlazaIndexData();
-                    boolean bRet = data.parser(response.getResponseBody());
-                    if(bRet){
-                        message.obj = data;
-                    }
+                    message.obj = response.getResponseBody();
                 }
-                handler.sendMessage(message);
+                if(handler != null){
+                    handler.sendMessage(message);
+                }
             }
-        });
+        };
     }
 
     public void asyncGetAlbumInfo(final NetRequest request, final BaseHandler handler){

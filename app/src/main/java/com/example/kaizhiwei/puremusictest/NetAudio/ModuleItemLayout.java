@@ -1,6 +1,8 @@
 package com.example.kaizhiwei.puremusictest.NetAudio;
 
 import android.content.Context;
+import android.net.Uri;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +13,9 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
-import com.example.kaizhiwei.puremusictest.NetAudio.Entity.NetPlazaIndexData;
 import com.example.kaizhiwei.puremusictest.R;
+
+import java.util.List;
 
 /**
  * Created by 24820 on 2017/1/23.
@@ -50,13 +53,15 @@ public class ModuleItemLayout extends LinearLayout{
         gvModule = (AutoHeightGridView)view.findViewById(R.id.gvModule);
     }
 
-    public void setModuleInfo(NetPlazaIndexData.ModuleItem moduleItem){
-        if(moduleItem == null)
-            return;
-
-        Glide.with(HomeActivity.getInstance()).load(moduleItem.picurl).into(imModuleLogo);
-        tvModuleName.setText(moduleItem.title);
-        tvTitleMore.setText(moduleItem.title_more);
+    public void setModuleInfo(String strModulePic, String strMobuleTitle, String strModeulMore){
+        Glide.with(HomeActivity.getInstance()).load(strModulePic).into(imModuleLogo);
+        tvModuleName.setText(strMobuleTitle);
+        if(TextUtils.isEmpty(strModeulMore)){
+            tvTitleMore.setVisibility(View.GONE);
+        }
+        else{
+            tvTitleMore.setText(strModeulMore);
+        }
     }
 
     public void setGridViewAdapter(GridViewAdapter adapter){

@@ -10,12 +10,10 @@
         android:weightSum="1">
         <ImageView
             android:id="@+id/imModuleLogo"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:scaleType="center"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/ic_launcher"
-            android:adjustViewBounds="true"/>
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_launcher" />
         <TextView
             android:layout_marginLeft="5dp"
             android:id="@+id/tvModuleName"

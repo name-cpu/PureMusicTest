@@ -34,9 +34,17 @@ import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.NetAudio.Entity.NetAlbumInfoData;
 import com.example.kaizhiwei.puremusictest.NetAudio.Entity.NetGetAlbumInfoRequest;
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.Util.BaseHandler;
 import com.example.kaizhiwei.puremusictest.Util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.Util.ImageUtil;
+import com.example.kaizhiwei.puremusictest.base.BaseHandler;
+import com.example.kaizhiwei.puremusictest.bean.ActiveIndexBean;
+import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
+import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
+import com.example.kaizhiwei.puremusictest.bean.ShowRedPointBean;
+import com.example.kaizhiwei.puremusictest.bean.SugSceneBean;
+import com.example.kaizhiwei.puremusictest.bean.UgcdiyBaseInfoBean;
+import com.example.kaizhiwei.puremusictest.contract.ResetServerContract;
+import com.example.kaizhiwei.puremusictest.presenter.ResetServerPresenter;
 
 import java.io.File;
 import java.io.Serializable;
@@ -48,7 +56,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
 /**
  * Created by kaizhiwei on 17/1/11.
  */
-public class AlbumMainFragment extends FragmentActivity implements View.OnClickListener {
+public class AlbumMainFragment extends FragmentActivity implements View.OnClickListener, ResetServerContract.View {
     private ImageView ivBack;
     private ImageView imBig;
     private TextView tvAuthor;
@@ -67,6 +75,7 @@ public class AlbumMainFragment extends FragmentActivity implements View.OnClickL
     private LinearLayout llTitle;
     private FavoriteEntity mFavoriteEntity;
     private CollapsingToolbarLayout collapsing_toolbar;
+    private ResetServerContract.Presenter mPresenter;
 
     public static final String ALBUM_KEY = "ALBUM_KEY";
     public static final String FAVORITE_NAME = "FAVORITE_NAME";
@@ -196,6 +205,9 @@ public class AlbumMainFragment extends FragmentActivity implements View.OnClickL
         String strAlbumKey = bundle.getString(ALBUM_KEY);
         NetGetAlbumInfoRequest request = new NetGetAlbumInfoRequest();
         request.setAlbumKey(strAlbumKey);
+
+        mPresenter = new ResetServerPresenter(this);
+
         NetEngine.getInstance().asyncGetAlbumInfo(request, new BaseHandler() {
             @Override
             public void handleBusiness(Message msg) {
@@ -336,5 +348,40 @@ public class AlbumMainFragment extends FragmentActivity implements View.OnClickL
             bitmap = ImageUtil.decodeSampledBitmapFromPath(strPath, reqWidth, reqHeight);
             ivImage.setImageBitmap(bitmap);
         }
+    }
+
+    @Override
+    public void onGetCatogaryListSuccess(SceneCategoryListBean bean) {
+
+    }
+
+    @Override
+    public void onGetActiveIndexSuccess(ActiveIndexBean bean) {
+
+    }
+
+    @Override
+    public void onShowRedPointSuccess(ShowRedPointBean bean) {
+
+    }
+
+    @Override
+    public void onGetSugSceneSuccess(SugSceneBean bean) {
+
+    }
+
+    @Override
+    public void onGetPlazaIndexSuccess(PlazaIndexBean bean) {
+
+    }
+
+    @Override
+    public void onGetUgcdiyBaseInfoSuccess(UgcdiyBaseInfoBean baseInfoBean) {
+
+    }
+
+    @Override
+    public void onError(String strErrMsg) {
+
     }
 }

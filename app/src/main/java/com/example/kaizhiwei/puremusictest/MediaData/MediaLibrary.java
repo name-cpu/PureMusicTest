@@ -4,11 +4,11 @@ import android.net.Uri;
 import android.os.Message;
 import android.text.TextUtils;
 
-import com.example.kaizhiwei.puremusictest.Util.BaseHandler;
 import com.example.kaizhiwei.puremusictest.Util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
 import com.example.kaizhiwei.puremusictest.Util.ExtensionUtil;
 import com.example.kaizhiwei.puremusictest.Util.StringUtil;
+import com.example.kaizhiwei.puremusictest.base.BaseHandler;
 
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;

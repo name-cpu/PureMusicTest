@@ -17,24 +17,32 @@ import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.CommonUI.MySwipeRefreshLayout;
 import com.example.kaizhiwei.puremusictest.R;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import com.example.kaizhiwei.puremusictest.NetAudio.Entity.*;
-import com.example.kaizhiwei.puremusictest.Util.BaseHandler;
-import com.example.kaizhiwei.puremusictest.Util.BusinessCode;
+import com.example.kaizhiwei.puremusictest.bean.ActiveIndexBean;
+import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
+import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
+import com.example.kaizhiwei.puremusictest.bean.ShowRedPointBean;
+import com.example.kaizhiwei.puremusictest.bean.SugSceneBean;
+import com.example.kaizhiwei.puremusictest.bean.UgcdiyBaseInfoBean;
+import com.example.kaizhiwei.puremusictest.contract.ResetServerContract;
+import com.example.kaizhiwei.puremusictest.presenter.ResetServerPresenter;
 import com.viewpagerindicator.LinePageIndicator;
 
 
-public class NetAudioFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class NetAudioFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, ResetServerContract.View {
     private MySwipeRefreshLayout swlReflash;
     private ViewPager vpFocus;
     private List<View> mFocusListData;
     private AutoHeightGridView gvCatogary;
     private LinearLayout llMain;
-    private NetPlazaIndexData mMusicData;
+    private PlazaIndexBean mMusicData;
     private Handler mHandler = new Handler();
     private LinePageIndicator linePageIndicator;
     private float density;
+    private ResetServerContract.Presenter mPreserver;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,39 +57,18 @@ public class NetAudioFragment extends Fragment implements SwipeRefreshLayout.OnR
         llMain = (LinearLayout)rootView.findViewById(R.id.llMain);
         gvCatogary = (AutoHeightGridView)rootView.findViewById(R.id.gvCatogary);
         linePageIndicator = (LinePageIndicator)rootView.findViewById(R.id.linePageIndicator);
-        updateRecommandData();
+
+        mPreserver = new ResetServerPresenter(this);
+        mPreserver.getPlazaIndex("android", "5.9.9.6", "ppzs", 2, "baidu.ting.plaza.index", "85FB11BCF66936DA386C6AC9CA228F2C", 8);
         return rootView;
     }
 
-    private void updateRecommandData(){
-        NetGetPlazaIndexRequest recommandRequest = new NetGetPlazaIndexRequest();
-        NetEngine.getInstance().asyncGetRecommandInfo(recommandRequest, new BaseHandler() {
-            @Override
-            public void handleBusiness(Message msg) {
-                int what = msg.what;
-                if (what != BusinessCode.BUSINESS_CODE_SUCCESS || msg.obj == null)
-                    return;
-
-                if(swlReflash.isRefreshing()){
-                    swlReflash.setRefreshing(false);
-                }
-                NetPlazaIndexData data = (NetPlazaIndexData) msg.obj;
-                mMusicData = data;
-                llMain.removeAllViews();
-                initFocusViewPager(data);
-                initCategaryGridView(data);
-                initDiyGridView(data);
-                initMixLayout(data);
-            }
-        });
-    }
-
-    private void initFocusViewPager(NetPlazaIndexData data){
-        if(data == null || data.mFocus == null)
+    private void initFocusView(String moduleKey){
+        if(mMusicData == null || mMusicData.mFocus == null || mMusicData.mFocus.listFocus == null)
             return;
 
         mFocusListData = new ArrayList<>();
-        for(int i = 0;i < data.mFocus.listFocus.size();i++){
+        for(int i = 0;i < mMusicData.mFocus.listFocus.size();i++){
             ImageView imageView = new ImageView(this.getActivity());
             mFocusListData.add(imageView);
         }
@@ -97,13 +84,16 @@ public class NetAudioFragment extends Fragment implements SwipeRefreshLayout.OnR
         linePageIndicator.setLineWidth(8 * density);
     }
 
-    private void initCategaryGridView(NetPlazaIndexData data){
+    private void initEntryView(String moduleKey){
+        if(mMusicData == null || mMusicData.mEntity == null || mMusicData.mEntity.listEntityItem == null)
+            return;
+
         List<GridViewAdapter.GridViewAdapterItemData> listTem = new ArrayList<>();
-        for(int i = 0;i < data.mEntity.listEntityItem.size();i++){
+        for(int i = 0;i < mMusicData.mEntity.listEntityItem.size();i++){
             GridViewAdapter.GridViewAdapterItemData itemData = new GridViewAdapter.GridViewAdapterItemData();
-            itemData.strMain = data.mEntity.listEntityItem.get(i).title;
-            itemData.strIconUrl = data.mEntity.listEntityItem.get(i).icon;
-            itemData.strkey = data.mEntity.listEntityItem.get(i).title;
+            itemData.strMain = mMusicData.mEntity.listEntityItem.get(i).title;
+            itemData.strIconUrl = mMusicData.mEntity.listEntityItem.get(i).icon;
+            itemData.strkey = mMusicData.mEntity.listEntityItem.get(i).title;
             listTem.add(itemData);
         }
 
@@ -111,38 +101,51 @@ public class NetAudioFragment extends Fragment implements SwipeRefreshLayout.OnR
         gvCatogary.setAdapter(adapter);
     }
 
-    private void initDiyGridView(NetPlazaIndexData data){
-        NetPlazaIndexData.ModuleItem moduleItem = data.mModule.getModuleItemByKey("diy");
-        if(moduleItem == null)
+    private void initDiyView(String moduleKey){
+        if(mMusicData == null || mMusicData.mDiy == null || mMusicData.mDiy.listDiyItem == null
+                || mMusicData.mModule == null || mMusicData.mModule.listModule == null)
             return;
 
         List<GridViewAdapter.GridViewAdapterItemData> listTem = new ArrayList<>();
         listTem = new ArrayList<>();
-        for(int i = 0; i < data.mDiy.listDiyItem.size();i++){
+        for(int i = 0; i < mMusicData.mDiy.listDiyItem.size();i++){
             GridViewAdapter.GridViewAdapterItemData itemData = new GridViewAdapter.GridViewAdapterItemData();
-            itemData.strMain = data.mDiy.listDiyItem.get(i).title;
-            itemData.strIconUrl = data.mDiy.listDiyItem.get(i).pic;
-            itemData.strkey = data.mDiy.listDiyItem.get(i).listid;
+            itemData.strMain = mMusicData.mDiy.listDiyItem.get(i).title;
+            itemData.strIconUrl = mMusicData.mDiy.listDiyItem.get(i).pic;
+            itemData.strkey = mMusicData.mDiy.listDiyItem.get(i).listid;
             listTem.add(itemData);
         }
         GridViewAdapter adapter = new GridViewAdapter(NetAudioFragment.this.getActivity(), listTem, R.layout.fragment_net_audio_recommand_item);
         ModuleItemLayout layout = new ModuleItemLayout(this.getActivity());
-        layout.setModuleInfo(moduleItem);
+
+        List<PlazaIndexBean.ModuleItem> moduleBeanList = mMusicData.mModule.listModule;
+        if(moduleBeanList != null){
+            for(int i = 0;i < moduleBeanList.size();i++){
+                PlazaIndexBean.ModuleItem moduleBean = moduleBeanList.get(i);
+                if(moduleBean.title.equalsIgnoreCase("diy")){
+                    layout.setModuleInfo(moduleBean.picurl, moduleBean.title, moduleBean.title_more);
+                    break;
+                }
+            }
+        }
+
         layout.setGridViewAdapter(adapter);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.setMargins((int)(10*density), (int)(10*density), (int)(10*density), (int)(10*density));
         llMain.addView(layout, params);
     }
 
-    private void initMixLayout(NetPlazaIndexData data){
-        if(data == null || data.mModule == null)
+    private void initMixView(String moduleKey){
+        if(mMusicData == null || mMusicData.mListMix == null || mMusicData.mModule == null || mMusicData.mModule.listModule == null)
             return;
 
-        for(int i = 0;i < data.mModule.listModule.size();i++){
-            NetPlazaIndexData.ModuleItem moduleItem = data.mModule.listModule.get(i);
-            if(moduleItem.key.contains("mix")){
+        for(int i = 0;i < mMusicData.mModule.listModule.size();i++){
+            PlazaIndexBean.ModuleItem moduleBean = mMusicData.mModule.listModule.get(i);
+            if(moduleBean == null)
+                continue;
 
-                NetPlazaIndexData.MixData mixData = data.findMixDataByModuleKey(moduleItem.key);
+            if(moduleBean.key.equalsIgnoreCase(moduleKey)){
+                PlazaIndexBean.MixBean mixData = mMusicData.findMixDataByModuleKey(moduleBean.key);
                 if(mixData == null)
                     continue;
 
@@ -158,7 +161,42 @@ public class NetAudioFragment extends Fragment implements SwipeRefreshLayout.OnR
                 }
                 GridViewAdapter adapter = new GridViewAdapter(NetAudioFragment.this.getActivity(), listTem, R.layout.fragment_net_audio_recommand_item);
                 ModuleItemLayout layout = new ModuleItemLayout(this.getActivity());
-                layout.setModuleInfo(moduleItem);
+                layout.setModuleInfo(moduleBean.picurl, moduleBean.title, moduleBean.title_more);
+                layout.setGridViewAdapter(adapter);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                params.setMargins((int)(10*density), (int)(10*density), (int)(10*density), (int)(10*density));
+                llMain.addView(layout, params);
+            }
+        }
+    }
+
+    private void initModView(String moduleName){
+        if(mMusicData == null || mMusicData.mListMod == null || mMusicData.mModule == null || mMusicData.mModule.listModule == null)
+            return;
+
+        for(int i = 0;i < mMusicData.mModule.listModule.size();i++){
+            PlazaIndexBean.ModuleItem moduleBean = mMusicData.mModule.listModule.get(i);
+            if(moduleBean == null)
+                continue;
+
+            if(moduleBean.key.equalsIgnoreCase(moduleName)){
+                PlazaIndexBean.ModBean modData = mMusicData.findModDataByModuleKey(moduleBean.key);
+                if(modData == null)
+                    continue;
+
+                List<GridViewAdapter.GridViewAdapterItemData> listTem = new ArrayList<>();
+                listTem = new ArrayList<>();
+                for(int j = 0; j < modData.listMod.size();j++){
+                    GridViewAdapter.GridViewAdapterItemData itemData = new GridViewAdapter.GridViewAdapterItemData();
+                    itemData.strMain = modData.listMod.get(j).title;
+                    itemData.strSub = modData.listMod.get(j).author;
+                    itemData.strIconUrl = modData.listMod.get(j).pic;
+                    itemData.strkey = modData.listMod.get(j).type_id;
+                    listTem.add(itemData);
+                }
+                GridViewAdapter adapter = new GridViewAdapter(NetAudioFragment.this.getActivity(), listTem, R.layout.fragment_net_audio_recommand_item);
+                ModuleItemLayout layout = new ModuleItemLayout(this.getActivity());
+                layout.setModuleInfo(moduleBean.picurl, moduleBean.title, moduleBean.title_more);
                 layout.setGridViewAdapter(adapter);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 params.setMargins((int)(10*density), (int)(10*density), (int)(10*density), (int)(10*density));
@@ -169,7 +207,81 @@ public class NetAudioFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     @Override
     public void onRefresh() {
-        updateRecommandData();
+        mPreserver.getPlazaIndex("android", "5.9.9.6", "ppzs", 2, "baidu.ting.plaza.index", "85FB11BCF66936DA386C6AC9CA228F2C", 8);
+    }
+
+    @Override
+    public void onGetCatogaryListSuccess(SceneCategoryListBean bean) {
+
+    }
+
+    @Override
+    public void onGetActiveIndexSuccess(ActiveIndexBean bean) {
+
+    }
+
+    @Override
+    public void onShowRedPointSuccess(ShowRedPointBean bean) {
+
+    }
+
+    @Override
+    public void onGetSugSceneSuccess(SugSceneBean bean) {
+
+    }
+
+    @Override
+    public void onGetPlazaIndexSuccess(PlazaIndexBean bean) {
+        if(bean == null || bean.mModule == null || bean.mModule.listModule == null)
+            return;
+
+        if(swlReflash.isRefreshing()){
+            swlReflash.setRefreshing(false);
+        }
+        llMain.removeAllViews();
+        mMusicData = bean;
+
+        Class clazz = this.getClass();
+        Method[] methods = clazz.getDeclaredMethods();
+        for(int i = 0;i < bean.mModule.listModule.size();i++){
+            String moduleKey = bean.mModule.listModule.get(i).key;
+            String moduleKeyCompare;
+            if(moduleKey.toLowerCase().startsWith("mix")){
+                moduleKeyCompare = "mix";
+            }
+            else if(moduleKey.toLowerCase().startsWith("mod")){
+                moduleKeyCompare = "mod";
+            }
+            else{
+                moduleKeyCompare = moduleKey;
+            }
+
+            for(int j = 0;j < methods.length;j++){
+                String methodName = methods[j].getName().toLowerCase();
+                if(methodName.equalsIgnoreCase("init" + moduleKeyCompare + "view")){
+                    if(methods[j].isAccessible() == false){
+                        methods[j].setAccessible(true);
+                    }
+                    try {
+                        methods[j].invoke(this, moduleKey);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onGetUgcdiyBaseInfoSuccess(UgcdiyBaseInfoBean baseInfoBean) {
+
+    }
+
+    @Override
+    public void onError(String strErrMsg) {
+
     }
 
     private class FocusPagerAdapter extends PagerAdapter{

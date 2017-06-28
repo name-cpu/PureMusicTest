@@ -2,7 +2,6 @@ package com.example.kaizhiwei.puremusictest.NetAudio;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Message;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,9 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
-import com.example.kaizhiwei.puremusictest.NetAudio.Entity.NetGetAlbumInfoRequest;
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.Util.BaseHandler;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.example.kaizhiwei.puremusictest.NetAudio.Entity;
+package com.example.kaizhiwei.puremusictest.bean;
 
 import android.text.TextUtils;
 
@@ -7,25 +7,40 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-public class NetPlazaIndexData {
-    public List<MixData> mListMix;
-    public Diy mDiy;
-    public Focus mFocus;
+public class PlazaIndexBean {
+    public List<MixBean> mListMix;
+    public List<ModBean> mListMod;
+    public DiyBean mDiy;
+    public FocusBean mFocus;
     public ShowList mShowList;
-    public Entity mEntity;
+    public EntryBean mEntity;
     public RecSong mRecSong;
-    public Radio mRadio;
-    public Module mModule;
+    public RadioBean mRadio;
+    public ModuleBean mModule;
 
-    public MixData findMixDataByModuleKey(String strKey){
+    public MixBean findMixDataByModuleKey(String strKey){
         if(mListMix == null || TextUtils.isEmpty(strKey))
             return null;
 
         for(int i = 0;i < mListMix.size();i++){
             if(mListMix.get(i).moduleKey.equalsIgnoreCase(strKey))
                 return mListMix.get(i);
+        }
+
+        return null;
+    }
+
+    public ModBean findModDataByModuleKey(String strKey){
+        if(mListMod == null || TextUtils.isEmpty(strKey))
+            return null;
+
+        for(int i = 0;i < mListMod.size();i++){
+            if(mListMod.get(i).moduleKey.equalsIgnoreCase(strKey))
+                return mListMod.get(i);
         }
 
         return null;
@@ -45,7 +60,7 @@ public class NetPlazaIndexData {
             int errorCode = jsonArray.getInt("error_code");
             JSONArray jmoduleArray = jsonArray.getJSONArray("module");
             if(jmoduleArray != null){
-                mModule = new Module();
+                mModule = new ModuleBean();
                 mModule.parser(jsonArray);
             }
 
@@ -54,7 +69,7 @@ public class NetPlazaIndexData {
                 for (int i = 0; i < mModule.listModule.size(); i++) {
                     String moduleName = mModule.listModule.get(i).key;
                     if (moduleName.contains("mix_") && rootResult.has(moduleName)) {
-                        MixData mixData = new MixData();
+                        MixBean mixData = new MixBean();
                         JSONObject jsonObject = (JSONObject) rootResult.get(moduleName);
                         mixData.parser(jsonObject);
                         mixData.moduleKey = moduleName;
@@ -62,13 +77,25 @@ public class NetPlazaIndexData {
                     }
                 }
 
+                mListMod = new ArrayList<>();
+                for (int i = 0; i < mModule.listModule.size(); i++) {
+                    String moduleName = mModule.listModule.get(i).key;
+                    if (moduleName.contains("mod_") && rootResult.has(moduleName)) {
+                        ModBean mixData = new ModBean();
+                        JSONObject jsonObject = (JSONObject) rootResult.get(moduleName);
+                        mixData.parser(jsonObject);
+                        mixData.moduleKey = moduleName;
+                        mListMod.add(mixData);
+                    }
+                }
+
                 if(rootResult.has("diy")){
-                    mDiy = new Diy();
+                    mDiy = new DiyBean();
                     mDiy.parser(rootResult.getJSONObject("diy"));
                 }
 
                 if(rootResult.has("focus")){
-                    mFocus = new Focus();
+                    mFocus = new FocusBean();
                     mFocus.parser(rootResult.getJSONObject("focus"));
                 }
 
@@ -78,7 +105,7 @@ public class NetPlazaIndexData {
                 }
 
                 if(rootResult.has("entry")){
-                    mEntity = new Entity();
+                    mEntity = new EntryBean();
                     mEntity.parser(rootResult.getJSONObject("entry"));
                 }
 
@@ -88,7 +115,7 @@ public class NetPlazaIndexData {
                 }
 
                 if(rootResult.has("radio")){
-                    mRadio = new Radio();
+                    mRadio = new RadioBean();
                     mRadio.parser(rootResult.getJSONObject("radio"));
                 }
             }
@@ -101,7 +128,7 @@ public class NetPlazaIndexData {
         return true;
     }
 
-    static public class Diy{
+    static public class DiyBean{
         public int error_code;
         public List<DiyItem> listDiyItem;
 
@@ -150,7 +177,7 @@ public class NetPlazaIndexData {
         }
     }
 
-    static public class Entity{
+    static public class EntryBean{
         public int error_code;
         public List<EntityItem> listEntityItem;
 
@@ -190,7 +217,7 @@ public class NetPlazaIndexData {
     }
 
 
-    static public class Focus{
+    static public class FocusBean{
         public int error_code;
         public List<FocusItem> listFocus;
 
@@ -235,8 +262,56 @@ public class NetPlazaIndexData {
         }
     }
 
+    static public class ModBean{
+        public int error_code;
+        public String moduleKey;
+        public List<ModItem> listMod;
 
-    static public class MixData{
+        public void parser(JSONObject obj){
+            try {
+                error_code = obj.getInt("error_code");
+                JSONArray jsonArray = obj.getJSONArray("result");
+                listMod = new ArrayList<>();
+                for(int i = 0;i < jsonArray.length();i++){
+                    JSONObject jsonObject = (JSONObject)jsonArray.get(i);
+                    ModItem item = new ModItem();
+                    item.parser(jsonObject);
+                    listMod.add(item);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    static public class ModItem{
+        public String desc;
+        public String pic;
+        public String type_id;
+        public int type;
+        public String title;
+        public int tip_type;
+        public String author;
+
+        public void parser(JSONObject obj){
+            if(obj == null)
+                return;
+
+            try {
+                desc = obj.getString("desc");
+                pic = obj.getString("pic");
+                type_id = obj.getString("type_id");
+                type = obj.getInt("type");
+                title = obj.getString("title");
+                tip_type = obj.getInt("tip_type");
+                author = obj.getString("author");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    static public class MixBean{
         public int error_code;
         public String moduleKey;
         public List<MixItem> listMix;
@@ -285,7 +360,7 @@ public class NetPlazaIndexData {
         }
     }
 
-    static public class Module{
+    static public class ModuleBean{
         public int error_code;
         public List<ModuleItem> listModule;
 
@@ -300,6 +375,13 @@ public class NetPlazaIndexData {
                     item.parser(jsonObject);
                     listModule.add(item);
                 }
+
+                Collections.sort(listModule, new Comparator<ModuleItem>() {
+                    @Override
+                    public int compare(ModuleItem lhs, ModuleItem rhs) {
+                        return lhs.pos - rhs.pos;
+                    }
+                });
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -345,7 +427,7 @@ public class NetPlazaIndexData {
         }
     }
 
-    static public class Radio{
+    static public class RadioBean{
         public int error_code;
         public List<RadioItem> listRadioItem;
 
