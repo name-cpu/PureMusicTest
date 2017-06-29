@@ -3,7 +3,6 @@ package com.example.kaizhiwei.puremusictest.HomePage;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Build;
@@ -14,7 +13,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -24,10 +22,8 @@ import android.view.WindowManager;
 
 import com.example.kaizhiwei.puremusictest.Audio.LocalAudioFragment;
 import com.example.kaizhiwei.puremusictest.Audio.NowPlayingLayout;
-import com.example.kaizhiwei.puremusictest.CommonUI.StatusBarUtil;
 import com.example.kaizhiwei.puremusictest.CommonUI.SystemBarTintManager;
-import com.example.kaizhiwei.puremusictest.NetAudio.AlbumMainFragment;
-import com.example.kaizhiwei.puremusictest.NetAudio.NetAudioFragment;
+import com.example.kaizhiwei.puremusictest.NetAudio.tuijian.TuiJIanFragment;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.SlideMenu.SlidingMenu;
 import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
@@ -90,7 +86,7 @@ public class HomeActivity extends FragmentActivity {
 
         mListFragment = new ArrayList<>();
         mListFragment.add(new LocalMusicMainFragment());
-        mListFragment.add(new NetAudioFragment());
+        mListFragment.add(new TuiJIanFragment());
 
         mViewPager.setLongClickable(true);
         //mViewPager.setOnLongClickListener(this);

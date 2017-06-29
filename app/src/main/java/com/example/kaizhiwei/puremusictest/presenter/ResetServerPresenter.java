@@ -7,6 +7,7 @@ import com.example.kaizhiwei.puremusictest.Util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.api.ApiService;
 import com.example.kaizhiwei.puremusictest.base.BaseHandler;
 import com.example.kaizhiwei.puremusictest.bean.ActiveIndexBean;
+import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
 import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
@@ -256,6 +257,36 @@ public class ResetServerPresenter implements ResetServerContract.Presenter {
                     public void onNext(DiyGeDanInfoBean bean) {
                         if(mView != null){
                             mView.onGetDiyGeDanInfoSuccess(bean);
+                        }
+                    }
+                });
+        subscriptions.add(subscriber);
+    }
+
+    @Override
+    public void getArtistListInfo(String from, String version, String channel, String operator,
+                             String method, String format, String offset, String limit, String order, String area, String sex) {
+        ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
+        Observable<ArtistGetListBean> observable = apiService.getArtistListInfo(from, version, channel, operator, method, format, offset, limit, order, area, sex);
+        Subscription subscriber = observable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<ArtistGetListBean>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        if(mView != null){
+                            mView.onError(e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onNext(ArtistGetListBean bean) {
+                        if(mView != null){
+                            mView.onGetArtistListInfoSuccess(bean);
                         }
                     }
                 });

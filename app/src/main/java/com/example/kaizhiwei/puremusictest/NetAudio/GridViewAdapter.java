@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
+import com.example.kaizhiwei.puremusictest.NetAudio.tuijian.ArtistSelActivity;
 import com.example.kaizhiwei.puremusictest.R;
 
 import java.util.List;
@@ -77,11 +78,8 @@ public class GridViewAdapter extends BaseAdapter {
 
             @Override
             public void onClick(View v) {
-                String str = (String) v.getTag(R.id.selected_view);
-                Intent intent = new Intent(HomeActivity.getInstance(), AlbumMainFragment.class);
-                intent.putExtra(AlbumMainFragment.ALBUM_KEY, str);
+                Intent intent = new Intent(HomeActivity.getInstance(), ArtistSelActivity.class);
                 HomeActivity.getInstance().startActivity(intent);
-
             }
         });
         Glide.with(convertView.getContext()).load(entity.strIconUrl).into(holder.ivIcon);

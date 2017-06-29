@@ -1,6 +1,7 @@
 package com.example.kaizhiwei.puremusictest.api;
 
 import com.example.kaizhiwei.puremusictest.bean.ActiveIndexBean;
+import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
 import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
@@ -98,4 +99,19 @@ public interface ApiService {
                                                  @Query("from") String from,
                                                  @Query("method") String method,
                                                  @Query("listid") int listid);
+
+    //获取歌手列表
+    //GET /v1/restserver/ting?from=android&version=5.9.9.6&channel=ppzs&operator=2&method=baidu.ting.artist.getList&format=json&offset=0&limit=48&order=1&area=0&sex=0
+    @GET("/v1/restserver/ting")
+    Observable<ArtistGetListBean> getArtistListInfo(@Query("from") String from,
+                                                    @Query("version") String version,
+                                                    @Query("channel") String channel,
+                                                    @Query("operator") String operator,
+                                                    @Query("method") String method,
+                                                    @Query("format") String format,
+                                                    @Query("offset") String offset,
+                                                    @Query("limit") String limit,
+                                                    @Query("order") String order,
+                                                    @Query("area") String area,
+                                                    @Query("sex") String sex);
 }

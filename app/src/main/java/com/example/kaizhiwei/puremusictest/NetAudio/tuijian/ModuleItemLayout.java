@@ -1,4 +1,4 @@
-package com.example.kaizhiwei.puremusictest.NetAudio;
+package com.example.kaizhiwei.puremusictest.NetAudio.tuijian;
 
 import android.content.Context;
 import android.net.Uri;
@@ -13,6 +13,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
+import com.example.kaizhiwei.puremusictest.NetAudio.AutoHeightGridView;
+import com.example.kaizhiwei.puremusictest.NetAudio.GridViewAdapter;
 import com.example.kaizhiwei.puremusictest.R;
 
 import java.util.List;

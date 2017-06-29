@@ -1,6 +1,8 @@
 package com.example.kaizhiwei.puremusictest.CommonUI;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,38 +23,67 @@ public class CommonTitleView extends LinearLayout implements View.OnClickListene
         public void onRightBtnClicked();
     }
 
-    private Button leftBtn;
-    private Button rightBtn;
+    private TextView leftBtn;
+    private TextView rightBtn;
     private TextView titleTextView;
     private onTitleClickListener mListener;
 
     public CommonTitleView(Context context) {
-        super(context);
-        initView(context);
+        this(context, null, 0);
     }
 
     public CommonTitleView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        initView(context);
+        this(context, attrs, 0);
     }
 
     public CommonTitleView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initView(context);
+        initView(context, attrs);
     }
 
-    public void initView(Context context){
-        if (isInEditMode()) {
-            return;
-        }
-
+    public void initView(Context context, AttributeSet attrs){
         LayoutInflater inflater=(LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.layout_commen_title,this);
-        leftBtn = (Button) findViewById(R.id.leftBtn);
-        rightBtn = (Button) findViewById(R.id.rightBtn);
+        leftBtn = (TextView) findViewById(R.id.leftBtn);
+        rightBtn = (TextView) findViewById(R.id.rightBtn);
         titleTextView = (TextView) findViewById(R.id.titleTextView);
         leftBtn.setOnClickListener(this);
         rightBtn.setOnClickListener(this);
+
+        if(attrs == null)
+            return;
+
+        TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.CommonTitleView);
+        String leftText = array.getString(R.styleable.CommonTitleView_leftText);
+        if(!TextUtils.isEmpty(leftText)){
+            leftBtn.setText(leftText);
+        }
+
+        int leftDrawable = array.getResourceId(R.styleable.CommonTitleView_leftDrawable, R.drawable.ic_launcher);
+        if(leftDrawable != R.drawable.ic_launcher){
+            leftBtn.setCompoundDrawables(getResources().getDrawable(leftDrawable), null, null, null);
+        }
+
+        String rightText = array.getString(R.styleable.CommonTitleView_rightText);
+        if(!TextUtils.isEmpty(rightText)){
+            rightBtn.setText(rightText);
+        }
+        else{
+            rightBtn.setVisibility(View.GONE);
+        }
+
+        int rightDrawable = array.getResourceId(R.styleable.CommonTitleView_rightDrawable, R.drawable.ic_launcher);
+        if(rightDrawable != R.drawable.ic_launcher){
+            rightBtn.setCompoundDrawables(getResources().getDrawable(rightDrawable), null, null, null);
+        }
+
+        String title = array.getString(R.styleable.CommonTitleView_title);
+        if(!TextUtils.isEmpty(title)){
+            titleTextView.setText(title);
+        }
+        else{
+            titleTextView.setVisibility(View.GONE);
+        }
     }
 
     public void setTitleViewInfo(String strLeftBtn, String strTitle, String strRightBtn){

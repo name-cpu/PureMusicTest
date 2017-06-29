@@ -12,6 +12,15 @@
     <attr name="listviewSeperatorLineColor" format="reference|color"/>
     <attr name="common_title_backgroundColor" format="reference|color"/>
 
+    <!-- CommonTitle -->
+    <declare-styleable name="CommonTitleView">
+        <attr name="leftText" format="string"/>
+        <attr name="leftDrawable" format="reference"/>
+        <attr name="title" format="string"/>
+        <attr name="rightText" format="string"/>
+        <attr name="rightDrawable" format="reference"/>
+    </declare-styleable>
+
     <!-- SlidingMenu -->
     <declare-styleable name="SlidingMenu">
         <attr name="mode">

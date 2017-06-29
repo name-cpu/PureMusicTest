@@ -38,6 +38,8 @@ import com.example.kaizhiwei.puremusictest.Util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.Util.ImageUtil;
 import com.example.kaizhiwei.puremusictest.base.BaseHandler;
 import com.example.kaizhiwei.puremusictest.bean.ActiveIndexBean;
+import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
+import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
 import com.example.kaizhiwei.puremusictest.bean.ShowRedPointBean;
@@ -377,6 +379,16 @@ public class AlbumMainFragment extends FragmentActivity implements View.OnClickL
 
     @Override
     public void onGetUgcdiyBaseInfoSuccess(UgcdiyBaseInfoBean baseInfoBean) {
+
+    }
+
+    @Override
+    public void onGetDiyGeDanInfoSuccess(DiyGeDanInfoBean bean) {
+
+    }
+
+    @Override
+    public void onGetArtistListInfoSuccess(ArtistGetListBean bean) {
 
     }
 
