@@ -28,4 +28,19 @@
     <string name="play_mode_order">顺序播放</string>
     <string name="play_mode_random">随机播放</string>
     <string name="play_mode_roundsingle">单曲循环</string>
+
+    <string name="HuaYuNan">华语男歌手</string>
+    <string name="HuaYuNv">华语女歌手</string>
+    <string name="HuaYuTeam">华语组合</string>
+    <string name="OuMeiNan">欧美男歌手</string>
+    <string name="OuMeiNv">欧美女歌手</string>
+    <string name="OuMeiTeam">欧美组合</string>
+    <string name="HanGuoNan">韩国男歌手</string>
+    <string name="HanGuoNv">韩国女歌手</string>
+    <string name="HanGuoTeam">韩国组合</string>
+    <string name="JapanNan">日本男歌手</string>
+    <string name="JapanNv">日本女歌手</string>
+    <string name="JapanTeam">日本组合</string>
+    <string name="Other">其他</string>
+
 </resources>

@@ -49,19 +49,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="150dp"></android.support.v4.view.ViewPager>
 
+            <com.viewpagerindicator.LinePageIndicator
+                android:id="@+id/linePageIndicator"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginBottom="5dp">
+            </com.viewpagerindicator.LinePageIndicator>
+
             <View
                 android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:background="@color/lightgray"/>
             <RelativeLayout
-                android:background="@drawable/list_select_background"
                 android:id="@+id/rlHuaYuNan"
                 style="@style/artist_sel_rl_style">
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="华语男歌手"
+                    android:text="@string/HuaYuNan"
                     android:gravity="center_vertical"/>
 
                 <ImageView
@@ -82,7 +88,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="华语女歌手"
+                    android:text="@string/HuaYuNv"
                     android:gravity="center_vertical"/>
 
                 <ImageView
@@ -103,7 +109,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="华语组合"
+                    android:text="@string/HuaYuTeam"
                     android:gravity="center_vertical"/>
 
                 <ImageView
@@ -123,7 +129,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="欧美男歌手"
+                    android:text="@string/OuMeiNan"
                     android:gravity="center_vertical"/>
 
                 <ImageView
@@ -144,7 +150,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="欧美女歌手"
+                    android:text="@string/OuMeiNv"
                     android:gravity="center_vertical"/>
 
                 <ImageView
@@ -165,7 +171,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="欧美组合"
+                    android:text="@string/OuMeiTeam"
                     android:gravity="center_vertical"/>
 
                 <ImageView
@@ -186,7 +192,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="韩国男歌手"
+                    android:text="@string/HanGuoNan"
                     android:gravity="center_vertical"/>
 
                 <ImageView
@@ -207,7 +213,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="韩国女歌手"
+                    android:text="@string/HanGuoNv"
                     android:gravity="center_vertical"/>
 
                 <ImageView
@@ -228,7 +234,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="韩国组合"
+                    android:text="@string/HanGuoTeam"
                     android:gravity="center_vertical"/>
 
                 <ImageView
@@ -249,7 +255,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="日本男歌手"
+                    android:text="@string/JapanNan"
                     android:gravity="center_vertical"/>
 
                 <ImageView
@@ -270,7 +276,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="日本女歌手"
+                    android:text="@string/JapanNv"
                     android:gravity="center_vertical"/>
 
                 <ImageView
@@ -291,7 +297,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="日本组合"
+                    android:text="@string/JapanTeam"
                     android:gravity="center_vertical"/>
 
                 <ImageView
@@ -312,7 +318,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="其他"
+                    android:text="@string/Other"
                     android:gravity="center_vertical"/>
 
                 <ImageView

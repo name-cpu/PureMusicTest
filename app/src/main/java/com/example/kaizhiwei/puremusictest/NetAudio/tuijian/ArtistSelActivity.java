@@ -1,5 +1,8 @@
 package com.example.kaizhiwei.puremusictest.NetAudio.tuijian;
 
+import android.content.Intent;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -25,6 +28,7 @@ import com.example.kaizhiwei.puremusictest.bean.UgcdiyBaseInfoBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.ResetServerContract;
 import com.example.kaizhiwei.puremusictest.presenter.ResetServerPresenter;
+import com.viewpagerindicator.LinePageIndicator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,10 +86,14 @@ public class ArtistSelActivity extends MyBaseActivity implements ResetServerCont
     @Bind(R.id.vpReMenArtist)
     ViewPager vpReMenArtist;
 
+    @Bind(R.id.linePageIndicator)
+    LinePageIndicator linePageIndicator;
+
     private ResetServerContract.Presenter mPresenter;
     private ArtistGetListBean mArtistGetListBean;
     private List<GridView> mListGridViews;
     private static final int PAGE_ARTIST_NUM = 3;
+    private static final int MAX_REMEN_NUM = 12;
     private LayoutInflater layoutInflater;
 
 
@@ -131,19 +139,60 @@ public class ArtistSelActivity extends MyBaseActivity implements ResetServerCont
 
     @Override
     public void onGetArtistListInfoSuccess(ArtistGetListBean bean) {
-        if(bean == null){
+        if(bean == null || bean.getArtist() == null){
             showToast("data error");
             return;
         }
 
+        if(bean.getArtist().size() > MAX_REMEN_NUM){
+            for(int i = MAX_REMEN_NUM; i < bean.getArtist().size();i++){
+                bean.getArtist().remove(i);
+                i--;
+            }
+        }
         mArtistGetListBean = bean;
         ReMenAdapter adapter = new ReMenAdapter();
         vpReMenArtist.setAdapter(adapter);
+        initLineIndicator();
     }
 
-    private class TagInfo{
-        int area;
-        int sex;
+    static public class ArtistTagInfo implements Parcelable {
+        public int area;
+        public int sex;
+        public String title;
+
+        public ArtistTagInfo() {
+        }
+
+        protected ArtistTagInfo(Parcel in) {
+            area = in.readInt();
+            sex = in.readInt();
+            title = in.readString();
+        }
+
+        public static final Creator<ArtistTagInfo> CREATOR = new Creator<ArtistTagInfo>() {
+            @Override
+            public ArtistTagInfo createFromParcel(Parcel in) {
+                return new ArtistTagInfo(in);
+            }
+
+            @Override
+            public ArtistTagInfo[] newArray(int size) {
+                return new ArtistTagInfo[size];
+            }
+        };
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(area);
+            dest.writeInt(sex);
+            dest.writeString(title);
+        }
     }
 
     @Override
@@ -165,6 +214,16 @@ public class ArtistSelActivity extends MyBaseActivity implements ResetServerCont
 
     }
 
+    private void initLineIndicator(){
+        linePageIndicator.setViewPager(vpReMenArtist);
+        final float density = getResources().getDisplayMetrics().density;
+        linePageIndicator.setSelectedColor(getResources().getColor(R.color.common_title_backgroundColor));
+        linePageIndicator.setUnselectedColor(getResources().getColor(R.color.lightgray));
+        linePageIndicator.setStrokeWidth(6 * density);
+        linePageIndicator.setLineWidth(8 * density);
+        linePageIndicator.setCurrentItem(0);
+    }
+
     @Override
     public void initData(){
 
@@ -172,78 +231,92 @@ public class ArtistSelActivity extends MyBaseActivity implements ResetServerCont
 
         layoutInflater = LayoutInflater.from(this);
 
-        TagInfo tagInfo = new TagInfo();
+        ArtistTagInfo tagInfo = new ArtistTagInfo();
         tagInfo.area = 6;
         tagInfo.sex = 1;
+        tagInfo.title = getString(R.string.HuaYuNan);
         rlHuaYuNan.setTag(tagInfo);
 
-        tagInfo = new TagInfo();
+        tagInfo = new ArtistTagInfo();
         tagInfo.area = 6;
         tagInfo.sex = 2;
+        tagInfo.title = getString(R.string.HuaYuNv);
         rlHuaYuNv.setTag(tagInfo);
 
-        tagInfo = new TagInfo();
+        tagInfo = new ArtistTagInfo();
         tagInfo.area = 6;
         tagInfo.sex = 3;
+        tagInfo.title = getString(R.string.HuaYuTeam);
         rlHuaYuTeam.setTag(tagInfo);
 
-        tagInfo = new TagInfo();
+        tagInfo = new ArtistTagInfo();
         tagInfo.area = 3;
         tagInfo.sex = 1;
+        tagInfo.title = getString(R.string.OuMeiNan);
         rlOuMeiNan.setTag(tagInfo);
 
-        tagInfo = new TagInfo();
+        tagInfo = new ArtistTagInfo();
         tagInfo.area = 3;
         tagInfo.sex = 2;
+        tagInfo.title = getString(R.string.OuMeiNv);
         rlOuMeiNv.setTag(tagInfo);
 
-        tagInfo = new TagInfo();
+        tagInfo = new ArtistTagInfo();
         tagInfo.area = 3;
         tagInfo.sex = 3;
+        tagInfo.title = getString(R.string.OuMeiTeam);
         rlOuMeiTeam.setTag(tagInfo);
 
-        tagInfo = new TagInfo();
+        tagInfo = new ArtistTagInfo();
         tagInfo.area = 7;
         tagInfo.sex = 1;
+        tagInfo.title = getString(R.string.HanGuoNan);
         rlHanGuoNan.setTag(tagInfo);
 
-        tagInfo = new TagInfo();
+        tagInfo = new ArtistTagInfo();
         tagInfo.area = 7;
         tagInfo.sex = 2;
+        tagInfo.title = getString(R.string.HanGuoNv);
         rlHanGuoNv.setTag(tagInfo);
 
-        tagInfo = new TagInfo();
+        tagInfo = new ArtistTagInfo();
         tagInfo.area = 7;
         tagInfo.sex = 3;
+        tagInfo.title = getString(R.string.HanGuoTeam);
         rlHanGuoTeam.setTag(tagInfo);
 
-        tagInfo = new TagInfo();
+        tagInfo = new ArtistTagInfo();
         tagInfo.area = 60;
         tagInfo.area = 1;
+        tagInfo.title = getString(R.string.JapanNan);
         rlJapanNan.setTag(tagInfo);
 
-        tagInfo = new TagInfo();
+        tagInfo = new ArtistTagInfo();
         tagInfo.area = 60;
         tagInfo.sex = 2;
+        tagInfo.title = getString(R.string.JapanNv);
         rlJapanNv.setTag(tagInfo);
 
-        tagInfo = new TagInfo();
+        tagInfo = new ArtistTagInfo();
         tagInfo.area = 60;
         tagInfo.sex = 3;
+        tagInfo.title = getString(R.string.JapanTeam);
         rlJapanTeam.setTag(tagInfo);
 
-        tagInfo = new TagInfo();
+        tagInfo = new ArtistTagInfo();
         tagInfo.area = 5;
         tagInfo.sex = 0;
+        tagInfo.title = getString(R.string.Other);
         rlOther.setTag(tagInfo);
     }
 
     @OnClick({R.id.rlHuaYuNan, R.id.rlHuaYuNv, R.id.rlHuaYuTeam,R.id.rlOuMeiNan,R.id.rlOuMeiNv,R.id.rlOuMeiTeam,
             R.id.rlHanGuoNan,R.id.rlHanGuoNv, R.id.rlHanGuoTeam, R.id.rlJapanNan, R.id.rlJapanNv, R.id.rlJapanTeam, R.id.rlOther})
     void onClick(View view){
-        TagInfo tagInfo = (TagInfo)view.getTag();
-        mPresenter.getArtistListInfo(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION, PureMusicContant.CHANNEL, "2", "baidu.ting.artist.getList"
-        , PureMusicContant.FORMAT_JSON, "0", "48", "1", "" + tagInfo.area, "" + tagInfo.sex);
+        ArtistTagInfo tagInfo = (ArtistTagInfo)view.getTag();
+        Intent intent = new Intent(this, ArtistArtistListActivity.class);
+        intent.putExtra(ArtistArtistListActivity.BUNDLE_ARTISTTAGINFO, tagInfo);
+        startActivity(intent);
     }
 
 

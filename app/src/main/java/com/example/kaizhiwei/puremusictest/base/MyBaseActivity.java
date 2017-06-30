@@ -30,8 +30,8 @@ public abstract class MyBaseActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         mContext = this;
         this.initPresenter();
-        this.initView();
         this.initData();
+        this.initView();
     }
 
     /**
