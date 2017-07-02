@@ -42,5 +42,6 @@
     <string name="JapanNv">日本女歌手</string>
     <string name="JapanTeam">日本组合</string>
     <string name="Other">其他</string>
-
+    <string name="hot_artist">热门</string>
+    <string name="solo">单曲</string>
 </resources>

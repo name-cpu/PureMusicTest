@@ -6,13 +6,15 @@
     android:weightSum="1"
     android:background="@drawable/default_selector"
     android:layout_marginLeft="6dp"
-    android:layout_marginRight="10dp">
+    android:layout_marginRight="10dp"
+    android:id="@+id/llContent">
     <ImageView
-        android:paddingTop="3dp"
-        android:paddingBottom="3dp"
         android:id="@+id/ivArtistPic"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent" />
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/default_live_ic"
+        android:adjustViewBounds="true"/>
 
     <TextView
         android:layout_marginLeft="10dp"

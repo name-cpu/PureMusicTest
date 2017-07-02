@@ -135,7 +135,6 @@ public abstract class MyBaseActivity extends AppCompatActivity {
 
     }
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();

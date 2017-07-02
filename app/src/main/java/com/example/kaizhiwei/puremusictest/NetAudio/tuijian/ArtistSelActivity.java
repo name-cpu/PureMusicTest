@@ -397,7 +397,7 @@ public class ArtistSelActivity extends MyBaseActivity implements ResetServerCont
             }
 
             ArtistGetListBean.ArtistBean artistBean = (ArtistGetListBean.ArtistBean)getItem(position);
-            Glide.with(ArtistSelActivity.this).load(artistBean.getAvatar_middle()).into(holder.ivReMenArtistPic);
+            Glide.with(ArtistSelActivity.this).load(artistBean.getAvatar_middle()).placeholder(R.drawable.default_live_ic).into(holder.ivReMenArtistPic);
             holder.tvReMenArtistName.setText(artistBean.getName());
             return convertView;
         }

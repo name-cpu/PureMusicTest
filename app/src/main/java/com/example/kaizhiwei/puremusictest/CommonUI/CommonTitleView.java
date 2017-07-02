@@ -19,8 +19,8 @@ import com.example.kaizhiwei.puremusictest.R;
 
 public class CommonTitleView extends LinearLayout implements View.OnClickListener {
     public interface onTitleClickListener{
-        public void onLeftBtnClicked();
-        public void onRightBtnClicked();
+        void onLeftBtnClicked();
+        void onRightBtnClicked();
     }
 
     private TextView leftBtn;
@@ -69,7 +69,7 @@ public class CommonTitleView extends LinearLayout implements View.OnClickListene
             rightBtn.setText(rightText);
         }
         else{
-            rightBtn.setVisibility(View.GONE);
+            //rightBtn.setVisibility(View.GONE);
         }
 
         int rightDrawable = array.getResourceId(R.styleable.CommonTitleView_rightDrawable, R.drawable.ic_launcher);
@@ -101,7 +101,7 @@ public class CommonTitleView extends LinearLayout implements View.OnClickListene
     }
 
     public void setRightBtnVisible(boolean bShow){
-        rightBtn.setVisibility(bShow ? View.VISIBLE : View.GONE);
+        //rightBtn.setVisibility(bShow ? View.VISIBLE : View.GONE);
     }
 
     public void setTitleVisible(boolean bShow){

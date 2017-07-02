@@ -1,5 +1,8 @@
 package com.example.kaizhiwei.puremusictest.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 
 /**
@@ -51,7 +54,7 @@ public class ArtistGetListBean {
         this.artist = artist;
     }
 
-    public static class ArtistBean {
+    public static class ArtistBean implements Parcelable{
         /**
          * area : 0
          * avatar_mini : http://musicdata.baidu.com/data2/pic/246669444/246669444.jpg@s_0,w_20
@@ -85,6 +88,36 @@ public class ArtistGetListBean {
         private String avatar_big;
         private String albums_total;
         private String songs_total;
+
+        protected ArtistBean(Parcel in) {
+            area = in.readString();
+            avatar_mini = in.readString();
+            firstchar = in.readString();
+            ting_uid = in.readString();
+            avatar_middle = in.readString();
+            name = in.readString();
+            islocate = in.readInt();
+            gender = in.readString();
+            country = in.readString();
+            piao_id = in.readString();
+            artist_id = in.readString();
+            avatar_small = in.readString();
+            avatar_big = in.readString();
+            albums_total = in.readString();
+            songs_total = in.readString();
+        }
+
+        public static final Creator<ArtistBean> CREATOR = new Creator<ArtistBean>() {
+            @Override
+            public ArtistBean createFromParcel(Parcel in) {
+                return new ArtistBean(in);
+            }
+
+            @Override
+            public ArtistBean[] newArray(int size) {
+                return new ArtistBean[size];
+            }
+        };
 
         public String getArea() {
             return area;
@@ -204,6 +237,30 @@ public class ArtistGetListBean {
 
         public void setSongs_total(String songs_total) {
             this.songs_total = songs_total;
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(area);
+            dest.writeString(avatar_mini);
+            dest.writeString(firstchar);
+            dest.writeString(ting_uid);
+            dest.writeString(avatar_middle);
+            dest.writeString(name);
+            dest.writeInt(islocate);
+            dest.writeString(gender);
+            dest.writeString(country);
+            dest.writeString(piao_id);
+            dest.writeString(artist_id);
+            dest.writeString(avatar_small);
+            dest.writeString(avatar_big);
+            dest.writeString(albums_total);
+            dest.writeString(songs_total);
         }
     }
 }

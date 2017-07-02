@@ -2,6 +2,7 @@ package com.example.kaizhiwei.puremusictest.contract;
 
 import com.example.kaizhiwei.puremusictest.bean.ActiveIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
+import com.example.kaizhiwei.puremusictest.bean.ArtistGetSongListBean;
 import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
@@ -33,6 +34,9 @@ public interface ResetServerContract {
 
         void getArtistListInfo(String from, String version, String channel, String operator,
                                String method, String format, String offset, String limit, String order, String area, String sex);
+
+        void getArtistListInfoWithFilter(String from, String version, String channel, String operator,
+                               String method, String format, String offset, String limit, String order, String area, String sex, String filter);
     }
 
     interface View extends BaseContract.View {

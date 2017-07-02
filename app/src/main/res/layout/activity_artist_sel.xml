@@ -16,32 +16,36 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="none">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:paddingRight="10dp"
                 android:paddingLeft="10dp"
+                android:paddingRight="10dp"
                 android:weightSum="1">
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="热门歌手"
                     android:gravity="center_vertical"
-                    android:textSize="@dimen/text_size_18"/>
+                    android:text="热门歌手"
+                    android:textSize="@dimen/text_size_18" />
+
                 <TextView
                     android:id="@+id/tvMore"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:text="更多"
-                    android:textSize="@dimen/text_size_15"
-                    android:gravity="center_vertical"
                     android:drawablePadding="5dp"
-                    android:drawableRight="@drawable/icon_option_setting_arrow"/>
+                    android:drawableRight="@drawable/icon_option_setting_arrow"
+                    android:gravity="center_vertical"
+                    android:text="更多"
+                    android:textSize="@dimen/text_size_15" />
             </LinearLayout>
 
             <android.support.v4.view.ViewPager
@@ -53,64 +57,69 @@
                 android:id="@+id/linePageIndicator"
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
-                android:layout_marginBottom="5dp">
-            </com.viewpagerindicator.LinePageIndicator>
+                android:layout_marginBottom="5dp"></com.viewpagerindicator.LinePageIndicator>
 
             <View
-                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
-                android:background="@color/lightgray"/>
+                android:layout_marginTop="10dp"
+                android:background="@color/lightgray" />
+
             <RelativeLayout
                 android:id="@+id/rlHuaYuNan"
                 style="@style/artist_sel_rl_style">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/HuaYuNan"
-                    android:gravity="center_vertical"/>
+                    android:gravity="center_vertical"
+                    android:text="@string/HuaYuNan" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentRight="true"
                     android:src="@drawable/icon_option_setting_arrow" />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
-                    android:background="@color/more_oper_dialog_seperator_line"
-                    android:layout_alignParentBottom="true"/>
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/more_oper_dialog_seperator_line" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/rlHuaYuNv"
                 style="@style/artist_sel_rl_style">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/HuaYuNv"
-                    android:gravity="center_vertical"/>
+                    android:gravity="center_vertical"
+                    android:text="@string/HuaYuNv" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentRight="true"
                     android:src="@drawable/icon_option_setting_arrow" />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
-                    android:background="@color/more_oper_dialog_seperator_line"
-                    android:layout_alignParentBottom="true"/>
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/more_oper_dialog_seperator_line" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/rlHuaYuTeam"
                 style="@style/artist_sel_rl_style">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/HuaYuTeam"
-                    android:gravity="center_vertical"/>
+                    android:gravity="center_vertical"
+                    android:text="@string/HuaYuTeam" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -122,57 +131,63 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
-                android:background="@color/lightgray"/>
+                android:background="@color/lightgray" />
+
             <RelativeLayout
                 android:id="@+id/rlOuMeiNan"
                 style="@style/artist_sel_rl_style">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/OuMeiNan"
-                    android:gravity="center_vertical"/>
+                    android:gravity="center_vertical"
+                    android:text="@string/OuMeiNan" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentRight="true"
                     android:src="@drawable/icon_option_setting_arrow" />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
-                    android:background="@color/more_oper_dialog_seperator_line"
-                    android:layout_alignParentBottom="true"/>
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/more_oper_dialog_seperator_line" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/rlOuMeiNv"
                 style="@style/artist_sel_rl_style">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/OuMeiNv"
-                    android:gravity="center_vertical"/>
+                    android:gravity="center_vertical"
+                    android:text="@string/OuMeiNv" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentRight="true"
                     android:src="@drawable/icon_option_setting_arrow" />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
-                    android:background="@color/more_oper_dialog_seperator_line"
-                    android:layout_alignParentBottom="true"/>
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/more_oper_dialog_seperator_line" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/rlOuMeiTeam"
                 style="@style/artist_sel_rl_style">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/OuMeiTeam"
-                    android:gravity="center_vertical"/>
+                    android:gravity="center_vertical"
+                    android:text="@string/OuMeiTeam" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -185,57 +200,63 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
-                android:background="@color/lightgray"/>
+                android:background="@color/lightgray" />
+
             <RelativeLayout
                 android:id="@+id/rlHanGuoNan"
                 style="@style/artist_sel_rl_style">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/HanGuoNan"
-                    android:gravity="center_vertical"/>
+                    android:gravity="center_vertical"
+                    android:text="@string/HanGuoNan" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentRight="true"
                     android:src="@drawable/icon_option_setting_arrow" />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
-                    android:background="@color/more_oper_dialog_seperator_line"
-                    android:layout_alignParentBottom="true"/>
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/more_oper_dialog_seperator_line" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/rlHanGuoNv"
                 style="@style/artist_sel_rl_style">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/HanGuoNv"
-                    android:gravity="center_vertical"/>
+                    android:gravity="center_vertical"
+                    android:text="@string/HanGuoNv" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentRight="true"
                     android:src="@drawable/icon_option_setting_arrow" />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
-                    android:background="@color/more_oper_dialog_seperator_line"
-                    android:layout_alignParentBottom="true"/>
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/more_oper_dialog_seperator_line" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/rlHanGuoTeam"
                 style="@style/artist_sel_rl_style">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/HanGuoTeam"
-                    android:gravity="center_vertical"/>
+                    android:gravity="center_vertical"
+                    android:text="@string/HanGuoTeam" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -248,57 +269,63 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
-                android:background="@color/lightgray"/>
+                android:background="@color/lightgray" />
+
             <RelativeLayout
                 android:id="@+id/rlJapanNan"
                 style="@style/artist_sel_rl_style">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/JapanNan"
-                    android:gravity="center_vertical"/>
+                    android:gravity="center_vertical"
+                    android:text="@string/JapanNan" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentRight="true"
                     android:src="@drawable/icon_option_setting_arrow" />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
-                    android:background="@color/more_oper_dialog_seperator_line"
-                    android:layout_alignParentBottom="true"/>
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/more_oper_dialog_seperator_line" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/rlJapanNv"
                 style="@style/artist_sel_rl_style">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/JapanNv"
-                    android:gravity="center_vertical"/>
+                    android:gravity="center_vertical"
+                    android:text="@string/JapanNv" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentRight="true"
                     android:src="@drawable/icon_option_setting_arrow" />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
-                    android:background="@color/more_oper_dialog_seperator_line"
-                    android:layout_alignParentBottom="true"/>
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/more_oper_dialog_seperator_line" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/rlJapanTeam"
                 style="@style/artist_sel_rl_style">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/JapanTeam"
-                    android:gravity="center_vertical"/>
+                    android:gravity="center_vertical"
+                    android:text="@string/JapanTeam" />
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -310,27 +337,29 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
-                android:background="@color/lightgray"/>
+                android:background="@color/lightgray" />
 
             <RelativeLayout
                 android:id="@+id/rlOther"
                 style="@style/artist_sel_rl_style">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="@string/Other"
-                    android:gravity="center_vertical"/>
+                    android:gravity="center_vertical"
+                    android:text="@string/Other" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_alignParentRight="true"
                     android:src="@drawable/icon_option_setting_arrow" />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
-                    android:background="@color/lightgray"
-                    android:layout_alignParentBottom="true"/>
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/lightgray" />
             </RelativeLayout>
 
         </LinearLayout>
