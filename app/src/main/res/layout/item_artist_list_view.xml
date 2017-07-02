@@ -5,8 +5,8 @@
     android:layout_height="80dp"
     android:weightSum="1"
     android:background="@drawable/default_selector"
-    android:layout_marginLeft="6dp"
-    android:layout_marginRight="10dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
     android:id="@+id/llContent">
     <ImageView
         android:id="@+id/ivArtistPic"
