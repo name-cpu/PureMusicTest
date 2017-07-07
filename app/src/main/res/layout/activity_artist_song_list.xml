@@ -6,7 +6,8 @@
     android:id="@+id/rlMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="@color/white"
+    android:fitsSystemWindows="true">
 
     <!--第一部分：伸缩工具栏-->
     <android.support.design.widget.AppBarLayout
@@ -21,12 +22,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
+            app:contentScrim="?attr/colorPrimary"
+            app:expandedTitleMarginEnd="64dp"
+            app:expandedTitleMarginStart="48dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView
                 android:id="@+id/ivBigBack"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                app:layout_collapseMode="parallax"
                 android:scaleType="fitXY"/>
 
             <ImageView
@@ -42,8 +47,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:contentInsetStart="0dp"
-                app:layout_collapseMode="pin"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:layout_collapseMode="pin"
                 app:titleMarginStart="0dp">
 
                 <LinearLayout

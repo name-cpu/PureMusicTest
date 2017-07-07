@@ -4,10 +4,16 @@ package com.example.kaizhiwei.puremusictest.base;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
+
+import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.Util.SystemBarTintManager;
+
 import butterknife.ButterKnife;
 
 /**
@@ -19,6 +25,7 @@ public abstract class MyBaseActivity extends AppCompatActivity {
     public Context mContext;
     private int count;//记录开启进度条的情况 只能开一个
     protected Toast mToast;
+    protected SystemBarTintManager systemBarTintManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -26,7 +33,7 @@ public abstract class MyBaseActivity extends AppCompatActivity {
         doBeforeSetcontentView();
         setContentView(getLayoutId());
         // 默认着色状态栏
-        SetStatusBarColor();
+        initSystemBar();
         ButterKnife.bind(this);
         mContext = this;
         this.initPresenter();
@@ -41,7 +48,7 @@ public abstract class MyBaseActivity extends AppCompatActivity {
         // 把actvity放到application栈中管理
         //AppManager.getAppManager().addActivity(this);
         // 无标题
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         // 设置竖屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -61,27 +68,37 @@ public abstract class MyBaseActivity extends AppCompatActivity {
     public abstract void initView() ;
 
     public abstract void initData();
-    /**
-     * 着色状态栏（4.4以上系统有效）
-     */
-    protected void SetStatusBarColor() {
-        //StatusBarSetting.setColor(this, getResources().getColor(R.color.colorPrimary));
-    }
 
     /**
      * 着色状态栏（4.4以上系统有效）
      */
-    protected void SetStatusBarColor(int color) {
-        //StatusBarSetting.setColor(this, color);
+    protected void initSystemBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            setTranslucentStatus(true);
+            systemBarTintManager = new SystemBarTintManager(this);
+            systemBarTintManager.setStatusBarTintEnabled(true);
+            systemBarTintManager.setStatusBarTintResource(R.color.colorPrimary);
+            SystemBarTintManager.SystemBarConfig config = systemBarTintManager.getConfig();
+        }
     }
 
-    /**
-     * 沉浸状态栏（4.4以上系统有效）
-     */
-    protected void SetTranslanteBar() {
-        //StatusBarSetting.setTranslucent(this);
+    protected void setTintBarAlpha(float alpha){
+        if(systemBarTintManager != null){
+            systemBarTintManager.setTintAlpha(alpha);
+        }
     }
 
+    protected void setTranslucentStatus(boolean on) {
+        Window win = this.getWindow();
+        WindowManager.LayoutParams winParams = win.getAttributes();
+        final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+        if (on) {
+            winParams.flags |= bits;
+        } else {
+            winParams.flags &= ~bits;
+        }
+        win.setAttributes(winParams);
+    }
 
     /**
      * 通过Class跳转界面

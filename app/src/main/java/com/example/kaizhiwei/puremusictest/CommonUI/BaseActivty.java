@@ -3,7 +3,6 @@ package com.example.kaizhiwei.puremusictest.CommonUI;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.Util.SystemBarTintManager;
 
 /**
  * Created by kaizhiwei on 16/12/25.

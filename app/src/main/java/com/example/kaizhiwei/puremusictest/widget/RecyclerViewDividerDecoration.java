@@ -7,7 +7,9 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.WindowManager;
 
 /**
  * Created by kaizhiwei on 17/7/2.
@@ -20,6 +22,7 @@ public class RecyclerViewDividerDecoration extends RecyclerView.ItemDecoration {
     public static final int HORIZONTAL_LIST = LinearLayoutManager.HORIZONTAL;
     public static final int VERTICAL_LIST = LinearLayoutManager.VERTICAL;
     public static final int[] ATTRS = new int[]{android.R.attr.listDivider};
+    private int density = 1;
 
     public RecyclerViewDividerDecoration(Context context, int orientation){
         mContext = context;
@@ -27,6 +30,11 @@ public class RecyclerViewDividerDecoration extends RecyclerView.ItemDecoration {
         mDivider = typedArray.getDrawable(0);
         typedArray.recycle();
         setOrientation(orientation);
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        WindowManager windowManager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+        density = (int)displayMetrics.density;
     }
 
     public void setOrientation(int orientation){
@@ -54,7 +62,7 @@ public class RecyclerViewDividerDecoration extends RecyclerView.ItemDecoration {
             View child = parent.getChildAt(i);
             RecyclerView.LayoutParams params = (RecyclerView.LayoutParams)child.getLayoutParams();
             final int top = child.getBottom() + params.bottomMargin;
-            final int bottom = top + mDivider.getIntrinsicHeight()/3;
+            final int bottom = top + mDivider.getIntrinsicHeight()/density;
             mDivider.setBounds(left, top, right, bottom);
             mDivider.draw(canvas);
         }
@@ -79,7 +87,7 @@ public class RecyclerViewDividerDecoration extends RecyclerView.ItemDecoration {
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
         if(mOrientation == HORIZONTAL_LIST){
             //画横线，就是往下偏移一个分割线的高度
-            outRect.set(0, 0, 0, mDivider.getIntrinsicHeight()/3);
+            outRect.set(0, 0, 0, mDivider.getIntrinsicHeight()/density);
         }else {
             //画竖线，就是往右偏移一个分割线的宽度
             outRect.set(0, 0, mDivider.getIntrinsicWidth(), 0);

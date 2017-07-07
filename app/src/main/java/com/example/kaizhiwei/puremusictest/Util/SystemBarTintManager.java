@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.kaizhiwei.puremusictest.CommonUI;
+package com.example.kaizhiwei.puremusictest.Util;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;

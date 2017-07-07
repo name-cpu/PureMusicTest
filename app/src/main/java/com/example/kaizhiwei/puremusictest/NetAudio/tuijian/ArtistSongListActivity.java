@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -36,6 +37,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import com.example.kaizhiwei.puremusictest.widget.CircleImageView;
+import com.jcodecraeer.xrecyclerview.ProgressStyle;
+import com.jcodecraeer.xrecyclerview.XRecyclerView;
+
 import butterknife.Bind;
 import butterknife.BindInt;
 import jp.wasabeef.glide.transformations.BlurTransformation;
@@ -47,7 +51,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
 public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetSongListContract.View {
     private ArtistGetSongListContract.Presenter mPresenter;
     private ArtistGetListBean.ArtistBean mArtistBean;
-    private int mOffset;
+    private int mOffset = 0;
     private int mLimit = 50;
     public static final String ARTIST_BEAN = "ARTIST_BEAN";
     @Bind(R.id.appbar)
@@ -65,8 +69,13 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
     @Bind(R.id.ivBigBack)
     ImageView ivBigBack;
 
-    private ArtistGetSongListBean mArtistSongListBean;
+    private ArtistGetSongListBean mArtistSongListBean = new ArtistGetSongListBean();
     private Map<String, List<ArtistGetSongListBean.SonglistBean>> mMapAlbums;
+    private XRecyclerView recyclerViewSongList;
+    private SongListAdapter songListAdapter;
+    private XRecyclerView recyclerViewAlbumList;
+    private AlbumListAdapter albumListAdapter;
+    private boolean mNeedClear = true;
 
     @Override
     public int getLayoutId() {
@@ -83,6 +92,7 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
         if(mArtistBean == null)
             return;
 
+        setTintBarAlpha(1.0f);
         tvArtistName.setText(mArtistBean.getName());
         tabLayout.setTabTextColors(this.getResources().getColor(R.color.mainTextColor), this.getResources().getColor(R.color.tabSelectTextColor));
         int indicatorColor = this.getResources().getColor(R.color.tabSeperatorLineColor);
@@ -90,8 +100,57 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
 
-        Glide.with(this).load(mArtistBean.getAvatar_middle()).transform(new CornersTransform(this,ivArtistPic.getWidth()/2)).into(ivArtistPic);
+        int width = ivArtistPic.getLayoutParams().width;
+
+        Glide.with(this).load(mArtistBean.getAvatar_middle()).transform(new CornersTransform(this,width/2)).into(ivArtistPic);
         Glide.with(this).load(mArtistBean.getAvatar_big()).bitmapTransform(new BlurTransformation(HomeActivity.getInstance(), 50)).into(ivBigBack);
+
+        recyclerViewSongList = new XRecyclerView(this);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ArtistSongListActivity.this);
+        recyclerViewSongList.setLayoutManager(linearLayoutManager);
+        recyclerViewSongList.addItemDecoration(new RecyclerViewDividerDecoration(ArtistSongListActivity.this, RecyclerViewDividerDecoration.HORIZONTAL_LIST));
+        recyclerViewSongList.setPullRefreshEnabled(false);
+        recyclerViewSongList.setLoadingMoreEnabled(true);
+        recyclerViewSongList.setLoadingListener(new XRecyclerView.LoadingListener() {
+            @Override
+            public void onRefresh() {
+
+            }
+
+            @Override
+            public void onLoadMore() {
+                mNeedClear = false;
+                mOffset++;
+                initData();
+            }
+        });
+        songListAdapter = new SongListAdapter();
+        recyclerViewSongList.setAdapter(songListAdapter);
+        recyclerViewSongList.setLoadingMoreProgressStyle(ProgressStyle.BallPulse);
+
+        recyclerViewAlbumList = new XRecyclerView(this);
+        linearLayoutManager = new LinearLayoutManager(ArtistSongListActivity.this);
+        recyclerViewAlbumList.setLayoutManager(linearLayoutManager);
+        recyclerViewAlbumList.addItemDecoration(new RecyclerViewDividerDecoration(ArtistSongListActivity.this, RecyclerViewDividerDecoration.HORIZONTAL_LIST));
+        recyclerViewAlbumList.setPullRefreshEnabled(false);
+        recyclerViewAlbumList.setLoadingMoreEnabled(true);
+        recyclerViewAlbumList.setLoadingListener(new XRecyclerView.LoadingListener() {
+            @Override
+            public void onRefresh() {
+
+            }
+
+            @Override
+            public void onLoadMore() {
+//                mNeedClear = false;
+//                mOffset++;
+//                initData();
+            }
+        });
+
+        albumListAdapter = new AlbumListAdapter();
+        recyclerViewAlbumList.setAdapter(albumListAdapter);
+        recyclerViewAlbumList.setLoadingMoreProgressStyle(ProgressStyle.SysProgress);
     }
 
     @Override
@@ -106,7 +165,7 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
 
         if(mArtistBean != null && mPresenter != null){
             mPresenter.getSongList(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION, PureMusicContant.CHANNEL, 2, "baidu.ting.artist.getSongList"
-                    , PureMusicContant.FORMAT_JSON, 2 + "", mArtistBean.getTing_uid(), mArtistBean.getArtist_id(), mOffset, mLimit);
+                    , PureMusicContant.FORMAT_JSON, 2 + "", mArtistBean.getTing_uid(), mArtistBean.getArtist_id(), mOffset*mLimit, mLimit);
         }
 
         mMapAlbums = new TreeMap<>(new Comparator<String>() {
@@ -121,17 +180,35 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
 
     @Override
     public void onError(String strErrMsg) {
-
+        showToast(strErrMsg);
+        recyclerViewAlbumList.loadMoreComplete();
+        recyclerViewSongList.loadMoreComplete();
     }
 
     @Override
     public void onGetSongListSuccess(ArtistGetSongListBean bean) {
+        recyclerViewAlbumList.loadMoreComplete();
+        recyclerViewSongList.loadMoreComplete();
+
         if(bean == null || bean.getSonglist() == null)
             return;
 
-        mMapAlbums.clear();
-        for(int i = 0;i < bean.getSonglist().size();i++){
-            ArtistGetSongListBean.SonglistBean beanSong = bean.getSonglist().get(i);
+        if(mNeedClear){
+            mMapAlbums.clear();
+        }
+        
+        if(mArtistSongListBean.getSonglist() == null){
+            List<ArtistGetSongListBean.SonglistBean> list = new ArrayList<>();
+            mArtistSongListBean.setSonglist(list);
+        }
+
+        if(mNeedClear){
+            mArtistSongListBean.getSonglist().clear();
+        }
+        mArtistSongListBean.getSonglist().addAll(bean.getSonglist());
+
+        for(int i = 0;i < mArtistSongListBean.getSonglist().size();i++){
+            ArtistGetSongListBean.SonglistBean beanSong = mArtistSongListBean.getSonglist().get(i);
             List<ArtistGetSongListBean.SonglistBean> list = mMapAlbums.get(beanSong.getAlbum_id());
             if(list == null){
                 list = new ArrayList<>();
@@ -140,8 +217,6 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
             mMapAlbums.put(beanSong.getAlbum_id(), list);
         }
 
-
-        mArtistSongListBean = bean;
         MyPageAdapter adapter = new MyPageAdapter();
         vpSong.setAdapter(adapter);
         tabLayout.setupWithViewPager(vpSong);
@@ -172,20 +247,14 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
         }
 
         public Object instantiateItem(ViewGroup container, int position) {
-            RecyclerView recyclerView = new RecyclerView(ArtistSongListActivity.this);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ArtistSongListActivity.this);
-            recyclerView.setLayoutManager(linearLayoutManager);
-            recyclerView.addItemDecoration(new RecyclerViewDividerDecoration(ArtistSongListActivity.this, RecyclerViewDividerDecoration.HORIZONTAL_LIST));
             if(position == 0){
-                SongListAdapter adapter = new SongListAdapter();
-                recyclerView.setAdapter(adapter);
+                container.addView(recyclerViewSongList);
+                return recyclerViewSongList;
             }
             else{
-                AlbumListAdapter albumListAdapter = new AlbumListAdapter();
-                recyclerView.setAdapter(albumListAdapter);
+                container.addView(recyclerViewAlbumList);
+                return recyclerViewAlbumList;
             }
-            container.addView(recyclerView);
-            return recyclerView;
         }
 
         public void destroyItem(ViewGroup container, int position, Object object) {
@@ -212,6 +281,27 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
             else{
                 holder.tvAlbumName.setText("《" + strAlbumTitle + "》");
             }
+
+            if(songlistBean.getHas_mv() == 1){
+                holder.ivMV.setVisibility(View.VISIBLE);
+            }
+            else{
+                holder.ivMV.setVisibility(View.GONE);
+            }
+
+            if(songlistBean.getHavehigh() == 2){
+                holder.ivSQ.setVisibility(View.VISIBLE);
+            }
+            else{
+                holder.ivSQ.setVisibility(View.GONE);
+            }
+
+            holder.llContent.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
         }
 
         @Override
@@ -223,10 +313,16 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
     private class SongListViewHolder extends RecyclerView.ViewHolder{
         private TextView tvSongName;
         private TextView tvAlbumName;
+        private LinearLayout llContent;
+        private ImageView ivMV;
+        private ImageView ivSQ;
         public SongListViewHolder(View itemView) {
             super(itemView);
+            llContent = (LinearLayout)itemView.findViewById(R.id.llContent);
             tvSongName = (TextView)itemView.findViewById(R.id.tvSongName);
             tvAlbumName = (TextView)itemView.findViewById(R.id.tvAlbumName);
+            ivMV = (ImageView)itemView.findViewById(R.id.ivMV);
+            ivSQ = (ImageView)itemView.findViewById(R.id.ivSQ);
         }
     }
 

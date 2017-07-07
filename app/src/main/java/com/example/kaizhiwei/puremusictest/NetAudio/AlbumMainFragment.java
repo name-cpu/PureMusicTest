@@ -26,7 +26,7 @@ import com.example.kaizhiwei.puremusictest.Audio.LocalBaseMediaLayout;
 import com.example.kaizhiwei.puremusictest.Audio.MoreOperationDialog;
 import com.example.kaizhiwei.puremusictest.CommonUI.AlwaysMarqueeTextView;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
-import com.example.kaizhiwei.puremusictest.CommonUI.SystemBarTintManager;
+import com.example.kaizhiwei.puremusictest.Util.SystemBarTintManager;
 import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;

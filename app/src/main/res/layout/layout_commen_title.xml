@@ -3,7 +3,7 @@
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:weightSum="1"
-    android:background="#0092ff">
+    android:background="@color/colorPrimary">
     <TextView
         android:id="@+id/leftBtn"
         android:layout_width="wrap_content"

@@ -2,6 +2,8 @@ package com.example.kaizhiwei.puremusictest.NetAudio.tuijian;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -31,6 +33,8 @@ import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.ResetServerContract;
 import com.example.kaizhiwei.puremusictest.presenter.ResetServerPresenter;
 import com.example.kaizhiwei.puremusictest.widget.RecyclerViewDividerDecoration;
+import com.jcodecraeer.xrecyclerview.ProgressStyle;
+import com.jcodecraeer.xrecyclerview.XRecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +47,7 @@ import butterknife.Bind;
 
 public class ArtistArtistListActivity extends MyBaseActivity implements ResetServerContract.View, ArtistIndexDialog.IArtistIndexDialogListener{
     @Bind(R.id.rvArtistList)
-    RecyclerView rvArtistList;
+    XRecyclerView rvArtistList;
 
     @Bind(R.id.tvIndexType)
     TextView tvIndexType;
@@ -59,6 +63,7 @@ public class ArtistArtistListActivity extends MyBaseActivity implements ResetSer
     private MyAdapter mAdapter;
     private String mFilter = "";
     private boolean mNeedClear = false;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     public static final String BUNDLE_ARTISTTAGINFO= "BUNDLE_ArtistTagInfo";
 
@@ -75,31 +80,55 @@ public class ArtistArtistListActivity extends MyBaseActivity implements ResetSer
     @Override
     public void initView() {
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvArtistList.setPullRefreshEnabled(false);
+        rvArtistList.setLoadingMoreEnabled(true);
         rvArtistList.setLayoutManager(linearLayoutManager);
         rvArtistList.addItemDecoration(new RecyclerViewDividerDecoration(this, RecyclerViewDividerDecoration.HORIZONTAL_LIST));
-        rvArtistList.setOnScrollListener(new RecyclerView.OnScrollListener(){
+//        rvArtistList.setOnScrollListener(new RecyclerView.OnScrollListener(){
+//            @Override
+//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//            }
+//
+//            @Override
+//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//
+//                if (dy > 0) //向下滚动
+//                {
+//                    int visibleItemCount = linearLayoutManager.getChildCount();
+//                    int totalItemCount = linearLayoutManager.getItemCount();
+//                    int pastVisiblesItems = linearLayoutManager.findFirstVisibleItemPosition();
+//
+//                    if (!mLoadingData && (visibleItemCount + pastVisiblesItems) >= totalItemCount) {
+//                        mLoadingData = true;
+//                        loadMoreDate();
+//                    }
+//                }
+//            }
+//        });
+
+        rvArtistList.setLoadingMoreProgressStyle(ProgressStyle.BallPulse);
+        rvArtistList.setLoadingListener(new XRecyclerView.LoadingListener() {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
+            public void onRefresh() {
+
             }
 
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                if (dy > 0) //向下滚动
-                {
-                    int visibleItemCount = linearLayoutManager.getChildCount();
-                    int totalItemCount = linearLayoutManager.getItemCount();
-                    int pastVisiblesItems = linearLayoutManager.findFirstVisibleItemPosition();
-
-                    if (!mLoadingData && (visibleItemCount + pastVisiblesItems) >= totalItemCount) {
+            public void onLoadMore() {
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
                         mLoadingData = true;
                         loadMoreDate();
                     }
-                }
+                }, 1000);
             }
         });
+        mAdapter = new MyAdapter();
+        rvArtistList.setAdapter(mAdapter);
+
         if(mArtistTagInfo != null){
             commonTitle.setTitleViewInfo(mArtistTagInfo.title, "", "过滤");
         }
@@ -167,7 +196,8 @@ public class ArtistArtistListActivity extends MyBaseActivity implements ResetSer
 
     @Override
     public void onError(String strErrMsg) {
-
+        showToast(strErrMsg);
+        rvArtistList.loadMoreComplete();
     }
 
     @Override
@@ -212,16 +242,13 @@ public class ArtistArtistListActivity extends MyBaseActivity implements ResetSer
             return;
         }
 
+        rvArtistList.loadMoreComplete();
         mLoadingData = false;
-        if(mAdapter == null){
-            mAdapter = new MyAdapter();
-        }
         if(mNeedClear){
             mArtistGetListBean.getArtist().clear();
             mNeedClear = false;
         }
         mArtistGetListBean.getArtist().addAll(bean.getArtist());
-        rvArtistList.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
         Log.e("weikaizhi", "ArtistGetListBean size = " + bean.getArtist().size() + ", mArtistGetListBean = " + mArtistGetListBean.getArtist().size());
     }
@@ -259,11 +286,14 @@ public class ArtistArtistListActivity extends MyBaseActivity implements ResetSer
                 }
             });
             holder.tvArtistName.setText(bean.getName());
-            Glide.with(ArtistArtistListActivity.this).load(bean.getAvatar_middle()).placeholder(R.drawable.default_live_ic).into(holder.ivArtistPic);
+            Glide.with(ArtistArtistListActivity.this).load(bean.getAvatar_middle()).error(R.drawable.default_live_ic).into(holder.ivArtistPic);
         }
 
         @Override
         public int getItemCount() {
+            if(mArtistGetListBean == null || mArtistGetListBean.getArtist() == null)
+                return 0;
+
             return mArtistGetListBean.getArtist().size();
         }
     }

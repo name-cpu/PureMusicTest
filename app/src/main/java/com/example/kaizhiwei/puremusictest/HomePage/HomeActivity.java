@@ -22,7 +22,7 @@ import android.view.WindowManager;
 
 import com.example.kaizhiwei.puremusictest.Audio.LocalAudioFragment;
 import com.example.kaizhiwei.puremusictest.Audio.NowPlayingLayout;
-import com.example.kaizhiwei.puremusictest.CommonUI.SystemBarTintManager;
+import com.example.kaizhiwei.puremusictest.Util.SystemBarTintManager;
 import com.example.kaizhiwei.puremusictest.NetAudio.tuijian.TuiJIanFragment;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.SlideMenu.SlidingMenu;
