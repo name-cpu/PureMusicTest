@@ -7,8 +7,10 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,8 +23,10 @@ import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.base.MyBaseActivity;
+import com.example.kaizhiwei.puremusictest.bean.ArtistAlbumListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetSongListBean;
+import com.example.kaizhiwei.puremusictest.bean.ArtistInfoBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.ArtistGetSongListContract;
 import com.example.kaizhiwei.puremusictest.presenter.ArtistGetSongListPresenter;
@@ -42,6 +46,7 @@ import com.jcodecraeer.xrecyclerview.XRecyclerView;
 
 import butterknife.Bind;
 import butterknife.BindInt;
+import butterknife.OnClick;
 import jp.wasabeef.glide.transformations.BlurTransformation;
 
 /**
@@ -53,6 +58,8 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
     private ArtistGetListBean.ArtistBean mArtistBean;
     private int mOffset = 0;
     private int mLimit = 50;
+    private int mAlbumOffset = 0;
+    private int mAlbumLimit = 30;
     public static final String ARTIST_BEAN = "ARTIST_BEAN";
     @Bind(R.id.appbar)
     AppBarLayout appbar;
@@ -68,13 +75,21 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
     ImageView ivArtistPic;
     @Bind(R.id.ivBigBack)
     ImageView ivBigBack;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
+    @Bind(R.id.tvListen)
+    TextView tvListen;
+    @Bind(R.id.tvArtistArea)
+    TextView tvArtistArea;
 
     private ArtistGetSongListBean mArtistSongListBean = new ArtistGetSongListBean();
-    private Map<String, List<ArtistGetSongListBean.SonglistBean>> mMapAlbums;
+    private ArtistAlbumListBean mAlbumListBean = new ArtistAlbumListBean();
+    private ArtistInfoBean mArtistInfoBean;
     private XRecyclerView recyclerViewSongList;
     private SongListAdapter songListAdapter;
     private XRecyclerView recyclerViewAlbumList;
     private AlbumListAdapter albumListAdapter;
+    private MyPageAdapter pageAdapter;
     private boolean mNeedClear = true;
 
     @Override
@@ -92,7 +107,7 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
         if(mArtistBean == null)
             return;
 
-        setTintBarAlpha(1.0f);
+        systemBarTintManager.setStatusBarTintColor(android.R.color.transparent);
         tvArtistName.setText(mArtistBean.getName());
         tabLayout.setTabTextColors(this.getResources().getColor(R.color.mainTextColor), this.getResources().getColor(R.color.tabSelectTextColor));
         int indicatorColor = this.getResources().getColor(R.color.tabSeperatorLineColor);
@@ -121,7 +136,7 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
             public void onLoadMore() {
                 mNeedClear = false;
                 mOffset++;
-                initData();
+                getSongList();
             }
         });
         songListAdapter = new SongListAdapter();
@@ -142,15 +157,19 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
 
             @Override
             public void onLoadMore() {
-//                mNeedClear = false;
-//                mOffset++;
-//                initData();
+                mNeedClear = false;
+                mAlbumOffset++;
+                getAlbumList();
             }
         });
 
         albumListAdapter = new AlbumListAdapter();
         recyclerViewAlbumList.setAdapter(albumListAdapter);
-        recyclerViewAlbumList.setLoadingMoreProgressStyle(ProgressStyle.SysProgress);
+        recyclerViewAlbumList.setLoadingMoreProgressStyle(ProgressStyle.BallPulse);
+
+        pageAdapter = new MyPageAdapter();
+        vpSong.setAdapter(pageAdapter);
+        tabLayout.setupWithViewPager(vpSong);
     }
 
     @Override
@@ -164,18 +183,25 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
         }
 
         if(mArtistBean != null && mPresenter != null){
+            mPresenter.getArtistInfo(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION, PureMusicContant.CHANNEL, 2, "baidu.ting.artist.getinfo"
+                    , PureMusicContant.FORMAT_JSON, mArtistBean.getTing_uid(), mArtistBean.getArtist_id());
+        }
+        getSongList();
+        getAlbumList();
+    }
+
+    private void getSongList(){
+        if(mArtistBean != null && mPresenter != null){
             mPresenter.getSongList(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION, PureMusicContant.CHANNEL, 2, "baidu.ting.artist.getSongList"
                     , PureMusicContant.FORMAT_JSON, 2 + "", mArtistBean.getTing_uid(), mArtistBean.getArtist_id(), mOffset*mLimit, mLimit);
-        }
+           }
+    }
 
-        mMapAlbums = new TreeMap<>(new Comparator<String>() {
-            @Override
-            public int compare(String lhs, String rhs) {
-                int l = Integer.valueOf(lhs);
-                int r = Integer.valueOf(rhs);
-                return l - r;
-            }
-        });
+    private void getAlbumList(){
+        if(mArtistBean != null && mPresenter != null){
+            mPresenter.getArtistAlbumList(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION, PureMusicContant.CHANNEL, 2, "baidu.ting.artist.getAlbumList"
+                    , PureMusicContant.FORMAT_JSON, 1 + "", mArtistBean.getTing_uid(), mAlbumOffset*mAlbumLimit, mAlbumLimit);
+        }
     }
 
     @Override
@@ -187,16 +213,11 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
 
     @Override
     public void onGetSongListSuccess(ArtistGetSongListBean bean) {
-        recyclerViewAlbumList.loadMoreComplete();
         recyclerViewSongList.loadMoreComplete();
 
         if(bean == null || bean.getSonglist() == null)
             return;
 
-        if(mNeedClear){
-            mMapAlbums.clear();
-        }
-        
         if(mArtistSongListBean.getSonglist() == null){
             List<ArtistGetSongListBean.SonglistBean> list = new ArrayList<>();
             mArtistSongListBean.setSonglist(list);
@@ -206,20 +227,46 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
             mArtistSongListBean.getSonglist().clear();
         }
         mArtistSongListBean.getSonglist().addAll(bean.getSonglist());
+        songListAdapter.notifyDataSetChanged();
+    }
 
-        for(int i = 0;i < mArtistSongListBean.getSonglist().size();i++){
-            ArtistGetSongListBean.SonglistBean beanSong = mArtistSongListBean.getSonglist().get(i);
-            List<ArtistGetSongListBean.SonglistBean> list = mMapAlbums.get(beanSong.getAlbum_id());
-            if(list == null){
-                list = new ArrayList<>();
-            }
-            list.add(beanSong);
-            mMapAlbums.put(beanSong.getAlbum_id(), list);
+    @Override
+    public void onGetArtistInfoSuccess(ArtistInfoBean bean) {
+        if(bean == null)
+            return;
+
+        String country = bean.getCountry();
+        if(TextUtils.isEmpty(bean.getCountry())){
+            country = getResources().getString(R.string.unknown);
+        }
+        country += getResources().getString(R.string.songer);
+        tvArtistArea.setText(country);
+        tvListen.setText(bean.getAlbums_total());
+        mArtistInfoBean = bean;
+        pageAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onGetArtistAlbumListSuccess(ArtistAlbumListBean bean) {
+        recyclerViewAlbumList.loadMoreComplete();
+        if(bean == null || bean.getAlbumlist() == null)
+            return;
+
+        if(mAlbumListBean.getAlbumlist() == null){
+            List<ArtistAlbumListBean.AlbumlistBean> list = new ArrayList<>();
+            mAlbumListBean.setAlbumlist(list);
         }
 
-        MyPageAdapter adapter = new MyPageAdapter();
-        vpSong.setAdapter(adapter);
-        tabLayout.setupWithViewPager(vpSong);
+        if(mNeedClear){
+            mAlbumListBean.getAlbumlist().clear();
+        }
+        mAlbumListBean.getAlbumlist().addAll(bean.getAlbumlist());
+        albumListAdapter.notifyDataSetChanged();
+    }
+
+    @OnClick(R.id.tvKnowMore)
+    void onClicked(View view){
+
     }
 
     private class MyPageAdapter extends PagerAdapter{
@@ -231,11 +278,14 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
 
         @Override
         public CharSequence getPageTitle(int position) {
+            if(mArtistInfoBean == null)
+                return "";
+
             if(position == 0){
-                return String.format("歌曲(%s)", mArtistBean.getSongs_total());
+                return String.format("歌曲(%s)", mArtistInfoBean.getSongs_total());
             }
             else if(position == 1){
-                return String.format("专辑(%s)", mArtistBean.getAlbums_total());
+                return String.format("专辑(%s)", mArtistInfoBean.getAlbums_total());
             }
 
             return "";
@@ -306,6 +356,9 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
 
         @Override
         public int getItemCount() {
+            if(mArtistSongListBean == null || mArtistSongListBean.getSonglist() == null)
+                return 0;
+
             return mArtistSongListBean.getSonglist().size();
         }
     }
@@ -336,29 +389,29 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
 
         @Override
         public void onBindViewHolder(AlbumListViewHolder holder, int position) {
-            Set<String> keys = mMapAlbums.keySet();
-            int i = 0;
-            String strKey = null;
-            for(String key : keys){
-                if(i == position){
-                    strKey = key;
-                    break;
-                }
-                i++;
-            }
-
-            List<ArtistGetSongListBean.SonglistBean> list = mMapAlbums.get(strKey);
-            if(list == null || list.size() == 0)
+            final ArtistAlbumListBean.AlbumlistBean albumlistBean = mAlbumListBean.getAlbumlist().get(position);
+            if(albumlistBean == null)
                 return;
 
-            holder.tvAlbumName.setText(list.get(0).getAlbum_title());
-            holder.tvPublishTime.setText(list.get(0).getPublishtime());
-            Glide.with(ArtistSongListActivity.this).load(list.get(0).getPic_small()).error(R.drawable.default_live_ic).into(holder.ivAlbum);
+            holder.tvAlbumName.setText(albumlistBean.getTitle());
+            holder.tvPublishTime.setText(albumlistBean.getPublishtime());
+            Glide.with(ArtistSongListActivity.this).load(albumlistBean.getPic_small()).error(R.drawable.default_live_ic).into(holder.ivAlbum);
+            holder.llContent.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(ArtistSongListActivity.this, ArtistAlbumInfoActivity.class);
+                    intent.putExtra(ArtistAlbumInfoActivity.ALBUM_BEAN, albumlistBean);
+                    ArtistSongListActivity.this.startActivity(intent);
+                }
+            });
         }
 
         @Override
         public int getItemCount() {
-            return mMapAlbums.size();
+            if(mAlbumListBean == null || mAlbumListBean.getAlbumlist() == null)
+                return 0;
+
+            return mAlbumListBean.getAlbumlist().size();
         }
     }
 
@@ -366,9 +419,11 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
         private ImageView ivAlbum;
         private TextView tvAlbumName;
         private TextView tvPublishTime;
+        private LinearLayout llContent;
 
         public AlbumListViewHolder(View itemView) {
             super(itemView);
+            llContent = (LinearLayout)itemView.findViewById(R.id.llContent);
             ivAlbum = (ImageView)itemView.findViewById(R.id.ivAlbum);
             tvAlbumName = (TextView)itemView.findViewById(R.id.tvAlbumName);
             tvPublishTime = (TextView)itemView.findViewById(R.id.tvPublishTime);

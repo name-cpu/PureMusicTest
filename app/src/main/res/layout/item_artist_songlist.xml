@@ -26,7 +26,8 @@
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:text="beat it"
-                android:textSize="@dimen/text_size_16" />
+                android:textSize="@dimen/text_size_16"
+                style="@style/DefaultTextView"/>
             <ImageView
                 android:id="@+id/ivMV"
                 android:layout_marginLeft="5dp"
@@ -53,7 +54,8 @@
                 android:layout_weight="1"
                 android:text="world"
                 android:gravity="center_vertical"
-                android:textSize="@dimen/text_size_12" />
+                android:textSize="@dimen/text_size_12"
+                style="@style/DefaultTextView"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

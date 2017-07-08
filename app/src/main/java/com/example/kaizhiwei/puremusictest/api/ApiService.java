@@ -1,8 +1,11 @@
 package com.example.kaizhiwei.puremusictest.api;
 
 import com.example.kaizhiwei.puremusictest.bean.ActiveIndexBean;
+import com.example.kaizhiwei.puremusictest.bean.ArtistAlbumInfoBean;
+import com.example.kaizhiwei.puremusictest.bean.ArtistAlbumListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetSongListBean;
+import com.example.kaizhiwei.puremusictest.bean.ArtistInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
@@ -147,4 +150,41 @@ public interface ApiService {
                                                   @Query("artistid") String artistid,
                                                   @Query("offset") int offset,
                                                   @Query("limits") int limits);
+
+    //获取歌手本人信息
+    //GET /v1/restserver/ting?from=android&version=5.9.9.6&channel=ppzs&operator=2&method=baidu.ting.artist.getinfo&format=json&tinguid=1105&artistid=1105
+    @GET("/v1/restserver/ting")
+    Observable<ArtistInfoBean> getArtistInfo(@Query("from") String from,
+                                             @Query("version") String version,
+                                             @Query("channel") String channel,
+                                             @Query("operator") int operator,
+                                             @Query("method") String method,
+                                             @Query("format") String format,
+                                             @Query("tinguid") String tinguid,
+                                             @Query("artistid") String artistid);
+
+    //获取歌手专辑列表
+    //GET /v1/restserver/ting?from=android&version=5.9.9.6&channel=ppzs&operator=2&method=baidu.ting.artist.getAlbumList&format=json&order=1&tinguid=7994&offset=30&limits=30
+    @GET("/v1/restserver/ting")
+    Observable<ArtistAlbumListBean> getArtistAlbumList(@Query("from") String from,
+                                                       @Query("version") String version,
+                                                       @Query("channel") String channel,
+                                                       @Query("operator") int operator,
+                                                       @Query("method") String method,
+                                                       @Query("format") String format,
+                                                       @Query("order") String order,
+                                                       @Query("tinguid") String tinguid,
+                                                       @Query("offset") int offset,
+                                                       @Query("limits") int limits);
+
+    //获取专辑信息
+    //GET /v1/restserver/ting?from=android&version=5.9.9.6&channel=ppzs&operator=2&method=baidu.ting.album.getAlbumInfo&format=json&album_id=541223882
+    @GET("/v1/restserver/ting")
+    Observable<ArtistAlbumInfoBean> getArtistAlbumInfo(@Query("from") String from,
+                                                       @Query("version") String version,
+                                                       @Query("channel") String channel,
+                                                       @Query("operator") int operator,
+                                                       @Query("method") String method,
+                                                       @Query("format") String format,
+                                                       @Query("album_id") String album_id);
 }

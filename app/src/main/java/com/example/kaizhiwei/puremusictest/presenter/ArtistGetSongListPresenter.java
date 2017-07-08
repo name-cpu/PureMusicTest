@@ -1,7 +1,9 @@
 package com.example.kaizhiwei.puremusictest.presenter;
 
 import com.example.kaizhiwei.puremusictest.api.ApiService;
+import com.example.kaizhiwei.puremusictest.bean.ArtistAlbumListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetSongListBean;
+import com.example.kaizhiwei.puremusictest.bean.ArtistInfoBean;
 import com.example.kaizhiwei.puremusictest.contract.ArtistGetSongListContract;
 import com.example.kaizhiwei.puremusictest.domin.RetrofitClient;
 
@@ -45,6 +47,64 @@ public class ArtistGetSongListPresenter implements ArtistGetSongListContract.Pre
                     public void onNext(ArtistGetSongListBean bean) {
                         if(mView != null){
                             mView.onGetSongListSuccess(bean);
+                        }
+                    }
+                });
+        subscriptions.add(subscriber);
+    }
+
+    @Override
+    public void getArtistInfo(String from, String version, String channel, int operator, String method, String format, String tinguid, String artistid) {
+        ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
+        Observable<ArtistInfoBean> observable = apiService.getArtistInfo(from, version, channel, operator, method, format, tinguid, artistid);
+        Subscription subscriber = observable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<ArtistInfoBean>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        if(mView != null){
+                            mView.onError(e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onNext(ArtistInfoBean bean) {
+                        if(mView != null){
+                            mView.onGetArtistInfoSuccess(bean);
+                        }
+                    }
+                });
+        subscriptions.add(subscriber);
+    }
+
+    @Override
+    public void getArtistAlbumList(String from, String version, String channel, int operator, String method, String format, String order, String tinguid, int offset, int limits) {
+        ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
+        Observable<ArtistAlbumListBean> observable = apiService.getArtistAlbumList(from, version, channel, operator, method, format, order, tinguid, offset, limits);
+        Subscription subscriber = observable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<ArtistAlbumListBean>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        if(mView != null){
+                            mView.onError(e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onNext(ArtistAlbumListBean bean) {
+                        if(mView != null){
+                            mView.onGetArtistAlbumListSuccess(bean);
                         }
                     }
                 });
