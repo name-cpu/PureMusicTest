@@ -4,7 +4,9 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
 import android.telephony.TelephonyManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.example.kaizhiwei.puremusictest.PureMusicApplication;
 
@@ -137,5 +139,12 @@ public class DeviceUtil {
         String str = new UUID(m_szDevIDShort.hashCode(), serial.hashCode()).toString();
         Log.i("weikaizhi", "UUID " + str);
         return str;
+    }
+
+    public static int getDensity(Context context){
+        WindowManager windowManager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+        return (int)displayMetrics.density;
     }
 }

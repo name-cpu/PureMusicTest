@@ -1,6 +1,5 @@
 package com.example.kaizhiwei.puremusictest.contract;
 
-import com.example.kaizhiwei.puremusictest.bean.ArtistAlbumInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
 
 /**

@@ -6,11 +6,13 @@ import android.util.Log;
 
 import com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
 import com.example.kaizhiwei.puremusictest.base.MyBaseActivity;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.ArtistGetArtistListInfoContract;
 import com.example.kaizhiwei.puremusictest.presenter.ArtistGetArtistListInfoPresenter;
+import com.example.kaizhiwei.puremusictest.widget.RecyclerViewSpaceDecoration;
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
 
@@ -95,6 +97,7 @@ public class HotArtistActivity extends MyBaseActivity implements ArtistGetArtist
         });
         mAdapter = new HotArtistAdapter(this, mArtistGetListBean);
         rvArtistList.setAdapter(mAdapter);
+        rvArtistList.addItemDecoration(new RecyclerViewSpaceDecoration(0, 0, 0, 5* DeviceUtil.getDensity(this)));
     }
 
     @Override

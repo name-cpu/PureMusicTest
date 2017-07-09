@@ -26,6 +26,7 @@ import com.example.kaizhiwei.puremusictest.widget.RecyclerViewDividerDecoration;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
 
 import butterknife.Bind;
+import butterknife.OnClick;
 import jp.wasabeef.glide.transformations.BlurTransformation;
 
 /**
@@ -94,6 +95,13 @@ public class ArtistAlbumInfoActivity extends MyBaseActivity implements ArtistGet
         if(mAlbumSimpleInfoBean != null && mPresenter != null){
             mPresenter.getArtistAlbumInfo(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION, PureMusicContant.PPZS, 2, "baidu.ting.album.getAlbumInfo"
                     , PureMusicContant.FORMAT_JSON, mAlbumSimpleInfoBean.getAlbum_id());
+        }
+    }
+
+    @OnClick(R.id.ivBack)
+    void onClick(View view){
+        if(view.getId() == R.id.ivBack){
+            finish();
         }
     }
 
