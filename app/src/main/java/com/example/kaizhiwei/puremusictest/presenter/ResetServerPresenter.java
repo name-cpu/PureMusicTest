@@ -249,74 +249,15 @@ public class ResetServerPresenter implements ResetServerContract.Presenter {
 
                     @Override
                     public void onError(Throwable e) {
-                        if(mView != null){
+                        if (mView != null) {
                             mView.onError(e.getMessage());
                         }
                     }
 
                     @Override
                     public void onNext(DiyGeDanInfoBean bean) {
-                        if(mView != null){
+                        if (mView != null) {
                             mView.onGetDiyGeDanInfoSuccess(bean);
-                        }
-                    }
-                });
-        subscriptions.add(subscriber);
-    }
-
-    @Override
-    public void getArtistListInfo(String from, String version, String channel, String operator,
-                             String method, String format, String offset, String limit, String order, String area, String sex) {
-        ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
-        Observable<ArtistGetListBean> observable = apiService.getArtistListInfo(from, version, channel, operator, method, format, offset, limit, order, area, sex);
-        Subscription subscriber = observable.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<ArtistGetListBean>() {
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        if(mView != null){
-                            mView.onError(e.getMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onNext(ArtistGetListBean bean) {
-                        if(mView != null){
-                            mView.onGetArtistListInfoSuccess(bean);
-                        }
-                    }
-                });
-        subscriptions.add(subscriber);
-    }
-
-    @Override
-    public void getArtistListInfoWithFilter(String from, String version, String channel, String operator, String method, String format, String offset, String limit, String order, String area, String sex, String filter) {
-        ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
-        Observable<ArtistGetListBean> observable = apiService.getArtistListInfoWithFilter(from, version, channel, operator, method, format, offset, limit, order, area, sex, filter);
-        Subscription subscriber = observable.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<ArtistGetListBean>() {
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        if(mView != null){
-                            mView.onError(e.getMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onNext(ArtistGetListBean bean) {
-                        if(mView != null){
-                            mView.onGetArtistListInfoSuccess(bean);
                         }
                     }
                 });

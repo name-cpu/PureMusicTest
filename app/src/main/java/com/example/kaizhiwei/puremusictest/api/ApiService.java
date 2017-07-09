@@ -10,6 +10,7 @@ import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
 import com.example.kaizhiwei.puremusictest.bean.ShowRedPointBean;
+import com.example.kaizhiwei.puremusictest.bean.SongDetailInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.SugSceneBean;
 import com.example.kaizhiwei.puremusictest.bean.UgcdiyBaseInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.UnStandardAdBean;
@@ -187,4 +188,25 @@ public interface ApiService {
                                                        @Query("method") String method,
                                                        @Query("format") String format,
                                                        @Query("album_id") String album_id);
+
+    //获取歌曲信息
+    //GET /v1/restserver/ting?from=android&version=5.9.9.6&channel=ppzs&operator=2&method=baidu.ting.song.getInfos&format=json&songid=7280177&ts=1499570522192&
+    // e=%2Blok1Cpy4gCBBj6rXQ4QnXmjJ7U0WCkfwOIhDHWwvQY%3D&nw=2&ucf=1&res=1&l2p=0&lpb=&usup=1&lebo=0
+    @GET("/v1/restserver/ting")
+    Observable<SongDetailInfoBean> getSongInfo(@Query("from") String from,
+                                               @Query("version") String version,
+                                               @Query("channel") String channel,
+                                               @Query("operator") int operator,
+                                               @Query("method") String method,
+                                               @Query("format") String format,
+                                               @Query("songid") String songid,
+                                               @Query("ts") long ts,
+                                               @Query(value = "e" ,encoded = true) String e,
+                                               @Query("nw") int nw,
+                                               @Query("ucf") int ucf,
+                                               @Query("res") int res,
+                                               @Query("l2p") int l2p,
+                                               @Query("lpb") String lpb,
+                                               @Query("usup") int usup,
+                                               @Query("lebo") int lebo);
 }

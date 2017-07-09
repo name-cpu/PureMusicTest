@@ -30,7 +30,9 @@ import com.example.kaizhiwei.puremusictest.bean.ShowRedPointBean;
 import com.example.kaizhiwei.puremusictest.bean.SugSceneBean;
 import com.example.kaizhiwei.puremusictest.bean.UgcdiyBaseInfoBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
+import com.example.kaizhiwei.puremusictest.contract.ArtistGetArtistListInfoContract;
 import com.example.kaizhiwei.puremusictest.contract.ResetServerContract;
+import com.example.kaizhiwei.puremusictest.presenter.ArtistGetArtistListInfoPresenter;
 import com.example.kaizhiwei.puremusictest.presenter.ResetServerPresenter;
 import com.example.kaizhiwei.puremusictest.widget.RecyclerViewDividerDecoration;
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
@@ -45,7 +47,7 @@ import butterknife.Bind;
  * Created by kaizhiwei on 17/6/29.
  */
 
-public class ArtistArtistListActivity extends MyBaseActivity implements ResetServerContract.View, ArtistIndexDialog.IArtistIndexDialogListener{
+public class ArtistArtistListActivity extends MyBaseActivity implements ArtistGetArtistListInfoContract.View, ArtistIndexDialog.IArtistIndexDialogListener{
     @Bind(R.id.rvArtistList)
     XRecyclerView rvArtistList;
 
@@ -55,10 +57,9 @@ public class ArtistArtistListActivity extends MyBaseActivity implements ResetSer
     @Bind(R.id.commonTitle)
     CommonTitleView commonTitle;
 
-    ResetServerContract.Presenter mPresenter;
+    ArtistGetArtistListInfoContract.Presenter mPresenter;
     private ArtistGetListBean mArtistGetListBean = new ArtistGetListBean();
     private ArtistSelActivity.ArtistTagInfo mArtistTagInfo;
-    private boolean mLoadingData;
     private int mCurPage = 0;
     private MyAdapter mAdapter;
     private String mFilter = "";
@@ -74,7 +75,7 @@ public class ArtistArtistListActivity extends MyBaseActivity implements ResetSer
 
     @Override
     public void initPresenter() {
-        mPresenter = new ResetServerPresenter(this);
+        mPresenter = new ArtistGetArtistListInfoPresenter(this);
     }
 
     @Override
@@ -120,22 +121,22 @@ public class ArtistArtistListActivity extends MyBaseActivity implements ResetSer
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        mLoadingData = true;
                         loadMoreDate();
                     }
-                }, 1000);
+                }, 500);
             }
         });
         mAdapter = new MyAdapter();
         rvArtistList.setAdapter(mAdapter);
 
+        commonTitle.setTitleVisible(false);
         if(mArtistTagInfo != null){
-            commonTitle.setTitleViewInfo(mArtistTagInfo.title, "", "过滤");
+            commonTitle.setTitleViewInfo(mArtistTagInfo.title, "", "");
         }
         commonTitle.setTitleViewListener(new CommonTitleView.onTitleClickListener() {
             @Override
             public void onLeftBtnClicked() {
-
+                finish();
             }
 
             @Override
@@ -201,41 +202,6 @@ public class ArtistArtistListActivity extends MyBaseActivity implements ResetSer
     }
 
     @Override
-    public void onGetCatogaryListSuccess(SceneCategoryListBean bean) {
-
-    }
-
-    @Override
-    public void onGetActiveIndexSuccess(ActiveIndexBean bean) {
-
-    }
-
-    @Override
-    public void onShowRedPointSuccess(ShowRedPointBean bean) {
-
-    }
-
-    @Override
-    public void onGetSugSceneSuccess(SugSceneBean bean) {
-
-    }
-
-    @Override
-    public void onGetPlazaIndexSuccess(PlazaIndexBean bean) {
-
-    }
-
-    @Override
-    public void onGetUgcdiyBaseInfoSuccess(UgcdiyBaseInfoBean baseInfoBean) {
-
-    }
-
-    @Override
-    public void onGetDiyGeDanInfoSuccess(DiyGeDanInfoBean bean) {
-
-    }
-
-    @Override
     public void onGetArtistListInfoSuccess(ArtistGetListBean bean) {
         if(bean == null || bean.getArtist() == null){
             showToast("data error");
@@ -243,7 +209,6 @@ public class ArtistArtistListActivity extends MyBaseActivity implements ResetSer
         }
 
         rvArtistList.loadMoreComplete();
-        mLoadingData = false;
         if(mNeedClear){
             mArtistGetListBean.getArtist().clear();
             mNeedClear = false;

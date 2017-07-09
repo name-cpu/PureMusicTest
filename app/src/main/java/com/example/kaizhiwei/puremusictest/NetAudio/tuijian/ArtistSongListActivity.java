@@ -7,11 +7,11 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,25 +27,22 @@ import com.example.kaizhiwei.puremusictest.bean.ArtistAlbumListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetSongListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistInfoBean;
+import com.example.kaizhiwei.puremusictest.bean.SongDetailInfoBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.ArtistGetSongListContract;
+import com.example.kaizhiwei.puremusictest.contract.SongDetailInfoContract;
 import com.example.kaizhiwei.puremusictest.presenter.ArtistGetSongListPresenter;
+import com.example.kaizhiwei.puremusictest.presenter.SongDetailInfoPresenter;
 import com.example.kaizhiwei.puremusictest.widget.CornersTransform;
 import com.example.kaizhiwei.puremusictest.widget.RecyclerViewDividerDecoration;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import com.example.kaizhiwei.puremusictest.widget.CircleImageView;
+
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
 
 import butterknife.Bind;
-import butterknife.BindInt;
 import butterknife.OnClick;
 import jp.wasabeef.glide.transformations.BlurTransformation;
 
@@ -53,8 +50,9 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
  * Created by kaizhiwei on 17/7/2.
  */
 
-public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetSongListContract.View {
+public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetSongListContract.View, SongDetailInfoContract.View {
     private ArtistGetSongListContract.Presenter mPresenter;
+    private SongDetailInfoContract.Presenter mSongDetailPresenter;
     private ArtistGetListBean.ArtistBean mArtistBean;
     private int mOffset = 0;
     private int mLimit = 50;
@@ -100,6 +98,7 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
     @Override
     public void initPresenter() {
         mPresenter = new ArtistGetSongListPresenter(this);
+        mSongDetailPresenter = new SongDetailInfoPresenter(this);
     }
 
     @Override
@@ -204,6 +203,13 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
         }
     }
 
+    @OnClick(R.id.ivBack)
+    void onClick(View view){
+        if(view.getId() == R.id.ivBack){
+            finish();
+        }
+    }
+
     @Override
     public void onError(String strErrMsg) {
         showToast(strErrMsg);
@@ -269,6 +275,11 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
 
     }
 
+    @Override
+    public void onGetSongDetailInfoSuccess(SongDetailInfoBean bean) {
+        Log.e("onGetSongDetail", bean.getSonginfo().getAll_rate());
+    }
+
     private class MyPageAdapter extends PagerAdapter{
 
         @Override
@@ -322,7 +333,7 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
 
         @Override
         public void onBindViewHolder(SongListViewHolder holder, int position) {
-            ArtistGetSongListBean.SonglistBean songlistBean = mArtistSongListBean.getSonglist().get(position);
+            final ArtistGetSongListBean.SonglistBean songlistBean = mArtistSongListBean.getSonglist().get(position);
             holder.tvSongName.setText(songlistBean.getTitle());
             String strAlbumTitle = songlistBean.getAlbum_title();
             if(TextUtils.isEmpty(strAlbumTitle)){
@@ -349,7 +360,11 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
             holder.llContent.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    if(mSongDetailPresenter != null){
+                        long timeStamp = 1499570577194L; //System.currentTimeMillis();
+                        mSongDetailPresenter.getSongDetailInfo(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION, PureMusicContant.PPZS, 2, "baidu.ting.song.getInfos"
+                                , PureMusicContant.FORMAT_JSON, "qqqqqq", timeStamp, "%2Blok1Cpy4gCBBj6rXQ4QnXmjJ7U0WCkfwOIhDHWwvQY%3D", 1, 0, 0, 0, "", 0, 0);
+                    }
                 }
             });
         }

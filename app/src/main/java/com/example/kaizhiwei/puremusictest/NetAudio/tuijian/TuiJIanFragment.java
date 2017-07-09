@@ -288,11 +288,6 @@ public class TuiJIanFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     @Override
-    public void onGetArtistListInfoSuccess(ArtistGetListBean bean) {
-
-    }
-
-    @Override
     public void onError(String strErrMsg) {
 
     }

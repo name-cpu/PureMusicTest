@@ -1,10 +1,14 @@
 package com.example.kaizhiwei.puremusictest.NetAudio.tuijian;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.base.MyBaseActivity;
 import com.example.kaizhiwei.puremusictest.bean.ActiveIndexBean;
@@ -26,7 +31,9 @@ import com.example.kaizhiwei.puremusictest.bean.ShowRedPointBean;
 import com.example.kaizhiwei.puremusictest.bean.SugSceneBean;
 import com.example.kaizhiwei.puremusictest.bean.UgcdiyBaseInfoBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
+import com.example.kaizhiwei.puremusictest.contract.ArtistGetArtistListInfoContract;
 import com.example.kaizhiwei.puremusictest.contract.ResetServerContract;
+import com.example.kaizhiwei.puremusictest.presenter.ArtistGetArtistListInfoPresenter;
 import com.example.kaizhiwei.puremusictest.presenter.ResetServerPresenter;
 import com.viewpagerindicator.LinePageIndicator;
 
@@ -40,7 +47,7 @@ import butterknife.OnClick;
  * Created by kaizhiwei on 17/6/29.
  */
 
-public class ArtistSelActivity extends MyBaseActivity implements ResetServerContract.View{
+public class ArtistSelActivity extends MyBaseActivity implements ArtistGetArtistListInfoContract.View, CommonTitleView.onTitleClickListener {
     @Bind(R.id.tvMore)
     TextView tvMore;
 
@@ -89,7 +96,10 @@ public class ArtistSelActivity extends MyBaseActivity implements ResetServerCont
     @Bind(R.id.linePageIndicator)
     LinePageIndicator linePageIndicator;
 
-    private ResetServerContract.Presenter mPresenter;
+    @Bind(R.id.commonTitle)
+    CommonTitleView commonTitle;
+
+    private ArtistGetArtistListInfoContract.Presenter mPresenter;
     private ArtistGetListBean mArtistGetListBean;
     private List<GridView> mListGridViews;
     private static final int PAGE_ARTIST_NUM = 3;
@@ -100,41 +110,6 @@ public class ArtistSelActivity extends MyBaseActivity implements ResetServerCont
     @Override
     public void onError(String strErrMsg) {
         showToast(strErrMsg);
-    }
-
-    @Override
-    public void onGetCatogaryListSuccess(SceneCategoryListBean bean) {
-
-    }
-
-    @Override
-    public void onGetActiveIndexSuccess(ActiveIndexBean bean) {
-
-    }
-
-    @Override
-    public void onShowRedPointSuccess(ShowRedPointBean bean) {
-
-    }
-
-    @Override
-    public void onGetSugSceneSuccess(SugSceneBean bean) {
-
-    }
-
-    @Override
-    public void onGetPlazaIndexSuccess(PlazaIndexBean bean) {
-
-    }
-
-    @Override
-    public void onGetUgcdiyBaseInfoSuccess(UgcdiyBaseInfoBean baseInfoBean) {
-
-    }
-
-    @Override
-    public void onGetDiyGeDanInfoSuccess(DiyGeDanInfoBean bean) {
-
     }
 
     @Override
@@ -151,9 +126,19 @@ public class ArtistSelActivity extends MyBaseActivity implements ResetServerCont
             }
         }
         mArtistGetListBean = bean;
-        ReMenAdapter adapter = new ReMenAdapter();
+        HotPagerAdapter adapter = new HotPagerAdapter();
         vpReMenArtist.setAdapter(adapter);
         initLineIndicator();
+    }
+
+    @Override
+    public void onLeftBtnClicked() {
+        finish();
+    }
+
+    @Override
+    public void onRightBtnClicked() {
+
     }
 
     static public class ArtistTagInfo implements Parcelable {
@@ -202,7 +187,7 @@ public class ArtistSelActivity extends MyBaseActivity implements ResetServerCont
 
     @Override
     public void initPresenter() {
-        mPresenter = new ResetServerPresenter(this);
+        mPresenter = new ArtistGetArtistListInfoPresenter(this);
         if(mPresenter != null){
             mPresenter.getArtistListInfo(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION, PureMusicContant.CHANNEL, "2", "baidu.ting.artist.getList"
                     , PureMusicContant.FORMAT_JSON, "0", "48", "1", "0", "0");
@@ -211,7 +196,9 @@ public class ArtistSelActivity extends MyBaseActivity implements ResetServerCont
 
     @Override
     public void initView() {
-
+        commonTitle.setTitleViewListener(this);
+        commonTitle.setRightBtnVisible(false);
+        commonTitle.setTitleVisible(false);
     }
 
     private void initLineIndicator(){
@@ -311,16 +298,21 @@ public class ArtistSelActivity extends MyBaseActivity implements ResetServerCont
     }
 
     @OnClick({R.id.rlHuaYuNan, R.id.rlHuaYuNv, R.id.rlHuaYuTeam,R.id.rlOuMeiNan,R.id.rlOuMeiNv,R.id.rlOuMeiTeam,
-            R.id.rlHanGuoNan,R.id.rlHanGuoNv, R.id.rlHanGuoTeam, R.id.rlJapanNan, R.id.rlJapanNv, R.id.rlJapanTeam, R.id.rlOther})
+            R.id.rlHanGuoNan,R.id.rlHanGuoNv, R.id.rlHanGuoTeam, R.id.rlJapanNan, R.id.rlJapanNv, R.id.rlJapanTeam, R.id.rlOther, R.id.tvMore})
     void onClick(View view){
-        ArtistTagInfo tagInfo = (ArtistTagInfo)view.getTag();
-        Intent intent = new Intent(this, ArtistArtistListActivity.class);
-        intent.putExtra(ArtistArtistListActivity.BUNDLE_ARTISTTAGINFO, tagInfo);
-        startActivity(intent);
+        if(view.getId() == R.id.tvMore){
+            Intent intent = new Intent(this, HotArtistActivity.class);
+            startActivity(intent);
+        }
+        else{
+            ArtistTagInfo tagInfo = (ArtistTagInfo)view.getTag();
+            Intent intent = new Intent(this, ArtistArtistListActivity.class);
+            intent.putExtra(ArtistArtistListActivity.BUNDLE_ARTISTTAGINFO, tagInfo);
+            startActivity(intent);
+        }
     }
 
-
-    private class ReMenAdapter extends PagerAdapter{
+    private class HotPagerAdapter extends PagerAdapter{
 
         @Override
         public int getCount() {
@@ -335,12 +327,22 @@ public class ArtistSelActivity extends MyBaseActivity implements ResetServerCont
         }
 
         public Object instantiateItem(ViewGroup container, int position) {
-            GridView gridView = new GridView(ArtistSelActivity.this);
-            ReMenGridViewAdapter adapter = new ReMenGridViewAdapter(position);
-            gridView.setAdapter(adapter);
-            gridView.setNumColumns(PAGE_ARTIST_NUM);
-            container.addView(gridView);
-            return gridView;
+            RecyclerView recyclerView = new RecyclerView(ArtistSelActivity.this);
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(ArtistSelActivity.this, PAGE_ARTIST_NUM);
+            recyclerView.setLayoutManager(gridLayoutManager);
+
+            ArtistGetListBean bean = new ArtistGetListBean();
+            List<ArtistGetListBean.ArtistBean> list = new ArrayList<>();
+            bean.setArtist(list);
+            int startPos = position*PAGE_ARTIST_NUM;
+            for(int i = startPos;i < mArtistGetListBean.getArtist().size() && i < startPos+PAGE_ARTIST_NUM;i++){
+                list.add(mArtistGetListBean.getArtist().get(i));
+            }
+
+            HotArtistAdapter adapter = new HotArtistAdapter(ArtistSelActivity.this, bean);
+            recyclerView.setAdapter(adapter);
+            container.addView(recyclerView);
+            return recyclerView;
         }
 
         public void destroyItem(ViewGroup container, int position, Object object) {
@@ -350,66 +352,6 @@ public class ArtistSelActivity extends MyBaseActivity implements ResetServerCont
         @Override
         public boolean isViewFromObject(View view, Object object) {
             return view == object;
-        }
-    }
-
-    private class ReMenGridViewAdapter extends BaseAdapter{
-        private int mIndex;
-
-        public ReMenGridViewAdapter(int index){
-            mIndex = index;
-        }
-
-        @Override
-        public int getCount() {
-            int count = 0;
-            int falg = (mArtistGetListBean.getArtist().size() - mIndex * PAGE_ARTIST_NUM)/PAGE_ARTIST_NUM;
-            if(falg > 0){
-                count = PAGE_ARTIST_NUM;
-            }
-            else{
-                count = mArtistGetListBean.getArtist().size() - mIndex * PAGE_ARTIST_NUM;
-            }
-            return count;
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return mArtistGetListBean.getArtist().get(mIndex*PAGE_ARTIST_NUM+position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder = null;
-            if(convertView == null){
-                View view = layoutInflater.inflate(R.layout.item_artistsel_remen, parent, false);
-                convertView = view;
-                holder = new ViewHolder(view);
-                convertView.setTag(holder);
-            }
-            else{
-                holder = (ViewHolder)convertView.getTag();
-            }
-
-            ArtistGetListBean.ArtistBean artistBean = (ArtistGetListBean.ArtistBean)getItem(position);
-            Glide.with(ArtistSelActivity.this).load(artistBean.getAvatar_middle()).placeholder(R.drawable.default_live_ic).into(holder.ivReMenArtistPic);
-            holder.tvReMenArtistName.setText(artistBean.getName());
-            return convertView;
-        }
-
-        private class ViewHolder{
-            private ImageView ivReMenArtistPic;
-            private TextView tvReMenArtistName;
-
-            public ViewHolder(View view){
-                ivReMenArtistPic = (ImageView)view.findViewById(R.id.ivReMenArtistPic);
-                tvReMenArtistName = (TextView)view.findViewById(R.id.tvReMenArtistName);
-            }
         }
     }
 }

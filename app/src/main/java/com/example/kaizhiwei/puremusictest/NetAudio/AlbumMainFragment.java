@@ -388,11 +388,6 @@ public class AlbumMainFragment extends FragmentActivity implements View.OnClickL
     }
 
     @Override
-    public void onGetArtistListInfoSuccess(ArtistGetListBean bean) {
-
-    }
-
-    @Override
     public void onError(String strErrMsg) {
 
     }

@@ -48,5 +48,5 @@
     <string name="unknown">未知</string>
     <string name="artist">艺术家</string>
     <string name="songer">歌手</string>
-    <string name="publish_time">发布时间：</string>
+    <string name="publish_time">发行时间：</string>
 </resources>

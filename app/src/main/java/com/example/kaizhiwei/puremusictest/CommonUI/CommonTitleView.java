@@ -2,6 +2,7 @@ package com.example.kaizhiwei.puremusictest.CommonUI;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -55,34 +56,34 @@ public class CommonTitleView extends LinearLayout implements View.OnClickListene
 
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.CommonTitleView);
         String leftText = array.getString(R.styleable.CommonTitleView_leftText);
-        if(!TextUtils.isEmpty(leftText)){
+        if(leftText != null){
             leftBtn.setText(leftText);
         }
 
         int leftDrawable = array.getResourceId(R.styleable.CommonTitleView_leftDrawable, R.drawable.ic_launcher);
         if(leftDrawable != R.drawable.ic_launcher){
-            leftBtn.setCompoundDrawables(getResources().getDrawable(leftDrawable), null, null, null);
+            Drawable drawable= getResources().getDrawable(leftDrawable);
+            /// 这一步必须要做,否则不会显示.
+            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+            leftBtn.setCompoundDrawables(drawable, null, null, null);
         }
 
         String rightText = array.getString(R.styleable.CommonTitleView_rightText);
-        if(!TextUtils.isEmpty(rightText)){
+        if(rightText != null){
             rightBtn.setText(rightText);
-        }
-        else{
-            //rightBtn.setVisibility(View.GONE);
         }
 
         int rightDrawable = array.getResourceId(R.styleable.CommonTitleView_rightDrawable, R.drawable.ic_launcher);
         if(rightDrawable != R.drawable.ic_launcher){
-            rightBtn.setCompoundDrawables(getResources().getDrawable(rightDrawable), null, null, null);
+            Drawable drawable= getResources().getDrawable(rightDrawable);
+            /// 这一步必须要做,否则不会显示.
+            drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+            rightBtn.setCompoundDrawables(null, null, drawable, null);
         }
 
         String title = array.getString(R.styleable.CommonTitleView_title);
         if(!TextUtils.isEmpty(title)){
             titleTextView.setText(title);
-        }
-        else{
-            titleTextView.setVisibility(View.GONE);
         }
     }
 
@@ -101,7 +102,7 @@ public class CommonTitleView extends LinearLayout implements View.OnClickListene
     }
 
     public void setRightBtnVisible(boolean bShow){
-        //rightBtn.setVisibility(bShow ? View.VISIBLE : View.GONE);
+        rightBtn.setVisibility(bShow ? View.VISIBLE : View.GONE);
     }
 
     public void setTitleVisible(boolean bShow){

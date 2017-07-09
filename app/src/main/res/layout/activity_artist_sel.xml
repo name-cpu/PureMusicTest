@@ -7,10 +7,11 @@
     android:background="@color/white">
 
     <com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView
+        android:id="@+id/commonTitle"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        app:leftDrawable="@drawable/ic_title_return"
-        app:leftText="歌手"></com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView>
+        app:leftText="歌手">
+    </com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView>
 
     <ScrollView
         android:layout_width="match_parent"

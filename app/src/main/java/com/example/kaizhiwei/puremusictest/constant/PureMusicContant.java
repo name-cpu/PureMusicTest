@@ -11,6 +11,7 @@ public class PureMusicContant {
     public static final String DEVICE_TYPE= "android";
     public static final String APP_VERSION = "5.9.9.6";
     public static final String CHANNEL = "1426d";
+    public static final String PPZS = "ppzs";
     public static final String CUID = "C28BFA1D8C3FC9010DFB8F7576EABF12";
     public static final String ACCEPT_ENCODING = "gzip";
     public static final String USER_AGENT = "android_5.9.9.6;baiduyinyue";

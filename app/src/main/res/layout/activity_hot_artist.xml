@@ -10,21 +10,13 @@
         android:id="@+id/commonTitle"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        app:leftText="歌手"
-        app:rightText=""
-        app:rightDrawable="@drawable/bt_sort_a_z_nor">
+        app:leftText="热门歌手"
+        app:rightText="">
 
     </com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView>
 
-    <TextView
-        android:id="@+id/tvIndexType"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:text="热门"
-        android:gravity="center_vertical"
-        android:layout_marginLeft="10dp"/>
-
     <com.jcodecraeer.xrecyclerview.XRecyclerView
+        android:layout_marginTop="10dp"
         android:id="@+id/rvArtistList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

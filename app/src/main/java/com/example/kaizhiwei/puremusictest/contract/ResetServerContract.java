@@ -32,11 +32,7 @@ public interface ResetServerContract {
 
         void getDiyGeDanInfo(String format,String from, String method, int listid);
 
-        void getArtistListInfo(String from, String version, String channel, String operator,
-                               String method, String format, String offset, String limit, String order, String area, String sex);
 
-        void getArtistListInfoWithFilter(String from, String version, String channel, String operator,
-                               String method, String format, String offset, String limit, String order, String area, String sex, String filter);
     }
 
     interface View extends BaseContract.View {
@@ -53,7 +49,5 @@ public interface ResetServerContract {
         void onGetUgcdiyBaseInfoSuccess(UgcdiyBaseInfoBean baseInfoBean);
 
         void onGetDiyGeDanInfoSuccess(DiyGeDanInfoBean bean);
-
-        void onGetArtistListInfoSuccess(ArtistGetListBean bean);
     }
 }
