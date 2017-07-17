@@ -50,7 +50,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
  * Created by kaizhiwei on 17/7/2.
  */
 
-public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetSongListContract.View, SongDetailInfoContract.View {
+public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetSongListContract.View, SongDetailInfoContract.View, SongListAdapter.OnSongItemListener {
     private ArtistGetSongListContract.Presenter mPresenter;
     private SongDetailInfoContract.Presenter mSongDetailPresenter;
     private ArtistGetListBean.ArtistBean mArtistBean;
@@ -81,6 +81,8 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
     TextView tvArtistArea;
 
     private ArtistGetSongListBean mArtistSongListBean = new ArtistGetSongListBean();
+    private List<SongListAdapter.SongItemData> mArtistSongListDatas = new ArrayList<>();
+
     private ArtistAlbumListBean mAlbumListBean = new ArtistAlbumListBean();
     private ArtistInfoBean mArtistInfoBean;
     private XRecyclerView recyclerViewSongList;
@@ -138,7 +140,8 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
                 getSongList();
             }
         });
-        songListAdapter = new SongListAdapter();
+        songListAdapter = new SongListAdapter(this);
+        songListAdapter.setListener(this);
         recyclerViewSongList.setAdapter(songListAdapter);
         recyclerViewSongList.setLoadingMoreProgressStyle(ProgressStyle.BallPulse);
 
@@ -231,8 +234,25 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
 
         if(mNeedClear){
             mArtistSongListBean.getSonglist().clear();
+            mArtistSongListDatas.clear();
         }
         mArtistSongListBean.getSonglist().addAll(bean.getSonglist());
+
+
+        for(int i = 0;i < bean.getSonglist().size();i++){
+            SongListAdapter.SongItemData songItemData = new SongListAdapter.SongItemData();
+            songItemData.has_mv = bean.getSonglist().get(i).getHas_mv();
+            songItemData.title = bean.getSonglist().get(i).getTitle();
+            songItemData.havehigh = bean.getSonglist().get(i).getHavehigh();
+            songItemData.song_id = bean.getSonglist().get(i).getSong_id();
+            songItemData.has_mv_mobile = bean.getSonglist().get(i).getHas_mv_mobile();
+            songItemData.author = bean.getSonglist().get(i).getAuthor();
+            songItemData.artist_id = bean.getSonglist().get(i).getArtist_id();
+            songItemData.album_title = bean.getSonglist().get(i).getAlbum_title();
+            songItemData.album_id = bean.getSonglist().get(i).getAlbum_id();
+            mArtistSongListDatas.add(songItemData);
+        }
+        songListAdapter.setDatas(mArtistSongListDatas);
         songListAdapter.notifyDataSetChanged();
     }
 
@@ -280,6 +300,11 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
         Log.e("onGetSongDetail", bean.getSonginfo().getAll_rate());
     }
 
+    @Override
+    public void onSongItemClick(SongListAdapter adapter, int position) {
+
+    }
+
     private class MyPageAdapter extends PagerAdapter{
 
         @Override
@@ -320,77 +345,6 @@ public class ArtistSongListActivity extends MyBaseActivity implements ArtistGetS
 
         public void destroyItem(ViewGroup container, int position, Object object) {
             container.removeView((View)object);
-        }
-    }
-
-    private class SongListAdapter extends RecyclerView.Adapter<SongListViewHolder>{
-
-        @Override
-        public SongListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(ArtistSongListActivity.this).inflate(R.layout.item_artist_songlist, parent, false);
-            return new SongListViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(SongListViewHolder holder, int position) {
-            final ArtistGetSongListBean.SonglistBean songlistBean = mArtistSongListBean.getSonglist().get(position);
-            holder.tvSongName.setText(songlistBean.getTitle());
-            String strAlbumTitle = songlistBean.getAlbum_title();
-            if(TextUtils.isEmpty(strAlbumTitle)){
-                holder.tvAlbumName.setText(ArtistSongListActivity.this.getString(R.string.solo));
-            }
-            else{
-                holder.tvAlbumName.setText("《" + strAlbumTitle + "》");
-            }
-
-            if(songlistBean.getHas_mv() == 1){
-                holder.ivMV.setVisibility(View.VISIBLE);
-            }
-            else{
-                holder.ivMV.setVisibility(View.GONE);
-            }
-
-            if(songlistBean.getHavehigh() == 2){
-                holder.ivSQ.setVisibility(View.VISIBLE);
-            }
-            else{
-                holder.ivSQ.setVisibility(View.GONE);
-            }
-
-            holder.llContent.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(mSongDetailPresenter != null){
-                        long timeStamp = 1499570577194L; //System.currentTimeMillis();
-                        mSongDetailPresenter.getSongDetailInfo(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION, PureMusicContant.PPZS, 2, "baidu.ting.song.getInfos"
-                                , PureMusicContant.FORMAT_JSON, "qqqqqq", timeStamp, "%2Blok1Cpy4gCBBj6rXQ4QnXmjJ7U0WCkfwOIhDHWwvQY%3D", 1, 0, 0, 0, "", 0, 0);
-                    }
-                }
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            if(mArtistSongListBean == null || mArtistSongListBean.getSonglist() == null)
-                return 0;
-
-            return mArtistSongListBean.getSonglist().size();
-        }
-    }
-
-    private class SongListViewHolder extends RecyclerView.ViewHolder{
-        private TextView tvSongName;
-        private TextView tvAlbumName;
-        private LinearLayout llContent;
-        private ImageView ivMV;
-        private ImageView ivSQ;
-        public SongListViewHolder(View itemView) {
-            super(itemView);
-            llContent = (LinearLayout)itemView.findViewById(R.id.llContent);
-            tvSongName = (TextView)itemView.findViewById(R.id.tvSongName);
-            tvAlbumName = (TextView)itemView.findViewById(R.id.tvAlbumName);
-            ivMV = (ImageView)itemView.findViewById(R.id.ivMV);
-            ivSQ = (ImageView)itemView.findViewById(R.id.ivSQ);
         }
     }
 

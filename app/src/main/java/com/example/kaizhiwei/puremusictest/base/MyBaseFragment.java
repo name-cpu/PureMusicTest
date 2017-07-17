@@ -28,6 +28,7 @@ public abstract class MyBaseFragment extends Fragment {
         if (rootView == null)
             rootView = inflater.inflate(getLayoutResource(), container, false);
         ButterKnife.bind(this, rootView);
+        initData();
         initView();
         //可见，但是并没有加载过
         if (isFragmentVisible && !isFirst) {

@@ -6,16 +6,21 @@ import com.example.kaizhiwei.puremusictest.bean.ArtistAlbumListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetSongListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistInfoBean;
+import com.example.kaizhiwei.puremusictest.bean.BaseSongInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;
+import com.example.kaizhiwei.puremusictest.bean.GeDanListBean;
+import com.example.kaizhiwei.puremusictest.bean.HotTagInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
 import com.example.kaizhiwei.puremusictest.bean.ShowRedPointBean;
 import com.example.kaizhiwei.puremusictest.bean.SongDetailInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.SugSceneBean;
+import com.example.kaizhiwei.puremusictest.bean.TagSongListBean;
 import com.example.kaizhiwei.puremusictest.bean.UgcdiyBaseInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.UnStandardAdBean;
 
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.Query;
 import rx.Observable;
 
@@ -209,4 +214,46 @@ public interface ApiService {
                                                @Query("lpb") String lpb,
                                                @Query("usup") int usup,
                                                @Query("lebo") int lebo);
+
+    //获取热门的歌曲标签
+    //GET /v1/restserver/ting?from=android&version=5.9.9.6&channel=ppzs&operator=2&method=baidu.ting.tag.getHotTag&format=json&from=android&version=5.9.9.6&nums=8
+    @GET("/v1/restserver/ting")
+    Observable<HotTagInfoBean> getHotTagInfo(@Query("from") String from,
+                                             @Query("version") String version,
+                                             @Query("channel") String channel,
+                                             @Query("operator") int operator,
+                                             @Query("method") String method,
+                                             @Query("format") String format,
+                                             @Query("nums") int nums);
+    //获取某一标签下得所有歌曲
+    //GET /v1/restserver/ting?from=android&version=5.9.9.6&channel=ppzs&operator=2&method=baidu.ting.tag.songlist&format=json&from=android&version=5.9.9.6&tagname=%E8%88%92%E6%9C%8D&limit=100
+    @GET("/v1/restserver/ting")
+    Observable<TagSongListBean> getTagSongList(@Query("from") String from,
+                                               @Query("version") String version,
+                                               @Query("channel") String channel,
+                                               @Query("operator") int operator,
+                                               @Query("method") String method,
+                                               @Query("format") String format,
+                                               @Query("tagname") String tagname,
+                                               @Query("limit") int limit);
+
+    //获取歌曲的基本信息
+    //GET /v1/restserver/ting?from=android&version=5.9.9.6&channel=ppzs&operator=2&method=baidu.ting.song.baseInfos&format=json&song_id=976984
+    @GET("/v1/restserver/ting")
+    Observable<BaseSongInfoBean> getSongBaseInfo(@Query("from") String from,
+                                                 @Query("version") String version,
+                                                 @Query("channel") String channel,
+                                                 @Query("operator") int operator,
+                                                 @Query("method") String method,
+                                                 @Query("format") String format,
+                                                 @Query("song_id") String song_id);
+
+    //获取全部歌单
+    @GET("/v1/restserver/ting")
+    @Headers("user-agent:Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4)")
+    Observable<GeDanListBean> getGeDanList(@Query("format") String format,
+                                             @Query("from") String from,
+                                             @Query("method") String method,
+                                             @Query("page_size") int page_size,
+                                             @Query("page_no") int page_no);
 }

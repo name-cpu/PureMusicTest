@@ -48,7 +48,7 @@ public abstract class MyBaseActivity extends AppCompatActivity {
         // 把actvity放到application栈中管理
         //AppManager.getAppManager().addActivity(this);
         // 无标题
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         // 设置竖屏
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 

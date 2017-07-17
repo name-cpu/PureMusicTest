@@ -29,6 +29,11 @@
     <string name="play_mode_random">随机播放</string>
     <string name="play_mode_roundsingle">单曲循环</string>
 
+    <string name="tuijian">推荐</string>
+    <string name="gedan">歌单</string>
+    <string name="bangdan">榜单</string>
+    <string name="shipin">视频</string>
+
     <string name="HuaYuNan">华语男歌手</string>
     <string name="HuaYuNv">华语女歌手</string>
     <string name="HuaYuTeam">华语组合</string>
@@ -49,4 +54,6 @@
     <string name="artist">艺术家</string>
     <string name="songer">歌手</string>
     <string name="publish_time">发行时间：</string>
+
+    <string name="song_categary">歌曲分类</string>
 </resources>

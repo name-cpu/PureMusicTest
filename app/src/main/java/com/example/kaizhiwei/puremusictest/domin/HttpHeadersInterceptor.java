@@ -18,7 +18,7 @@ public class HttpHeadersInterceptor implements Interceptor {
     public static final String APP_VERSION = "5.9.8.1";
     public static final String CHANNEL = "1426d";
     public static final String CUID = "1234567890";
-    public static final String IMEI = "12345678";
+    public static final String IMEI = DeviceUtil.getIMEI();
     public static final String ACCEPT_ENCODING = "gzip";
     public static final String USER_AGENT = "android_5.9.8.1;baiduyinyue";
 

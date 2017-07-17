@@ -22,6 +22,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.example.kaizhiwei.puremusictest.base.MyBaseFragment;
 import com.example.kaizhiwei.puremusictest.bean.ActiveIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
 import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;
@@ -34,36 +36,55 @@ import com.example.kaizhiwei.puremusictest.contract.ResetServerContract;
 import com.example.kaizhiwei.puremusictest.presenter.ResetServerPresenter;
 import com.viewpagerindicator.LinePageIndicator;
 
+import butterknife.Bind;
 
-public class TuiJIanFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, ResetServerContract.View {
-    private MySwipeRefreshLayout swlReflash;
-    private ViewPager vpFocus;
-    private List<View> mFocusListData;
-    private AutoHeightGridView gvCatogary;
-    private LinearLayout llMain;
+
+public class TuiJIanFragment extends MyBaseFragment implements SwipeRefreshLayout.OnRefreshListener, ResetServerContract.View {
+    @Bind(R.id.swlReflash)
+    MySwipeRefreshLayout swlReflash;
+
+    @Bind(R.id.vpFocus)
+    ViewPager vpFocus;
+
+    @Bind(R.id.gvCatogary)
+    AutoHeightGridView gvCatogary;
+
+    @Bind(R.id.llMain)
+    LinearLayout llMain;
+
+    @Bind(R.id.linePageIndicator)
+    LinePageIndicator linePageIndicator;
+
     private PlazaIndexBean mMusicData;
     private Handler mHandler = new Handler();
-    private LinePageIndicator linePageIndicator;
+    private List<View> mFocusListData;
+
     private float density;
     private ResetServerContract.Presenter mPreserver;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_netaudio, null);
-        swlReflash = (MySwipeRefreshLayout)rootView.findViewById(R.id.swlReflash);
+    protected int getLayoutResource() {
+        return R.layout.fragment_netaudio;
+    }
+
+    @Override
+    protected void initView() {
         swlReflash.setOnRefreshListener(this);
         swlReflash.setDistanceToTriggerSync(50);
         swlReflash.setColorSchemeResources(R.color.common_title_backgroundColor);
-        density = this.getResources().getDisplayMetrics().density;
-        vpFocus = (ViewPager)rootView.findViewById(R.id.vpFocus);
-        llMain = (LinearLayout)rootView.findViewById(R.id.llMain);
-        gvCatogary = (AutoHeightGridView)rootView.findViewById(R.id.gvCatogary);
-        linePageIndicator = (LinePageIndicator)rootView.findViewById(R.id.linePageIndicator);
+    }
 
+    @Override
+    protected void initData() {
         mPreserver = new ResetServerPresenter(this);
-        mPreserver.getPlazaIndex("android", "5.9.9.6", "ppzs", 2, "baidu.ting.plaza.index", "85FB11BCF66936DA386C6AC9CA228F2C", 8);
-        return rootView;
+    }
+
+    @Override
+    protected void onFragmentVisibleChange(boolean isVisible) {
+        if(isVisible && mPreserver != null){
+            mPreserver.getPlazaIndex("android", "5.9.9.6", "ppzs", 2, "baidu.ting.plaza.index", "85FB11BCF66936DA386C6AC9CA228F2C", 8);
+        }
+        isFirst = true;
     }
 
     private void initFocusView(String moduleKey){
@@ -210,7 +231,9 @@ public class TuiJIanFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public void onRefresh() {
-        mPreserver.getPlazaIndex("android", "5.9.9.6", "ppzs", 2, "baidu.ting.plaza.index", "85FB11BCF66936DA386C6AC9CA228F2C", 8);
+        if(mPreserver != null){
+            mPreserver.getPlazaIndex("android", "5.9.9.6", "ppzs", 2, "baidu.ting.plaza.index", "85FB11BCF66936DA386C6AC9CA228F2C", 8);
+        }
     }
 
     @Override

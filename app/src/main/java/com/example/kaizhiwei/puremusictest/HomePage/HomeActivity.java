@@ -22,6 +22,7 @@ import android.view.WindowManager;
 
 import com.example.kaizhiwei.puremusictest.Audio.LocalAudioFragment;
 import com.example.kaizhiwei.puremusictest.Audio.NowPlayingLayout;
+import com.example.kaizhiwei.puremusictest.NetAudio.NetMusicFragment;
 import com.example.kaizhiwei.puremusictest.Util.SystemBarTintManager;
 import com.example.kaizhiwei.puremusictest.NetAudio.tuijian.TuiJIanFragment;
 import com.example.kaizhiwei.puremusictest.R;
@@ -86,7 +87,7 @@ public class HomeActivity extends FragmentActivity {
 
         mListFragment = new ArrayList<>();
         mListFragment.add(new LocalMusicMainFragment());
-        mListFragment.add(new TuiJIanFragment());
+        mListFragment.add(new NetMusicFragment());
 
         mViewPager.setLongClickable(true);
         //mViewPager.setOnLongClickListener(this);

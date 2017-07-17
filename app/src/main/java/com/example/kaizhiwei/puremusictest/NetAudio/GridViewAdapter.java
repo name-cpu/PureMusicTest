@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
 import com.example.kaizhiwei.puremusictest.NetAudio.tuijian.ArtistSelActivity;
+import com.example.kaizhiwei.puremusictest.NetAudio.tuijian.SongCategaryActivity;
 import com.example.kaizhiwei.puremusictest.R;
 
 import java.util.List;
@@ -60,7 +61,7 @@ public class GridViewAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
 
         GridViewAdapterItemData entity = mListData.get(position);
         GridViewAdapterHolder holder = null;
@@ -78,8 +79,14 @@ public class GridViewAdapter extends BaseAdapter {
 
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(HomeActivity.getInstance(), ArtistSelActivity.class);
-                HomeActivity.getInstance().startActivity(intent);
+                if(position == 0){
+                    Intent intent = new Intent(HomeActivity.getInstance(), ArtistSelActivity.class);
+                    HomeActivity.getInstance().startActivity(intent);
+                }
+                else if(position == 1){
+                    Intent intent = new Intent(HomeActivity.getInstance(), SongCategaryActivity.class);
+                    HomeActivity.getInstance().startActivity(intent);
+                }
             }
         });
         Glide.with(convertView.getContext()).load(entity.strIconUrl).into(holder.ivIcon);
