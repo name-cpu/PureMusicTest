@@ -3,7 +3,7 @@
     android:id="@+id/llContent"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="55dp"
+    android:layout_height="60dp"
     android:background="@drawable/default_selector">
 
     <LinearLayout

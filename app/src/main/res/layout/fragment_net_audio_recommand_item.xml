@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="15dp">
     <ImageView
         android:id="@+id/ivIcon"
-        android:layout_width="105dp"
-        android:layout_height="105dp"
-        android:adjustViewBounds="true"
+        android:layout_width="122dp"
+        android:layout_height="122dp"
+        android:scaleType="fitXY"
         android:layout_gravity="center_horizontal"
         android:src="@drawable/default_live_ic" />
     <TextView

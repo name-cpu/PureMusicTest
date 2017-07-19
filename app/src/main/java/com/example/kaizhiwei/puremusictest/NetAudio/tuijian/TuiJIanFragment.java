@@ -155,7 +155,7 @@ public class TuiJIanFragment extends MyBaseFragment implements SwipeRefreshLayou
 
         layout.setGridViewAdapter(adapter);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.setMargins((int)(10*density), (int)(10*density), (int)(10*density), (int)(10*density));
+        //params.setMargins((int)(10*density), (int)(10*density), (int)(10*density), (int)(10*density));
         llMain.addView(layout, params);
     }
 
@@ -188,7 +188,7 @@ public class TuiJIanFragment extends MyBaseFragment implements SwipeRefreshLayou
                 layout.setModuleInfo(moduleBean.picurl, moduleBean.title, moduleBean.title_more);
                 layout.setGridViewAdapter(adapter);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                params.setMargins((int)(10*density), (int)(10*density), (int)(10*density), (int)(10*density));
+                //params.setMargins((int)(10*density), (int)(10*density), (int)(10*density), (int)(10*density));
                 llMain.addView(layout, params);
             }
         }

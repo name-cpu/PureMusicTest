@@ -1,5 +1,8 @@
 package com.example.kaizhiwei.puremusictest.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 
 /**
@@ -51,7 +54,7 @@ public class GeDanListBean {
         this.content = content;
     }
 
-    public static class SongListInfo {
+    public static class SongListInfo implements Parcelable {
         /**
          * listid : 365434906
          * listenum : 3336
@@ -77,6 +80,32 @@ public class GeDanListBean {
         private String width;
         private String height;
         private List<String> songIds;
+
+        protected SongListInfo(Parcel in) {
+            listid = in.readString();
+            listenum = in.readString();
+            collectnum = in.readString();
+            title = in.readString();
+            pic_300 = in.readString();
+            tag = in.readString();
+            desc = in.readString();
+            pic_w300 = in.readString();
+            width = in.readString();
+            height = in.readString();
+            songIds = in.createStringArrayList();
+        }
+
+        public static final Creator<SongListInfo> CREATOR = new Creator<SongListInfo>() {
+            @Override
+            public SongListInfo createFromParcel(Parcel in) {
+                return new SongListInfo(in);
+            }
+
+            @Override
+            public SongListInfo[] newArray(int size) {
+                return new SongListInfo[size];
+            }
+        };
 
         public String getListid() {
             return listid;
@@ -164,6 +193,26 @@ public class GeDanListBean {
 
         public void setSongIds(List<String> songIds) {
             this.songIds = songIds;
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(listid);
+            dest.writeString(listenum);
+            dest.writeString(collectnum);
+            dest.writeString(title);
+            dest.writeString(pic_300);
+            dest.writeString(tag);
+            dest.writeString(desc);
+            dest.writeString(pic_w300);
+            dest.writeString(width);
+            dest.writeString(height);
+            dest.writeStringList(songIds);
         }
     }
 }

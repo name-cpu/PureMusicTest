@@ -65,6 +65,17 @@ public class SongCategaryActivity extends MyBaseActivity implements SongTagContr
 
         commonTitle.setTitleVisible(false);
         commonTitle.setRightBtnVisible(false);
+        commonTitle.setTitleViewListener(new CommonTitleView.onTitleClickListener() {
+            @Override
+            public void onLeftBtnClicked() {
+                finish();
+            }
+
+            @Override
+            public void onRightBtnClicked() {
+
+            }
+        });
 
         gridLayoutManager = new GridLayoutManager(this, 4);
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {

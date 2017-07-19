@@ -21,7 +21,6 @@ import com.example.kaizhiwei.puremusictest.bean.TagSongListBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.TagSongListContract;
 import com.example.kaizhiwei.puremusictest.presenter.TagSongListPresenter;
-import com.example.kaizhiwei.puremusictest.widget.MyLinearLayoutManager;
 import com.example.kaizhiwei.puremusictest.widget.RecyclerViewDividerDecoration;
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
@@ -30,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
+import butterknife.OnClick;
 import jp.wasabeef.glide.transformations.BlurTransformation;
 
 /**
@@ -64,11 +64,6 @@ public class TagSongListActivity extends MyBaseActivity implements TagSongListCo
         statusView.setLayoutParams(params);
         statusView.setBackgroundColor(color);
         return statusView;
-    }
-
-    @Override
-    protected void doBeforeSetcontentView(){
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
     }
 
     @Override
@@ -158,5 +153,12 @@ public class TagSongListActivity extends MyBaseActivity implements TagSongListCo
     @Override
     public void onSongItemClick(SongListAdapter adapter, int position) {
 
+    }
+
+    @OnClick(R.id.ivBack)
+    void onClicked(View view){
+        if(view.getId() == R.id.ivBack){
+            finish();
+        }
     }
 }

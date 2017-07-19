@@ -1,5 +1,6 @@
 package com.example.kaizhiwei.puremusictest.NetAudio.gedan;
 
+import android.content.Intent;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.util.ExceptionCatchingInputStream;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
 import com.example.kaizhiwei.puremusictest.base.MyBaseFragment;
@@ -21,6 +23,7 @@ import com.example.kaizhiwei.puremusictest.widget.RecyclerViewSpaceDecoration;
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,8 +55,23 @@ public class GeDanFragment extends MyBaseFragment implements GeDanListContract.V
         rvSongList.setPullRefreshEnabled(false);
         rvSongList.setLoadingMoreEnabled(true);
         rvSongList.setLoadingMoreProgressStyle(ProgressStyle.BallPulse);
-        int space = 5* DeviceUtil.getDensity(this.getActivity());
-        rvSongList.addItemDecoration(new RecyclerViewSpaceDecoration(space, space, space, 2*space));
+
+        Class clazz = XRecyclerView.class;
+        Field field = null;
+        try {
+            field = clazz.getDeclaredField("mRefreshHeader");
+            if(field.isAccessible() == false){
+                field.setAccessible(true);
+            }
+            View view = (View)field.get(rvSongList);
+            view.setVisibility(View.GONE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        int space = 10* DeviceUtil.getDensity(this.getActivity());
+        rvSongList.addItemDecoration(new RecyclerViewSpaceDecoration(0, 0, 6, 2*space));
         rvSongList.setLoadingListener(new XRecyclerView.LoadingListener() {
             @Override
             public void onRefresh() {
@@ -115,10 +133,18 @@ public class GeDanFragment extends MyBaseFragment implements GeDanListContract.V
 
         @Override
         public void onBindViewHolder(GeDanViewHolder holder, int position) {
-            GeDanListBean.SongListInfo songListInfo = mGeDanListBean.getContent().get(position);
+            final GeDanListBean.SongListInfo songListInfo = mGeDanListBean.getContent().get(position);
             holder.tvListener.setText(songListInfo.getListenum());
             holder.tvGeDanMain.setText(songListInfo.getTitle());
             holder.tvGeDanSub.setText(songListInfo.getDesc());
+            holder.ivGeDan.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(GeDanFragment.this.getActivity(), GeDanSongListActivity.class);
+                    intent.putExtra(GeDanSongListActivity.INTENT_GEDANINFO, songListInfo);
+                    GeDanFragment.this.getActivity().startActivity(intent);
+                }
+            });
             Glide.with(GeDanFragment.this.getActivity()).load(songListInfo.getPic_300()).into(holder.ivGeDan);
         }
 

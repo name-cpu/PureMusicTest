@@ -8,7 +8,9 @@ import com.example.kaizhiwei.puremusictest.bean.ArtistGetSongListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.BaseSongInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;
+import com.example.kaizhiwei.puremusictest.bean.GeDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.GeDanListBean;
+import com.example.kaizhiwei.puremusictest.bean.GeDanSongDetailInfo;
 import com.example.kaizhiwei.puremusictest.bean.HotTagInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
@@ -256,4 +258,23 @@ public interface ApiService {
                                              @Query("method") String method,
                                              @Query("page_size") int page_size,
                                              @Query("page_no") int page_no);
+
+    //获取某个歌单的歌曲列表和歌单自己的信息
+    //GET /v1/restserver/ting?format=json&from=webapp_music&method=baidu.ting.diy.gedanInfo&listid=367186244
+    @GET("/v1/restserver/ting")
+    @Headers("user-agent:Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4)")
+    Observable<GeDanInfoBean> getGeDanInfo(@Query("format") String format,
+                                           @Query("from") String from,
+                                           @Query("method") String method,
+                                           @Query("listid") String listid);
+
+    //获取歌单中某首歌的信息
+    @GET("/v1/restserver/ting")
+    @Headers("user-agent:Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4)")
+    Observable<GeDanSongDetailInfo> getGeDanSongDetail(@Query("from") String from,
+                                                  @Query("version") String version,
+                                                  @Query("format") String format,
+                                                  @Query("method") String method,
+                                                  @Query("songid") String songid);
+
 }

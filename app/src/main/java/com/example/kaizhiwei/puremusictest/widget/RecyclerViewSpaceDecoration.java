@@ -1,6 +1,8 @@
 package com.example.kaizhiwei.puremusictest.widget;
 
 import android.graphics.Rect;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -27,6 +29,13 @@ public class RecyclerViewSpaceDecoration extends RecyclerView.ItemDecoration {
         outRect.right = rightSpace;
         outRect.bottom = bottomSpace;
 
+        RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
+        if(layoutManager instanceof GridLayoutManager){
+            GridLayoutManager gridLayoutManager = (GridLayoutManager)layoutManager;
+            int position = gridLayoutManager.getPosition(view);
+            int spanCount = gridLayoutManager.getSpanCount();
+
+        }
         // Add top margin only for the first item to avoid double space between items
         if (parent.getChildPosition(view) == 0)
             outRect.top = topSpace;

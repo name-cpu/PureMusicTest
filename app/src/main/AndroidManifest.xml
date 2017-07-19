@@ -141,6 +141,12 @@
             android:screenOrientation="portrait"
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".NetAudio.gedan.GeDanSongListActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
     </application>
 
 </manifest>
