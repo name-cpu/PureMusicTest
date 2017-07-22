@@ -1,16 +1,19 @@
 package com.example.kaizhiwei.puremusictest.NetAudio.gedan;
 
+import android.animation.ValueAnimator;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.util.ExceptionCatchingInputStream;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
 import com.example.kaizhiwei.puremusictest.base.MyBaseFragment;
@@ -18,12 +21,11 @@ import com.example.kaizhiwei.puremusictest.bean.GeDanListBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.GeDanListContract;
 import com.example.kaizhiwei.puremusictest.presenter.GeDanListPresenter;
-import com.example.kaizhiwei.puremusictest.widget.RecyclerViewDividerDecoration;
+import com.example.kaizhiwei.puremusictest.widget.HSViewRecyclerViewScrollListener;
+import com.example.kaizhiwei.puremusictest.widget.MaskImageView;
 import com.example.kaizhiwei.puremusictest.widget.RecyclerViewSpaceDecoration;
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
-
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,12 +38,49 @@ import butterknife.Bind;
 public class GeDanFragment extends MyBaseFragment implements GeDanListContract.View{
     @Bind(R.id.rvSongList)
     XRecyclerView rvSongList;
+    @Bind(R.id.llTitle)
+    LinearLayout llTitle;
     private int pageSize =12;
     private int startPage =1;
 
     private GeDanListBean mGeDanListBean = new GeDanListBean();
     private GeDanAdapter mAdapetr;
     private GeDanListPresenter mPresenter;
+    private HSViewRecyclerViewScrollListener mScrollListener = new HSViewRecyclerViewScrollListener(){
+
+        @Override
+        public void onShowControlView() {
+            llTitle.bringToFront();
+            float startY = llTitle.getY();
+            float endY = llTitle.getY() + llTitle.getHeight();
+            ValueAnimator valueAnimator = ValueAnimator.ofFloat(startY, endY);
+            valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    llTitle.setY((float)animation.getAnimatedValue());
+                }
+            });
+            valueAnimator.setInterpolator(new AccelerateInterpolator());
+            valueAnimator.setDuration(400);
+            valueAnimator.start();
+        }
+
+        @Override
+        public void onHideControlView() {
+            float startY = llTitle.getY();
+            float endY = llTitle.getY() - llTitle.getHeight();
+            ValueAnimator valueAnimator = ValueAnimator.ofFloat(startY, endY);
+            valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    llTitle.setY((float)animation.getAnimatedValue());
+                }
+            });
+            valueAnimator.setInterpolator(new AccelerateInterpolator());
+            valueAnimator.setDuration(400);
+            valueAnimator.start();
+        }
+    };
 
     @Override
     protected int getLayoutResource() {
@@ -56,22 +95,10 @@ public class GeDanFragment extends MyBaseFragment implements GeDanListContract.V
         rvSongList.setLoadingMoreEnabled(true);
         rvSongList.setLoadingMoreProgressStyle(ProgressStyle.BallPulse);
 
-        Class clazz = XRecyclerView.class;
-        Field field = null;
-        try {
-            field = clazz.getDeclaredField("mRefreshHeader");
-            if(field.isAccessible() == false){
-                field.setAccessible(true);
-            }
-            View view = (View)field.get(rvSongList);
-            view.setVisibility(View.GONE);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-        int space = 10* DeviceUtil.getDensity(this.getActivity());
-        rvSongList.addItemDecoration(new RecyclerViewSpaceDecoration(0, 0, 6, 2*space));
+        int space = 3* DeviceUtil.getDensity(this.getActivity());
+        RecyclerViewSpaceDecoration spaceDecoration = new RecyclerViewSpaceDecoration(0, 0, space, 5*space);
+        spaceDecoration.setFirstItemTopSpcace(40*DeviceUtil.getDensity(this.getActivity()));
+        rvSongList.addItemDecoration(spaceDecoration);
         rvSongList.setLoadingListener(new XRecyclerView.LoadingListener() {
             @Override
             public void onRefresh() {
@@ -84,6 +111,8 @@ public class GeDanFragment extends MyBaseFragment implements GeDanListContract.V
                 mPresenter.getGeDanList(PureMusicContant.FORMAT_JSON, PureMusicContant.DEVICE_TYPE, "baidu.ting.diy.gedan", pageSize, startPage);
             }
         });
+        mScrollListener.setmDistanceSlop(100*DeviceUtil.getDensity(this.getActivity()));
+        rvSongList.setOnScrollListener(mScrollListener);
 
         mAdapetr = new GeDanAdapter();
         rvSongList.setAdapter(mAdapetr);
@@ -158,7 +187,7 @@ public class GeDanFragment extends MyBaseFragment implements GeDanListContract.V
     }
 
     private class GeDanViewHolder extends RecyclerView.ViewHolder{
-        public ImageView ivGeDan;
+        public MaskImageView ivGeDan;
         public TextView tvListener;
         public ImageView ivGeDanOper;
         public TextView tvGeDanMain;
@@ -166,11 +195,16 @@ public class GeDanFragment extends MyBaseFragment implements GeDanListContract.V
 
         public GeDanViewHolder(View itemView) {
             super(itemView);
-            ivGeDan = (ImageView)itemView.findViewById(R.id.ivGeDan);
+            ivGeDan = (MaskImageView)itemView.findViewById(R.id.ivGeDan);
             tvListener = (TextView)itemView.findViewById(R.id.tvListener);
             ivGeDanOper = (ImageView)itemView.findViewById(R.id.ivGeDanOper);
             tvGeDanMain = (TextView)itemView.findViewById(R.id.tvGeDanMain);
             tvGeDanSub = (TextView)itemView.findViewById(R.id.tvGeDanSub);
+
+            Typeface typeFace = Typeface.createFromAsset(GeDanFragment.this.getActivity().getAssets(),"arial.ttf");
+            tvListener.setTypeface(typeFace);
+            tvGeDanMain.setTypeface(typeFace);
+            tvGeDanSub.setTypeface(typeFace);
         }
     }
 }

@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetSongListBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
@@ -31,6 +32,9 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListViewHolder>{
         public String artist_id;
         public String album_title;
         public String album_id;
+        public String songImageUrl;
+        public int songRankLevelResId;
+        public String songRankNum;
     }
 
     public interface OnSongItemListener{
@@ -87,6 +91,16 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListViewHolder>{
         }
         else{
             holder.ivSQ.setVisibility(View.GONE);
+        }
+
+        if(TextUtils.isEmpty(itemData.songImageUrl)){
+            holder.rlImage.setVisibility(View.GONE);
+        }
+        else{
+            holder.rlImage.setVisibility(View.VISIBLE);
+            Glide.with(mContext).load(itemData.songImageUrl).into(holder.ivSongImage);
+            holder.tvRankNum.setText(itemData.songRankNum);
+            holder.ivRankLevel.setImageResource(itemData.songRankLevelResId);
         }
 
         holder.llContent.setOnClickListener(new View.OnClickListener() {

@@ -25,5 +25,6 @@
     <color name="blue">#0000FF</color>
     <color name="blackgray">#A8A8A8</color>
     <color name="gray">#808080</color>
+    <color name="trans_dk_gray">#77424242</color>
     <color name="lightgray">#E1E1E1</color>
 </resources>

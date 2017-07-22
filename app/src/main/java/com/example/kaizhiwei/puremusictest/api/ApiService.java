@@ -6,6 +6,8 @@ import com.example.kaizhiwei.puremusictest.bean.ArtistAlbumListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetSongListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistInfoBean;
+import com.example.kaizhiwei.puremusictest.bean.BangDanListBean;
+import com.example.kaizhiwei.puremusictest.bean.BangDanSongDetailInfo;
 import com.example.kaizhiwei.puremusictest.bean.BaseSongInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.GeDanInfoBean;
@@ -277,4 +279,22 @@ public interface ApiService {
                                                   @Query("method") String method,
                                                   @Query("songid") String songid);
 
+    //获取全部榜单
+    @GET("/v1/restserver/ting")
+    @Headers("user-agent:Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4)")
+    Observable<BangDanListBean> getBangDanList(@Query("format") String format,
+                                               @Query("from") String from,
+                                               @Query("method") String method,
+                                               @Query("kflag") int kflag);
+
+    //获取某个榜单中歌曲信息
+    @GET("/v1/restserver/ting")
+    @Headers("user-agent:Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4)")
+    Observable<BangDanSongDetailInfo> getBangdanSongDetail(@Query("format") String format,
+                                                           @Query("from") String from,
+                                                           @Query("method") String method,
+                                                           @Query("type") int type,
+                                                           @Query("offset") int offset,
+                                                           @Query("size") int size,
+                                                           @Query("fields") String fields);
 }

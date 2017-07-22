@@ -1,5 +1,6 @@
 package com.example.kaizhiwei.puremusictest.NetAudio.gedan;
 
+import android.net.Uri;
 import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
@@ -10,6 +11,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
+import com.example.kaizhiwei.puremusictest.MediaData.VLCInstance;
 import com.example.kaizhiwei.puremusictest.NetAudio.tuijian.SongListAdapter;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.base.MyBaseActivity;
@@ -23,6 +25,9 @@ import com.example.kaizhiwei.puremusictest.presenter.GeDanInfoPresenter;
 import com.example.kaizhiwei.puremusictest.widget.RecyclerViewDividerDecoration;
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
+
+import org.videolan.libvlc.Media;
+import org.videolan.libvlc.MediaPlayer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -50,6 +55,7 @@ public class GeDanSongListActivity extends MyBaseActivity implements GeDanInfoCo
     @Bind(R.id.tvAlbumName)
     TextView tvAlbumName;
 
+    private MediaPlayer mMediaPlayer;
     private GeDanListBean.SongListInfo mGeDanInfo;
     public static final String INTENT_GEDANINFO = "INTENT_GEDANINFO";
 
@@ -103,6 +109,7 @@ public class GeDanSongListActivity extends MyBaseActivity implements GeDanInfoCo
 
     @Override
     public void initData() {
+        mMediaPlayer = new MediaPlayer(VLCInstance.getInstance());
         mGeDanInfo = getIntent().getParcelableExtra(INTENT_GEDANINFO);
         if(mPresenter != null){
             mPresenter.getGeDanInfo(PureMusicContant.FORMAT_JSON, PureMusicContant.DEVICE_TYPE, "baidu.ting.diy.gedanInfo", mGeDanInfo.getListid());
@@ -151,8 +158,12 @@ public class GeDanSongListActivity extends MyBaseActivity implements GeDanInfoCo
             fileMusicDir.mkdirs();
         }
         String fileName = getUrlFileName(songDetailInfo.getBitrate().getFile_link());
-        mDownloadPresenter.downloadFile(songDetailInfo.getBitrate().getFile_link(), strMusicDir + fileName, null);
-
+        //mDownloadPresenter.downloadFile(songDetailInfo.getBitrate().getFile_link(), strMusicDir + fileName, null);
+        Media media = new Media(VLCInstance.getInstance(), Uri.parse(songDetailInfo.getBitrate().getFile_link()));
+        mMediaPlayer.setMedia(media);
+        media.release();
+        mMediaPlayer.setVideoTitleDisplay(MediaPlayer.Position.Disable, 0);
+        mMediaPlayer.play();
     }
 
     @Override

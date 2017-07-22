@@ -56,4 +56,8 @@
     <string name="publish_time">发行时间：</string>
 
     <string name="song_categary">歌曲分类</string>
+
+    <string name="all">全部</string>
+    <string name="hotest">最热</string>
+    <string name="latest">最新</string>
 </resources>

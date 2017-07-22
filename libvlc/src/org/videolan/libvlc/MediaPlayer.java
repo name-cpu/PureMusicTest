@@ -22,6 +22,8 @@
 
 package org.videolan.libvlc;
 
+import android.util.Log;
+
 @SuppressWarnings("unused")
 public class MediaPlayer extends VLCObject<MediaPlayer.Event> {
 
@@ -800,6 +802,7 @@ public class MediaPlayer extends VLCObject<MediaPlayer.Event> {
 
     @Override
     protected synchronized Event onEventNative(int eventType, long arg1, float arg2) {
+        Log.e("onEventNative", "eventType = " + eventType + ", arg1 = " + arg1 + ", arg2" + arg2);
         switch (eventType) {
             case Event.Stopped:
             case Event.EndReached:

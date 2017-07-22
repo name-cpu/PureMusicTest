@@ -1,10 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/llContent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="60dp"
+    android:layout_height="70dp"
     android:background="@drawable/default_selector">
+
+    <RelativeLayout
+        android:id="@+id/rlImage"
+        android:layout_width="70dp"
+        android:visibility="visible"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginLeft="5dp"
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/ivSongImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:background="@color/gray"/>
+        <ImageView
+            android:id="@+id/ivRankLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/img_king_mask1"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"/>
+        <TextView
+            android:id="@+id/tvRankNum"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginTop="2dp"
+            android:text="100"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_12"/>
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
