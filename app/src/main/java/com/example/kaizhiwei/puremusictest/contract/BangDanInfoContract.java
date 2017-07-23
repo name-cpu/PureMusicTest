@@ -1,11 +1,7 @@
 package com.example.kaizhiwei.puremusictest.contract;
 
-import com.example.kaizhiwei.puremusictest.bean.BangDanListBean;
-import com.example.kaizhiwei.puremusictest.bean.BangDanSongDetailInfo;
-import com.example.kaizhiwei.puremusictest.bean.GeDanInfoBean;
+import com.example.kaizhiwei.puremusictest.bean.BangDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.GeDanSongDetailInfo;
-
-import retrofit2.http.Query;
 
 /**
  * Created by kaizhiwei on 17/7/22.
@@ -19,7 +15,7 @@ public interface BangDanInfoContract {
     }
 
     interface View extends BaseContract.View {
-        void onGetBangDanInfoSuccess(BangDanSongDetailInfo bean);
+        void onGetBangDanInfoSuccess(BangDanInfoBean bean);
         void onGetBangDanSongDetailInfoSuccess(GeDanSongDetailInfo songDetailInfo);
     }
 }

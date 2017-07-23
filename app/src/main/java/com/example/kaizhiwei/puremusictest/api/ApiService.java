@@ -7,14 +7,16 @@ import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistGetSongListBean;
 import com.example.kaizhiwei.puremusictest.bean.ArtistInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.BangDanListBean;
-import com.example.kaizhiwei.puremusictest.bean.BangDanSongDetailInfo;
+import com.example.kaizhiwei.puremusictest.bean.BangDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.BaseSongInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.GeDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.GeDanListBean;
 import com.example.kaizhiwei.puremusictest.bean.GeDanSongDetailInfo;
 import com.example.kaizhiwei.puremusictest.bean.HotTagInfoBean;
+import com.example.kaizhiwei.puremusictest.bean.SongMvInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
+import com.example.kaizhiwei.puremusictest.bean.PlazaRecommIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
 import com.example.kaizhiwei.puremusictest.bean.ShowRedPointBean;
 import com.example.kaizhiwei.puremusictest.bean.SongDetailInfoBean;
@@ -290,11 +292,36 @@ public interface ApiService {
     //获取某个榜单中歌曲信息
     @GET("/v1/restserver/ting")
     @Headers("user-agent:Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4)")
-    Observable<BangDanSongDetailInfo> getBangdanSongDetail(@Query("format") String format,
-                                                           @Query("from") String from,
-                                                           @Query("method") String method,
-                                                           @Query("type") int type,
-                                                           @Query("offset") int offset,
-                                                           @Query("size") int size,
-                                                           @Query("fields") String fields);
+    Observable<BangDanInfoBean> getBangdanSongDetail(@Query("format") String format,
+                                                     @Query("from") String from,
+                                                     @Query("method") String method,
+                                                     @Query("type") int type,
+                                                     @Query("offset") int offset,
+                                                     @Query("size") int size,
+                                                     @Query("fields") String fields);
+
+    //获取视频推荐信息
+    //GET /v1/restserver/ting?from=android&version=6.0.0.3&channel=xiaomi&operator=0&method=baidu.ting.plaza.recommIndex&project=daily&column_id=1
+    @GET("/v1/restserver/ting")
+    Observable<PlazaRecommIndexBean> getPlazaRecommIndex(@Query("from") String from,
+                                                         @Query("version") String version,
+                                                         @Query("channel") String channel,
+                                                         @Query("operator") int operator,
+                                                         @Query("method") String method,
+                                                         @Query("project") String project,
+                                                         @Query("column_id") int column_id);
+    //获取歌曲的mv播放信息
+    //GET /v1/restserver/ting?from=android&version=6.0.0.3&channel=xiaomi&operator=2&provider=11%2C12&method=baidu.ting.mv.playMV&format=json&mv_id=545982609&song_id=&definition=0
+    @GET("/v1/restserver/ting")
+    Observable<SongMvInfoBean> getMvInfo(@Query("from") String from,
+                                         @Query("version") String version,
+                                         @Query("channel") String channel,
+                                         @Query("operator") int operator,
+                                         @Query("provider") String provider,
+                                         @Query("method") String method,
+                                         @Query("format") String format,
+                                         @Query("mv_id") String mv_id,
+                                         @Query("song_id") String song_id,
+                                         @Query("definition") String definition);
+
 }

@@ -56,6 +56,7 @@ public class BangDanFragment extends MyBaseFragment implements BangDanListContra
         if(mPresenter != null && isVisible){
             mPresenter.getBangDanList(PureMusicContant.FORMAT_JSON, PureMusicContant.DEVICE_TYPE, "baidu.ting.billboard.billCategory", 1);
         }
+        isFirst = true;
     }
 
     @Override
@@ -99,29 +100,7 @@ public class BangDanFragment extends MyBaseFragment implements BangDanListContra
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(BangDanFragment.this.getActivity(), BangDanSongListActivity.class);
-                    int type = 0;
-                    if (position + 1 == 5) {
-                        type = 20;
-                    } else if (position + 1 == 8) {
-                        type = 20;
-                    } else if(position+1==3){
-                        type = 20;
-                    }else if(position+1==6){
-                        type = 20;
-                    }else if(position+1==9){
-                        type = 20;
-                    }else if(position+1==7){
-                        type = 20;
-                    }else if(position+1==10){
-                        type = 20;
-                    }else if(position+1==4){
-                        type = 20;
-                    }else {
-                        type = position+1;
-                    }
-                    intent.putExtra(BangDanSongListActivity.INTENT_BANGDANTYPE, type);
                     intent.putExtra(BangDanSongListActivity.INTENT_BANGDANINFO, songListInfo);
-
                     BangDanFragment.this.getActivity().startActivity(intent);
                 }
             });

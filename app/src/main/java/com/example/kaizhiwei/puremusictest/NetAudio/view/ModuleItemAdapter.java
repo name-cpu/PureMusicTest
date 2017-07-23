@@ -1,8 +1,9 @@
-package com.example.kaizhiwei.puremusictest.NetAudio;
+package com.example.kaizhiwei.puremusictest.NetAudio.view;
 
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
 import com.example.kaizhiwei.puremusictest.NetAudio.tuijian.ArtistSelActivity;
 import com.example.kaizhiwei.puremusictest.NetAudio.tuijian.SongCategaryActivity;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.widget.MaskImageView;
 
 import java.util.List;
 
@@ -21,11 +23,16 @@ import java.util.List;
 /**
  * Created by 24820 on 2017/1/22.
  */
-public class GridViewAdapter extends BaseAdapter {
+public class ModuleItemAdapter extends BaseAdapter {
     private List<GridViewAdapterItemData> mListData;
     private Context mContext;
     private LayoutInflater mLayoutInflater;
     private int mItemResId;
+    private int mTextAligment = Gravity.LEFT | Gravity.CENTER_VERTICAL;
+    private int mImageHeight;
+    private ImageView.ScaleType mImageScaleType = ImageView.ScaleType.FIT_CENTER;
+
+    private ModuleItemListener mListener;
 
     static public class GridViewAdapterItemData{
         public String strMain;
@@ -38,11 +45,44 @@ public class GridViewAdapter extends BaseAdapter {
         }
     }
 
-    public GridViewAdapter(Context context, List<GridViewAdapterItemData> list, int itemResId){
+    public interface ModuleItemListener{
+        void onModuleItemClicked(ModuleItemAdapter adapter, int position, String strKey);
+    }
+
+    public ModuleItemAdapter(Context context, List<GridViewAdapterItemData> list, int itemResId){
         mContext = context;
         mListData = list;
         mLayoutInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mItemResId = itemResId;
+    }
+
+    public ModuleItemListener getListener() {
+        return mListener;
+    }
+
+    public void setListener(ModuleItemListener mListener) {
+        this.mListener = mListener;
+    }
+
+
+    public void setImagehegiht(int imagehegiht){
+        mImageHeight = imagehegiht;
+    }
+
+    public ImageView.ScaleType getImageScaleType() {
+        return mImageScaleType;
+    }
+
+    public void setImageScaleType(ImageView.ScaleType mImageScaleType) {
+        this.mImageScaleType = mImageScaleType;
+    }
+
+    public int getmTextAligment() {
+        return mTextAligment;
+    }
+
+    public void setmTextAligment(int mTextAligment) {
+        this.mTextAligment = mTextAligment;
     }
 
     @Override
@@ -63,7 +103,7 @@ public class GridViewAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
 
-        GridViewAdapterItemData entity = mListData.get(position);
+        final GridViewAdapterItemData entity = mListData.get(position);
         GridViewAdapterHolder holder = null;
         if(convertView == null){
             convertView = mLayoutInflater.inflate(mItemResId, null);
@@ -74,18 +114,16 @@ public class GridViewAdapter extends BaseAdapter {
             holder = (GridViewAdapterHolder)convertView.getTag();
         }
 
+        holder.ivIcon.setScaleType(mImageScaleType);
+        holder.ivIcon.setMaxHeight(mImageHeight);
+        holder.ivIcon.setMinimumHeight(mImageHeight);
         holder.ivIcon.setTag(R.id.selected_view, entity.strkey);
         holder.ivIcon.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v) {
-                if(position == 0){
-                    Intent intent = new Intent(HomeActivity.getInstance(), ArtistSelActivity.class);
-                    HomeActivity.getInstance().startActivity(intent);
-                }
-                else if(position == 1){
-                    Intent intent = new Intent(HomeActivity.getInstance(), SongCategaryActivity.class);
-                    HomeActivity.getInstance().startActivity(intent);
+                if(mListener != null){
+                    mListener.onModuleItemClicked(ModuleItemAdapter.this, position, entity.strkey);
                 }
             }
         });
@@ -94,18 +132,23 @@ public class GridViewAdapter extends BaseAdapter {
         boolean isSubEmpty = TextUtils.isEmpty(entity.strSub);
         holder.tvSub.setVisibility(isSubEmpty ? View.GONE : View.VISIBLE);
         if(!isSubEmpty){
+            holder.tvMain.setMaxLines(1);
             holder.tvSub.setText(entity.strSub);
         }
+        else{
+            holder.tvMain.setMaxLines(2);
+        }
+        holder.tvMain.setGravity(mTextAligment);
         return convertView;
     }
 
     private class GridViewAdapterHolder{
-        public ImageView ivIcon;
+        public MaskImageView ivIcon;
         public TextView tvMain;
         public TextView tvSub;
 
         public GridViewAdapterHolder(View view){
-            ivIcon = (ImageView)view.findViewById(R.id.ivIcon);
+            ivIcon = (MaskImageView)view.findViewById(R.id.ivIcon);
             tvMain = (TextView)view.findViewById(R.id.tvMain);
             tvSub = (TextView)view.findViewById(R.id.tvSub);
         }

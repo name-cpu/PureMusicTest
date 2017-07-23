@@ -1,12 +1,9 @@
 package com.example.kaizhiwei.puremusictest.NetAudio.tuijian;
 
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -15,7 +12,8 @@ import android.widget.LinearLayout;
 import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.CommonUI.MySwipeRefreshLayout;
 import com.example.kaizhiwei.puremusictest.NetAudio.AutoHeightGridView;
-import com.example.kaizhiwei.puremusictest.NetAudio.GridViewAdapter;
+import com.example.kaizhiwei.puremusictest.NetAudio.view.ModuleItemAdapter;
+import com.example.kaizhiwei.puremusictest.NetAudio.view.ModuleItemView;
 import com.example.kaizhiwei.puremusictest.R;
 
 import java.lang.reflect.InvocationTargetException;
@@ -25,7 +23,6 @@ import java.util.List;
 
 import com.example.kaizhiwei.puremusictest.base.MyBaseFragment;
 import com.example.kaizhiwei.puremusictest.bean.ActiveIndexBean;
-import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
 import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
@@ -112,16 +109,16 @@ public class TuiJIanFragment extends MyBaseFragment implements SwipeRefreshLayou
         if(mMusicData == null || mMusicData.mEntity == null || mMusicData.mEntity.listEntityItem == null)
             return;
 
-        List<GridViewAdapter.GridViewAdapterItemData> listTem = new ArrayList<>();
+        List<ModuleItemAdapter.GridViewAdapterItemData> listTem = new ArrayList<>();
         for(int i = 0;i < mMusicData.mEntity.listEntityItem.size();i++){
-            GridViewAdapter.GridViewAdapterItemData itemData = new GridViewAdapter.GridViewAdapterItemData();
+            ModuleItemAdapter.GridViewAdapterItemData itemData = new ModuleItemAdapter.GridViewAdapterItemData();
             itemData.strMain = mMusicData.mEntity.listEntityItem.get(i).title;
             itemData.strIconUrl = mMusicData.mEntity.listEntityItem.get(i).icon;
             itemData.strkey = mMusicData.mEntity.listEntityItem.get(i).title;
             listTem.add(itemData);
         }
 
-        GridViewAdapter adapter = new GridViewAdapter(TuiJIanFragment.this.getActivity(), listTem, R.layout.fragment_netaduio_catogary_item);
+        ModuleItemAdapter adapter = new ModuleItemAdapter(TuiJIanFragment.this.getActivity(), listTem, R.layout.fragment_netaduio_catogary_item);
         gvCatogary.setAdapter(adapter);
     }
 
@@ -130,17 +127,17 @@ public class TuiJIanFragment extends MyBaseFragment implements SwipeRefreshLayou
                 || mMusicData.mModule == null || mMusicData.mModule.listModule == null)
             return;
 
-        List<GridViewAdapter.GridViewAdapterItemData> listTem = new ArrayList<>();
+        List<ModuleItemAdapter.GridViewAdapterItemData> listTem = new ArrayList<>();
         listTem = new ArrayList<>();
         for(int i = 0; i < mMusicData.mDiy.listDiyItem.size();i++){
-            GridViewAdapter.GridViewAdapterItemData itemData = new GridViewAdapter.GridViewAdapterItemData();
+            ModuleItemAdapter.GridViewAdapterItemData itemData = new ModuleItemAdapter.GridViewAdapterItemData();
             itemData.strMain = mMusicData.mDiy.listDiyItem.get(i).title;
             itemData.strIconUrl = mMusicData.mDiy.listDiyItem.get(i).pic;
             itemData.strkey = mMusicData.mDiy.listDiyItem.get(i).listid;
             listTem.add(itemData);
         }
-        GridViewAdapter adapter = new GridViewAdapter(TuiJIanFragment.this.getActivity(), listTem, R.layout.fragment_net_audio_recommand_item);
-        ModuleItemLayout layout = new ModuleItemLayout(this.getActivity());
+        ModuleItemAdapter adapter = new ModuleItemAdapter(TuiJIanFragment.this.getActivity(), listTem, R.layout.fragment_net_audio_recommand_item);
+        ModuleItemView layout = new ModuleItemView(this.getActivity());
 
         List<PlazaIndexBean.ModuleItem> moduleBeanList = mMusicData.mModule.listModule;
         if(moduleBeanList != null){
@@ -173,18 +170,18 @@ public class TuiJIanFragment extends MyBaseFragment implements SwipeRefreshLayou
                 if(mixData == null)
                     continue;
 
-                List<GridViewAdapter.GridViewAdapterItemData> listTem = new ArrayList<>();
+                List<ModuleItemAdapter.GridViewAdapterItemData> listTem = new ArrayList<>();
                 listTem = new ArrayList<>();
                 for(int j = 0; j < mixData.listMix.size();j++){
-                    GridViewAdapter.GridViewAdapterItemData itemData = new GridViewAdapter.GridViewAdapterItemData();
+                    ModuleItemAdapter.GridViewAdapterItemData itemData = new ModuleItemAdapter.GridViewAdapterItemData();
                     itemData.strMain = mixData.listMix.get(j).title;
                     itemData.strSub = mixData.listMix.get(j).author;
                     itemData.strIconUrl = mixData.listMix.get(j).pic;
                     itemData.strkey = mixData.listMix.get(j).type_id;
                     listTem.add(itemData);
                 }
-                GridViewAdapter adapter = new GridViewAdapter(TuiJIanFragment.this.getActivity(), listTem, R.layout.fragment_net_audio_recommand_item);
-                ModuleItemLayout layout = new ModuleItemLayout(this.getActivity());
+                ModuleItemAdapter adapter = new ModuleItemAdapter(TuiJIanFragment.this.getActivity(), listTem, R.layout.fragment_net_audio_recommand_item);
+                ModuleItemView layout = new ModuleItemView(this.getActivity());
                 layout.setModuleInfo(moduleBean.picurl, moduleBean.title, moduleBean.title_more);
                 layout.setGridViewAdapter(adapter);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -208,18 +205,18 @@ public class TuiJIanFragment extends MyBaseFragment implements SwipeRefreshLayou
                 if(modData == null)
                     continue;
 
-                List<GridViewAdapter.GridViewAdapterItemData> listTem = new ArrayList<>();
+                List<ModuleItemAdapter.GridViewAdapterItemData> listTem = new ArrayList<>();
                 listTem = new ArrayList<>();
                 for(int j = 0; j < modData.listMod.size();j++){
-                    GridViewAdapter.GridViewAdapterItemData itemData = new GridViewAdapter.GridViewAdapterItemData();
+                    ModuleItemAdapter.GridViewAdapterItemData itemData = new ModuleItemAdapter.GridViewAdapterItemData();
                     itemData.strMain = modData.listMod.get(j).title;
                     itemData.strSub = modData.listMod.get(j).author;
                     itemData.strIconUrl = modData.listMod.get(j).pic;
                     itemData.strkey = modData.listMod.get(j).type_id;
                     listTem.add(itemData);
                 }
-                GridViewAdapter adapter = new GridViewAdapter(TuiJIanFragment.this.getActivity(), listTem, R.layout.fragment_net_audio_recommand_item);
-                ModuleItemLayout layout = new ModuleItemLayout(this.getActivity());
+                ModuleItemAdapter adapter = new ModuleItemAdapter(TuiJIanFragment.this.getActivity(), listTem, R.layout.fragment_net_audio_recommand_item);
+                ModuleItemView layout = new ModuleItemView(this.getActivity());
                 layout.setModuleInfo(moduleBean.picurl, moduleBean.title, moduleBean.title_more);
                 layout.setGridViewAdapter(adapter);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);

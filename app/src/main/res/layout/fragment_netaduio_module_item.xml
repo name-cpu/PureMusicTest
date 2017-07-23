@@ -4,15 +4,22 @@
     android:layout_height="match_parent"
     android:background="@color/white">
     <LinearLayout
+        android:id="@+id/llTitle"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:weightSum="1">
+        <TextView
+            android:layout_width="4dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:background="@drawable/title_tag_shape"/>
         <ImageView
             android:id="@+id/imModuleLogo"
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:layout_gravity="center"
+            android:visibility="gone"
             android:src="@drawable/ic_launcher" />
         <TextView
             android:layout_marginLeft="5dp"

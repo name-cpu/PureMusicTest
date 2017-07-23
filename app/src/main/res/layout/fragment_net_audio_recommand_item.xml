@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="15dp">
-    <ImageView
+    android:layout_height="wrap_content">
+
+    <com.example.kaizhiwei.puremusictest.widget.MaskImageView
         android:id="@+id/ivIcon"
-        android:layout_width="122dp"
-        android:layout_height="122dp"
-        android:scaleType="fitXY"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/default_live_ic" />
+        android:src="@drawable/default_live_ic"
+        android:scaleType="centerCrop"/>
+
     <TextView
         android:id="@+id/tvMain"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="20dp"
         android:maxLines="2"
         android:ellipsize="end"
-        android:textSize="12sp"
+        android:textSize="@dimen/text_size_12"
         android:textColor="@color/black"
         android:gravity="left|center_vertical"
         android:text="123" />
@@ -24,10 +25,10 @@
     <TextView
         android:id="@+id/tvSub"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="20dp"
         android:maxLines="1"
         android:ellipsize="end"
-        android:textSize="12sp"
+        android:textSize="@dimen/text_size_12"
         android:gravity="left|center_vertical"
         android:textColor="@color/gray"
         android:text="123" />
