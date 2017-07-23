@@ -16,6 +16,7 @@ import android.widget.RelativeLayout;
 import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.bean.PlazaRecommIndexBean;
+import com.example.kaizhiwei.puremusictest.widget.MaskImageView;
 import com.viewpagerindicator.LinePageIndicator;
 
 /**
@@ -27,6 +28,7 @@ public class FocusView extends RelativeLayout {
     private LinePageIndicator linePageIndicator;
     private FocusViewPagerAdapter mAdapter;
     private PlazaRecommIndexBean.ModulesBean modulesBean;
+    private FocusViewListener mListener;
 
     public FocusView(@NonNull Context context) {
         this(context, null, 0);
@@ -39,6 +41,18 @@ public class FocusView extends RelativeLayout {
     public FocusView(@NonNull Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView();
+    }
+
+    public interface FocusViewListener{
+        void onFocusItemClicked(FocusView view, int position, String strkey);
+    }
+
+    public FocusViewListener getListener() {
+        return mListener;
+    }
+
+    public void setListener(FocusViewListener mListener) {
+        this.mListener = mListener;
     }
 
     public PlazaRecommIndexBean.ModulesBean getModulesBean() {
@@ -91,10 +105,18 @@ public class FocusView extends RelativeLayout {
             return view == object;
         }
 
-        public Object instantiateItem(ViewGroup container, int position) {
-            ImageView imageView = new ImageView(mContext);
+        public Object instantiateItem(ViewGroup container, final int position) {
+            MaskImageView imageView = new MaskImageView(mContext);
             Glide.with(mContext).load(modulesBean.getResult().get(position).getPic_url()).into(imageView);
             container.addView(imageView);
+            imageView.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(mListener != null){
+                        mListener.onFocusItemClicked(FocusView.this, position, modulesBean.getResult().get(position).getCon_id());
+                    }
+                }
+            });
             return imageView;
         }
 

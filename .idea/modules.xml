@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/PureMusicTest.iml" filepath="$PROJECT_DIR$/PureMusicTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/libvlc/libvlc.iml" filepath="$PROJECT_DIR$/libvlc/libvlc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/purevideoplayer/purevideoplayer.iml" filepath="$PROJECT_DIR$/purevideoplayer/purevideoplayer.iml" />
       <module fileurl="file://$PROJECT_DIR$/velocityviewpagerlibrary/velocityviewpagerlibrary.iml" filepath="$PROJECT_DIR$/velocityviewpagerlibrary/velocityviewpagerlibrary.iml" />
       <module fileurl="file://$PROJECT_DIR$/viewpagerindicatorlibrary/viewpagerindicatorlibrary.iml" filepath="$PROJECT_DIR$/viewpagerindicatorlibrary/viewpagerindicatorlibrary.iml" />
     </modules>

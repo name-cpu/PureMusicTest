@@ -28,7 +28,7 @@ import butterknife.Bind;
  * Created by kaizhiwei on 17/7/16.
  */
 
-public class VideoFragment extends MyBaseFragment implements PlazaRecommIndexContract.View, ModuleItemAdapter.ModuleItemListener {
+public class VideoFragment extends MyBaseFragment implements PlazaRecommIndexContract.View, ModuleItemAdapter.ModuleItemListener, FocusView.FocusViewListener {
     private PlazaRecommIndexPresenter mPresenter;
     private static int VIEWPAGER_STYPE = 1;
     private static int GRIDVIEW_STYPE_13 = 13;
@@ -99,6 +99,7 @@ public class VideoFragment extends MyBaseFragment implements PlazaRecommIndexCon
 
         FocusView focusView = new FocusView(this.getActivity());
         focusView.setModulesBean(modulesBean);
+        focusView.setListener(this);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         llContent.addView(focusView, layoutParams);
     }
@@ -191,6 +192,13 @@ public class VideoFragment extends MyBaseFragment implements PlazaRecommIndexCon
     public void onModuleItemClicked(ModuleItemAdapter adapter, int position, String strKey) {
         Intent intent = new Intent(VideoFragment.this.getActivity(), PlayMvActivity.class);
         intent.putExtra(PlayMvActivity.INTENT_MVID, strKey);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onFocusItemClicked(FocusView view, int position, String strkey) {
+        Intent intent = new Intent(VideoFragment.this.getActivity(), PlayMvActivity.class);
+        intent.putExtra(PlayMvActivity.INTENT_MVID, strkey);
         startActivity(intent);
     }
 }
