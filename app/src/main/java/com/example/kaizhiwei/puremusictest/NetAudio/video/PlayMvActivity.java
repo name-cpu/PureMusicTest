@@ -69,9 +69,9 @@ public class PlayMvActivity extends MyBaseActivity implements MvInfoContract.Vie
 
     @Override
     public void onGetMvInfoSuccess(SongMvInfoBean bean) {
-        Log.e("weikaizhi", "bean " + bean.getResult().getFiles().get_$41().getFile_link());
         pureVideoPlayer.setUri(Uri.parse(bean.getResult().getFiles().get_$41().getFile_link()));
         pureVideoPlayer.initView();
+        pureVideoPlayer.setVideoTitle(bean.getResult().getMv_info().getTitle());
 //        Media media = new Media(VLCInstance.getInstance(), Uri.parse(bean.getResult().getFiles().get_$41().getFile_link()));
 //        mMediaPlayer.setMedia(media);
 //        media.release();
@@ -106,5 +106,11 @@ public class PlayMvActivity extends MyBaseActivity implements MvInfoContract.Vie
         super.onDestroy();
 //        mMediaPlayer.getVLCVout().detachViews();
 //        mMediaPlayer.stop();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        pureVideoPlayer.closeMediaPlayer();
     }
 }

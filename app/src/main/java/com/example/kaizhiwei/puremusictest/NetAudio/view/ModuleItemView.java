@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.HomePage.HomeActivity;
 import com.example.kaizhiwei.puremusictest.NetAudio.AutoHeightGridView;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
 
 /**
  * Created by 24820 on 2017/1/23.
@@ -50,6 +51,7 @@ public class ModuleItemView extends LinearLayout{
         tvModuleName = (TextView)view.findViewById(R.id.tvModuleName);
         tvTitleMore = (TextView)view.findViewById(R.id.tvTitleMore);
         gvModule = (AutoHeightGridView)view.findViewById(R.id.gvModule);
+        gvModule.setHorizontalSpacing(2* DeviceUtil.getDensity(this.getContext()));
         llTitle = (LinearLayout)view.findViewById(R.id.llTitle);
     }
 

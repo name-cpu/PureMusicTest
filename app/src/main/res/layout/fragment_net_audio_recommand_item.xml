@@ -20,6 +20,8 @@
         android:textSize="@dimen/text_size_12"
         android:textColor="@color/black"
         android:gravity="left|center_vertical"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         android:text="123" />
 
     <TextView
@@ -31,5 +33,7 @@
         android:textSize="@dimen/text_size_12"
         android:gravity="left|center_vertical"
         android:textColor="@color/gray"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         android:text="123" />
 </LinearLayout>

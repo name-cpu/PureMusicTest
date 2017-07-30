@@ -109,6 +109,7 @@ public class FocusView extends RelativeLayout {
             MaskImageView imageView = new MaskImageView(mContext);
             Glide.with(mContext).load(modulesBean.getResult().get(position).getPic_url()).into(imageView);
             container.addView(imageView);
+            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             imageView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {

@@ -33,6 +33,7 @@ public class ModuleItemAdapter extends BaseAdapter {
     private ImageView.ScaleType mImageScaleType = ImageView.ScaleType.FIT_CENTER;
 
     private ModuleItemListener mListener;
+    private boolean needPressStyle = true;
 
     static public class GridViewAdapterItemData{
         public String strMain;
@@ -54,6 +55,14 @@ public class ModuleItemAdapter extends BaseAdapter {
         mListData = list;
         mLayoutInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mItemResId = itemResId;
+    }
+
+    public boolean isNeedPressStyle() {
+        return needPressStyle;
+    }
+
+    public void setNeedPressStyle(boolean needPressStyle) {
+        this.needPressStyle = needPressStyle;
     }
 
     public ModuleItemListener getListener() {
@@ -114,6 +123,7 @@ public class ModuleItemAdapter extends BaseAdapter {
             holder = (GridViewAdapterHolder)convertView.getTag();
         }
 
+        holder.ivIcon.setNeedPressedStyle(needPressStyle);
         holder.ivIcon.setScaleType(mImageScaleType);
         holder.ivIcon.setMaxHeight(mImageHeight);
         holder.ivIcon.setMinimumHeight(mImageHeight);

@@ -15,6 +15,16 @@ import com.example.kaizhiwei.puremusictest.R;
  */
 
 public class MaskImageView extends ImageView {
+    public boolean isNeedPressedStyle() {
+        return needPressedStyle;
+    }
+
+    public void setNeedPressedStyle(boolean needPressedStyle) {
+        this.needPressedStyle = needPressedStyle;
+    }
+
+    private boolean needPressedStyle;
+
     public MaskImageView(Context context) {
         super(context);
     }
@@ -30,7 +40,7 @@ public class MaskImageView extends ImageView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if(isPressed()){
+        if(needPressedStyle && isPressed()){
             canvas.drawColor(getResources().getColor(R.color.trans_dk_gray)) ;
         }
     }

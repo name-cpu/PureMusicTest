@@ -118,6 +118,7 @@ public class VideoFragment extends MyBaseFragment implements PlazaRecommIndexCon
         adapter.setmTextAligment(Gravity.CENTER);
         adapter.setImageScaleType(ImageView.ScaleType.CENTER);
         adapter.setListener(this);
+        adapter.setNeedPressStyle(false);
 
         ModuleItemView layout = new ModuleItemView(this.getActivity());
         String[] strs = modulesBean.getStyle_nums().split("\\*");

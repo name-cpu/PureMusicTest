@@ -95,7 +95,7 @@ public class GeDanFragment extends MyBaseFragment implements GeDanListContract.V
         rvSongList.setLoadingMoreEnabled(true);
         rvSongList.setLoadingMoreProgressStyle(ProgressStyle.BallPulse);
 
-        int space = 3* DeviceUtil.getDensity(this.getActivity());
+        int space = 1* DeviceUtil.getDensity(this.getActivity());
         RecyclerViewSpaceDecoration spaceDecoration = new RecyclerViewSpaceDecoration(0, 0, space, 5*space);
         spaceDecoration.setFirstItemTopSpcace(40*DeviceUtil.getDensity(this.getActivity()));
         rvSongList.addItemDecoration(spaceDecoration);

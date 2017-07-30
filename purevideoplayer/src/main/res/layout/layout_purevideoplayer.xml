@@ -16,21 +16,24 @@
     <LinearLayout
         android:id="@+id/llLoading"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="visible">
         <ProgressBar
             android:id="@+id/pbLoading"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="27dp"
+            android:layout_height="10dp"
+            android:layout_gravity="center_horizontal"
             android:indeterminate="true"
             android:indeterminateDrawable="@drawable/loading"/>
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
-            android:text="loading..."/>
+            android:text="@string/loading..."/>
     </LinearLayout>
 
     <!--改变播放位置-->
@@ -53,7 +56,7 @@
             android:textSize="28sp"
             android:text="00:00"/>
         <ProgressBar
-            android:id="@+id/pbSeek"
+            android:id="@+id/pbSeekTo"
             android:layout_width="100dp"
             android:layout_height="2dp"
             android:progressDrawable="@drawable/pb_layer"
@@ -83,6 +86,7 @@
             android:layout_width="100dp"
             android:layout_height="2dp"
             android:progressDrawable="@drawable/pb_layer"
+            android:progress="10"
             android:max="100"
             android:maxHeight="2dp"
             android:layout_marginTop="8dp"
@@ -109,6 +113,7 @@
             android:layout_width="100dp"
             android:layout_height="2dp"
             android:progressDrawable="@drawable/pb_layer"
+            android:progress="40"
             android:max="100"
             android:maxHeight="2dp"
             android:layout_marginTop="8dp"
@@ -198,7 +203,9 @@
         android:background="@drawable/player_mask_bottom"
         android:orientation="horizontal"
         android:visibility="visible"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
         <ImageView
             android:id="@+id/ivPlayPause"
             android:layout_width="wrap_content"
@@ -226,15 +233,17 @@
             android:textColor="@android:color/white"
             android:text="00:00"
             android:gravity="center"/>
-        <ProgressBar
-            android:id="@+id/pbProgress"
-            android:layout_marginLeft="5dp"
+        <SeekBar
+            android:id="@+id/sbPlay"
             android:layout_width="0dp"
-            android:layout_height="4dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:progressDrawable="@drawable/pb_layer"/>
+            android:maxHeight="2dp"
+            android:minHeight="2dp"
+            android:progressDrawable="@drawable/seekbar_seletor"
+            android:background="@null"
+            android:thumb="@drawable/my_seekbar_thumb"/>
         <ImageView
             android:id="@+id/ivFullScreen"
             android:layout_width="wrap_content"
