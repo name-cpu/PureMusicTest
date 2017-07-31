@@ -22,7 +22,7 @@
         android:layout_height="match_parent"
         android:text="title"
         android:textColor="#ffffff"
-        android:textSize="25sp"
+        android:textSize="@dimen/text_size_20"
         android:gravity="center"
         android:layout_centerHorizontal="true"/>
 

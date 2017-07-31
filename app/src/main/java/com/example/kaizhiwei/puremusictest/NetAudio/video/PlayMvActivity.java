@@ -9,6 +9,8 @@ import android.widget.LinearLayout;
 import com.example.kaizhiwei.puremusictest.MediaData.VLCInstance;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.base.MyBaseActivity;
+import com.example.kaizhiwei.puremusictest.bean.MvCategoryBean;
+import com.example.kaizhiwei.puremusictest.bean.MvSearchBean;
 import com.example.kaizhiwei.puremusictest.bean.SongMvInfoBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.MvInfoContract;
@@ -99,6 +101,16 @@ public class PlayMvActivity extends MyBaseActivity implements MvInfoContract.Vie
 //        surfaceView.setVisibility(View.VISIBLE);
 //        mMediaPlayer.setVideoTitleDisplay(MediaPlayer.Position.Disable, 0);
 //        mMediaPlayer.play();
+    }
+
+    @Override
+    public void onGetMvCategorySuccess(MvCategoryBean bean) {
+
+    }
+
+    @Override
+    public void onSearchMvSuccess(MvSearchBean bean) {
+
     }
 
     @Override

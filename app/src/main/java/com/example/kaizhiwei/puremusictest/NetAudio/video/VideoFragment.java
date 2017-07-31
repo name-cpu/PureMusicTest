@@ -35,6 +35,8 @@ public class VideoFragment extends MyBaseFragment implements PlazaRecommIndexCon
     private static int GRIDVIEW_STYPE_17 = 17;
     private static int GRIDVIEW_STYPE_18 = 18;
 
+    private static int MV_CATEGORY_CONID = 10;
+
     @Bind(R.id.llContent)
     LinearLayout llContent;
 
@@ -117,7 +119,15 @@ public class VideoFragment extends MyBaseFragment implements PlazaRecommIndexCon
         adapter.setImagehegiht(50* DeviceUtil.getDensity(this.getActivity()));
         adapter.setmTextAligment(Gravity.CENTER);
         adapter.setImageScaleType(ImageView.ScaleType.CENTER);
-        adapter.setListener(this);
+        adapter.setListener(new ModuleItemAdapter.ModuleItemListener() {
+            @Override
+            public void onModuleItemClicked(ModuleItemAdapter adapter, int position, String strKey) {
+                if(Integer.parseInt(strKey) == MV_CATEGORY_CONID){
+                    Intent intent = new Intent(VideoFragment.this.getActivity(), MvCategoryActivity.class);
+                    VideoFragment.this.startActivity(intent);
+                }
+            }
+        });
         adapter.setNeedPressStyle(false);
 
         ModuleItemView layout = new ModuleItemView(this.getActivity());

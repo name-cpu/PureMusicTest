@@ -14,6 +14,8 @@ import com.example.kaizhiwei.puremusictest.bean.GeDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.GeDanListBean;
 import com.example.kaizhiwei.puremusictest.bean.GeDanSongDetailInfo;
 import com.example.kaizhiwei.puremusictest.bean.HotTagInfoBean;
+import com.example.kaizhiwei.puremusictest.bean.MvCategoryBean;
+import com.example.kaizhiwei.puremusictest.bean.MvSearchBean;
 import com.example.kaizhiwei.puremusictest.bean.SongMvInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaRecommIndexBean;
@@ -324,4 +326,30 @@ public interface ApiService {
                                          @Query("song_id") String song_id,
                                          @Query("definition") String definition);
 
+    //mv类别
+    //GET /v1/restserver/ting?from=android&version=6.0.0.3&channel=xiaomi&operator=2&method=baidu.ting.mv.getMVCategory&format=json
+    @GET("/v1/restserver/ting")
+    Observable<MvCategoryBean> getMvCategory(@Query("from") String from,
+                                             @Query("version") String version,
+                                             @Query("channel") String channel,
+                                             @Query("operator") int operator,
+                                             @Query("method") String method,
+                                             @Query("format") String format);
+
+    //mv分类，获取内地的mv信息，分页加载
+    //order = 1 是最新
+    //order = 0 是最热
+    //GET /v1/restserver/ting?from=android&version=6.0.0.3&channel=xiaomi&operator=2&provider=11%2C12&method=baidu.ting.mv.searchMV&format=json&order=1&page_num=1&page_size=20&query=%E5%86%85%E5%9C%B0 HTTP/1.1
+    @GET("/v1/restserver/ting")
+    Observable<MvSearchBean> getSearchMv(@Query("from") String from,
+                                         @Query("version") String version,
+                                         @Query("channel") String channel,
+                                         @Query("operator") int operator,
+                                         @Query("provider") String provider,
+                                         @Query("method") String method,
+                                         @Query("format") String format,
+                                         @Query("order") int order,
+                                         @Query("page_num") int page_num,
+                                         @Query("page_size") int page_size,
+                                         @Query("query") String query);
 }

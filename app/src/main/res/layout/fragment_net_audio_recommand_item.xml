@@ -15,7 +15,7 @@
         android:id="@+id/tvMain"
         android:layout_width="match_parent"
         android:layout_height="20dp"
-        android:maxLines="2"
+        android:maxLines="1"
         android:ellipsize="end"
         android:textSize="@dimen/text_size_12"
         android:textColor="@color/black"

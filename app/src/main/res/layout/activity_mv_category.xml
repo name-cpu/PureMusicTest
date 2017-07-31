@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+    <com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        app:title="分类"
+        app:leftText=""
+        app:rightText="">
+    </com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+        <TextView
+            android:id="@+id/tvAll"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="全部"
+            android:layout_alignParentLeft="true"
+            android:gravity="center_vertical"/>
+        <TextView
+            android:id="@+id/tvHot"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:text="最热"
+            android:layout_alignParentRight="true"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/tvSep"
+            android:layout_width="1dp"
+            android:layout_toLeftOf="@+id/tvHot"
+            android:layout_height="match_parent"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"
+            android:layout_gravity="center_vertical"
+            android:background="@color/red"/>
+
+        <TextView
+            android:id="@+id/tvRecent"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:text="最新"
+            android:layout_toLeftOf="@+id/tvSep"
+            android:gravity="center"/>
+    </RelativeLayout>
+
+    <com.jcodecraeer.xrecyclerview.XRecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </com.jcodecraeer.xrecyclerview.XRecyclerView>
+</LinearLayout>

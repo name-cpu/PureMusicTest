@@ -23,7 +23,7 @@ public class MaskImageView extends ImageView {
         this.needPressedStyle = needPressedStyle;
     }
 
-    private boolean needPressedStyle;
+    private boolean needPressedStyle = true;
 
     public MaskImageView(Context context) {
         super(context);
