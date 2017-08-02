@@ -16,7 +16,7 @@ import com.example.kaizhiwei.puremusictest.bean.GeDanSongDetailInfo;
 import com.example.kaizhiwei.puremusictest.bean.HotTagInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.MvCategoryBean;
 import com.example.kaizhiwei.puremusictest.bean.MvSearchBean;
-import com.example.kaizhiwei.puremusictest.bean.SongMvInfoBean;
+import com.example.kaizhiwei.puremusictest.bean.PlayMvBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaRecommIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
@@ -315,16 +315,16 @@ public interface ApiService {
     //获取歌曲的mv播放信息
     //GET /v1/restserver/ting?from=android&version=6.0.0.3&channel=xiaomi&operator=2&provider=11%2C12&method=baidu.ting.mv.playMV&format=json&mv_id=545982609&song_id=&definition=0
     @GET("/v1/restserver/ting")
-    Observable<SongMvInfoBean> getMvInfo(@Query("from") String from,
-                                         @Query("version") String version,
-                                         @Query("channel") String channel,
-                                         @Query("operator") int operator,
-                                         @Query("provider") String provider,
-                                         @Query("method") String method,
-                                         @Query("format") String format,
-                                         @Query("mv_id") String mv_id,
-                                         @Query("song_id") String song_id,
-                                         @Query("definition") String definition);
+    Observable<PlayMvBean> getMvInfo(@Query("from") String from,
+                                     @Query("version") String version,
+                                     @Query("channel") String channel,
+                                     @Query("operator") int operator,
+                                     @Query("provider") String provider,
+                                     @Query("method") String method,
+                                     @Query("format") String format,
+                                     @Query("mv_id") String mv_id,
+                                     @Query("song_id") String song_id,
+                                     @Query("definition") String definition);
 
     //mv类别
     //GET /v1/restserver/ting?from=android&version=6.0.0.3&channel=xiaomi&operator=2&method=baidu.ting.mv.getMVCategory&format=json

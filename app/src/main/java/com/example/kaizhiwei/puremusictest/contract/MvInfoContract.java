@@ -2,9 +2,7 @@ package com.example.kaizhiwei.puremusictest.contract;
 
 import com.example.kaizhiwei.puremusictest.bean.MvCategoryBean;
 import com.example.kaizhiwei.puremusictest.bean.MvSearchBean;
-import com.example.kaizhiwei.puremusictest.bean.SongMvInfoBean;
-
-import retrofit2.http.Query;
+import com.example.kaizhiwei.puremusictest.bean.PlayMvBean;
 
 /**
  * Created by kaizhiwei on 17/7/23.
@@ -22,7 +20,7 @@ public interface MvInfoContract {
     }
 
     interface View extends BaseContract.View {
-        void onGetMvInfoSuccess(SongMvInfoBean bean);
+        void onGetMvInfoSuccess(PlayMvBean bean);
         void onGetMvCategorySuccess(MvCategoryBean bean);
         void onSearchMvSuccess(MvSearchBean bean);
     }

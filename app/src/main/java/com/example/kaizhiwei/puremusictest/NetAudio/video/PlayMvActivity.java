@@ -1,30 +1,23 @@
 package com.example.kaizhiwei.puremusictest.NetAudio.video;
 
 import android.net.Uri;
-import android.util.Log;
-import android.view.SurfaceView;
-import android.view.View;
-import android.widget.LinearLayout;
 
 import com.example.kaizhiwei.puremusictest.MediaData.VLCInstance;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.base.MyBaseActivity;
 import com.example.kaizhiwei.puremusictest.bean.MvCategoryBean;
 import com.example.kaizhiwei.puremusictest.bean.MvSearchBean;
-import com.example.kaizhiwei.puremusictest.bean.SongMvInfoBean;
+import com.example.kaizhiwei.puremusictest.bean.PlayMvBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.MvInfoContract;
 import com.example.kaizhiwei.puremusictest.presenter.MvInfoPresenter;
 import com.example.purevideoplayer.PureVideoPlayer;
-
-import org.videolan.libvlc.IVLCVout;
-import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
-
-import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import butterknife.Bind;
-import butterknife.BindInt;
 
 
 /**
@@ -70,8 +63,23 @@ public class PlayMvActivity extends MyBaseActivity implements MvInfoContract.Vie
     }
 
     @Override
-    public void onGetMvInfoSuccess(SongMvInfoBean bean) {
-        pureVideoPlayer.setUri(Uri.parse(bean.getResult().getFiles().get_$41().getFile_link()));
+    public void onGetMvInfoSuccess(PlayMvBean bean) {
+        if(bean == null || bean.getResult() == null)
+            return;
+
+        PlayMvBean.ResultBean.FilesBean filesBean = bean.getResult().getFiles();
+        List<PlayMvBean.ResultBean.FilesBean.FileItemBean> list = filesBean.getListFileItems();
+        if(list.size() > 0){
+            Collections.sort(list, new Comparator<PlayMvBean.ResultBean.FilesBean.FileItemBean>() {
+                @Override
+                public int compare(PlayMvBean.ResultBean.FilesBean.FileItemBean lhs, PlayMvBean.ResultBean.FilesBean.FileItemBean rhs) {
+                    return lhs.getFile_size().compareTo(rhs.getFile_size());
+                }
+            });
+
+            pureVideoPlayer.setUri(Uri.parse(list.get(0).getFile_link()));
+        }
+
         pureVideoPlayer.initView();
         pureVideoPlayer.setVideoTitle(bean.getResult().getMv_info().getTitle());
 //        Media media = new Media(VLCInstance.getInstance(), Uri.parse(bean.getResult().getFiles().get_$41().getFile_link()));

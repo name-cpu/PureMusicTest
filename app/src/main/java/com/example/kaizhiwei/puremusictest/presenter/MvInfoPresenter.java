@@ -1,11 +1,20 @@
 package com.example.kaizhiwei.puremusictest.presenter;
 
+import android.os.Message;
+
+import com.example.kaizhiwei.puremusictest.NetAudio.NetEngine;
+import com.example.kaizhiwei.puremusictest.Util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.api.ApiService;
+import com.example.kaizhiwei.puremusictest.base.BaseHandler;
 import com.example.kaizhiwei.puremusictest.bean.MvCategoryBean;
 import com.example.kaizhiwei.puremusictest.bean.MvSearchBean;
-import com.example.kaizhiwei.puremusictest.bean.SongMvInfoBean;
+import com.example.kaizhiwei.puremusictest.bean.PlayMvBean;
+import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.MvInfoContract;
 import com.example.kaizhiwei.puremusictest.domin.RetrofitClient;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import rx.Observable;
 import rx.Observer;
@@ -26,31 +35,35 @@ public class MvInfoPresenter implements MvInfoContract.Presenter {
 
     @Override
     public void getMvInfo(String from, String version, String channel, int operator, String provider,String method, String format, String mv_id, String song_id, String definition) {
-        ApiService apiService = RetrofitClient.getInstance().create(ApiService.class);
-        Observable<SongMvInfoBean> observable = apiService.getMvInfo(from, version, channel, operator, provider, method, format, mv_id, song_id, definition);
-        Subscription subscriber = observable.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<SongMvInfoBean>() {
-                    @Override
-                    public void onCompleted() {
-
+        //此处服务器返回的数据格式是动态的，必须手动解析
+        final Map<String, String> map = new HashMap<>();
+        map.put("from", from);
+        map.put("version", version);
+        map.put("channel", channel);
+        map.put("operator", operator + "");
+        map.put("provider", provider);
+        map.put("method", method);
+        map.put("format", format);
+        map.put("mv_id", mv_id);
+        map.put("song_id", song_id +"");
+        map.put("definition", definition);
+        NetEngine.getInstance().netGet(PureMusicContant.HOST, PureMusicContant.URL, map, new BaseHandler() {
+            @Override
+            public void handleBusiness(Message msg) {
+                if(msg.what == BusinessCode.BUSINESS_CODE_ERROR){
+                    if(mView != null){
+                        mView.onError("error");
                     }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        if(mView != null){
-                            mView.onError(e.getMessage());
-                        }
+                }
+                else if(msg.what == BusinessCode.BUSINESS_CODE_SUCCESS){
+                    if(mView != null){
+                        PlayMvBean playMvBean = new PlayMvBean();
+                        playMvBean.parser((String) msg.obj);
+                        mView.onGetMvInfoSuccess(playMvBean);
                     }
-
-                    @Override
-                    public void onNext(SongMvInfoBean bean) {
-                        if(mView != null){
-                            mView.onGetMvInfoSuccess(bean);
-                        }
-                    }
-                });
-        subscriptions.add(subscriber);
+                }
+            }
+        });
     }
 
     @Override

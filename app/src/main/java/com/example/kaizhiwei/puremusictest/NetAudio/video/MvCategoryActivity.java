@@ -7,19 +7,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.kaizhiwei.puremusictest.NetAudio.gedan.GeDanFragment;
-import com.example.kaizhiwei.puremusictest.NetAudio.gedan.GeDanSongListActivity;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
 import com.example.kaizhiwei.puremusictest.base.MyBaseActivity;
-import com.example.kaizhiwei.puremusictest.bean.GeDanListBean;
 import com.example.kaizhiwei.puremusictest.bean.MvCategoryBean;
 import com.example.kaizhiwei.puremusictest.bean.MvSearchBean;
-import com.example.kaizhiwei.puremusictest.bean.SongMvInfoBean;
+import com.example.kaizhiwei.puremusictest.bean.PlayMvBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.MvInfoContract;
 import com.example.kaizhiwei.puremusictest.presenter.MvInfoPresenter;
@@ -127,7 +123,7 @@ public class MvCategoryActivity extends MyBaseActivity implements MvInfoContract
     }
 
     @Override
-    public void onGetMvInfoSuccess(SongMvInfoBean bean) {
+    public void onGetMvInfoSuccess(PlayMvBean bean) {
 
     }
 
