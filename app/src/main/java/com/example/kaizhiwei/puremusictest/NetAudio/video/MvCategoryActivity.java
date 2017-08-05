@@ -1,15 +1,10 @@
 package com.example.kaizhiwei.puremusictest.NetAudio.video;
 
-import android.content.Intent;
-import android.graphics.Typeface;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
 import com.example.kaizhiwei.puremusictest.base.MyBaseActivity;
@@ -19,7 +14,6 @@ import com.example.kaizhiwei.puremusictest.bean.PlayMvBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.MvInfoContract;
 import com.example.kaizhiwei.puremusictest.presenter.MvInfoPresenter;
-import com.example.kaizhiwei.puremusictest.widget.MaskImageView;
 import com.example.kaizhiwei.puremusictest.widget.RecyclerViewSpaceDecoration;
 import com.jcodecraeer.xrecyclerview.ProgressStyle;
 import com.jcodecraeer.xrecyclerview.XRecyclerView;
@@ -45,7 +39,10 @@ public class MvCategoryActivity extends MyBaseActivity implements MvInfoContract
     TextView tvHot;
     @Bind(R.id.recyclerView)
     XRecyclerView recyclerView;
-    private MvCategoryAdapter mAdapter;
+    @Bind(R.id.commonTitle)
+    CommonTitleView commonTitle;
+    private MvCommAdapter mAdapter;
+    private List<MvCommAdapter.ItemData> mListDatas = new ArrayList<>();
 
     private int startPage = 1;
     private int pageSize = 20;
@@ -102,8 +99,20 @@ public class MvCategoryActivity extends MyBaseActivity implements MvInfoContract
             }
         });
 
-        mAdapter = new MvCategoryAdapter();
+        mAdapter = new MvCommAdapter(this, mListDatas);
         recyclerView.setAdapter(mAdapter);
+
+        commonTitle.setTitleViewListener(new CommonTitleView.onTitleClickListener() {
+            @Override
+            public void onLeftBtnClicked() {
+                finish();
+            }
+
+            @Override
+            public void onRightBtnClicked() {
+
+            }
+        });
     }
 
     @Override
@@ -202,9 +211,19 @@ public class MvCategoryActivity extends MyBaseActivity implements MvInfoContract
 
         if(needClear){
             mvSearchBean.getResult().getMv_list().clear();
+            mListDatas.clear();
         }
         needClear = false;
         mvSearchBean.getResult().getMv_list().addAll(bean.getResult().getMv_list());
+        for(int i = 0;i < mvSearchBean.getResult().getMv_list().size();i++){
+            MvCommAdapter.ItemData itemData = new MvCommAdapter.ItemData();
+            itemData.strMain = mvSearchBean.getResult().getMv_list().get(i).getTitle();
+            itemData.strSub = mvSearchBean.getResult().getMv_list().get(i).getArtist();
+            itemData.pic = mvSearchBean.getResult().getMv_list().get(i).getThumbnail();
+            itemData.key = mvSearchBean.getResult().getMv_list().get(i).getMv_id();
+            mListDatas.add(itemData);
+        }
+
         mAdapter.notifyDataSetChanged();
     }
 
@@ -218,58 +237,6 @@ public class MvCategoryActivity extends MyBaseActivity implements MvInfoContract
             mPresenter.getSearchMv(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION,
                     PureMusicContant.CHANNEL, 2, "11,12", "baidu.ting.mv.searchMV",
                     PureMusicContant.FORMAT_JSON, order, startPage, pageSize, mQueryKey);
-        }
-    }
-
-    private class MvCategoryAdapter extends RecyclerView.Adapter<MvCategoryViewHolder>{
-
-        @Override
-        public MvCategoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(MvCategoryActivity.this).inflate(R.layout.fragment_net_audio_recommand_item, parent, false);
-            return new MvCategoryViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(MvCategoryViewHolder holder, int position) {
-            final MvSearchBean.ResultBean.MvListBean mvInfo = mvSearchBean.getResult().getMv_list().get(position);
-            holder.tvMain.setText(mvInfo.getTitle());
-            holder.tvSub.setText(mvInfo.getArtist());
-            holder.ivIcon.setMinimumHeight(100* DeviceUtil.getDensity(MvCategoryActivity.this));
-            holder.ivIcon.setMaxHeight(100* DeviceUtil.getDensity(MvCategoryActivity.this));
-            holder.ivIcon.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(MvCategoryActivity.this, PlayMvActivity.class);
-                    intent.putExtra(PlayMvActivity.INTENT_MVID, mvInfo.getMv_id());
-                    MvCategoryActivity.this.startActivity(intent);
-                }
-            });
-            Glide.with(MvCategoryActivity.this).load(mvInfo.getThumbnail()).into(holder.ivIcon);
-        }
-
-        @Override
-        public int getItemCount() {
-            if(mvSearchBean == null || mvSearchBean.getResult() == null)
-                return 0;
-
-            return mvSearchBean.getResult().getMv_list().size();
-        }
-    }
-
-    private class MvCategoryViewHolder extends RecyclerView.ViewHolder{
-        public MaskImageView ivIcon;
-        public TextView tvMain;
-        public TextView tvSub;
-
-        public MvCategoryViewHolder(View itemView) {
-            super(itemView);
-            ivIcon = (MaskImageView)itemView.findViewById(R.id.ivIcon);
-            tvMain = (TextView)itemView.findViewById(R.id.tvMain);
-            tvSub = (TextView)itemView.findViewById(R.id.tvSub);
-
-            Typeface typeFace = Typeface.createFromAsset(MvCategoryActivity.this.getAssets(),"arial.ttf");
-            tvMain.setTypeface(typeFace);
-            tvSub.setTypeface(typeFace);
         }
     }
 }

@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
     <com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView
+        android:id="@+id/commonTitle"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         app:title="分类"
@@ -32,7 +33,6 @@
             android:layout_alignParentRight="true"
             android:textColor="@drawable/mv_category_textcolor_selector"
             android:gravity="center"/>
-
         <TextView
             android:id="@+id/tvSep"
             android:layout_width="1dp"
@@ -41,8 +41,7 @@
             android:layout_marginTop="15dp"
             android:layout_marginBottom="15dp"
             android:layout_gravity="center_vertical"
-            android:background="@color/red"/>
-
+            android:background="@color/blackgray"/>
         <TextView
             android:id="@+id/tvRecent"
             android:layout_width="40dp"
