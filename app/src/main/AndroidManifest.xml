@@ -165,6 +165,12 @@
             android:launchMode="standard"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".NetAudio.video.RecommMvActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

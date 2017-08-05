@@ -28,12 +28,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
+import butterknife.OnClick;
 
 /**
  * Created by kaizhiwei on 17/7/31.
  */
 
-public class MvCategoryActivity extends MyBaseActivity implements MvInfoContract.View {
+public class MvCategoryActivity extends MyBaseActivity implements MvInfoContract.View, MvCatrgoryDialog.IMvCatrgoryDialogListener {
     private MvInfoPresenter mPresenter;
 
     @Bind(R.id.tvAll)
@@ -48,11 +49,13 @@ public class MvCategoryActivity extends MyBaseActivity implements MvInfoContract
 
     private int startPage = 1;
     private int pageSize = 20;
+    private int order = 1;
 
     private MvCategoryBean mvCategoryBean;
     private MvSearchBean mvSearchBean = new MvSearchBean();
     private String mQueryKey;
     private boolean needClear = false;
+    private MvCatrgoryDialog mMvCategoryDialog;
 
     @Override
     public int getLayoutId() {
@@ -66,14 +69,15 @@ public class MvCategoryActivity extends MyBaseActivity implements MvInfoContract
 
     @Override
     public void initView() {
+        tvRecent.setSelected(true);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(gridLayoutManager);
-        recyclerView.setPullRefreshEnabled(true);
+        recyclerView.setPullRefreshEnabled(false);
         recyclerView.setLoadingMoreEnabled(true);
         recyclerView.setLoadingMoreProgressStyle(ProgressStyle.BallPulse);
 
-        int space = 1* DeviceUtil.getDensity(this);
-        RecyclerViewSpaceDecoration spaceDecoration = new RecyclerViewSpaceDecoration(0, 0, space, 5*space);
+        int space = 2*DeviceUtil.getDensity(this);
+        RecyclerViewSpaceDecoration spaceDecoration = new RecyclerViewSpaceDecoration(0, 0, space, 10*space);
         recyclerView.addItemDecoration(spaceDecoration);
         recyclerView.setLoadingListener(new XRecyclerView.LoadingListener() {
             @Override
@@ -83,7 +87,7 @@ public class MvCategoryActivity extends MyBaseActivity implements MvInfoContract
                 if(mPresenter != null){
                     mPresenter.getSearchMv(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION,
                             PureMusicContant.CHANNEL, 2, "11,12", "baidu.ting.mv.searchMV",
-                            PureMusicContant.FORMAT_JSON, 1, startPage, pageSize, mQueryKey);
+                            PureMusicContant.FORMAT_JSON, order, startPage, pageSize, mQueryKey);
                 }
             }
 
@@ -93,7 +97,7 @@ public class MvCategoryActivity extends MyBaseActivity implements MvInfoContract
                 if(mPresenter != null){
                     mPresenter.getSearchMv(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION,
                             PureMusicContant.CHANNEL, 2, "11,12", "baidu.ting.mv.searchMV",
-                            PureMusicContant.FORMAT_JSON, 1, startPage, pageSize, mQueryKey);
+                            PureMusicContant.FORMAT_JSON, order, startPage, pageSize, mQueryKey);
                 }
             }
         });
@@ -113,6 +117,51 @@ public class MvCategoryActivity extends MyBaseActivity implements MvInfoContract
         List<MvSearchBean.ResultBean.MvListBean> listBeanList = new ArrayList();
         resultBean.setMv_list(listBeanList);
         mvSearchBean.setResult(resultBean);
+    }
+
+    @OnClick({R.id.tvRecent, R.id.tvHot, R.id.tvAll})
+    void onClicked(View view){
+        if(view == tvRecent){
+            if(tvRecent.isSelected())
+                return;
+
+            tvRecent.setSelected(true);
+            tvHot.setSelected(false);
+            needClear = true;
+            startPage = 0;
+            order = 1;
+            if(mPresenter != null){
+                mPresenter.getSearchMv(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION,
+                        PureMusicContant.CHANNEL, 2, "11,12", "baidu.ting.mv.searchMV",
+                        PureMusicContant.FORMAT_JSON, order, startPage, pageSize, mQueryKey);
+            }
+        }
+        else if(view == tvHot){
+            if(tvHot.isSelected())
+                return;
+
+            tvRecent.setSelected(false);
+            tvHot.setSelected(true);
+            needClear = true;
+            startPage = 0;
+            order = 0;
+            if(mPresenter != null){
+                mPresenter.getSearchMv(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION,
+                        PureMusicContant.CHANNEL, 2, "11,12", "baidu.ting.mv.searchMV",
+                        PureMusicContant.FORMAT_JSON, order, startPage, pageSize, mQueryKey);
+            }
+        }
+        else if(view == tvAll){
+            if(mMvCategoryDialog == null){
+                MvCatrgoryDialog.Builder builder = new MvCatrgoryDialog.Builder(this);
+                mMvCategoryDialog = (MvCatrgoryDialog) builder.create();
+                mMvCategoryDialog.setListener(this);
+            }
+            mMvCategoryDialog.setTitle(getResources().getString(R.string.select_mv_category));
+            mMvCategoryDialog.show();
+            mMvCategoryDialog.setSelectValue(mQueryKey);
+            mMvCategoryDialog.setData(mvCategoryBean.getResult());
+        }
     }
 
     @Override
@@ -139,7 +188,7 @@ public class MvCategoryActivity extends MyBaseActivity implements MvInfoContract
             if(mPresenter != null){
                 mPresenter.getSearchMv(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION,
                         PureMusicContant.CHANNEL, 2, "11,12", "baidu.ting.mv.searchMV",
-                        PureMusicContant.FORMAT_JSON, 1, startPage, pageSize, mQueryKey);
+                        PureMusicContant.FORMAT_JSON, order, startPage, pageSize, mQueryKey);
             }
         }
     }
@@ -157,6 +206,19 @@ public class MvCategoryActivity extends MyBaseActivity implements MvInfoContract
         needClear = false;
         mvSearchBean.getResult().getMv_list().addAll(bean.getResult().getMv_list());
         mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onItemClick(int position, String value) {
+        mQueryKey = value;
+        needClear = true;
+        startPage = 0;
+        tvAll.setText(mQueryKey);
+        if(mPresenter != null){
+            mPresenter.getSearchMv(PureMusicContant.DEVICE_TYPE, PureMusicContant.APP_VERSION,
+                    PureMusicContant.CHANNEL, 2, "11,12", "baidu.ting.mv.searchMV",
+                    PureMusicContant.FORMAT_JSON, order, startPage, pageSize, mQueryKey);
+        }
     }
 
     private class MvCategoryAdapter extends RecyclerView.Adapter<MvCategoryViewHolder>{

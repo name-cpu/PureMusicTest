@@ -60,4 +60,6 @@
     <string name="all">全部</string>
     <string name="hotest">最热</string>
     <string name="latest">最新</string>
+    <string name="mv_categort_recommand">推荐精选</string>
+    <string name="select_mv_category">选择分类</string>
 </resources>

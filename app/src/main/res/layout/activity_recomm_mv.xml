@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+    <com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView
+        android:id="@+id/commonTitle"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        app:title="明星"
+        app:leftText=""
+        app:rightText="">
+    </com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView>
+
+    <com.jcodecraeer.xrecyclerview.XRecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+    </com.jcodecraeer.xrecyclerview.XRecyclerView>
+</LinearLayout>

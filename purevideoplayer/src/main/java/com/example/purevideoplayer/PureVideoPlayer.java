@@ -178,6 +178,7 @@ public class PureVideoPlayer extends FrameLayout implements IVidepPlayer,
         window.setFlags(flag, flag);
 
         ViewGroup view = (ViewGroup)activity.findViewById(android.R.id.content);
+        view.setSystemUiVisibility(View.GONE);
         this.removeView(mContainer);
         view.addView(mContainer, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
@@ -191,6 +192,7 @@ public class PureVideoPlayer extends FrameLayout implements IVidepPlayer,
         window.clearFlags(flag);
 
         ViewGroup view = (ViewGroup)activity.findViewById(android.R.id.content);
+        view.setSystemUiVisibility(View.VISIBLE);
         view.removeView(mContainer);
         this.addView(mContainer, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }

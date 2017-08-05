@@ -22,4 +22,6 @@
     <dimen name="text_size_18">18.0sp</dimen>
     <dimen name="text_size_19">19.0sp</dimen>
     <dimen name="text_size_20">20.0sp</dimen>
+
+    <dimen name="base_dialog_title_height">45dp</dimen>
 </resources>

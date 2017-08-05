@@ -19,6 +19,7 @@ import com.example.kaizhiwei.puremusictest.bean.MvSearchBean;
 import com.example.kaizhiwei.puremusictest.bean.PlayMvBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaRecommIndexBean;
+import com.example.kaizhiwei.puremusictest.bean.RecommMvBean;
 import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
 import com.example.kaizhiwei.puremusictest.bean.ShowRedPointBean;
 import com.example.kaizhiwei.puremusictest.bean.SongDetailInfoBean;
@@ -352,4 +353,23 @@ public interface ApiService {
                                          @Query("page_num") int page_num,
                                          @Query("page_size") int page_size,
                                          @Query("query") String query);
+
+    //获取推荐的mv
+    //GET /v1/restserver/ting?from=android&version=6.0.0.3&channel=xiaomi&operator=0&method=baidu.ting.plaza.recommMV&
+    //project=daily&preid=4&mid=3&size=10&offset=0&param=ls4JwVxqCi%2F8IUzOqiohKJI3T25sTZPABP40fqvgRY5LPdMVqlz%2BI%2BO%2BumXaTrAc&
+    // timestamp=1501917966&sign=841fbcae80d388607bc86d3ea3d5f3e1
+    @GET("/v1/restserver/ting")
+    Observable<RecommMvBean> geRecommMv(@Query("from") String from,
+                                        @Query("version") String version,
+                                        @Query("channel") String channel,
+                                        @Query("operator") int operator,
+                                        @Query("method") String method,
+                                        @Query("project") String project,
+                                        @Query("preid") int preid,
+                                        @Query("mid") int mid,
+                                        @Query("size") int size,
+                                        @Query("offset") int offset,
+                                        @Query("param") String param,
+                                        @Query("timestamp") String timestamp,
+                                        @Query("sign") String sign);
 }

@@ -30,6 +30,7 @@
             android:layout_height="match_parent"
             android:text="最热"
             android:layout_alignParentRight="true"
+            android:textColor="@drawable/mv_category_textcolor_selector"
             android:gravity="center"/>
 
         <TextView
@@ -47,6 +48,7 @@
             android:layout_width="40dp"
             android:layout_height="match_parent"
             android:text="最新"
+            android:textColor="@drawable/mv_category_textcolor_selector"
             android:layout_toLeftOf="@+id/tvSep"
             android:gravity="center"/>
     </RelativeLayout>

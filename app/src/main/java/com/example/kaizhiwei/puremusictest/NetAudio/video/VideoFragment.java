@@ -107,7 +107,7 @@ public class VideoFragment extends MyBaseFragment implements PlazaRecommIndexCon
     }
 
     private void initGridView_13(PlazaRecommIndexBean.ModulesBean modulesBean){
-        List<ModuleItemAdapter.GridViewAdapterItemData> listTem = new ArrayList<>();
+        final List<ModuleItemAdapter.GridViewAdapterItemData> listTem = new ArrayList<>();
         for(int i = 0; i < modulesBean.getResult().size();i++){
             ModuleItemAdapter.GridViewAdapterItemData itemData = new ModuleItemAdapter.GridViewAdapterItemData();
             itemData.strMain = modulesBean.getResult().get(i).getCon_title();
@@ -122,8 +122,21 @@ public class VideoFragment extends MyBaseFragment implements PlazaRecommIndexCon
         adapter.setListener(new ModuleItemAdapter.ModuleItemListener() {
             @Override
             public void onModuleItemClicked(ModuleItemAdapter adapter, int position, String strKey) {
+                Intent intent = new Intent();
                 if(Integer.parseInt(strKey) == MV_CATEGORY_CONID){
-                    Intent intent = new Intent(VideoFragment.this.getActivity(), MvCategoryActivity.class);
+                    intent.setClass(VideoFragment.this.getActivity(), MvCategoryActivity.class);
+                    VideoFragment.this.startActivity(intent);
+                }
+                else if(position == 0){
+                    intent.setClass(VideoFragment.this.getActivity(), RecommMvActivity.class);
+                    intent.putExtra(RecommMvActivity.INTENT_MID, 4);
+                    intent.putExtra(RecommMvActivity.INTENT_TITLE, listTem.get(position).strMain);
+                    VideoFragment.this.startActivity(intent);
+                }
+                else if(position == 1){
+                    intent.setClass(VideoFragment.this.getActivity(), RecommMvActivity.class);
+                    intent.putExtra(RecommMvActivity.INTENT_MID, 3);
+                    intent.putExtra(RecommMvActivity.INTENT_TITLE, listTem.get(position).strMain);
                     VideoFragment.this.startActivity(intent);
                 }
             }
