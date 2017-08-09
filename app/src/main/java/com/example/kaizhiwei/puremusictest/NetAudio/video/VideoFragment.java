@@ -1,10 +1,14 @@
 package com.example.kaizhiwei.puremusictest.NetAudio.video;
 
 import android.content.Intent;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.widget.EdgeEffect;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 import com.example.kaizhiwei.puremusictest.NetAudio.tuijian.TuiJIanFragment;
 import com.example.kaizhiwei.puremusictest.NetAudio.view.FocusView;
@@ -12,6 +16,7 @@ import com.example.kaizhiwei.puremusictest.NetAudio.view.ModuleItemAdapter;
 import com.example.kaizhiwei.puremusictest.NetAudio.view.ModuleItemView;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
+import com.example.kaizhiwei.puremusictest.Util.FadingEdgeUtil;
 import com.example.kaizhiwei.puremusictest.base.MyBaseFragment;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaRecommIndexBean;
@@ -19,6 +24,7 @@ import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.PlazaRecommIndexContract;
 import com.example.kaizhiwei.puremusictest.presenter.PlazaRecommIndexPresenter;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,15 +45,20 @@ public class VideoFragment extends MyBaseFragment implements PlazaRecommIndexCon
 
     @Bind(R.id.llContent)
     LinearLayout llContent;
+    @Bind(R.id.scrollView)
+    ScrollView scrollView;
 
     @Override
     protected int getLayoutResource() {
         return R.layout.fragment_video;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void initView() {
-
+        scrollView.setOverScrollMode(ScrollView.OVER_SCROLL_IF_CONTENT_SCROLLS);
+        FadingEdgeUtil.setEdgeTopColor(scrollView, getResources().getColor(R.color.blackgray));
+        FadingEdgeUtil.setEdgeBottomColor(scrollView, getResources().getColor(R.color.blackgray));
     }
 
     @Override

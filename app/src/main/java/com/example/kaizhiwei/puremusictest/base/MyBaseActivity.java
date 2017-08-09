@@ -44,7 +44,7 @@ public abstract class MyBaseActivity extends AppCompatActivity {
     /**
      * 设置layout前配置
      */
-    private void doBeforeSetcontentView() {
+    protected void doBeforeSetcontentView() {
         // 把actvity放到application栈中管理
         //AppManager.getAppManager().addActivity(this);
         // 无标题

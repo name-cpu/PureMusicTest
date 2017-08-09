@@ -125,8 +125,8 @@ public class ModuleItemAdapter extends BaseAdapter {
 
         holder.ivIcon.setNeedPressedStyle(needPressStyle);
         holder.ivIcon.setScaleType(mImageScaleType);
-        holder.ivIcon.setMaxHeight(mImageHeight);
-        holder.ivIcon.setMinimumHeight(mImageHeight);
+//        holder.ivIcon.setMaxHeight(mImageHeight);
+//        holder.ivIcon.setMinimumHeight(mImageHeight);
         holder.ivIcon.setTag(R.id.selected_view, entity.strkey);
         holder.ivIcon.setOnClickListener(new View.OnClickListener(){
 

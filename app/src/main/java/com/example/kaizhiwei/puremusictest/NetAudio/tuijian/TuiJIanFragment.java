@@ -19,8 +19,11 @@ import com.example.kaizhiwei.puremusictest.R;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
 import com.example.kaizhiwei.puremusictest.base.MyBaseFragment;
 import com.example.kaizhiwei.puremusictest.bean.ActiveIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;
@@ -181,6 +184,9 @@ public class TuiJIanFragment extends MyBaseFragment implements SwipeRefreshLayou
                     listTem.add(itemData);
                 }
                 ModuleItemAdapter adapter = new ModuleItemAdapter(TuiJIanFragment.this.getActivity(), listTem, R.layout.fragment_net_audio_recommand_item);
+                adapter.setImagehegiht(75* DeviceUtil.getDensity(this.getActivity()));
+                adapter.setImageScaleType(ImageView.ScaleType.CENTER_CROP);
+
                 ModuleItemView layout = new ModuleItemView(this.getActivity());
                 layout.setModuleInfo(moduleBean.picurl, moduleBean.title, moduleBean.title_more);
                 layout.setGridViewAdapter(adapter);
@@ -264,10 +270,18 @@ public class TuiJIanFragment extends MyBaseFragment implements SwipeRefreshLayou
         llMain.removeAllViews();
         mMusicData = bean;
 
+        List<PlazaIndexBean.ModuleItem> listModules = bean.mModule.listModule;
+        Collections.sort(listModules, new Comparator<PlazaIndexBean.ModuleItem>() {
+            @Override
+            public int compare(PlazaIndexBean.ModuleItem lhs, PlazaIndexBean.ModuleItem rhs) {
+                return lhs.pos - rhs.pos;
+            }
+        });
+
         Class clazz = this.getClass();
         Method[] methods = clazz.getDeclaredMethods();
-        for(int i = 0;i < bean.mModule.listModule.size();i++){
-            String moduleKey = bean.mModule.listModule.get(i).key;
+        for(int i = 0;i < listModules.size();i++){
+            String moduleKey = listModules.get(i).key;
             String moduleKeyCompare;
             if(moduleKey.toLowerCase().startsWith("mix")){
                 moduleKeyCompare = "mix";

@@ -208,6 +208,14 @@ public class PureVideoController extends FrameLayout implements View.OnTouchList
         this.mVideoPlayer = mVideoPlayer;
     }
 
+    public boolean isFullScreen() {
+        return isFullScreen;
+    }
+
+    public void setFullScreen(boolean fullScreen) {
+        isFullScreen = fullScreen;
+    }
+
     private void initView(){
         View view = LayoutInflater.from(this.getContext()).inflate(R.layout.layout_purevideoplayer, null, false);
         this.addView(view);
@@ -282,6 +290,10 @@ public class PureVideoController extends FrameLayout implements View.OnTouchList
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
+        if(!isFullScreen ){
+            return this.mDoubleGesture.onTouchEvent(motionEvent);
+        }
+
         int action = motionEvent.getAction();
         if(action == MotionEvent.ACTION_DOWN){
 
@@ -377,7 +389,6 @@ public class PureVideoController extends FrameLayout implements View.OnTouchList
             else{
                 mVideoPlayer.onFullScreen();
             }
-            isFullScreen = !isFullScreen;
         }
         else if(view == tvRestart){
             mVideoPlayer.onReStart();
@@ -469,7 +480,7 @@ public class PureVideoController extends FrameLayout implements View.OnTouchList
         needChangeBrigness= false;
         needChangeSeek= false;
 
-        setBrightnessMode(mBrightnessMode);
+        //setBrightnessMode(mBrightnessMode);
         //setBrightnessValue(mBrightValue);
     }
 
@@ -642,7 +653,7 @@ public class PureVideoController extends FrameLayout implements View.OnTouchList
 
         int mode = getBrightnessMode();
         if(mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC){
-            setBrightnessMode(Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+            //setBrightnessMode(Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
         }
 
         curBrightness = mBrightValue*maxBrightness;

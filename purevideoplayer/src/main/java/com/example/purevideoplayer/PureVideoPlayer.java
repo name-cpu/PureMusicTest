@@ -1,5 +1,6 @@
 package com.example.purevideoplayer;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -20,8 +21,11 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
@@ -50,6 +54,7 @@ public class PureVideoPlayer extends FrameLayout implements IVidepPlayer,
     private IMediaPlayer mediaPlayer;
     private Uri mUri;
     private Context mContext;
+    private Map<Integer, Integer> mapOtherViews = new HashMap<>();
 
     private Handler mHandler = new Handler(Looper.getMainLooper());
     private Runnable playProgressRunnable = new Runnable() {
@@ -172,15 +177,43 @@ public class PureVideoPlayer extends FrameLayout implements IVidepPlayer,
     @Override
     public void onFullScreen() {
         Activity activity = (Activity)mContext;
-        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         Window window = activity.getWindow();
         int flag = WindowManager.LayoutParams.FLAG_FULLSCREEN;
-        window.setFlags(flag, flag);
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        ActionBar actionBar = activity.getActionBar();
+        if(actionBar != null){
+            actionBar.hide();
+        }
 
-        ViewGroup view = (ViewGroup)activity.findViewById(android.R.id.content);
-        view.setSystemUiVisibility(View.GONE);
-        this.removeView(mContainer);
-        view.addView(mContainer, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mapOtherViews.clear();
+        ViewGroup decorView = (ViewGroup)activity.getWindow().getDecorView();
+        for(int i = 1; i < decorView.getChildCount();i++){
+            View childView = decorView.getChildAt(i);
+            int viewId = childView.getId();
+            mapOtherViews.put(viewId, childView.getVisibility());
+            childView.setVisibility(View.GONE);
+        }
+
+        LinearLayout windowView = (LinearLayout) decorView.getChildAt(0);
+        int size = windowView.getChildCount();
+        for(int i = 0;i < size;i++){
+            View childView = windowView.getChildAt(i);
+            int viewId = childView.getId();
+            if(!(childView instanceof FrameLayout)){
+                mapOtherViews.put(viewId, childView.getVisibility());
+                childView.setVisibility(View.GONE);
+            }
+            else{
+                this.removeView(mContainer);
+                ((ViewGroup)childView).addView(mContainer, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            }
+        }
+
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+        if(mVideoController != null){
+            mVideoController.setFullScreen(true);
+        }
     }
 
     @Override
@@ -191,10 +224,58 @@ public class PureVideoPlayer extends FrameLayout implements IVidepPlayer,
         int flag = WindowManager.LayoutParams.FLAG_FULLSCREEN;
         window.clearFlags(flag);
 
-        ViewGroup view = (ViewGroup)activity.findViewById(android.R.id.content);
-        view.setSystemUiVisibility(View.VISIBLE);
-        view.removeView(mContainer);
+        ViewGroup decorView = (ViewGroup)activity.getWindow().getDecorView();
+        for(int i = 1; i < decorView.getChildCount();i++){
+            View childView = decorView.getChildAt(i);
+            int viewId = childView.getId();
+            if(mapOtherViews.containsKey(viewId)) {
+                int vis = mapOtherViews.get(viewId);
+                if (vis == 0) {
+                    childView.setVisibility(View.VISIBLE);
+                } else if (vis == 4) {
+                    childView.setVisibility(View.INVISIBLE);
+                } else if (vis == 8) {
+                    childView.setVisibility(View.GONE);
+                }
+            }
+        }
+
+        LinearLayout windowView = (LinearLayout) decorView.getChildAt(0);
+        for(int i = 0;i < windowView.getChildCount();i++){
+            View childView = windowView.getChildAt(i);
+            int viewId = childView.getId();
+            if(mapOtherViews.containsKey(viewId)) {
+                int vis = mapOtherViews.get(viewId);
+                if (vis == 0) {
+                    childView.setVisibility(View.VISIBLE);
+                } else if (vis == 4) {
+                    childView.setVisibility(View.INVISIBLE);
+                } else if (vis == 8) {
+                    childView.setVisibility(View.GONE);
+                }
+            }
+        }
+
+        ViewGroup parent = (ViewGroup) mContainer.getParent();
+        if(parent != null){
+            parent.removeView(mContainer);
+        }
         this.addView(mContainer, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        if(mVideoController != null){
+            mVideoController.setFullScreen(false);
+        }
+    }
+
+    public boolean exitFullScreen(){
+        if(mVideoController == null )
+            return false;
+
+        if(mVideoController.isFullScreen()){
+            onExitFullScreen();
+            return true;
+        }
+        return false;
     }
 
     @Override

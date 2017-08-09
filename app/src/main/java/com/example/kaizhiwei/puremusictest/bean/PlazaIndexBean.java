@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 public class PlazaIndexBean {
@@ -21,6 +22,9 @@ public class PlazaIndexBean {
     public RecSong mRecSong;
     public RadioBean mRadio;
     public ModuleBean mModule;
+    public KingBean mKing;
+    public NewSongBean mNewSong;
+    public SceneBean mSceneBean;
 
     public MixBean findMixDataByModuleKey(String strKey){
         if(mListMix == null || TextUtils.isEmpty(strKey))
@@ -117,6 +121,21 @@ public class PlazaIndexBean {
                 if(rootResult.has("radio")){
                     mRadio = new RadioBean();
                     mRadio.parser(rootResult.getJSONObject("radio"));
+                }
+
+                if(rootResult.has("king")){
+                    mKing = new KingBean();
+                    mKing.parser(rootResult.getJSONObject("king"));
+                }
+
+                if(rootResult.has("new_song")){
+                    mNewSong = new NewSongBean();
+                    mNewSong.parser(rootResult.getJSONObject("new_song"));
+                }
+
+                if(rootResult.has("scene")){
+                    mSceneBean = new SceneBean();
+                    mSceneBean.parser(rootResult.getJSONObject("scene"));
                 }
             }
         }
@@ -564,4 +583,178 @@ public class PlazaIndexBean {
         }
     }
 
+    static public class KingBean{
+        public int error_code;
+        public List<KingItemBean> listKings;
+
+        public void parser(JSONObject obj){
+            try {
+                error_code = obj.getInt("error_code");
+                JSONArray jsonArray = obj.getJSONArray("result");
+                listKings = new ArrayList<>();
+                for(int i = 0;i < jsonArray.length();i++){
+                    JSONObject jsonObject = (JSONObject)jsonArray.get(i);
+                    KingItemBean item = new KingItemBean();
+                    item.parser(jsonObject);
+                    listKings.add(item);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    static public class KingItemBean{
+        public String pic_big;
+        public String title;
+        public String author;
+
+        public void parser(JSONObject obj){
+            try {
+                pic_big = obj.getString("pic_big");
+                title = obj.getString("title");
+                author = obj.getString("author");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    static public class NewSongBean{
+        public int error_code;
+        public String pic_500;
+        public String listid;
+        public List<NewSongItemBean> listSongInfos;
+
+        public void parser(JSONObject obj){
+            try {
+                error_code = obj.getInt("error_code");
+                JSONObject jsonResult = obj.getJSONObject("result");
+                pic_500 = jsonResult.getString("pic_500");
+                listid = jsonResult.getString("listid");
+
+                listSongInfos = new ArrayList<>();
+                JSONArray arraySonglist = jsonResult.getJSONArray("song_info");
+                for(int i = 0;i < arraySonglist.length();i++){
+                    JSONObject jsonObject = (JSONObject)arraySonglist.get(i);
+                    NewSongItemBean item = new NewSongItemBean();
+                    item.parser(jsonObject);
+                    listSongInfos.add(item);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    static public class NewSongItemBean{
+        public String author;
+        public String title;
+        public String pic_premium;
+        public String song_id;
+
+        public void parser(JSONObject obj){
+            try {
+                author = obj.getString("author");
+                title = obj.getString("title");
+                pic_premium = obj.getString("pic_premium");
+                song_id = obj.getString("song_id");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    static public class SceneBean{
+        public int error_code;
+        public List<SceneItemBean> listScreenItems;
+        public List<SceneConfigBean> listConfigs;
+
+        public void parser(JSONObject obj){
+            try {
+                error_code = obj.getInt("error_code");
+                listConfigs = new ArrayList<>();
+                JSONArray arrayconfig = obj.getJSONArray("config");
+                for(int i = 0;i < arrayconfig.length();i++){
+                    JSONObject jsonObject = (JSONObject)arrayconfig.get(i);
+                    SceneConfigBean item = new SceneConfigBean();
+                    item.parser(jsonObject);
+                    listConfigs.add(item);
+                }
+
+                JSONObject jsonResult = obj.getJSONObject("result");
+
+                listScreenItems = new ArrayList<>();
+                Iterator<String> keys = jsonResult.keys();
+                while(keys.hasNext()){
+                    String key = keys.next();
+                    JSONArray objTemp = jsonResult.getJSONArray(key);
+                    for(int i = 0;i < objTemp.length();i++){
+                        JSONObject jsonObject = (JSONObject)objTemp.get(i);
+                        SceneItemBean item = new SceneItemBean();
+                        item.parser(jsonObject);
+                        listScreenItems.add(item);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    static public class SceneConfigBean{
+        public String play_color;
+        public int scene_version;
+        public int end_time;
+        public String button_color;
+        public String bgpic_special;
+        public int start_time;
+        public String color_other;
+        public String bgpic;
+        public String desc;
+        public String scene_color;
+
+        public void parser(JSONObject obj){
+            try {
+                play_color = obj.getString("play_color");
+                scene_version = obj.getInt("scene_version");
+                end_time = obj.getInt("end_time");
+                button_color = obj.getString("button_color");
+                bgpic_special = obj.getString("bgpic_special");
+                start_time = obj.getInt("start_time");
+                color_other = obj.getString("color_other");
+                bgpic = obj.getString("bgpic");
+                desc = obj.getString("desc");
+                scene_color = obj.getString("scene_color");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    static public class SceneItemBean{
+        public String scene_desc;
+        public String bgpic_ios;
+        public String icon_android;
+        public String bgpic_android;
+        public String scene_id;
+        public String icon_ios;
+        public String scene_model;
+        public String scene_name;
+
+        public void parser(JSONObject obj){
+            try {
+                scene_desc = obj.getString("scene_desc");
+                bgpic_ios = obj.getString("bgpic_ios");
+                icon_android = obj.getString("icon_android");
+                bgpic_android = obj.getString("bgpic_android");
+                scene_id = obj.getString("scene_id");
+                icon_ios = obj.getString("icon_ios");
+                scene_model = obj.getString("scene_model");
+                scene_name = obj.getString("scene_name");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

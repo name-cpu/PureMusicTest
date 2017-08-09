@@ -58,6 +58,11 @@ public class PlayMvActivity extends MyBaseActivity implements MvInfoContract.Vie
     }
 
     @Override
+    protected void doBeforeSetcontentView(){
+
+    }
+
+    @Override
     public void onError(String strErrMsg) {
         showToast(strErrMsg);
     }
@@ -119,6 +124,13 @@ public class PlayMvActivity extends MyBaseActivity implements MvInfoContract.Vie
     @Override
     public void onSearchMvSuccess(MvSearchBean bean) {
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (pureVideoPlayer != null && !pureVideoPlayer.exitFullScreen()) {
+            super.onBackPressed();
+        }
     }
 
     @Override
