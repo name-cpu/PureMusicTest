@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
+import com.example.kaizhiwei.puremusictest.util.DeviceUtil;
 import com.example.kaizhiwei.puremusictest.base.MyBaseFragment;
 import com.example.kaizhiwei.puremusictest.bean.GeDanListBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;

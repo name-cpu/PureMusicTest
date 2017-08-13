@@ -3,33 +3,24 @@ package com.example.kaizhiwei.puremusictest.HomePage;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.CommonUI.BaseActivty;
-import com.example.kaizhiwei.puremusictest.CommonUI.MyTextView;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
-import com.example.kaizhiwei.puremusictest.Util.ImageUtil;
+import com.example.kaizhiwei.puremusictest.ui.home.HomeActivity;
+import com.example.kaizhiwei.puremusictest.util.ImageUtil;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 
 /**

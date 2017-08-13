@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView;
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
+import com.example.kaizhiwei.puremusictest.util.DeviceUtil;
 import com.example.kaizhiwei.puremusictest.base.MyBaseActivity;
 import com.example.kaizhiwei.puremusictest.bean.AllTagInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.HotTagInfoBean;

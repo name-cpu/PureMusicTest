@@ -1,17 +1,16 @@
 package com.example.kaizhiwei.puremusictest.ScanMedia;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.kaizhiwei.puremusictest.AsyncTask.AsyncTaskScanPath;
+import com.example.kaizhiwei.puremusictest.model.scanmusic.ExternFileSource;
 import com.example.kaizhiwei.puremusictest.CommonUI.BaseActivty;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaScanHelper;
 import com.example.kaizhiwei.puremusictest.R;
-import com.hp.hpl.sparta.Text;
+import com.example.kaizhiwei.puremusictest.model.scanmusic.IScanListener;
 import com.r0adkll.slidr.Slidr;
 
 import java.util.HashMap;
@@ -20,7 +19,7 @@ import java.util.HashMap;
 /**
  * Created by kaizhiwei on 16/12/30.
  */
-public class ScanMediaResultActivity extends BaseActivty implements AsyncTaskScanPath.ScanResultListener {
+public class ScanMediaResultActivity extends BaseActivty implements IScanListener {
     private TextView tvScanResult;
     private TextView tvScanProgressing;
     private TextView tvFinish;
@@ -50,14 +49,14 @@ public class ScanMediaResultActivity extends BaseActivty implements AsyncTaskSca
     @Override
     protected void onResume(){
         super.onResume();
-        MediaScanHelper.getInstance().addScanListener(this);
-        MediaScanHelper.getInstance().scanFile(ScanMediaResultActivity.this,"");
+        //MediaScanHelper.getInstance().addScanListener(this);
+        //MediaScanHelper.getInstance().scanFile(ScanMediaResultActivity.this,"");
     }
 
     @Override
     protected void onPause(){
         super.onPause();
-        MediaScanHelper.getInstance().removeScanListener(this);
+        //MediaScanHelper.getInstance().removeScanListener(this);
     }
 
     @Override
@@ -67,17 +66,17 @@ public class ScanMediaResultActivity extends BaseActivty implements AsyncTaskSca
     }
 
     @Override
-    public void onScaning(int process, String strFilePath, boolean bAudioFile) {
-        tvScanProgressing.setText(strFilePath);
+    public void onProcess(String fileName, String filePath, int process) {
+        tvScanProgressing.setText(filePath);
         pbScanProgring.setProgress(process);
     }
 
     @Override
-    public void onScanCompleted(HashMap<String, String> mapResult, int filterNum) {
+    public void onScanFinish() {
         tvFinish.setVisibility(View.VISIBLE);
-        tvScanResult.setText("扫描完毕共" + mapResult.size() + "首");
-        tvScanProgressing.setText("为您过滤" + filterNum + "个音乐片段");
-        pbScanProgring.setProgress(100);
-        MediaLibrary.getInstance().resetAllMediaEntityInfo(mapResult);
+//        tvScanResult.setText("扫描完毕共" + mapResult.size() + "首");
+//        tvScanProgressing.setText("为您过滤" + filterNum + "个音乐片段");
+//        pbScanProgring.setProgress(100);
+//        MediaLibrary.getInstance().resetAllMediaEntityInfo(mapResult);
     }
 }

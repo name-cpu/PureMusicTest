@@ -1,19 +1,15 @@
 package com.example.kaizhiwei.puremusictest.model.scanmusic;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.os.Message;
-import android.provider.MediaStore;
 
-import com.example.kaizhiwei.puremusictest.Util.BusinessCode;
+import com.example.kaizhiwei.puremusictest.util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.base.BaseHandler;
 import com.example.kaizhiwei.puremusictest.dao.DaoManager;
 import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 
-import org.videolan.libvlc.Media;
 import org.xutils.ex.DbException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 

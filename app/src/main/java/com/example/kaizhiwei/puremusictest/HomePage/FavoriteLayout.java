@@ -1,10 +1,7 @@
 package com.example.kaizhiwei.puremusictest.HomePage;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -19,10 +16,10 @@ import android.widget.TextView;
 
 import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.Util.ImageUtil;
+import com.example.kaizhiwei.puremusictest.ui.home.HomeActivity;
+import com.example.kaizhiwei.puremusictest.util.ImageUtil;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 

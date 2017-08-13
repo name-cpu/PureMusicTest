@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true">
-    <com.example.kaizhiwei.puremusictest.Audio.LocalBaseMediaLayout
+    <com.example.kaizhiwei.puremusictest.ui.localmusic.LocalBaseMediaLayout
         android:id="@+id/lbmLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

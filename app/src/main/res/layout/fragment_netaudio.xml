@@ -37,7 +37,7 @@
                     </com.viewpagerindicator.LinePageIndicator>
                 </RelativeLayout>
 
-                <com.example.kaizhiwei.puremusictest.NetAudio.AutoHeightGridView
+                <com.example.kaizhiwei.puremusictest.widget.AutoHeightGridView
                     android:id="@+id/gvCatogary"
                     android:layout_margin="10dp"
                     android:horizontalSpacing="5dp"

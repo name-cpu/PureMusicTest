@@ -10,7 +10,7 @@ import android.widget.LinearLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
+import com.example.kaizhiwei.puremusictest.util.DeviceUtil;
 import java.util.List;
 
 /**

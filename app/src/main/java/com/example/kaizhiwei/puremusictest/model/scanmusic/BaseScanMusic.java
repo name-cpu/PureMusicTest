@@ -1,5 +1,7 @@
 package com.example.kaizhiwei.puremusictest.model.scanmusic;
 
+import com.example.kaizhiwei.puremusictest.base.BaseHandler;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,11 +12,7 @@ import java.util.List;
 public abstract class BaseScanMusic {
     private List<IScanListener> mListeners = new ArrayList<>();
 
-    public abstract void onStart();
-
-    public abstract void onScaning(String fileName, String filePath, int persent);
-
-    public abstract void onFinish();
+    public abstract void scan(BaseHandler handler);
 
     public void addListener(IScanListener listener){
         if(mListeners.contains(listener) == false){
@@ -32,7 +30,7 @@ public abstract class BaseScanMusic {
 
     }
 
-    public void notifyScaning(){
+    public void notifyScaning(String fileName, String filePath, int process){
 
     }
 

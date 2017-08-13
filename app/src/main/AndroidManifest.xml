@@ -20,18 +20,13 @@
     1
 
     <application
-        android:name=".PureMusicApplication"
+        android:name=".application.PureMusicApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="standard"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".LaunchActivity">
+        <activity android:name=".ui.splash.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -45,13 +40,13 @@
                 <data android:mimeType="audio/mpeg" />
             </intent-filter>
         </activity>
-        <activity android:name=".Welcome.WelcomeActivity" />
+        <activity android:name=".ui.splash.WelcomeActivity" />
         <activity android:name=".ScanMedia.ScanSongActivity" />
 
-        <service android:name=".Service.PlaybackService" />
+        <service android:name=".service.PlaybackService" />
 
         <activity
-            android:name=".HomePage.HomeActivity"
+            android:name=".ui.home.HomeActivity"
             android:configChanges="orientation|screenLayout"
             android:label="@string/title_activity_home"
             android:launchMode="singleTask"
@@ -84,7 +79,7 @@
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".Audio.BatchMgrAudioActivity"
+        <activity android:name=".ui.localmusic.BatchMgrAudioActivity"
             android:configChanges="orientation|screenLayout"
             android:screenOrientation="portrait"
             android:launchMode="standard"
@@ -96,21 +91,10 @@
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".HomePage.TestActivity"
-            android:configChanges="orientation|screenLayout"
-            android:screenOrientation="portrait"
-            android:launchMode="standard"/>
-
         <activity android:name=".HomePage.FavoriteEditInfoActivity"
             android:configChanges="orientation|screenLayout"
             android:screenOrientation="portrait"
             android:launchMode="standard"/>
-
-        <activity android:name=".NetAudio.AlbumMainFragment"
-            android:configChanges="orientation|screenLayout"
-            android:screenOrientation="portrait"
-            android:launchMode="standard"
-            android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity android:name=".ui.netmusic.tuijian.ArtistSelActivity"
             android:screenOrientation="portrait"

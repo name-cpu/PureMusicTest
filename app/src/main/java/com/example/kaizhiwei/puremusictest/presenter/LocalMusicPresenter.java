@@ -2,7 +2,7 @@ package com.example.kaizhiwei.puremusictest.presenter;
 
 import android.os.Message;
 
-import com.example.kaizhiwei.puremusictest.Util.BusinessCode;
+import com.example.kaizhiwei.puremusictest.util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.base.BaseHandler;
 import com.example.kaizhiwei.puremusictest.contract.LocalMusicContract;
 import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;

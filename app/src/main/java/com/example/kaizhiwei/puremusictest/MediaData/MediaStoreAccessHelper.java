@@ -7,7 +7,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 
-import com.example.kaizhiwei.puremusictest.PureMusicApplication;
+import com.example.kaizhiwei.puremusictest.application.PureMusicApplication;
 
 /**
  * Created by kaizhiwei on 16/10/29.

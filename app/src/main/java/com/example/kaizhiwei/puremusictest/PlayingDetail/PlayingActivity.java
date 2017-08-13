@@ -1,21 +1,19 @@
 package com.example.kaizhiwei.puremusictest.PlayingDetail;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.kaizhiwei.puremusictest.Audio.PlayListDialog;
-import com.example.kaizhiwei.puremusictest.Audio.PlayListViewAdapter;
+import com.example.kaizhiwei.puremusictest.ui.localmusic.PlayListDialog;
+import com.example.kaizhiwei.puremusictest.ui.localmusic.PlayListViewAdapter;
 import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
@@ -23,7 +21,7 @@ import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
+import com.example.kaizhiwei.puremusictest.service.PlaybackService;
 import com.viewpagerindicator.CirclePageIndicator;
 
 import org.videolan.libvlc.Media;

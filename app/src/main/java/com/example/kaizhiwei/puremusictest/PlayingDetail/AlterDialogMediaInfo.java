@@ -4,17 +4,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
-import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.Util.StringUtil;
-import com.hp.hpl.sparta.Text;
 
-import java.io.File;
-import java.util.List;
+import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
+import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.util.StringUtil;
+
 /**
  * Created by 24820 on 2016/12/14.
  */

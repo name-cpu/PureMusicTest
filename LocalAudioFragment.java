@@ -42,7 +42,7 @@ import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.ScanMedia.ScanMediaActivity;
-import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
+import com.example.kaizhiwei.puremusictest.service.PlaybackService;
 
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;

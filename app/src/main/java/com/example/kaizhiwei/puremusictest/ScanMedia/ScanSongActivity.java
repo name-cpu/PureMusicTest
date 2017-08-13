@@ -8,17 +8,18 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.kaizhiwei.puremusictest.AsyncTask.AsyncTaskScanPath;
+import com.example.kaizhiwei.puremusictest.model.scanmusic.ExternFileSource;
 import com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaScanHelper;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.model.scanmusic.IScanListener;
 
 import java.util.HashMap;
 
 /**
  * Created by kaizhiwei on 16/10/30.
  */
-public class ScanSongActivity extends FragmentActivity implements CommonTitleView.onTitleClickListener, View.OnClickListener, AsyncTaskScanPath.ScanResultListener {
+public class ScanSongActivity extends FragmentActivity implements CommonTitleView.onTitleClickListener, View.OnClickListener, IScanListener {
     private CommonTitleView mTitleView;
     private Button btnStartScan;
     private Button btnSetScan;
@@ -47,7 +48,7 @@ public class ScanSongActivity extends FragmentActivity implements CommonTitleVie
         textViewScaningFile = (TextView)findViewById(R.id.textViewScaningFile);
         textViewScanResult = (TextView)findViewById(R.id.textViewScanResult);
 
-        MediaScanHelper.getInstance().addScanListener(this);
+        //MediaScanHelper.getInstance().addScanListener(this);
     }
 
     @Override
@@ -86,17 +87,18 @@ public class ScanSongActivity extends FragmentActivity implements CommonTitleVie
     }
 
     @Override
-    public void onScaning(int process, String strFilePath,final boolean bAudioFile) {
+    public void onProcess(String fileName, String filePath, int process) {
         textViewScanProgress.setText("扫描中:"+process +"%");
-        textViewScaningFile.setText("正在扫描:" + strFilePath);
-        if(bAudioFile){
+        textViewScaningFile.setText("正在扫描:" + filePath);
+        //if(bAudioFile)
+        {
             mSongInc++;
             textViewScanResult.setText("扫描到"+mSongInc+"首歌曲");
         }
     }
 
     @Override
-    public void onScanCompleted(HashMap<String, String> mapResult, int filterNum) {
+    public void onScanFinish() {
 
     }
 }

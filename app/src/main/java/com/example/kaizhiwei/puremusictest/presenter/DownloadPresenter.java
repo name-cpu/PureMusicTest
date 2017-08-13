@@ -3,7 +3,7 @@ package com.example.kaizhiwei.puremusictest.presenter;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.kaizhiwei.puremusictest.PureMusicApplication;
+import com.example.kaizhiwei.puremusictest.application.PureMusicApplication;
 import com.example.kaizhiwei.puremusictest.contract.DownloadContract;
 import com.example.kaizhiwei.puremusictest.download.ProgressHelper;
 import com.example.kaizhiwei.puremusictest.download.ProgressUIListener;

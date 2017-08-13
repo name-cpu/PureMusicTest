@@ -8,7 +8,7 @@
         android:layout_height="65dp"
         android:background="@drawable/default_selector"
         android:weightSum="2">
-        <com.example.kaizhiwei.puremusictest.Audio.PlayingAnimView
+        <com.example.kaizhiwei.puremusictest.ui.localmusic.PlayingAnimView
             android:id="@+id/playingAnimView"
             android:layout_width="40dp"
             android:layout_height="40dp"

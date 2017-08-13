@@ -3,33 +3,25 @@ package com.example.kaizhiwei.puremusictest.HomePage;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.example.kaizhiwei.puremusictest.Audio.AudioListViewAdapter;
-import com.example.kaizhiwei.puremusictest.Audio.BatchMgrAudioActivity;
-import com.example.kaizhiwei.puremusictest.Audio.LocalBaseMediaLayout;
-import com.example.kaizhiwei.puremusictest.Audio.MoreOperationDialog;
+import com.example.kaizhiwei.puremusictest.ui.localmusic.AudioListViewAdapter;
+import com.example.kaizhiwei.puremusictest.ui.localmusic.BatchMgrAudioActivity;
+import com.example.kaizhiwei.puremusictest.ui.localmusic.LocalBaseMediaLayout;
+import com.example.kaizhiwei.puremusictest.ui.localmusic.MoreOperationDialog;
 import com.example.kaizhiwei.puremusictest.CommonUI.BaseFragment;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
@@ -37,16 +29,13 @@ import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.Util.FastBlur;
-import com.example.kaizhiwei.puremusictest.Util.ImageUtil;
-import com.hp.hpl.sparta.Text;
+import com.example.kaizhiwei.puremusictest.ui.home.HomeActivity;
+import com.example.kaizhiwei.puremusictest.util.ImageUtil;
 
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import jp.wasabeef.glide.transformations.BlurTransformation;
 
 /**
  * Created by kaizhiwei on 17/1/11.

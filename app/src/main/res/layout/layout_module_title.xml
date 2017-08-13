@@ -43,7 +43,7 @@
             android:textSize="12sp"
             android:textColor="@color/gray"/>
     </LinearLayout>
-    <com.example.kaizhiwei.puremusictest.NetAudio.AutoHeightGridView
+    <com.example.kaizhiwei.puremusictest.widget.AutoHeightGridView
         android:id="@+id/gvModule"
         android:layout_marginTop="5dp"
         android:horizontalSpacing="5dp"

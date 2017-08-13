@@ -2,13 +2,11 @@ package com.example.kaizhiwei.puremusictest.presenter;
 
 import android.os.Message;
 
-import com.example.kaizhiwei.puremusictest.NetAudio.NetEngine;
-import com.example.kaizhiwei.puremusictest.Util.BusinessCode;
+import com.example.kaizhiwei.puremusictest.util.net.NetEngine;
+import com.example.kaizhiwei.puremusictest.util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.api.ApiService;
 import com.example.kaizhiwei.puremusictest.base.BaseHandler;
 import com.example.kaizhiwei.puremusictest.bean.ActiveIndexBean;
-import com.example.kaizhiwei.puremusictest.bean.ArtistGetListBean;
-import com.example.kaizhiwei.puremusictest.bean.ArtistGetSongListBean;
 import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
@@ -19,7 +17,6 @@ import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.ResetServerContract;
 import com.example.kaizhiwei.puremusictest.domin.RetrofitClient;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 

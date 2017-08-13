@@ -27,13 +27,14 @@ public class MediaStoreSource extends BaseScanMusic {
         return mListMusicInfos;
     }
 
-    public void scan(BaseHandler handler){
+    @Override
+    public void scan(BaseHandler handler) {
         new BaseRunnable(handler) {
             @Override
             public void doBusiness() throws Exception {
                 mListMusicInfos = new ArrayList<>();
-                Cursor c = mContext.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,null);
-                if(c!=null) {
+                Cursor c = mContext.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
+                if (c != null) {
                     MusicInfoDao musicInfoDao;
                     while (c.moveToNext()) {
                         musicInfoDao = new MusicInfoDao();
@@ -61,20 +62,5 @@ public class MediaStoreSource extends BaseScanMusic {
                 }
             }
         };
-    }
-
-    @Override
-    public void onStart() {
-
-    }
-
-    @Override
-    public void onScaning(String fileName, String filePath, int persent) {
-
-    }
-
-    @Override
-    public void onFinish() {
-
     }
 }

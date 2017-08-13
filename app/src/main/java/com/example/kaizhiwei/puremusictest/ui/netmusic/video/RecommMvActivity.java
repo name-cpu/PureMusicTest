@@ -3,7 +3,7 @@ package com.example.kaizhiwei.puremusictest.ui.netmusic.video;
 import android.support.v7.widget.GridLayoutManager;
 import com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView;
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
+import com.example.kaizhiwei.puremusictest.util.DeviceUtil;
 import com.example.kaizhiwei.puremusictest.base.MyBaseActivity;
 import com.example.kaizhiwei.puremusictest.bean.RecommMvBean;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;

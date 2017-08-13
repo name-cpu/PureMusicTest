@@ -12,7 +12,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.Util.SystemBarTintManager;
+import com.example.kaizhiwei.puremusictest.util.SystemBarTintManager;
 
 import butterknife.ButterKnife;
 

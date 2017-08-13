@@ -5,7 +5,7 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
-import com.example.kaizhiwei.puremusictest.AsyncTask.AsyncTaskScanPath;
+import com.example.kaizhiwei.puremusictest.model.scanmusic.ExternFileSource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,10 +15,9 @@ import java.util.Set;
 /**
  * Created by kaizhiwei on 16/10/30.
  */
-public class MediaScanHelper implements AsyncTaskScanPath.ScanResultListener{
+public class MediaScanHelper{
     private volatile static MediaScanHelper instance;
     private Context mContext;
-    private List<AsyncTaskScanPath.ScanResultListener> mListListener;
     private static final int WHAT_SCAN_START = 1001;
     private static final int WHAT_SCAN_ING = 1002;
     private static final int WHAT_SCAN_COMPLETED = 1003;
@@ -34,20 +33,6 @@ public class MediaScanHelper implements AsyncTaskScanPath.ScanResultListener{
             instance = new MediaScanHelper();
         }
         return instance;
-    }
-
-    public void addScanListener(AsyncTaskScanPath.ScanResultListener listener){
-        if(mListListener == null){
-            mListListener = new ArrayList<AsyncTaskScanPath.ScanResultListener>();
-        }
-        mListListener.add(listener);
-    }
-
-    public void removeScanListener(AsyncTaskScanPath.ScanResultListener listener){
-        if(listener == null || mListListener == null)
-            return;
-
-        mListListener.remove(listener);
     }
 
     /**
@@ -68,76 +53,9 @@ public class MediaScanHelper implements AsyncTaskScanPath.ScanResultListener{
      */
     public void scanFiles(Context context, List<String> filePaths){
         mContext = context;
-        AsyncTaskScanPath task = new AsyncTaskScanPath(this, filePaths);
+        ExternFileSource task = new ExternFileSource(filePaths);
         task.setMinMediaDuration(PreferenceConfig.getInstance().getScanFilterByDuration() ? 60 : 0);
         task.setFilterFolderPath(PreferenceConfig.getInstance().getScanFilterByFolderName());
-        task.execute();
-    }
-
-    @Override
-    public void onScanStart() {
-        if(mListListener == null || mListListener.size() == 0)
-            return ;
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                for(int i = 0; i < mListListener.size();i++){
-                    AsyncTaskScanPath.ScanResultListener listener = mListListener.get(i);
-                    if(listener == null)
-                        continue;
-
-                    listener.onScanStart();
-                }
-            }
-        });
-    }
-
-    @Override
-    public void onScaning(final int process, final String strFilePath,final boolean bAudioFile) {
-        if(mListListener == null || mListListener.size() == 0)
-            return ;
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                for(int i = 0; i < mListListener.size();i++){
-                    AsyncTaskScanPath.ScanResultListener listener = mListListener.get(i);
-                    if(listener == null)
-                        continue;
-
-                    listener.onScaning(process, strFilePath, bAudioFile);
-                }
-            }
-        });
-    }
-
-    @Override
-    public void onScanCompleted(final HashMap<String, String> mapResult,final int filterNum) {
-        if(mListListener == null || mListListener.size() == 0)
-            return ;
-
-        Set<String> keySet = mapResult.keySet();
-        List<ScanFile> listScanFile = new ArrayList<>();
-        for (String s : keySet){
-            String format = mapResult.get(s);
-            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(format);
-            ScanFile scanFile = new ScanFile(s, mimeType);
-            listScanFile.add(scanFile);
-        }
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                for(int i = 0; i < mListListener.size();i++){
-                    AsyncTaskScanPath.ScanResultListener listener = mListListener.get(i);
-                    if(listener == null)
-                        continue;
-
-                    listener.onScanCompleted(mapResult, filterNum);
-                }
-            }
-        });
     }
 }
 

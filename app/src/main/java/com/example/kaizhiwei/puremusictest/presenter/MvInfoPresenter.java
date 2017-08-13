@@ -2,8 +2,8 @@ package com.example.kaizhiwei.puremusictest.presenter;
 
 import android.os.Message;
 
-import com.example.kaizhiwei.puremusictest.NetAudio.NetEngine;
-import com.example.kaizhiwei.puremusictest.Util.BusinessCode;
+import com.example.kaizhiwei.puremusictest.util.net.NetEngine;
+import com.example.kaizhiwei.puremusictest.util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.api.ApiService;
 import com.example.kaizhiwei.puremusictest.base.BaseHandler;
 import com.example.kaizhiwei.puremusictest.bean.MvCategoryBean;

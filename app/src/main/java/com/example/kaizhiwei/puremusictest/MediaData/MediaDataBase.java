@@ -6,7 +6,7 @@ import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.kaizhiwei.puremusictest.PureMusicApplication;
+import com.example.kaizhiwei.puremusictest.application.PureMusicApplication;
 
 import java.util.ArrayList;
 import java.util.List;

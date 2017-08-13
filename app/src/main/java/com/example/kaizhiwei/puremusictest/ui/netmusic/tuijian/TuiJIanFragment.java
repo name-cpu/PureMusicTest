@@ -14,7 +14,7 @@ import android.widget.ScrollView;
 
 import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.CommonUI.MySwipeRefreshLayout;
-import com.example.kaizhiwei.puremusictest.NetAudio.AutoHeightGridView;
+import com.example.kaizhiwei.puremusictest.widget.AutoHeightGridView;
 import com.example.kaizhiwei.puremusictest.ui.netmusic.moduleview.ModuleItemAdapter;
 import com.example.kaizhiwei.puremusictest.ui.netmusic.moduleview.ModuleItemView;
 import com.example.kaizhiwei.puremusictest.R;
@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
-import com.example.kaizhiwei.puremusictest.Util.FadingEdgeUtil;
+import com.example.kaizhiwei.puremusictest.util.DeviceUtil;
+import com.example.kaizhiwei.puremusictest.util.FadingEdgeUtil;
 import com.example.kaizhiwei.puremusictest.base.MyBaseFragment;
 import com.example.kaizhiwei.puremusictest.bean.ActiveIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.DiyGeDanInfoBean;

@@ -1,15 +1,11 @@
 package com.example.kaizhiwei.puremusictest.MediaData;
 
-import android.bluetooth.BluetoothAssignedNumbers;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.example.kaizhiwei.puremusictest.PureMusicApplication;
-
-import org.w3c.dom.DOMStringList;
+import com.example.kaizhiwei.puremusictest.application.PureMusicApplication;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;

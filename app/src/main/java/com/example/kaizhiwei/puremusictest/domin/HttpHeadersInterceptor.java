@@ -1,7 +1,6 @@
 package com.example.kaizhiwei.puremusictest.domin;
 
-import com.example.kaizhiwei.puremusictest.NetAudio.Entity.NetConfig;
-import com.example.kaizhiwei.puremusictest.Util.DeviceUtil;
+import com.example.kaizhiwei.puremusictest.util.DeviceUtil;
 
 import java.io.IOException;
 

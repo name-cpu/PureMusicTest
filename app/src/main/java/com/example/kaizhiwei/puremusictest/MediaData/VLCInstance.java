@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import com.example.kaizhiwei.puremusictest.PureMusicApplication;
+import com.example.kaizhiwei.puremusictest.application.PureMusicApplication;
 
 import org.videolan.libvlc.LibVLC;
 

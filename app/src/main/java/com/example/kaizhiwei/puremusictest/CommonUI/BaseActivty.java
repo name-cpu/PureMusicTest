@@ -11,7 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.Util.SystemBarTintManager;
+import com.example.kaizhiwei.puremusictest.util.SystemBarTintManager;
 
 /**
  * Created by kaizhiwei on 16/12/25.

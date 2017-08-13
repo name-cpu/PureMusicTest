@@ -2,7 +2,7 @@ package com.example.kaizhiwei.puremusictest.dao;
 
 import android.os.Environment;
 
-import com.example.kaizhiwei.puremusictest.PureMusicApplication;
+import com.example.kaizhiwei.puremusictest.application.PureMusicApplication;
 
 import org.xutils.DbManager;
 import org.xutils.db.table.TableEntity;

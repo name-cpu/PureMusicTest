@@ -5,4 +5,7 @@ package com.example.kaizhiwei.puremusictest.model.scanmusic;
  */
 
 public interface IScanListener {
+    void onScanStart();
+    void onProcess(String fileName, String filePath, int process);
+    void onScanFinish();
 }
