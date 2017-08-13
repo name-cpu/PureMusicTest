@@ -6,10 +6,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 
-import com.example.kaizhiwei.puremusictest.NetAudio.bangdan.BangDanFragment;
-import com.example.kaizhiwei.puremusictest.NetAudio.gedan.GeDanFragment;
-import com.example.kaizhiwei.puremusictest.NetAudio.tuijian.TuiJIanFragment;
-import com.example.kaizhiwei.puremusictest.NetAudio.video.VideoFragment;
+import com.example.kaizhiwei.puremusictest.ui.netmusic.bangdan.BangDanFragment;
+import com.example.kaizhiwei.puremusictest.ui.netmusic.gedan.GeDanFragment;
+import com.example.kaizhiwei.puremusictest.ui.netmusic.tuijian.TuiJIanFragment;
+import com.example.kaizhiwei.puremusictest.ui.netmusic.video.VideoFragment;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.base.MyBaseFragment;
 

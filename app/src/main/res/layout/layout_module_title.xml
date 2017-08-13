@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white">
+    <LinearLayout
+        android:id="@+id/llTitle"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:weightSum="1">
+        <TextView
+            android:layout_width="4dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:background="@drawable/title_tag_shape"/>
+        <ImageView
+            android:id="@+id/imModuleLogo"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:src="@drawable/ic_launcher" />
+        <TextView
+            android:layout_marginLeft="5dp"
+            android:id="@+id/tvModuleName"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="新碟上架"
+            android:drawablePadding="5dp"
+            style="@style/DefaultMainTextView"
+            android:gravity="center_vertical"
+            android:textSize="14sp"/>
+        <TextView
+            android:id="@+id/tvTitleMore"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:drawableRight="@drawable/icon_option_setting_arrow"
+            android:text="更多"
+            android:drawablePadding="2dp"
+            android:gravity="center_vertical"
+            android:textSize="12sp"
+            android:textColor="@color/gray"/>
+    </LinearLayout>
+    <com.example.kaizhiwei.puremusictest.NetAudio.AutoHeightGridView
+        android:id="@+id/gvModule"
+        android:layout_marginTop="5dp"
+        android:horizontalSpacing="5dp"
+        android:verticalSpacing="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:numColumns="3"
+        android:scrollbars="none"
+        android:listSelector="@android:color/transparent"
+        android:cacheColorHint="@android:color/transparent" />
+</LinearLayout>

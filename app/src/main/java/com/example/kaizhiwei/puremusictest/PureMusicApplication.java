@@ -13,6 +13,9 @@ import com.example.kaizhiwei.puremusictest.MediaData.SongEntity;
 import com.example.kaizhiwei.puremusictest.Service.PlaybackService;
 import com.example.kaizhiwei.puremusictest.download.ProgressHelper;
 import com.example.kaizhiwei.puremusictest.download.ProgressUIListener;
+import com.example.kaizhiwei.puremusictest.model.scanmusic.MediaModel;
+
+import org.xutils.x;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +49,9 @@ public class PureMusicApplication extends Application {
         super.onCreate();
         instance = this;
         mContext = getApplicationContext();
+        MediaModel.getInstance().init(mContext);
+        x.Ext.init(this);
+        x.Ext.setDebug(true); // 是否输出debug日志
 
 //        String url = "http://assets.geilicdn.com/channelapk/1000n_shurufa_1.9.6.apk";
 //

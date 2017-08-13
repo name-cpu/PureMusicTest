@@ -19,6 +19,7 @@ import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 import com.example.kaizhiwei.puremusictest.contract.ResetServerContract;
 import com.example.kaizhiwei.puremusictest.domin.RetrofitClient;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -205,6 +206,8 @@ public class ResetServerPresenter implements ResetServerContract.Presenter {
 //                });
 //        subscriptions.add(subscriber);
     }
+
+
 
     @Override
     public void getUgcdiyBaseInfo(String from, String version, String ppzs, int operator, String method, String param, String timestamp, String sign) {

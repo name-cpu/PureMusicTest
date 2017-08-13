@@ -185,7 +185,7 @@ public class LocalMusicMainFragment extends Fragment implements View.OnClickList
             favoriteLayout.insertView(1, favoriteEntity);
 //            boolean bSuccess = false;
 //            for(int i = 0;i < mListMediaEntity.size();i++){
-//                MediaEntity mediaEntity = mListMediaEntity.get(i);
+//                MusicInfoDao mediaEntity = mListMediaEntity.get(i);
 //                if(mediaEntity == null)
 //                    continue;
 //

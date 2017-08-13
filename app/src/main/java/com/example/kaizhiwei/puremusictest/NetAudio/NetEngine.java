@@ -13,9 +13,13 @@ import com.example.kaizhiwei.puremusictest.base.BaseHandler;
 import com.example.kaizhiwei.puremusictest.base.BaseRunnable;
 import com.example.kaizhiwei.puremusictest.constant.PureMusicContant;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -115,7 +119,6 @@ public class NetEngine {
     }
 
     private NetResponse executeRequest(String strUrl, String strRequestMethod){
-        Log.i("weikaizhi", "request url: " + strUrl);
         try {
             URL url = new URL(strUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -124,19 +127,23 @@ public class NetEngine {
             connection.setConnectTimeout(5000);
             connection.setDoInput(true);
 
-            StringBuilder sb = new StringBuilder();
             NetResponse response = new NetResponse();
             response.setResponseCode(connection.getResponseCode());
             if (connection.getResponseCode() == 200) {
                 InputStream in = connection.getInputStream();
                 int len = 0;
                 byte[] buf = new byte[1024];
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
                 while ((len = in.read(buf)) != -1) {
-                    sb.append(new String(buf, 0, len, "utf-8"));
+                    buffer.write(buf, 0, len);
                 }
                 in.close();
-                response.setResponseBody(sb.toString());
+
+                URLDecoder ud = new URLDecoder();
+                String str = ud.decode(new String(buffer.toByteArray()), "utf-8");
+                response.setResponseBody(str);
             }
+
             return response;
         }
         catch (Exception e){

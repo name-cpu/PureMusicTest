@@ -227,7 +227,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
 
        // Intent intent =  getIntent();
         //Bundle extras = intent.getExtras();
-        //MediaEntity mediaEntity = (MediaEntity)extras.getParcelable(PLAYING_MEDIA_ENTITY);
+        //MusicInfoDao mediaEntity = (MusicInfoDao)extras.getParcelable(PLAYING_MEDIA_ENTITY);
         initUI();
     }
 

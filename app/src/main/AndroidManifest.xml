@@ -112,65 +112,65 @@
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".NetAudio.tuijian.ArtistSelActivity"
+        <activity android:name=".ui.netmusic.tuijian.ArtistSelActivity"
             android:screenOrientation="portrait"
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".NetAudio.tuijian.ArtistArtistListActivity"
+        <activity android:name=".ui.netmusic.tuijian.ArtistArtistListActivity"
             android:screenOrientation="portrait"
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".NetAudio.tuijian.ArtistSongListActivity"
+        <activity android:name=".ui.netmusic.tuijian.ArtistSongListActivity"
             android:screenOrientation="portrait"
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".NetAudio.tuijian.ArtistAlbumInfoActivity"
+        <activity android:name=".ui.netmusic.tuijian.ArtistAlbumInfoActivity"
             android:screenOrientation="portrait"
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".NetAudio.tuijian.HotArtistActivity"
+        <activity android:name=".ui.netmusic.tuijian.HotArtistActivity"
             android:screenOrientation="portrait"
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".NetAudio.tuijian.SongCategaryActivity"
+        <activity android:name=".ui.netmusic.tuijian.SongCategaryActivity"
             android:screenOrientation="portrait"
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".NetAudio.tuijian.TagSongListActivity"
+        <activity android:name=".ui.netmusic.tuijian.TagSongListActivity"
             android:screenOrientation="portrait"
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".NetAudio.gedan.GeDanSongListActivity"
+        <activity android:name=".ui.netmusic.gedan.GeDanSongListActivity"
             android:screenOrientation="portrait"
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".NetAudio.bangdan.BangDanSongListActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="standard"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
-        <activity android:name=".NetAudio.video.PlayMvActivity"
+        <activity android:name=".ui.netmusic.bangdan.BangDanSongListActivity"
             android:screenOrientation="portrait"
             android:launchMode="standard"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".NetAudio.video.MvCategoryActivity"
+        <activity android:name=".ui.netmusic.video.PlayMvActivity"
             android:screenOrientation="portrait"
             android:launchMode="standard"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".NetAudio.video.RecommMvActivity"
+        <activity android:name=".ui.netmusic.video.MvCategoryActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="standard"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".ui.netmusic.video.RecommMvActivity"
             android:screenOrientation="portrait"
             android:launchMode="standard"
             android:configChanges="orientation|keyboardHidden|screenSize"

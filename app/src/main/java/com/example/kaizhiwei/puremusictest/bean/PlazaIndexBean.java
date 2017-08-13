@@ -17,34 +17,69 @@ public class PlazaIndexBean {
     public List<ModBean> mListMod;
     public DiyBean mDiy;
     public FocusBean mFocus;
-    public ShowList mShowList;
+    public ShowListBean mShowList;
     public EntryBean mEntity;
-    public RecSong mRecSong;
+    public RecSongBean mRecSong;
     public RadioBean mRadio;
     public ModuleBean mModule;
     public KingBean mKing;
     public NewSongBean mNewSong;
     public SceneBean mSceneBean;
 
-    public MixBean findMixDataByModuleKey(String strKey){
-        if(mListMix == null || TextUtils.isEmpty(strKey))
+    public ModuleItem getModuleItemByModuleKey(String strKey){
+        if(TextUtils.isEmpty(strKey) || mModule == null || mModule.listModule == null)
             return null;
 
-        for(int i = 0;i < mListMix.size();i++){
-            if(mListMix.get(i).moduleKey.equalsIgnoreCase(strKey))
-                return mListMix.get(i);
+        for(int i = 0;i < mModule.listModule.size();i++){
+            if(mModule.listModule.get(i).key.equalsIgnoreCase(strKey)){
+                return mModule.listModule.get(i);
+            }
         }
 
         return null;
     }
 
-    public ModBean findModDataByModuleKey(String strKey){
-        if(mListMod == null || TextUtils.isEmpty(strKey))
+    public Object getModuleContentByModuleKey(String strKey){
+        if(TextUtils.isEmpty(strKey))
             return null;
 
-        for(int i = 0;i < mListMod.size();i++){
-            if(mListMod.get(i).moduleKey.equalsIgnoreCase(strKey))
-                return mListMod.get(i);
+        if(strKey.contains("mix")){
+            for(int i = 0;i < mListMix.size();i++){
+                if(mListMix.get(i).moduleKey.equalsIgnoreCase(strKey)){
+                    return mListMix.get(i);
+                }
+            }
+        }
+        else if(strKey.contains("mod")){
+            for(int i = 0;i < mListMod.size();i++){
+                if(mListMod.get(i).moduleKey.equalsIgnoreCase(strKey)){
+                    return mListMod.get(i);
+                }
+            }
+        }
+        else if(strKey.contains("radio")){
+            return mRadio;
+        }
+        else if(strKey.contains("king")){
+            return mKing;
+        }
+        else if(strKey.contains("new_song")){
+            return mNewSong;
+        }
+        else if(strKey.contains("scene")){
+            return mSceneBean;
+        }
+        else if(strKey.contains("show_list")){
+            return mShowList;
+        }
+        else if(strKey.contains("recsong")){
+            return mRecSong;
+        }
+        else if(strKey.contains("focus")){
+            return mFocus;
+        }
+        else if(strKey.contains("diy")){
+            return mDiy;
         }
 
         return null;
@@ -104,7 +139,7 @@ public class PlazaIndexBean {
                 }
 
                 if(rootResult.has("show_list")){
-                    mShowList = new ShowList();
+                    mShowList = new ShowListBean();
                     mShowList.parser(rootResult.getJSONObject("show_list"));
                 }
 
@@ -114,7 +149,7 @@ public class PlazaIndexBean {
                 }
 
                 if(rootResult.has("recsong")){
-                    mRecSong = new RecSong();
+                    mRecSong = new RecSongBean();
                     mRecSong.parser(rootResult.getJSONObject("recsong"));
                 }
 
@@ -169,27 +204,23 @@ public class PlazaIndexBean {
     }
 
     static public class DiyItem{
-        public int position;
-        public String tag;
-        public String songidlist;
+        public String author;
         public String pic;
+        public String type_id;
         public String title;
-        public int collectnum;
-        public String type;
-        public int listenum;
-        public String listid;
+        public int type;
+        public String desc;
+        public int tip_type;
 
         public void parser(JSONObject obj){
             try {
-                position = obj.getInt("position");
-                tag = obj.getString("tag");
-                songidlist = obj.getString("songidlist");
+                author = obj.getString("author");
                 pic = obj.getString("pic");
+                type_id = obj.getString("type_id");
                 title = obj.getString("title");
-                collectnum = obj.getInt("collectnum");
-                type = obj.getString("type");
-                listenum = obj.getInt("listenum");
-                listid = obj.getString("listid");
+                type = obj.getInt("type");
+                desc = obj.getString("desc");
+                tip_type = obj.getInt("tip_type");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -429,17 +460,37 @@ public class PlazaIndexBean {
         public String title_more;
         public int style;
         public String jump;
+        public String style_nums;
 
         public void parser(JSONObject obj){
             try {
-                link_url = obj.getString("link_url");
-                pos = obj.getInt("pos");
-                title = obj.getString("title");
-                key = obj.getString("key");
-                picurl = obj.getString("picurl");
-                title_more = obj.getString("title_more");
-                style = obj.getInt("style");
-                jump = obj.getString("jump");
+                if(obj.has("link_url")){
+                    link_url = obj.getString("link_url").trim();
+                }
+                if(obj.has("pos")){
+                    pos = obj.getInt("pos");
+                }
+                if(obj.has("title")){
+                    title = obj.getString("title").trim();
+                }
+                if(obj.has("key")){
+                    key = obj.getString("key").trim();
+                }
+                if(obj.has("picurl")){
+                    picurl = obj.getString("picurl").trim();
+                }
+                if(obj.has("title_more")){
+                    title_more = obj.getString("title_more").trim();
+                }
+                if(obj.has("style")){
+                    style = obj.getInt("style");
+                }
+                if(obj.has("jump")){
+                    jump = obj.getString("jump").trim();
+                }
+                if(obj.has("style_nums")){
+                    style_nums = obj.getString("style_nums").trim();
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -491,7 +542,7 @@ public class PlazaIndexBean {
         }
     }
 
-    static public class RecSong{
+    static public class RecSongBean {
         public int error_code;
         public List<RecSongItem> listRecSongItem;
 
@@ -544,7 +595,7 @@ public class PlazaIndexBean {
         }
     }
 
-    static public class ShowList{
+    static public class ShowListBean {
         public int error_code;
         public List<ShowListItem> listShowListItem;
 
