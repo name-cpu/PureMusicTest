@@ -113,4 +113,70 @@ public class LocalMusicPresenter implements LocalMusicContract.Presenter {
             }
         });
     }
+
+    @Override
+    public void queryMusicInfosByName(String songName) {
+        MediaModel.getInstance().asyncQueryMusicInfosByName(songName, new BaseHandler() {
+            @Override
+            public void handleBusiness(Message msg) {
+                int what = msg.what;
+                List<MusicInfoDao> list = null;
+                if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
+                    list = (List<MusicInfoDao>)msg.obj;
+                    if(mView != null){
+                        mView.onQueryMusicInfosByName(list);
+                    }
+                }
+                else{
+                    if(mView != null){
+                        mView.onError("");
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void queryMusicInfosByArist(String artist) {
+        MediaModel.getInstance().asyncQueryMusicInfosByArtist(artist, new BaseHandler() {
+            @Override
+            public void handleBusiness(Message msg) {
+                int what = msg.what;
+                List<MusicInfoDao> list = null;
+                if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
+                    list = (List<MusicInfoDao>)msg.obj;
+                    if(mView != null){
+                        mView.onQueryMusicInfosByArist(list);
+                    }
+                }
+                else{
+                    if(mView != null){
+                        mView.onError("");
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void queryMuisicInfosByAlbum(String album) {
+        MediaModel.getInstance().asyncQueryMusicInfosByAlbum(album, new BaseHandler() {
+            @Override
+            public void handleBusiness(Message msg) {
+                int what = msg.what;
+                List<MusicInfoDao> list = null;
+                if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
+                    list = (List<MusicInfoDao>)msg.obj;
+                    if(mView != null){
+                        mView.onQueryMuisicInfosByAlbum(list);
+                    }
+                }
+                else{
+                    if(mView != null){
+                        mView.onError("");
+                    }
+                }
+            }
+        });
+    }
 }

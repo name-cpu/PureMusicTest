@@ -66,11 +66,11 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
     private List<Integer> mListMoreOperData;
 
     private LocalMusicPresenter mPresenter;
+    private String mSearchKey;
 
     //加载控件
     private RelativeLayout rlLoading;
     private ProgressBar view_loading;
-    private Handler loadingHandler = new Handler();
     private ILocalBaseListener mListener;
 
     //删除文件对话框
@@ -239,14 +239,21 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
     }
 
     public void setSearchKey(String strKey){
-//        if(mAllSongAdapter != null){
-//            if(TextUtils.isEmpty(strKey)){
-//                mAllSongAdapter.clearSearchkKey();
-//            }
-//            else{
-//                mAllSongAdapter.setSearchKey(strKey);
-//            }
-//        }
+        mSearchKey = strKey;
+        if(mPresenter == null)
+            return;
+
+        indexLayout.setVisibility(View.GONE);
+        rlLoading.setVisibility(View.VISIBLE);
+        if(mType == LayoutType.ALLSONG){
+            mPresenter.queryMusicInfosByName(strKey);
+        }
+        else if(mType == LayoutType.ARTIST){
+            mPresenter.queryMusicInfosByArist(strKey);
+        }
+        else if(mType == LayoutType.ALBUM){
+            mPresenter.queryMuisicInfosByAlbum(strKey);
+        }
     }
 
     public void setFilterFolder(String strFolderName){
@@ -268,6 +275,8 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
     }
 
     public void initAdapterData(){
+        indexLayout.setVisibility(View.GONE);
+        rlLoading.setVisibility(View.VISIBLE);
         if(mType == LayoutType.ALLSONG){
             mPresenter.getAllMusicInfos();
         }
@@ -435,6 +444,21 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         mAdapter.setDatas(listData);
     }
 
+    @Override
+    public void onQueryMusicInfosByName(List<MusicInfoDao> list) {
+        onGetAllMusicInfos(list);
+    }
+
+    @Override
+    public void onQueryMusicInfosByArist(List<MusicInfoDao> list) {
+        onGetMusicInfosByArtist(list);
+    }
+
+    @Override
+    public void onQueryMuisicInfosByAlbum(List<MusicInfoDao> list) {
+        onGetMusicInfosByAlbum(list);
+    }
+
     //MediaLibrary.IMediaScanListener
     @Override
     public void onScanStart() {
@@ -455,8 +479,19 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         List<MusicInfoDao> listMusicInfoDao = new ArrayList<>();
         listMusicInfoDao.add(mPresenter.getMusicInfoById(entity.getId()));
 
-        if(mService != null){
-            //mService.play(, originalPosition);
+        if(mType == LayoutType.ALLSONG){
+            if(mService != null){
+                //mService.play(, originalPosition);
+            }
+        }
+        else if(mType == LayoutType.FOLDER){
+
+        }
+        else if(mType == LayoutType.ARTIST){
+
+        }
+        else{
+
         }
     }
 

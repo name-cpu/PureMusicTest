@@ -10,9 +10,11 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -45,7 +47,7 @@ public class LocalAudioFragment extends MyBaseFragment implements ViewPager.OnLo
     ViewPager mViewPager;
 
     private List<String> mListTitleData;
-    private List<View> mListViewData;
+    private List<View> mLayouts;
 
     private LocalBaseMediaLayout mAllSongFragement;
     private LocalBaseMediaLayout mSongFolderFragement;
@@ -82,37 +84,6 @@ public class LocalAudioFragment extends MyBaseFragment implements ViewPager.OnLo
     @Bind(R.id.mtvScanMedia)
     MyTextView mtvScanMedia;
 
-    private TextWatcher tvSearchTextWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            int curIndex = mViewPager.getCurrentItem();
-            switch (curIndex){
-                case 0:
-                    mAllSongFragement.setSearchKey(s.toString());
-                    break;
-                case 1:
-                    mSongFolderFragement.setSearchKey(s.toString());
-                    break;
-                case 2:
-                    mArtistFragement.setSearchKey(s.toString());
-                    break;
-                case 3:
-                    mAlbumFragement.setSearchKey(s.toString());
-                    break;
-            }
-        }
-    };
-
     private LocalBaseMediaLayout.ILocalBaseListener mSubFragmentListener= new LocalBaseMediaLayout.ILocalBaseListener() {
         @Override
         public void onFragmentInitFinish(LinearLayout fragment) {
@@ -147,23 +118,38 @@ public class LocalAudioFragment extends MyBaseFragment implements ViewPager.OnLo
         ivScan.setVisibility(View.VISIBLE);
         ivSort.setOnClickListener(this);
         ivSort.setVisibility(View.VISIBLE);
-        etSearchKey.addTextChangedListener(tvSearchTextWatcher);
+        etSearchKey.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
         etSearchKey.setFocusable(true);
         etSearchKey.setFocusableInTouchMode(true);
-        etSearchKey.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//        etSearchKey.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View v, boolean hasFocus) {
+//                if (!hasFocus) {
+//                    InputMethodManager imm = (InputMethodManager) getActivity()
+//                            .getSystemService(Context.INPUT_METHOD_SERVICE);
+//                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+//                }
+//                else{
+//                    InputMethodManager imm = (InputMethodManager) etSearchKey.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+//                    imm.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
+//                }
+//            }
+//        });
+
+        etSearchKey.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    InputMethodManager imm = (InputMethodManager) getActivity()
-                            .getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_SEARCH){
+                    int curPos = mViewPager.getCurrentItem();
+                    LocalBaseMediaLayout localBaseMediaLayout = (LocalBaseMediaLayout)mLayouts.get(curPos);
+                    localBaseMediaLayout.setSearchKey(v.getText().toString());
+                    return true;
                 }
-                else{
-                    InputMethodManager imm = (InputMethodManager) etSearchKey.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
-                }
+
+                return false;
             }
         });
+
         tvCancel.setOnClickListener(this);
 
         mListTitleData = new ArrayList<>();
@@ -173,13 +159,11 @@ public class LocalAudioFragment extends MyBaseFragment implements ViewPager.OnLo
         mListTitleData.add("专辑");
 
         mAllSongFragement = new LocalBaseMediaLayout(this.getActivity());
-        //mAllSongFragement.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, true, true, true);
         mAllSongFragement.setBaseMediaListener(mSubFragmentListener);
         mAllSongFragement.setType(LocalBaseMediaLayout.LayoutType.ALLSONG);
 
         mSongFolderFragement = new LocalBaseMediaLayout(this.getActivity());
         mSongFolderFragement.setBaseMediaListener(mSubFragmentListener);
-        //mSongFolderFragement.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_FOLDER, false, false, true);
         mSongFolderFragement.setType(LocalBaseMediaLayout.LayoutType.FOLDER);
 
         mArtistFragement = new LocalBaseMediaLayout(this.getActivity());
@@ -190,18 +174,18 @@ public class LocalAudioFragment extends MyBaseFragment implements ViewPager.OnLo
         mAlbumFragement.setBaseMediaListener(mSubFragmentListener);
         mAlbumFragement.setType(LocalBaseMediaLayout.LayoutType.ALBUM);
 
-        mListViewData = new ArrayList<>();
-        mListViewData.add(mAllSongFragement);
-        mListViewData.add(mSongFolderFragement);
-        mListViewData.add(mArtistFragement);
-        mListViewData.add(mAlbumFragement);
+        mLayouts = new ArrayList<>();
+        mLayouts.add(mAllSongFragement);
+        mLayouts.add(mSongFolderFragement);
+        mLayouts.add(mArtistFragement);
+        mLayouts.add(mAlbumFragement);
 
         mViewPager.setLongClickable(true);
         mViewPager.setOnLongClickListener(this);
         mViewPager.addOnPageChangeListener(this);
-        mViewPager.setOffscreenPageLimit(mListViewData.size());
+        mViewPager.setOffscreenPageLimit(mLayouts.size());
 
-        AudioViewPagerAdapter adapter = new AudioViewPagerAdapter(mListViewData, mListTitleData);
+        AudioViewPagerAdapter adapter = new AudioViewPagerAdapter(mLayouts, mListTitleData);
         mViewPager.setAdapter(adapter);
         mViewPager.setCurrentItem(0);
 

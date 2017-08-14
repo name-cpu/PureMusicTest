@@ -15,6 +15,10 @@ public interface LocalMusicContract {
         void getMusicInfosByFolder(String folder);
         void getMusicInfosByArtist(String artist);
         void getMusicInfosByAlbum(String album);
+
+        void queryMusicInfosByName(String songName);
+        void queryMusicInfosByArist(String artist);
+        void queryMuisicInfosByAlbum(String album);
     }
 
     interface View extends BaseContract.View {
@@ -22,6 +26,10 @@ public interface LocalMusicContract {
         void onGetMusicInfosByFolder(List<MusicInfoDao> list);
         void onGetMusicInfosByArtist(List<MusicInfoDao> list);
         void onGetMusicInfosByAlbum(List<MusicInfoDao> list);
+
+        void onQueryMusicInfosByName(List<MusicInfoDao> list);
+        void onQueryMusicInfosByArist(List<MusicInfoDao> list);
+        void onQueryMuisicInfosByAlbum(List<MusicInfoDao> list);
     }
 
 }

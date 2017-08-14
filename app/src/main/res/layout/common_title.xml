@@ -12,7 +12,9 @@
         android:paddingBottom="5dp"
         android:visibility="gone"
         android:background="@color/common_title_backgroundColor"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:focusableInTouchMode="true"
+        android:focusable="true">
         <EditText
             android:id="@+id/etSearchKey"
             android:layout_width="0dp"
@@ -21,11 +23,11 @@
             android:textSize="12sp"
             android:textColor="@color/subTextColor"
             android:background="@color/backgroundColor"
-            android:focusable="true"
             android:paddingLeft="10dp"
+            android:singleLine="true"
             android:maxLines="1"
-            android:focusableInTouchMode="true"
             android:hint="输入关键字,快速搜索"
+            android:imeOptions="actionSearch"
             android:textCursorDrawable="@drawable/color_cursor"/>
         <TextView
             android:id="@+id/tvCancel"

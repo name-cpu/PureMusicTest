@@ -1,15 +1,19 @@
 package com.example.kaizhiwei.puremusictest.model;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Message;
 import android.text.TextUtils;
 
+import com.example.kaizhiwei.puremusictest.base.BaseRunnable;
 import com.example.kaizhiwei.puremusictest.model.scanmusic.MediaStoreSource;
 import com.example.kaizhiwei.puremusictest.util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.base.BaseHandler;
 import com.example.kaizhiwei.puremusictest.dao.DaoManager;
 import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 
+import org.xutils.db.Selector;
+import org.xutils.db.sqlite.WhereBuilder;
 import org.xutils.ex.DbException;
 
 import java.io.File;
@@ -274,5 +278,59 @@ public class MediaModel {
         } catch (DbException e) {
             e.printStackTrace();
         }
+    }
+
+    public void asyncQueryMusicInfosByName(final String songName, final BaseHandler handler){
+        new BaseRunnable(handler){
+
+            @Override
+            public void doBusiness() throws Exception {
+                try {
+                    Selector<MusicInfoDao> cursor = DaoManager.getInstance().getDbManager().selector(MusicInfoDao.class).
+                        where(WhereBuilder.b("title", "like", "%%" + songName + "%%")).or(WhereBuilder.b("artist", "like", "%%" + songName + "%%"));
+                    final List<MusicInfoDao> list = cursor.findAll();
+                    handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, list).sendToTarget();
+                } catch (DbException e) {
+                    handler.obtainMessage(BusinessCode.BUSINESS_CODE_ERROR, null).sendToTarget();
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
+
+    public void asyncQueryMusicInfosByArtist(final String artist, final BaseHandler handler){
+        new BaseRunnable(handler){
+
+            @Override
+            public void doBusiness() throws Exception {
+                try {
+                    Selector<MusicInfoDao> cursor = DaoManager.getInstance().getDbManager().selector(MusicInfoDao.class).
+                            where(WhereBuilder.b("artist", "like", "%%" + artist + "%%"));
+                    final List<MusicInfoDao> list = cursor.findAll();
+                    handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, list).sendToTarget();
+                } catch (DbException e) {
+                    handler.obtainMessage(BusinessCode.BUSINESS_CODE_ERROR, null).sendToTarget();
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
+
+    public void asyncQueryMusicInfosByAlbum(final String album, final BaseHandler handler){
+        new BaseRunnable(handler){
+
+            @Override
+            public void doBusiness() throws Exception {
+                try {
+                    Selector<MusicInfoDao> cursor = DaoManager.getInstance().getDbManager().selector(MusicInfoDao.class).
+                            where(WhereBuilder.b("album", "like", "%%" + album + "%%"));
+                    final List<MusicInfoDao> list = cursor.findAll();
+                    handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, list).sendToTarget();
+                } catch (DbException e) {
+                    handler.obtainMessage(BusinessCode.BUSINESS_CODE_ERROR, null).sendToTarget();
+                    e.printStackTrace();
+                }
+            }
+        };
     }
 }

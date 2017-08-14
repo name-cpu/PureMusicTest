@@ -16,8 +16,10 @@ import org.xutils.db.annotation.Table;
 public class MusicInfoDao implements Parcelable {
     @Column(name = "id",isId = true,autoGen = true)
     private long _id;
+
     @Column(name = "_data")
     private String _data;
+
     @Column(name = "_size")
     private long _size;
 

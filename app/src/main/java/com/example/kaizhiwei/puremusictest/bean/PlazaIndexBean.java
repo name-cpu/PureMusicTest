@@ -706,10 +706,18 @@ public class PlazaIndexBean {
 
         public void parser(JSONObject obj){
             try {
-                author = obj.getString("author");
-                title = obj.getString("title");
-                pic_premium = obj.getString("pic_premium");
-                song_id = obj.getString("song_id");
+                if(obj.has("author")){
+                    author = obj.getString("author");
+                }
+                if(obj.has("title")){
+                    title = obj.getString("title");
+                }
+                if(obj.has("pic_premium")){
+                    pic_premium = obj.getString("pic_premium");
+                }
+                if(obj.has("song_id")){
+                    song_id = obj.getString("song_id");
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
