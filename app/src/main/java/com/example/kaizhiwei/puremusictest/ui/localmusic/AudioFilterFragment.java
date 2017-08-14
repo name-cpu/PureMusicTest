@@ -47,7 +47,7 @@ public class AudioFilterFragment extends BaseFragment{
         String strFilterData = bundle.getString(FILTER_NAME);
         String strTitleName = bundle.getString(TITLE_NAME);
 
-        lbmLayout.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, false, true, true);
+        //lbmLayout.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, false, true, true);
         if(filterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
             lbmLayout.setFilterFolder(strFilterData);
         }

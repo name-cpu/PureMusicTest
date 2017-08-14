@@ -118,18 +118,18 @@ public class Fragment_LocalMusic extends LinearLayout implements View.OnClickLis
 
             favoriteLayout.insertView(1, favoriteEntity);
 //            boolean bSuccess = false;
-//            for(int i = 0;i < mListMediaEntity.size();i++){
-//                MediaEntity mediaEntity = mListMediaEntity.get(i);
-//                if(mediaEntity == null)
+//            for(int i = 0;i < mListMusicInfoDao.size();i++){
+//                MusicInfoDao MusicInfoDao = mListMusicInfoDao.get(i);
+//                if(MusicInfoDao == null)
 //                    continue;
 //
 //                FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-//                favoritesMusicEntity.musicinfo_id = mediaEntity._id;
-//                favoritesMusicEntity.artist = mediaEntity.artist;
-//                favoritesMusicEntity.album = mediaEntity.album;
+//                favoritesMusicEntity.musicinfo_id = MusicInfoDao._id;
+//                favoritesMusicEntity.artist = MusicInfoDao.artist;
+//                favoritesMusicEntity.album = MusicInfoDao.album;
 //                favoritesMusicEntity.fav_time = System.currentTimeMillis();
-//                favoritesMusicEntity.path = mediaEntity._data;
-//                favoritesMusicEntity.title = mediaEntity.title;
+//                favoritesMusicEntity.path = MusicInfoDao._data;
+//                favoritesMusicEntity.title = MusicInfoDao.title;
 //                favoritesMusicEntity.favorite_id = favoriteEntity._id;
 //
 //                bSuccess = MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);

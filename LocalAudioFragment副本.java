@@ -33,7 +33,7 @@ import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
+import com.example.kaizhiwei.puremusictest.MediaData.MusicInfoDao;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
@@ -354,7 +354,7 @@ public class LocalAudioFragment extends Fragment implements ViewPager.OnLongClic
             {
                 int realPosition = -1;
                 boolean bAdd = true;
-                List<MediaEntity> listMediaEntity = new ArrayList<>();
+                List<MusicInfoDao> listMusicInfoDao = new ArrayList<>();
                 for(int i = 0;i < listAllData.size();i++){
                     AudioListViewAdapter.AudioItemData tempData = listAllData.get(i);
                     if(tempData == null)
@@ -371,12 +371,12 @@ public class LocalAudioFragment extends Fragment implements ViewPager.OnLongClic
                     }
 
                     if(tempData.mListMedia != null){
-                        listMediaEntity.addAll(tempData.mListMedia);
+                        listMusicInfoDao.addAll(tempData.mListMedia);
                     }
                 }
 
                 if(realPosition >= 0){
-                    mService.play(listMediaEntity, realPosition+1);
+                    mService.play(listMusicInfoDao, realPosition+1);
                 }
             }
 
@@ -555,29 +555,29 @@ public class LocalAudioFragment extends Fragment implements ViewPager.OnLongClic
         AudioListViewAdapter.AudioFolderItemData mLVFolderItemData = null;
         AudioListViewAdapter.AudioArtistAlbumItemData mLVArtistAlbumItemData = null;
 
-        List<MediaEntity> listOperMediaEntity = null;
+        List<MusicInfoDao> listOperMusicInfoDao = null;
         int lvAdapterType = dialog.getLVAdapterType();
         AudioListViewAdapter.AudioItemData itemData = dialog.getAduioItemData();
         if(lvAdapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
             if(itemData instanceof AudioListViewAdapter.AudioSongItemData){
                 mLVSongItemData = (AudioListViewAdapter.AudioSongItemData)itemData;
-                listOperMediaEntity = mLVSongItemData.mListMedia;
+                listOperMusicInfoDao = mLVSongItemData.mListMedia;
             }
         }
         else if(lvAdapterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
             if(itemData instanceof AudioListViewAdapter.AudioFolderItemData){
                 mLVFolderItemData = (AudioListViewAdapter.AudioFolderItemData)itemData;
-                listOperMediaEntity = mLVFolderItemData.mListMedia;
+                listOperMusicInfoDao = mLVFolderItemData.mListMedia;
             }
         }
         else{
             if(itemData instanceof AudioListViewAdapter.AudioArtistAlbumItemData){
                 mLVArtistAlbumItemData = (AudioListViewAdapter.AudioArtistAlbumItemData)itemData;
-                listOperMediaEntity = mLVArtistAlbumItemData.mListMedia;
+                listOperMusicInfoDao = mLVArtistAlbumItemData.mListMedia;
             }
         }
 
-        if(listOperMediaEntity == null || listOperMediaEntity.size() == 0){
+        if(listOperMusicInfoDao == null || listOperMusicInfoDao.size() == 0){
             Toast.makeText(this.getActivity(), "data error", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -588,7 +588,7 @@ public class LocalAudioFragment extends Fragment implements ViewPager.OnLongClic
                 FavoriteDialog dialogFavorite = builderFavorite.create();
                 dialogFavorite.setCancelable(true);
                 dialogFavorite.setFavoritelistData(MediaLibrary.getInstance().getAllFavoriteEntity());
-                dialogFavorite.setMediaEntityData(listOperMediaEntity);
+                dialogFavorite.setMusicInfoDaoData(listOperMusicInfoDao);
                 dialogFavorite.show();
                 dialogFavorite.setTitle("添加到歌单");
                 break;
@@ -598,14 +598,14 @@ public class LocalAudioFragment extends Fragment implements ViewPager.OnLongClic
                 if(mLVSongItemData == null)
                     return ;
 
-                if(listOperMediaEntity == null || listOperMediaEntity.size() > 1)
+                if(listOperMusicInfoDao == null || listOperMusicInfoDao.size() > 1)
                     return;
 
-                MediaEntity mediaEntity = listOperMediaEntity.get(0);
-                if(mediaEntity == null)
+                MusicInfoDao MusicInfoDao = listOperMusicInfoDao.get(0);
+                if(MusicInfoDao == null)
                     return;
 
-                String filePath = mediaEntity.getFilePath();
+                String filePath = MusicInfoDao.getFilePath();
                 ContentValues cv = new ContentValues();
                 Uri uri = null, newUri = null;
                 uri = MediaStore.Audio.Media.getContentUriForPath(filePath);
@@ -621,14 +621,14 @@ public class LocalAudioFragment extends Fragment implements ViewPager.OnLongClic
                     this.getActivity().getContentResolver().update(uri, cv, MediaStore.MediaColumns.DATA + "=?",new String[] { filePath });
                     newUri = ContentUris.withAppendedId(uri, Long.valueOf(_id));
                     RingtoneManager.setActualDefaultRingtoneUri(this.getActivity(), RingtoneManager.TYPE_RINGTONE, newUri);
-                    String strPromt = String.format("已将歌曲\"%s\"设置为铃声",mediaEntity.title);
+                    String strPromt = String.format("已将歌曲\"%s\"设置为铃声",MusicInfoDao.title);
                     Toast.makeText(this.getActivity(), strPromt, Toast.LENGTH_SHORT).show();
                 }
                 break;
             case MoreOperationDialog.MORE_DELETE_NORMAL:
                 AlertDialogDeleteOne delteOne = new AlertDialogDeleteOne(this.getActivity());
                 delteOne.show();
-                delteOne.setMediaEntityData(listOperMediaEntity);
+                delteOne.setMusicInfoDaoData(listOperMusicInfoDao);
                 if(mLVSongItemData != null){
                     delteOne.setTitle("确定删除\"" + mLVSongItemData.mMainTitle + "\"吗?");
                 }
@@ -644,31 +644,31 @@ public class LocalAudioFragment extends Fragment implements ViewPager.OnLongClic
             case MoreOperationDialog.MORE_HIDE_NORMAL:
                 AlertDialogHide hideOne = new AlertDialogHide(this.getActivity());
                 hideOne.show();
-                hideOne.setMediaEntityData(listOperMediaEntity);
+                hideOne.setMusicInfoDaoData(listOperMusicInfoDao);
                 break;
             case MoreOperationDialog.MORE_LOVE_NORMAL:
                 if(mLVSongItemData == null)
                     return ;
 
                 //多个文件时仅添加,单个文件可添加 可删除
-                boolean isLovedOnly = listOperMediaEntity.size() > 1 ? true : false;
+                boolean isLovedOnly = listOperMusicInfoDao.size() > 1 ? true : false;
                 boolean isAddToFavorite = false;
                 int iSuccessNum = 0;
-                for(int i = 0;i < listOperMediaEntity.size();i++){
-                    mediaEntity = listOperMediaEntity.get(i);
-                    if(mediaEntity == null)
+                for(int i = 0;i < listOperMusicInfoDao.size();i++){
+                    MusicInfoDao = listOperMusicInfoDao.get(i);
+                    if(MusicInfoDao == null)
                         continue;
 
                     FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-                    favoritesMusicEntity.musicinfo_id = mediaEntity._id;
-                    favoritesMusicEntity.artist = mediaEntity.artist;
-                    favoritesMusicEntity.album = mediaEntity.album;
+                    favoritesMusicEntity.musicinfo_id = MusicInfoDao._id;
+                    favoritesMusicEntity.artist = MusicInfoDao.artist;
+                    favoritesMusicEntity.album = MusicInfoDao.album;
                     favoritesMusicEntity.fav_time = System.currentTimeMillis();
-                    favoritesMusicEntity.path = mediaEntity._data;
-                    favoritesMusicEntity.title = mediaEntity.title;
+                    favoritesMusicEntity.path = MusicInfoDao._data;
+                    favoritesMusicEntity.title = MusicInfoDao.title;
                     favoritesMusicEntity.favorite_id = MediaLibrary.getInstance().getDefaultFavoriteEntityId();
 
-                    if(MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mediaEntity._id, favoritesMusicEntity.favorite_id)){
+                    if(MediaLibrary.getInstance().queryIsFavoriteByMusicInfoDaoId(MusicInfoDao._id, favoritesMusicEntity.favorite_id)){
                         if(isLovedOnly == false){
                             boolean bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(favoritesMusicEntity.musicinfo_id, favoritesMusicEntity.favorite_id);
                             if(bRet){
@@ -687,7 +687,7 @@ public class LocalAudioFragment extends Fragment implements ViewPager.OnLongClic
                 }
 
                 if(isLovedOnly){
-                    Toast.makeText(this.getActivity(), "成功" + iSuccessNum + "首,失败" + (listOperMediaEntity.size() - iSuccessNum) + "首", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this.getActivity(), "成功" + iSuccessNum + "首,失败" + (listOperMusicInfoDao.size() - iSuccessNum) + "首", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     if(!isAddToFavorite){
@@ -705,12 +705,12 @@ public class LocalAudioFragment extends Fragment implements ViewPager.OnLongClic
                 if(mLVSongItemData == null)
                     return ;
 
-                mediaEntity = MediaLibrary.getInstance().getMediaEntityById(mLVSongItemData.id);
-                if(mediaEntity == null)
+                MusicInfoDao = MediaLibrary.getInstance().getMusicInfoDaoById(mLVSongItemData.id);
+                if(MusicInfoDao == null)
                     return ;
 
                 if(mLVSongItemData != null){
-                    mService.addSongToNext(mediaEntity);
+                    mService.addSongToNext(MusicInfoDao);
                 }
                 break;
             case MoreOperationDialog.MORE_PLAY_NORMAL:

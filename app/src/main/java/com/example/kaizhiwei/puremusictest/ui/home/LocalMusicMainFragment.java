@@ -74,7 +74,7 @@ public class LocalMusicMainFragment extends Fragment implements View.OnClickList
         ivPlay = (ImageView)rootView.findViewById(R.id.ivPlay);
         ivPlay.setOnClickListener(this);
 
-        tvLocalSub.setText(MediaLibrary.getInstance().getMediaEntitySize() + "首");
+        tvLocalSub.setText(MediaLibrary.getInstance().getMusicInfoDaoSize() + "首");
         vibrator = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
 
         return rootView;
@@ -178,18 +178,18 @@ public class LocalMusicMainFragment extends Fragment implements View.OnClickList
 
             favoriteLayout.insertView(1, favoriteEntity);
 //            boolean bSuccess = false;
-//            for(int i = 0;i < mListMediaEntity.size();i++){
-//                MusicInfoDao mediaEntity = mListMediaEntity.get(i);
-//                if(mediaEntity == null)
+//            for(int i = 0;i < mListMusicInfoDao.size();i++){
+//                MediaEntity MediaEntity = mListMusicInfoDao.get(i);
+//                if(MediaEntity == null)
 //                    continue;
 //
 //                FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-//                favoritesMusicEntity.musicinfo_id = mediaEntity._id;
-//                favoritesMusicEntity.artist = mediaEntity.artist;
-//                favoritesMusicEntity.album = mediaEntity.album;
+//                favoritesMusicEntity.musicinfo_id = MediaEntity._id;
+//                favoritesMusicEntity.artist = MediaEntity.artist;
+//                favoritesMusicEntity.album = MediaEntity.album;
 //                favoritesMusicEntity.fav_time = System.currentTimeMillis();
-//                favoritesMusicEntity.path = mediaEntity._data;
-//                favoritesMusicEntity.title = mediaEntity.title;
+//                favoritesMusicEntity.path = MediaEntity._data;
+//                favoritesMusicEntity.title = MediaEntity.title;
 //                favoritesMusicEntity.favorite_id = favoriteEntity._id;
 //
 //                bSuccess = MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);

@@ -67,7 +67,6 @@ public abstract class BaseDialog extends Dialog {
     public abstract void initView();
 
     public static abstract class Builder{
-        protected BaseDialog baseDialog;
         protected Context mContext;
 
         public Builder(Context context) {
@@ -87,8 +86,8 @@ public abstract class BaseDialog extends Dialog {
             return dialog;
         }
 
-        public abstract <T extends BaseDialog> T createDialog();
+        protected abstract <T extends BaseDialog> T createDialog();
 
-        public abstract int getCustomeView();
+        protected abstract int getCustomeView();
     }
 }

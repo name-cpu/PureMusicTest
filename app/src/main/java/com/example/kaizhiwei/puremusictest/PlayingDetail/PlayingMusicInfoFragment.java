@@ -7,9 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 
 /**
  * Created by kaizhiwei on 17/1/4.
@@ -18,7 +17,7 @@ public class PlayingMusicInfoFragment  extends Fragment implements View.OnClickL
     private ImageView ivArtist;
     private TextView tvSongName;
     private TextView tvArtistName;
-    private MediaEntity mediaEntity;
+    private MusicInfoDao MusicInfoDao;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -29,9 +28,9 @@ public class PlayingMusicInfoFragment  extends Fragment implements View.OnClickL
         tvArtistName = (TextView)rootView.findViewById(R.id.tvArtistName);
         ivArtist.setOnClickListener(this);
 
-        if(mediaEntity != null){
-            tvSongName.setText(mediaEntity.title);
-            tvArtistName.setText(mediaEntity.artist);
+        if(MusicInfoDao != null){
+            tvSongName.setText(MusicInfoDao.getTitle());
+            tvArtistName.setText(MusicInfoDao.getArtist());
         }
         return rootView;
     }
@@ -41,14 +40,14 @@ public class PlayingMusicInfoFragment  extends Fragment implements View.OnClickL
 
     }
 
-    public void setMusciInfo(MediaEntity entity){
+    public void setMusciInfo(MusicInfoDao entity){
         if(entity == null)
             return;
 
-        mediaEntity = entity;
-        if(mediaEntity != null && tvSongName != null && tvArtistName != null){
-            tvSongName.setText(mediaEntity.title);
-            tvArtistName.setText(mediaEntity.artist);
+        MusicInfoDao = entity;
+        if(MusicInfoDao != null && tvSongName != null && tvArtistName != null){
+            tvSongName.setText(MusicInfoDao.getTitle());
+            tvArtistName.setText(MusicInfoDao.getArtist());
         }
     }
 }

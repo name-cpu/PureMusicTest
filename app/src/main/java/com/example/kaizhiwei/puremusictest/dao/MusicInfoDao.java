@@ -2,6 +2,8 @@ package com.example.kaizhiwei.puremusictest.dao;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
+
 import org.videolan.libvlc.Media;
 import org.xutils.db.annotation.Column;
 import org.xutils.db.annotation.Table;
@@ -14,54 +16,150 @@ import org.xutils.db.annotation.Table;
 public class MusicInfoDao implements Parcelable {
     @Column(name = "id",isId = true,autoGen = true)
     private long _id;
+    @Column(name = "_data")
     private String _data;
+    @Column(name = "_size")
     private long _size;
+
+    @Column(name = "_si_display_nameze")
     private String _display_name;
+
+    @Column(name = "title")
     private String title;
+
+    @Column(name = "title_key")
     private String title_key;
+
+    @Column(name = "title_letter")
     private String title_letter;
+
+    @Column(name = "date_added")
     private long date_added;
+
+    @Column(name = "date_modified")
     private long date_modified;
+
+    @Column(name = "mime_type")
     private String mime_type;
+
+    @Column(name = "duration")
     private long duration;
+
+    @Column(name = "bookmark")
     private long bookmark;
+
+    @Column(name = "artist")
     private String artist;
+
+    @Column(name = "artist_key")
     private String artist_key;
+
+    @Column(name = "composer")
     private String composer;
+
+    @Column(name = "album")
     private String album;
+
+    @Column(name = "album_key")
     private String album_key;
+
+    @Column(name = "album_art")
     private String album_art;
+
+    @Column(name = "track")
     private long track;
+
+    @Column(name = "year")
     private long year;
+
+    @Column(name = "mediastore_id")
     private long mediastore_id;
+
+    @Column(name = "lyric_path")
     private String lyric_path;
+
+    @Column(name = "is_lossless")
     private long is_lossless;
+
+    @Column(name = "artist_image")
     private String artist_image;
+
+    @Column(name = "album_image")
     private String album_image;
+
+    @Column(name = "last_playtime")
     private long last_playtime;
+
+    @Column(name = "play_times")
     private long play_times;
+
+    @Column(name = "data_from")
     private long data_from;
+
+    @Column(name = "save_path")
     private String save_path;
+
+    @Column(name = "is_played")
     private long is_played;
+
+    @Column(name = "song_id")
     private long song_id;
+
+    @Column(name = "equalizer_level")
     private long equalizer_level;
+
+    @Column(name = "replay_gain_level")
     private long replay_gain_level;
+
+    @Column(name = "is_offline_cache")
     private long is_offline_cache;
+
+    @Column(name = "is_faved")
     private long is_faved;
+
+    @Column(name = "have_high")
     private long have_high;
+
+    @Column(name = "bitrate")
     private long bitrate;
+
+    @Column(name = "has_original")
     private long has_original;
+
+    @Column(name = "flag")
     private long flag;
+
+    @Column(name = "original_rate")
     private String original_rate;
+
+    @Column(name = "all_rates")
     private String all_rates;
+
+    @Column(name = "is_deleted")
     private long is_deleted;
+
+    @Column(name = "skip_auto_scan")
     private long skip_auto_scan;
+
+    @Column(name = "is_offline")
     private long is_offline;
+
+    @Column(name = "has_pay_status")
     private long has_pay_status;
+
+    @Column(name = "version")
     private String version;
+
+    @Column(name = "cache_path")
     private String cache_path;
+
+    @Column(name = "play_type")
     private long play_type;
+
+    @Column(name = "file_url")
     private String file_url;
+
+    @Column(name = "file_hash")
     private String file_hash;
 
     private Media mMedia;
@@ -232,7 +330,7 @@ public class MusicInfoDao implements Parcelable {
     }
 
     public String getArtist() {
-        return artist;
+        return TextUtils.isEmpty(artist) ? "<unkonwn>" : artist;
     }
 
     public void setArtist(String artist) {
@@ -256,7 +354,7 @@ public class MusicInfoDao implements Parcelable {
     }
 
     public String getAlbum() {
-        return album;
+        return TextUtils.isEmpty(album) ? "<unkonwn>" : album;
     }
 
     public void setAlbum(String album) {

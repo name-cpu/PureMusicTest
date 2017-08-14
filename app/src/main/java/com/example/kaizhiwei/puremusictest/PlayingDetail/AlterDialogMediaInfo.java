@@ -5,9 +5,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 import com.example.kaizhiwei.puremusictest.util.StringUtil;
 
 /**
@@ -21,7 +20,7 @@ public class AlterDialogMediaInfo extends AlertDialog implements View.OnClickLis
     private TextView tvFilePath;
     private TextView tvFileFormat;
     private TextView tvFileSize;
-    private MediaEntity mediaEntity;
+    private com.example.kaizhiwei.puremusictest.dao.MusicInfoDao MusicInfoDao;
 
     public AlterDialogMediaInfo(Context context) {
         super(context);
@@ -49,19 +48,19 @@ public class AlterDialogMediaInfo extends AlertDialog implements View.OnClickLis
 
     }
 
-    public void setMediaEntity(MediaEntity mediaEntity){
-        this.mediaEntity = mediaEntity;
+    public void setMusicInfoDao(com.example.kaizhiwei.puremusictest.dao.MusicInfoDao MusicInfoDao){
+        this.MusicInfoDao = MusicInfoDao;
         initUi();
     }
 
     private void initUi(){
-        if(mediaEntity != null && tvMediaName != null){
-            tvMediaName.setText(mediaEntity.title);
-            tvArtist.setText(mediaEntity.artist);
-            tvAlbum.setText(mediaEntity.album);
-            tvFilePath.setText(mediaEntity._data);
-            tvFileFormat.setText(mediaEntity.bitrate + "Kbps");
-            tvFileSize.setText(StringUtil.getDataSize(mediaEntity._size));
+        if(MusicInfoDao != null && tvMediaName != null){
+            tvMediaName.setText(MusicInfoDao.getTitle());
+            tvArtist.setText(MusicInfoDao.getArtist());
+            tvAlbum.setText(MusicInfoDao.getAlbum());
+            tvFilePath.setText(MusicInfoDao.get_data());
+            tvFileFormat.setText(MusicInfoDao.getBitrate() + "Kbps");
+            tvFileSize.setText(StringUtil.getDataSize(MusicInfoDao.get_size()));
         }
     }
 

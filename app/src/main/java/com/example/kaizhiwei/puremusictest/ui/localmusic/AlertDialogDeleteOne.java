@@ -6,9 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
-
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 
 import java.util.List;
 /**
@@ -19,7 +18,7 @@ public class AlertDialogDeleteOne extends AlertDialog implements View.OnClickLis
     private TextView btnDelete;
     private TextView btnCancel;
     private TextView tvTitle;
-    private List<MediaEntity> mListMediaEntity;
+    private List<MusicInfoDao> mListMusicInfoDao;
     private IOnAlertDialogDeleteListener mListener;
 
     public interface IOnAlertDialogDeleteListener{
@@ -64,12 +63,12 @@ public class AlertDialogDeleteOne extends AlertDialog implements View.OnClickLis
         }
     }
 
-    public void setMediaEntityData(List<MediaEntity> list){
-        mListMediaEntity = list;
+    public void setMusicInfoDaoData(List<MusicInfoDao> list){
+        mListMusicInfoDao = list;
     }
 
-    public List<MediaEntity> getMediaEntityData(){
-        return mListMediaEntity;
+    public List<MusicInfoDao> getMusicInfoDaoData(){
+        return mListMusicInfoDao;
     }
 
     @Override
@@ -78,7 +77,7 @@ public class AlertDialogDeleteOne extends AlertDialog implements View.OnClickLis
             dismiss();
         }
         else if(v == btnDelete){
-            if(mListMediaEntity == null){
+            if(mListMusicInfoDao == null){
                 dismiss();
                 return;
             }

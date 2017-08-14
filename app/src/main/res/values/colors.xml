@@ -27,4 +27,5 @@
     <color name="gray">#808080</color>
     <color name="trans_dk_gray">#77424242</color>
     <color name="lightgray">#E1E1E1</color>
+    <color name="lightgray2">#F3F3F3</color>
 </resources>

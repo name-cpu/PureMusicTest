@@ -24,18 +24,25 @@ import com.example.kaizhiwei.puremusictest.CommonUI.BaseFragment;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyTextView;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.ScanMedia.ScanMediaActivity;
+import com.example.kaizhiwei.puremusictest.base.MyBaseFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.Bind;
 
 /**
  * Created by kaizhiwei on 16/11/12.
  */
 @TargetApi(Build.VERSION_CODES.M)
-public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLongClickListener, ViewPager.OnPageChangeListener, View.OnClickListener {
-    private TabLayout mTabLayout;
+public class LocalAudioFragment extends MyBaseFragment implements ViewPager.OnLongClickListener, ViewPager.OnPageChangeListener, View.OnClickListener {
+    @Bind(R.id.tabLayout)
+    TabLayout mTabLayout;
+
     private TabLayout.TabLayoutOnPageChangeListener mTVl;
-    private ViewPager mViewPager;
+
+    @Bind(R.id.viewPager)
+    ViewPager mViewPager;
 
     private List<String> mListTitleData;
     private List<View> mListViewData;
@@ -45,15 +52,36 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
     private LocalBaseMediaLayout mArtistFragement;
     private LocalBaseMediaLayout mAlbumFragement;
 
-    //标题按钮
-    private LinearLayout llSearch;
-    private RelativeLayout rlTitle;
-    private ImageView ivSearch;
-    private ImageView ivScan;
-    private ImageView ivSort;
-    private EditText etSearchKey;
-    private TextView tvCancel;
-    private MyTextView mtvScanMedia;
+    @Bind(R.id.tvTitle)
+    TextView tvTitle;
+
+    @Bind(R.id.tvRight)
+    TextView tvRight;
+
+    @Bind(R.id.llSearch)
+    LinearLayout llSearch;
+
+    @Bind(R.id.rlTitle)
+    RelativeLayout rlTitle;
+
+    @Bind(R.id.ivSearch)
+    ImageView ivSearch;
+
+    @Bind(R.id.ivScan)
+    ImageView ivScan;
+
+    @Bind(R.id.ivSort)
+    ImageView ivSort;
+
+    @Bind(R.id.etSearchKey)
+    EditText etSearchKey;
+
+    @Bind(R.id.tvCancel)
+    TextView tvCancel;
+
+    @Bind(R.id.mtvScanMedia)
+    MyTextView mtvScanMedia;
+
     private TextWatcher tvSearchTextWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -102,31 +130,23 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = super.onCreateView(inflater, container, savedInstanceState);
-        setContentView(R.layout.activity_audio);
+    protected int getLayoutResource() {
+        return R.layout.activity_audio;
+    }
 
-        mTabLayout = (TabLayout) rootView.findViewById(R.id.tabLayout);
+    @Override
+    protected void initView() {
         mTVl = new TabLayout.TabLayoutOnPageChangeListener(mTabLayout);
-        mViewPager = (ViewPager) rootView.findViewById(R.id.viewPager);
-        setTitle("本地音乐");
 
-        mtvScanMedia = (MyTextView)rootView.findViewById(R.id.mtvScanMedia);
         mtvScanMedia.setOnClickListener(this);
-
-        llSearch = (LinearLayout) rootView.findViewById(R.id.llSearch);
-        rlTitle = (RelativeLayout) rootView.findViewById(R.id.rlTitle);
-        ivSearch = (ImageView) rootView.findViewById(R.id.ivSearch);
+        tvTitle.setText("本地音乐");
+        tvRight.setVisibility(View.GONE);
         ivSearch.setOnClickListener(this);
         ivSearch.setVisibility(View.VISIBLE);
-        ivScan = (ImageView) rootView.findViewById(R.id.ivScan);
         ivScan.setOnClickListener(this);
         ivScan.setVisibility(View.VISIBLE);
-        ivSort = (ImageView) rootView.findViewById(R.id.ivSort);
         ivSort.setOnClickListener(this);
         ivSort.setVisibility(View.VISIBLE);
-        etSearchKey = (EditText) rootView.findViewById(R.id.etSearchKey);
         etSearchKey.addTextChangedListener(tvSearchTextWatcher);
         etSearchKey.setFocusable(true);
         etSearchKey.setFocusableInTouchMode(true);
@@ -134,33 +154,41 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                InputMethodManager imm = (InputMethodManager) getActivity()
-                             .getSystemService(Context.INPUT_METHOD_SERVICE);
+                    InputMethodManager imm = (InputMethodManager) getActivity()
+                            .getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-               }
+                }
                 else{
                     InputMethodManager imm = (InputMethodManager) etSearchKey.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
                 }
             }
         });
-        tvCancel = (TextView) rootView.findViewById(R.id.tvCancel);
         tvCancel.setOnClickListener(this);
 
-        mListTitleData = new ArrayList<String>();
+        mListTitleData = new ArrayList<>();
         mListTitleData.add("歌曲");
         mListTitleData.add("文件夹");
         mListTitleData.add("歌手");
         mListTitleData.add("专辑");
 
-        mAllSongFragement = new LocalBaseMediaLayout(this.getActivity(), mSubFragmentListener);
-        mAllSongFragement.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, true, true, true);
-        mSongFolderFragement = new LocalBaseMediaLayout(this.getActivity(), mSubFragmentListener);
-        mSongFolderFragement.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_FOLDER, false, false, true);
-        mArtistFragement = new LocalBaseMediaLayout(this.getActivity(), mSubFragmentListener);
-        mArtistFragement.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_ARTIST, false, false, true);
-        mAlbumFragement = new LocalBaseMediaLayout(this.getActivity(), mSubFragmentListener);
-        mAlbumFragement.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_ALBUM, false, false, true);
+        mAllSongFragement = new LocalBaseMediaLayout(this.getActivity());
+        //mAllSongFragement.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, true, true, true);
+        mAllSongFragement.setBaseMediaListener(mSubFragmentListener);
+        mAllSongFragement.setType(LocalBaseMediaLayout.LayoutType.ALLSONG);
+
+        mSongFolderFragement = new LocalBaseMediaLayout(this.getActivity());
+        mSongFolderFragement.setBaseMediaListener(mSubFragmentListener);
+        //mSongFolderFragement.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_FOLDER, false, false, true);
+        mSongFolderFragement.setType(LocalBaseMediaLayout.LayoutType.FOLDER);
+
+        mArtistFragement = new LocalBaseMediaLayout(this.getActivity());
+        mArtistFragement.setBaseMediaListener(mSubFragmentListener);
+        mArtistFragement.setType(LocalBaseMediaLayout.LayoutType.ARTIST);
+
+        mAlbumFragement = new LocalBaseMediaLayout(this.getActivity());
+        mAlbumFragement.setBaseMediaListener(mSubFragmentListener);
+        mAlbumFragement.setType(LocalBaseMediaLayout.LayoutType.ALBUM);
 
         mListViewData = new ArrayList<>();
         mListViewData.add(mAllSongFragement);
@@ -183,7 +211,11 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
         mTabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         mTabLayout.setTabMode(TabLayout.MODE_FIXED);
         mTabLayout.setupWithViewPager(mViewPager);
-        return rootView;
+    }
+
+    @Override
+    protected void initData() {
+
     }
 
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -204,6 +236,7 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
         mSongFolderFragement.onResume();
         mArtistFragement.onResume();
         mAlbumFragement.onResume();
+
         mAllSongFragement.initAdapterData();
         mSongFolderFragement.initAdapterData();
         mArtistFragement.initAdapterData();
@@ -281,6 +314,5 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
             llSearch.setVisibility(View.GONE);
             mAllSongFragement.setSearchKey("");
         }
-        super.onClick(v);
     }
 }

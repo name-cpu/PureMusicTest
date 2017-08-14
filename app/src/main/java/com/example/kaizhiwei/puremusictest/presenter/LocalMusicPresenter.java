@@ -2,11 +2,11 @@ package com.example.kaizhiwei.puremusictest.presenter;
 
 import android.os.Message;
 
+import com.example.kaizhiwei.puremusictest.model.MediaModel;
 import com.example.kaizhiwei.puremusictest.util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.base.BaseHandler;
 import com.example.kaizhiwei.puremusictest.contract.LocalMusicContract;
 import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
-import com.example.kaizhiwei.puremusictest.model.scanmusic.MediaModel;
 
 import java.util.List;
 
@@ -32,6 +32,77 @@ public class LocalMusicPresenter implements LocalMusicContract.Presenter {
                     list = (List<MusicInfoDao>)msg.obj;
                     if(mView != null){
                         mView.onGetAllMusicInfos(list);
+                    }
+                }
+                else{
+                    if(mView != null){
+                        mView.onError("");
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public MusicInfoDao getMusicInfoById(long id) {
+        return MediaModel.getInstance().getMusicInfoById(id);
+    }
+
+    @Override
+    public void getMusicInfosByFolder(String folder) {
+        MediaModel.getInstance().asyncMusicInfosByFolder(folder, new BaseHandler() {
+            @Override
+            public void handleBusiness(Message msg) {
+                int what = msg.what;
+                List<MusicInfoDao> list = null;
+                if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
+                    list = (List<MusicInfoDao>)msg.obj;
+                    if(mView != null){
+                        mView.onGetMusicInfosByFolder(list);
+                    }
+                }
+                else{
+                    if(mView != null){
+                        mView.onError("");
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void getMusicInfosByArtist(String artist) {
+        MediaModel.getInstance().asyncMusicInfosByArtist(artist, new BaseHandler() {
+            @Override
+            public void handleBusiness(Message msg) {
+                int what = msg.what;
+                List<MusicInfoDao> list = null;
+                if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
+                    list = (List<MusicInfoDao>)msg.obj;
+                    if(mView != null){
+                        mView.onGetMusicInfosByArtist(list);
+                    }
+                }
+                else{
+                    if(mView != null){
+                        mView.onError("");
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void getMusicInfosByAlbum(String album) {
+        MediaModel.getInstance().asyncMusicInfosByAlbum(album, new BaseHandler() {
+            @Override
+            public void handleBusiness(Message msg) {
+                int what = msg.what;
+                List<MusicInfoDao> list = null;
+                if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
+                    list = (List<MusicInfoDao>)msg.obj;
+                    if(mView != null){
+                        mView.onGetMusicInfosByAlbum(list);
                     }
                 }
                 else{

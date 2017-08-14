@@ -37,7 +37,7 @@ import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
 import com.example.kaizhiwei.puremusictest.CommonUI.BaseFragment;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyTextView;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
+import com.example.kaizhiwei.puremusictest.MediaData.MusicInfoDao;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
@@ -103,11 +103,11 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
             if(dialog == null)
                 return;
 
-            List<MediaEntity> listMediaEntity = dialog.getMediaEntityData();
-            if(listMediaEntity == null || listMediaEntity.size() == 0)
+            List<MusicInfoDao> listMusicInfoDao = dialog.getMusicInfoDaoData();
+            if(listMusicInfoDao == null || listMusicInfoDao.size() == 0)
                 return;
 
-            handleDeleteMedia(listMediaEntity, isDeleteFile);
+            handleDeleteMedia(listMusicInfoDao, isDeleteFile);
         }
     };
 
@@ -240,16 +240,16 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
                          public void run() {
                              rlLoading.setVisibility(View.GONE);
                              if(mService != null){
-                                 int size = MediaLibrary.getInstance().getMediaEntitySize();
+                                 int size = MediaLibrary.getInstance().getMusicInfoDaoSize();
                                  if(size <= 0){
                                      rlEmpty.setVisibility(View.VISIBLE);
                                  }
                                  else {
                                      rlEmpty.setVisibility(View.GONE);
                                  }
-                                 MediaEntity curMediaEntity = mService.getCurrentMedia();
-                                 if(curMediaEntity != null){
-                                     mAllSongAdapter.setItemPlayState(curMediaEntity, true);
+                                 MusicInfoDao curMusicInfoDao = mService.getCurrentMedia();
+                                 if(curMusicInfoDao != null){
+                                     mAllSongAdapter.setItemPlayState(curMusicInfoDao, true);
                                  }
                              }
                          }
@@ -443,7 +443,7 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
             {
                 int realPosition = -1;
                 boolean bAdd = true;
-                List<MediaEntity> listMediaEntity = new ArrayList<>();
+                List<MusicInfoDao> listMusicInfoDao = new ArrayList<>();
                 for(int i = 0;i < listAllData.size();i++){
                     AudioListViewAdapter.AudioItemData tempData = listAllData.get(i);
                     if(tempData == null)
@@ -463,12 +463,12 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
                     }
 
                     if(tempData.mListMedia != null){
-                        listMediaEntity.addAll(tempData.mListMedia);
+                        listMusicInfoDao.addAll(tempData.mListMedia);
                     }
                 }
 
                 if(realPosition >= 0){
-                    mService.play(listMediaEntity, realPosition);
+                    mService.play(listMusicInfoDao, realPosition);
                 }
             }
 
@@ -657,14 +657,14 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
             return;
 
         if(event.type == MediaPlayer.Event.Playing){
-            MediaEntity curMediaEntity = mService.getCurrentMedia();
-            if(curMediaEntity != null && mAllSongAdapter != null){
-                mAllSongAdapter.setItemPlayState(curMediaEntity, true);
+            MusicInfoDao curMusicInfoDao = mService.getCurrentMedia();
+            if(curMusicInfoDao != null && mAllSongAdapter != null){
+                mAllSongAdapter.setItemPlayState(curMusicInfoDao, true);
             }
         }
         else if(event.type == MediaPlayer.Event.Stopped){
             if(mAllSongAdapter != null){
-                MediaEntity tempEntity = new MediaEntity();
+                MusicInfoDao tempEntity = new MusicInfoDao();
                 tempEntity._id = 0;
                 mAllSongAdapter.setItemPlayState(tempEntity, false);
             }
@@ -681,29 +681,29 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
         AudioListViewAdapter.AudioFolderItemData mLVFolderItemData = null;
         AudioListViewAdapter.AudioArtistAlbumItemData mLVArtistAlbumItemData = null;
 
-        List<MediaEntity> listOperMediaEntity = null;
+        List<MusicInfoDao> listOperMusicInfoDao = null;
         int lvAdapterType = dialog.getLVAdapterType();
         AudioListViewAdapter.AudioItemData itemData = dialog.getAduioItemData();
         if(lvAdapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
             if(itemData instanceof AudioListViewAdapter.AudioSongItemData){
                 mLVSongItemData = (AudioListViewAdapter.AudioSongItemData)itemData;
-                listOperMediaEntity = mLVSongItemData.mListMedia;
+                listOperMusicInfoDao = mLVSongItemData.mListMedia;
             }
         }
         else if(lvAdapterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
             if(itemData instanceof AudioListViewAdapter.AudioFolderItemData){
                 mLVFolderItemData = (AudioListViewAdapter.AudioFolderItemData)itemData;
-                listOperMediaEntity = mLVFolderItemData.mListMedia;
+                listOperMusicInfoDao = mLVFolderItemData.mListMedia;
             }
         }
         else{
             if(itemData instanceof AudioListViewAdapter.AudioArtistAlbumItemData){
                 mLVArtistAlbumItemData = (AudioListViewAdapter.AudioArtistAlbumItemData)itemData;
-                listOperMediaEntity = mLVArtistAlbumItemData.mListMedia;
+                listOperMusicInfoDao = mLVArtistAlbumItemData.mListMedia;
             }
         }
 
-        if(listOperMediaEntity == null || listOperMediaEntity.size() == 0){
+        if(listOperMusicInfoDao == null || listOperMusicInfoDao.size() == 0){
             Toast.makeText(this.getActivity(), "data error", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -714,7 +714,7 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
                 FavoriteDialog dialogFavorite = builderFavorite.create();
                 dialogFavorite.setCancelable(true);
                 dialogFavorite.setFavoritelistData(MediaLibrary.getInstance().getAllFavoriteEntity());
-                dialogFavorite.setMediaEntityData(listOperMediaEntity);
+                dialogFavorite.setMusicInfoDaoData(listOperMusicInfoDao);
                 dialogFavorite.show();
                 dialogFavorite.setTitle("添加到歌单");
                 break;
@@ -724,14 +724,14 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
                 if(mLVSongItemData == null)
                     return ;
 
-                if(listOperMediaEntity == null || listOperMediaEntity.size() > 1)
+                if(listOperMusicInfoDao == null || listOperMusicInfoDao.size() > 1)
                     return;
 
-                MediaEntity mediaEntity = listOperMediaEntity.get(0);
-                if(mediaEntity == null)
+                MusicInfoDao MusicInfoDao = listOperMusicInfoDao.get(0);
+                if(MusicInfoDao == null)
                     return;
 
-                String filePath = mediaEntity.getFilePath();
+                String filePath = MusicInfoDao.getFilePath();
                 ContentValues cv = new ContentValues();
                 Uri uri = null, newUri = null;
                 uri = MediaStore.Audio.Media.getContentUriForPath(filePath);
@@ -747,7 +747,7 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
                     this.getActivity().getContentResolver().update(uri, cv, MediaStore.MediaColumns.DATA + "=?",new String[] { filePath });
                     newUri = ContentUris.withAppendedId(uri, Long.valueOf(_id));
                     RingtoneManager.setActualDefaultRingtoneUri(this.getActivity(), RingtoneManager.TYPE_RINGTONE, newUri);
-                    String strPromt = String.format("已将歌曲\"%s\"设置为铃声",mediaEntity.title);
+                    String strPromt = String.format("已将歌曲\"%s\"设置为铃声",MusicInfoDao.title);
                     Toast.makeText(this.getActivity(), strPromt, Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -762,14 +762,14 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
                 else if(mLVArtistAlbumItemData != null){
                     strTitle = "确定删除该歌手/专辑的所有歌曲吗?";
                 }
-                showDeleteAlterDialog(this.getActivity(), listOperMediaEntity, strTitle, false);
+                showDeleteAlterDialog(this.getActivity(), listOperMusicInfoDao, strTitle, false);
                 break;
             case MoreOperationDialog.MORE_DOWNLOAD_NORMAL:
                 break;
             case MoreOperationDialog.MORE_HIDE_NORMAL:
                 AlertDialogHide hideOne = new AlertDialogHide(this.getActivity());
                 hideOne.show();
-                hideOne.setMediaEntityData(listOperMediaEntity);
+                hideOne.setMusicInfoDaoData(listOperMusicInfoDao);
                 hideOne.setAlertDialogListener(mAlertDialogHideListener);
                 break;
             case MoreOperationDialog.MORE_LOVE_NORMAL:
@@ -777,24 +777,24 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
                     return ;
 
                 //多个文件时仅添加,单个文件可添加 可删除
-                boolean isMutil = listOperMediaEntity.size() > 1 ? true : false;
+                boolean isMutil = listOperMusicInfoDao.size() > 1 ? true : false;
                 boolean isAddToFavorite = false;
                 int iSuccessNum = 0;
-                for(int i = 0;i < listOperMediaEntity.size();i++){
-                    mediaEntity = listOperMediaEntity.get(i);
-                    if(mediaEntity == null)
+                for(int i = 0;i < listOperMusicInfoDao.size();i++){
+                    MusicInfoDao = listOperMusicInfoDao.get(i);
+                    if(MusicInfoDao == null)
                         continue;
 
                     FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-                    favoritesMusicEntity.musicinfo_id = mediaEntity._id;
-                    favoritesMusicEntity.artist = mediaEntity.artist;
-                    favoritesMusicEntity.album = mediaEntity.album;
+                    favoritesMusicEntity.musicinfo_id = MusicInfoDao._id;
+                    favoritesMusicEntity.artist = MusicInfoDao.artist;
+                    favoritesMusicEntity.album = MusicInfoDao.album;
                     favoritesMusicEntity.fav_time = System.currentTimeMillis();
-                    favoritesMusicEntity.path = mediaEntity._data;
-                    favoritesMusicEntity.title = mediaEntity.title;
+                    favoritesMusicEntity.path = MusicInfoDao._data;
+                    favoritesMusicEntity.title = MusicInfoDao.title;
                     favoritesMusicEntity.favorite_id = MediaLibrary.getInstance().getDefaultFavoriteEntityId();
 
-                    if(MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mediaEntity._id, favoritesMusicEntity.favorite_id)){
+                    if(MediaLibrary.getInstance().queryIsFavoriteByMusicInfoDaoId(MusicInfoDao._id, favoritesMusicEntity.favorite_id)){
                         if(isMutil == false){
                             boolean bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(favoritesMusicEntity.musicinfo_id, favoritesMusicEntity.favorite_id);
                             if(bRet){
@@ -813,7 +813,7 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
                 }
 
                 if(isMutil){
-                    Toast.makeText(this.getActivity(), "成功" + iSuccessNum + "首,失败" + (listOperMediaEntity.size() - iSuccessNum) + "首", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this.getActivity(), "成功" + iSuccessNum + "首,失败" + (listOperMusicInfoDao.size() - iSuccessNum) + "首", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     if(!isAddToFavorite){
@@ -831,12 +831,12 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
                 if(mLVSongItemData == null)
                     return ;
 
-                mediaEntity = MediaLibrary.getInstance().getMediaEntityById(mLVSongItemData.id);
-                if(mediaEntity == null)
+                MusicInfoDao = MediaLibrary.getInstance().getMusicInfoDaoById(mLVSongItemData.id);
+                if(MusicInfoDao == null)
                     return ;
 
                 if(mLVSongItemData != null){
-                    boolean bRet = mService.addSongToNext(mediaEntity);
+                    boolean bRet = mService.addSongToNext(MusicInfoDao);
                     if(bRet){
                         Toast.makeText(this.getActivity(), "已添加到播放列表", Toast.LENGTH_SHORT).show();
                     }
@@ -844,8 +844,8 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
                 break;
             case MoreOperationDialog.MORE_PLAY_NORMAL:
                 if(mService != null){
-                    mService.play(listOperMediaEntity, 0);
-                    //mAllSongAdapter.setItemPlayState(listOperMediaEntity.get(0), true);
+                    mService.play(listOperMusicInfoDao, 0);
+                    //mAllSongAdapter.setItemPlayState(listOperMusicInfoDao.get(0), true);
                 }
                 break;
             case MoreOperationDialog.MORE_REMOVE_NORMAL:
@@ -890,7 +890,7 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
         super.onClick(v);
     }
 
-    public void showDeleteAlterDialog(Context context, List<MediaEntity> listOperMediaEntity, String strTitle, boolean isNeedReCreate){
+    public void showDeleteAlterDialog(Context context, List<MusicInfoDao> listOperMusicInfoDao, String strTitle, boolean isNeedReCreate){
         if(isNeedReCreate){
             mAlertDialogDeleteOne = new AlertDialogDeleteOne(context, mAlertDialogDeleteListener);
         }
@@ -900,22 +900,22 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
         }
 
         mAlertDialogDeleteOne.show();
-        mAlertDialogDeleteOne.setMediaEntityData(listOperMediaEntity);
+        mAlertDialogDeleteOne.setMusicInfoDaoData(listOperMusicInfoDao);
         mAlertDialogDeleteOne.setTitle(strTitle);
     }
 
-    public void handleDeleteMedia(List<MediaEntity> listMediaEntity, boolean isDeleteFile){
-        if(listMediaEntity == null)
+    public void handleDeleteMedia(List<MusicInfoDao> listMusicInfoDao, boolean isDeleteFile){
+        if(listMusicInfoDao == null)
             return;
 
         //是否包含正在播放的歌曲
         boolean isContainPlaying = false;
-        MediaEntity curMediaEntity = null;
-        curMediaEntity = mService.getCurrentMedia();
+        MusicInfoDao curMusicInfoDao = null;
+        curMusicInfoDao = mService.getCurrentMedia();
 
         int successNum = 0;
-        for(int i = 0;i < listMediaEntity.size();i++){
-            MediaEntity entity = listMediaEntity.get(i);
+        for(int i = 0;i < listMusicInfoDao.size();i++){
+            MusicInfoDao entity = listMusicInfoDao.get(i);
             if(entity == null || entity._id < 0)
                 continue;
 
@@ -931,21 +931,21 @@ public class LocalAudioFragment extends BaseFragment implements ViewPager.OnLong
                 successNum++;
             }
 
-            if(curMediaEntity != null){
-                if(curMediaEntity._id == entity._id){
+            if(curMusicInfoDao != null){
+                if(curMusicInfoDao._id == entity._id){
                     isContainPlaying = true;
                 }
             }
         }
 
-        mService.mutilDeleteMediaByList(listMediaEntity);
-        MediaLibrary.getInstance().mutilRemoveMediaEntity(listMediaEntity);
+        mService.mutilDeleteMediaByList(listMusicInfoDao);
+        MediaLibrary.getInstance().mutilRemoveMusicInfoDao(listMusicInfoDao);
 
         String strPromt = "";
         if(successNum == 0){
             strPromt = "删除失败";
         }
-        else if(successNum < listMediaEntity.size()){
+        else if(successNum < listMusicInfoDao.size()){
             strPromt = "删除部分成功,部分失败";
         }
         else{

@@ -7,9 +7,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,32 +36,32 @@ public class PlayListViewAdapter extends BaseAdapter implements View.OnClickList
     }
 
     static public class PlayListItemData {
-        public MediaEntity mediaEntity;
+        public MusicInfoDao MusicInfoDao;
         public boolean isPlaying;  //是否正在播放
         public boolean isCurPlay;  //是否是当前播放的音乐
     }
 
-    public PlayListViewAdapter(Context context, List<MediaEntity> list){
+    public PlayListViewAdapter(Context context, List<MusicInfoDao> list){
         mContext = context;
         listData = new ArrayList<>();
         if(list != null){
             for(int i = 0;i < list.size();i++) {
                 PlayListItemData itemData = new PlayListItemData();
-                itemData.mediaEntity = list.get(i);
+                itemData.MusicInfoDao = list.get(i);
                 itemData.isCurPlay = false;
                 itemData.isPlaying = false;
                 listData.add(itemData);
             }
         }
     }
-    public void setPlaylistAdapterData(List<MediaEntity> list){
+    public void setPlaylistAdapterData(List<MusicInfoDao> list){
         if(list == null)
             return;
 
         listData.clear();
         for(int i = 0;i < list.size();i++) {
             PlayListItemData itemData = new PlayListItemData();
-            itemData.mediaEntity = list.get(i);
+            itemData.MusicInfoDao = list.get(i);
             itemData.isCurPlay = false;
             itemData.isPlaying = false;
             listData.add(itemData);
@@ -140,8 +139,8 @@ public class PlayListViewAdapter extends BaseAdapter implements View.OnClickList
         }
 
         holder.ivDelete.setTag(position);
-        holder.tvMainTitle.setText(itemData.mediaEntity.title);
-        holder.tvSubTitle.setText(itemData.mediaEntity.album);
+        holder.tvMainTitle.setText(itemData.MusicInfoDao.getTitle());
+        holder.tvSubTitle.setText(itemData.MusicInfoDao.getAlbum());
         return convertView;
     }
 

@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 import com.example.kaizhiwei.puremusictest.ui.localmusic.AudioListViewAdapter;
 import com.example.kaizhiwei.puremusictest.ui.localmusic.BatchMgrAudioActivity;
 import com.example.kaizhiwei.puremusictest.ui.localmusic.LocalBaseMediaLayout;
@@ -26,7 +27,6 @@ import com.example.kaizhiwei.puremusictest.CommonUI.BaseFragment;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.ui.home.HomeActivity;
@@ -51,7 +51,7 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
     private TextView tvManager;
     private LinearLayout llMain;
     private LocalBaseMediaLayout lbmLayout;
-    private List<MediaEntity> mListFavoriteData;
+    private List<MusicInfoDao> mListFavoriteData;
     private Handler mHandler = new Handler();
     private LinearLayout llTitle;
     private FavoriteEntity mFavoriteEntity;
@@ -72,10 +72,10 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
                 return;
 
             boolean bRet = false;
-            List<MediaEntity> list = (List<MediaEntity>)obj;
+            List<MusicInfoDao> list = (List<MusicInfoDao>)obj;
             if(flag == MoreOperationDialog.MORE_REMOVE_NORMAL){
                 for(int i = 0;i < list.size();i++){
-                    bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(list.get(i)._id, mFavoriteEntity._id);
+                    bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(list.get(i).get_id(), mFavoriteEntity._id);
                 }
             }
 
@@ -117,8 +117,9 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
         tvPlayAll = (TextView)rootView.findViewById(R.id.tvPlayAll);
         tvManager = (TextView)rootView.findViewById(R.id.tvManager);
         tvManager.setOnClickListener(this);
-        lbmLayout = new LocalBaseMediaLayout(this.getActivity(), mSubFragmentListener);
-        lbmLayout.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, false, false, false);
+        lbmLayout = new LocalBaseMediaLayout(this.getActivity());
+        //lbmLayout.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, false, false, false);
+        lbmLayout.setBaseMediaListener(mSubFragmentListener);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         params.addRule(RelativeLayout.BELOW, R.id.viewSepratorLine);
@@ -198,18 +199,18 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
             public void run() {
                 List<FavoritesMusicEntity> list = MediaLibrary.getInstance().getFavoriteMusicById(mFavoriteEntity._id);
                 for(int i = 0;i < list.size();i++){
-                    MediaEntity mediaEntity = MediaLibrary.getInstance().getMediaEntityById(list.get(i).musicinfo_id);
-                    if(mediaEntity == null)
+                    MusicInfoDao MusicInfoDao = MediaLibrary.getInstance().getMusicInfoDaoById(list.get(i).musicinfo_id);
+                    if(MusicInfoDao == null)
                         continue;
 
-                    mListFavoriteData.add(mediaEntity);
+                    mListFavoriteData.add(MusicInfoDao);
                 }
 
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         tvFavoriteNum.setText("/" + mListFavoriteData.size() + "首");
-                        lbmLayout.initAdapterData(mListFavoriteData);
+                        //lbmLayout.initAdapterData(mListFavoriteData);
                     }
                 });
             }
@@ -258,8 +259,8 @@ public class FavoriteMainFragment extends BaseFragment implements View.OnClickLi
         }
         else if(v == tvManager){
             Intent intent = new Intent(this.getActivity(), BatchMgrAudioActivity.class);
-            List<MediaEntity> listTemp = new ArrayList<>();
-            List<MediaEntity> temp = lbmLayout.getAdapterOriginData();
+            List<MusicInfoDao> listTemp = new ArrayList<>();
+            List<MusicInfoDao> temp = new ArrayList<>();//lbmLayout.getAdapterOriginData();
             if(temp != null){
                 listTemp.addAll(temp);
             }

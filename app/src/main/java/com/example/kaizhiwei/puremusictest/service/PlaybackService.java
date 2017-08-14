@@ -22,11 +22,10 @@ import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
-
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.MediaData.VLCInstance;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 import com.example.kaizhiwei.puremusictest.util.WeakHandler;
 
 import org.videolan.libvlc.Media;
@@ -48,8 +47,8 @@ public class PlaybackService extends Service {
             | PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_STOP
             | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
 
-    private List<MediaEntity> mLastMediaList = new ArrayList<>();
-    private List<MediaEntity>  mMediaList = new ArrayList<>();
+    private List<MusicInfoDao> mLastMediaList = new ArrayList<>();
+    private List<MusicInfoDao>  mMediaList = new ArrayList<>();
     private int                 mCurrentIndex;
     private int                 mCurrentTime;
     private int                 mRepeatMode;       //PreferenceConfig.PLAYMODE_ORDER
@@ -163,7 +162,7 @@ public class PlaybackService extends Service {
 //                        /**
 //                         * 1) There is a media to update
 //                         * 2) It has a length of 0
-//                         * (dynamic track loading - most notably the OGG container)
+//                         * (dynamic getTrack() loading - most notably the OGG container)
 //                         * 3) We were able to get a length even after parsing
 //                         * (don't want to replace a 0 with a 0)
 //                         */
@@ -298,24 +297,24 @@ public class PlaybackService extends Service {
     }
 
     protected void updateMetadata() {
-        MediaEntity media = getCurrentMedia();
+        MusicInfoDao media = getCurrentMedia();
         if (media == null || mMediaSession == null)
             return;
-        String title = media.title;
+        String title = media.getTitle();
         //Bitmap cover = AudioUtil.getCover(this, media, 512);
         MediaMetadataCompat.Builder bob = new MediaMetadataCompat.Builder();
         bob.putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
                 //.putString(MediaMetadataCompat.METADATA_KEY_GENRE, Util.getMediaGenre(this, media))
-                .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, media.track)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST, media.artist)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, media.album)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, media.duration);
+                .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, media.getTrack())
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST, media.getArtist())
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, media.getAlbum())
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, media.getDuration());
         //if (cover != null && cover.getConfig() != null) //In case of format not supported
         //    bob.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, cover.copy(cover.getConfig(), false));
         mMediaSession.setMetadata(bob.build());
     }
 
-    public MediaEntity getCurrentMedia() {
+    public MusicInfoDao getCurrentMedia() {
         if(mCurrentIndex < 0 || mCurrentIndex >= mMediaList.size())
             return null;
         
@@ -373,11 +372,11 @@ public class PlaybackService extends Service {
                 public void run() {
                     List<String> listMedia = PreferenceConfig.getInstance().getPlaylist();
                     for(int i = 0;i < listMedia.size();i++){
-                        long mediaEntityId = Long.valueOf(listMedia.get(i));
-                        if(mediaEntityId <= 0)
+                        long MusicInfoDaoId = Long.valueOf(listMedia.get(i));
+                        if(MusicInfoDaoId <= 0)
                             continue;
 
-                        MediaEntity entity = MediaLibrary.getInstance().getMediaEntityById(mediaEntityId);
+                        MusicInfoDao entity = MediaLibrary.getInstance().getMusicInfoDaoById(MusicInfoDaoId);
                         mMediaList.add(entity);
                     }
                     mLastMediaList.addAll(mMediaList);
@@ -391,13 +390,13 @@ public class PlaybackService extends Service {
         }
     }
 
-    public void deleteMediaById(long mediaEntityId){
+    public void deleteMediaById(long MusicInfoDaoId){
         if(mMediaList == null)
             return;
 
         int deleteIndex = 0;
         for(int i = 0;i < mMediaList.size();i++){
-            if(mMediaList.get(i)._id == mediaEntityId){
+            if(mMediaList.get(i).get_id() == MusicInfoDaoId){
                 mMediaList.remove(i);
                 deleteIndex = i;
                 break;
@@ -409,13 +408,13 @@ public class PlaybackService extends Service {
         savePlaylistToPrefFile(mMediaList);
     }
 
-    public void mutilDeleteMediaByList(List<MediaEntity> list){
+    public void mutilDeleteMediaByList(List<MusicInfoDao> list){
         if(mMediaList == null)
             return;
 
         for (int i = 0; i < list.size(); i++) {
             for(int j = 0;j < mMediaList.size();j++) {
-                if (mMediaList.get(j)._id == list.get(i)._id) {
+                if (mMediaList.get(j).get_id() == list.get(i).get_id()) {
                     if(j == mCurrentIndex){
                         pause();
                     }
@@ -443,27 +442,27 @@ public class PlaybackService extends Service {
         mMediaList.clear();
     }
 
-    public MediaEntity getLastMediaEntityByIndex(int index){
+    public MusicInfoDao getLastMusicInfoDaoByIndex(int index){
         if(index < 0 || index >= mLastMediaList.size())
             return null;
 
         return mLastMediaList.get(index);
     }
 
-    public MediaEntity getMediaEntityByIndex(int index){
+    public MusicInfoDao getMusicInfoDaoByIndex(int index){
         if(index < 0 || index >= mMediaList.size())
             return null;
 
         return mMediaList.get(index);
     }
 
-    private void savePlaylistToPrefFile(List<MediaEntity> list){
+    private void savePlaylistToPrefFile(List<MusicInfoDao> list){
         if(list == null)
             return;
 
         final List<String> listPref = new ArrayList<>();
         for(int i = 0;i < list.size();i++){
-            listPref.add("" + list.get(i)._id);
+            listPref.add("" + list.get(i).get_id());
         }
 
         if(mThreadPool != null){
@@ -476,19 +475,19 @@ public class PlaybackService extends Service {
         }
     }
 
-    public void play(MediaEntity mediaEntity){
-        if(mediaEntity == null || mMediaList == null || mMediaList.size() == 0)
+    public void play(MusicInfoDao MusicInfoDao){
+        if(MusicInfoDao == null || mMediaList == null || mMediaList.size() == 0)
             return;
 
         for(int i = 0;i < mMediaList.size();i++){
-            if(mMediaList.get(i)._id == mediaEntity._id){
+            if(mMediaList.get(i).get_id() == MusicInfoDao.get_id()){
                 play(i, true);
                 break;
             }
         }
     }
 
-    public void play(List<MediaEntity> list, int position){
+    public void play(List<MusicInfoDao> list, int position){
         if(mMediaList != null && mLastMediaList != null){
             mLastMediaList.clear();
             mLastMediaList.addAll(mMediaList);
@@ -505,12 +504,12 @@ public class PlaybackService extends Service {
 
         //如果之前播放过则对比上次和这次的是否是统一首歌
         if(mCurrentIndex >= 0 && isPlayNow){
-            MediaEntity oldMediaEntity = getLastMediaEntityByIndex(mCurrentIndex);
-            MediaEntity newMediaEntity = getMediaEntityByIndex(index);
-            if(oldMediaEntity == null || newMediaEntity == null)
+            MusicInfoDao oldMusicInfoDao = getLastMusicInfoDaoByIndex(mCurrentIndex);
+            MusicInfoDao newMusicInfoDao = getMusicInfoDaoByIndex(index);
+            if(oldMusicInfoDao == null || newMusicInfoDao == null)
                 return;
 
-            if(oldMediaEntity._id == newMediaEntity._id && mRepeatMode != PreferenceConfig.PLAYMODE_ONECIRCLE){
+            if(oldMusicInfoDao.get_id() == newMusicInfoDao.get_id() && mRepeatMode != PreferenceConfig.PLAYMODE_ONECIRCLE){
                 mCurrentIndex = index;
                 if(!isPlaying()){
 
@@ -522,7 +521,7 @@ public class PlaybackService extends Service {
         mPausable = mSeekable = true;
         mCurrentIndex = index;
         PreferenceConfig.getInstance().setPositionInPlaylist(mCurrentIndex);
-        String filePath = mMediaList.get(index).getFilePath();
+        String filePath = mMediaList.get(index).getSave_path();
         File file = new File(filePath);
         if(file.exists() == false)
             return;
@@ -735,8 +734,8 @@ public class PlaybackService extends Service {
         //onMediaChanged();
     }
 
-    public List<MediaEntity> getPlaylist(){
-        List<MediaEntity> list = new ArrayList<>();
+    public List<MusicInfoDao> getPlaylist(){
+        List<MusicInfoDao> list = new ArrayList<>();
         list.addAll(mMediaList);
         return list;
     }
@@ -751,13 +750,13 @@ public class PlaybackService extends Service {
         return mMediaList.size();
     }
 
-    public boolean addSongToNext(MediaEntity entity){
-        if(entity == null || entity._id < 0 || mMediaList == null)
+    public boolean addSongToNext(MusicInfoDao entity){
+        if(entity == null || entity.get_id() < 0 || mMediaList == null)
             return false;
 
         boolean isExist = false;
         for(int i = 0;i < mMediaList.size();i++){
-            if(mMediaList.get(i)._id == entity._id){
+            if(mMediaList.get(i).get_id() == entity.get_id()){
                 isExist = true;
                 break;
             }

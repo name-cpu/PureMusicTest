@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Message;
 import android.text.TextUtils;
 
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 import com.example.kaizhiwei.puremusictest.util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.util.DeviceUtil;
 import com.example.kaizhiwei.puremusictest.util.ExtensionUtil;
@@ -41,8 +42,8 @@ public class MediaLibrary {
 
     private static MediaLibrary instance;
     private static final List<String> FOLDER_BLACKLIST;
-    private List<MediaEntity> mMediaEntityList = new ArrayList<MediaEntity>();
-    private ReadWriteLock mMediaEntityListLock = new ReentrantReadWriteLock();
+    private List<MusicInfoDao> mMusicInfoDaoList = new ArrayList<MusicInfoDao>();
+    private ReadWriteLock mMusicInfoDaoListLock = new ReentrantReadWriteLock();
 
     private List<FavoriteEntity> mFavoriteListData = new ArrayList<>();
 
@@ -84,13 +85,13 @@ public class MediaLibrary {
         mPool = Executors.newFixedThreadPool(1);
     }
 
-    public void resetAllMediaEntityInfo(HashMap<String, String> mapResult){
+    public void resetAllMusicInfoDaoInfo(HashMap<String, String> mapResult){
         if(mapResult == null)
             return;
 
         MediaDataBase.getInstance().deleteAllMusicInfo();
-        mMediaEntityListLock.writeLock().lock();
-        mMediaEntityList.clear();
+        mMusicInfoDaoListLock.writeLock().lock();
+        mMusicInfoDaoList.clear();
         for(HashMap.Entry<String, String> entry : mapResult.entrySet()){
             File file = new File(entry.getKey());
             if(file.exists() == false)
@@ -104,20 +105,20 @@ public class MediaLibrary {
                 continue;
             }
 
-            MediaEntity mediaEntity = new MediaEntity(media);
+            MusicInfoDao MusicInfoDao = new MusicInfoDao();
             media.release();
-            MediaDataBase.getInstance().insertMusicInfo(mediaEntity);
-            mMediaEntityList.add(mediaEntity);
+            MediaDataBase.getInstance().insertMusicInfo(MusicInfoDao);
+            mMusicInfoDaoList.add(MusicInfoDao);
         }
-        mMediaEntityListLock.writeLock().unlock();
+        mMusicInfoDaoListLock.writeLock().unlock();
     }
 
     public void initData(){
-        if(mMediaEntityList == null || mMediaEntityList.size() == 0){
-            mMediaEntityListLock.writeLock().lock();
-            List<MediaEntity> list = MediaDataBase.getInstance().queryAllMusicInfo();
-            mMediaEntityList.addAll(list);
-            mMediaEntityListLock.writeLock().unlock();
+        if(mMusicInfoDaoList == null || mMusicInfoDaoList.size() == 0){
+            mMusicInfoDaoListLock.writeLock().lock();
+            List<MusicInfoDao> list = MediaDataBase.getInstance().queryAllMusicInfo();
+            mMusicInfoDaoList.addAll(list);
+            mMusicInfoDaoListLock.writeLock().unlock();
         }
 
         if(mFavoriteListData.size() == 0){
@@ -140,20 +141,20 @@ public class MediaLibrary {
         }
     }
 
-    public List<MediaEntity> getAllMediaEntrty(){
+    public List<MusicInfoDao> getAllMediaEntrty(){
 
-        if(mMediaEntityList == null || mMediaEntityList.size() == 0){
+        if(mMusicInfoDaoList == null || mMusicInfoDaoList.size() == 0){
             getAllFavoriteMusicEntity();
         }
 
-        mMediaEntityListLock.readLock().lock();
-        List<MediaEntity> newList = new ArrayList<>();
-        newList.addAll(mMediaEntityList);
-        mMediaEntityListLock.readLock().unlock();
+        mMusicInfoDaoListLock.readLock().lock();
+        List<MusicInfoDao> newList = new ArrayList<>();
+        newList.addAll(mMusicInfoDaoList);
+        mMusicInfoDaoListLock.readLock().unlock();
         return newList;
     }
 
-    public void asyncGetAllMediaEntity(final BaseHandler handler){
+    public void asyncGetAllMusicInfoDao(final BaseHandler handler){
         if(mPool == null || handler == null){
             return;
         }
@@ -161,29 +162,29 @@ public class MediaLibrary {
         mPool.execute(new Runnable() {
             @Override
             public void run() {
-                List<MediaEntity> list = getAllMediaEntrty();
+                List<MusicInfoDao> list = getAllMediaEntrty();
                 Message msg = handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, list);
                 handler.sendMessage(msg);
             }
         });
     }
 
-    public int getMediaEntitySize(){
-        if(mMediaEntityList == null)
+    public int getMusicInfoDaoSize(){
+        if(mMusicInfoDaoList == null)
             return 0;
 
-        return mMediaEntityList.size();
+        return mMusicInfoDaoList.size();
     }
 
-    public boolean removeMediaEntity(MediaEntity entity){
-        if(entity == null || entity._id < 0)
+    public boolean removeMusicInfoDao(MusicInfoDao entity){
+        if(entity == null || entity.get_id() < 0)
             return false;
 
         boolean bRet = MediaDataBase.getInstance().deleteMusicInfoByEntityId(entity);
         if(bRet){
-            for(int i = 0;i < mMediaEntityList.size();i++){
-                if(mMediaEntityList.get(i)._id == entity._id){
-                    mMediaEntityList.remove(i);
+            for(int i = 0;i < mMusicInfoDaoList.size();i++){
+                if(mMusicInfoDaoList.get(i).get_id() == entity.get_id()){
+                    mMusicInfoDaoList.remove(i);
                     break;
                 }
             }
@@ -191,17 +192,17 @@ public class MediaLibrary {
         return bRet;
     }
 
-    public boolean mutilRemoveMediaEntity(List<MediaEntity> list){
+    public boolean mutilRemoveMusicInfoDao(List<MusicInfoDao> list){
         if(list == null)
             return false;
 
         boolean bRet = false;
-        for(int i = 0;i < mMediaEntityList.size();i++){
+        for(int i = 0;i < mMusicInfoDaoList.size();i++){
             for(int j = 0;j < list.size();j++){
-                if(mMediaEntityList.get(i)._id == list.get(j)._id){
+                if(mMusicInfoDaoList.get(i).get_id() == list.get(j).get_id()){
                     bRet = MediaDataBase.getInstance().deleteMusicInfoByEntityId(list.get(j));
                     if(bRet){
-                        mMediaEntityList.remove(i);
+                        mMusicInfoDaoList.remove(i);
                         i--;
                         break;
                     }
@@ -211,15 +212,15 @@ public class MediaLibrary {
         return bRet;
     }
 
-    public MediaEntity getMediaEntityById(long id){
-        if(mMediaEntityList == null || mMediaEntityList.size() == 0){
+    public MusicInfoDao getMusicInfoDaoById(long id){
+        if(mMusicInfoDaoList == null || mMusicInfoDaoList.size() == 0){
             return MediaDataBase.getInstance().queryMusicInfoById(id);
         }
 
-        MediaEntity entity = null;
-        for(int i = 0;i < mMediaEntityList.size();i++){
-            if(mMediaEntityList.get(i)._id == id){
-                entity = mMediaEntityList.get(i);
+        MusicInfoDao entity = null;
+        for(int i = 0;i < mMusicInfoDaoList.size();i++){
+            if(mMusicInfoDaoList.get(i).get_id() == id){
+                entity = mMusicInfoDaoList.get(i);
                 break;
             }
         }
@@ -249,7 +250,7 @@ public class MediaLibrary {
         if(!isExistFavorite(entity.favorite_id))
             return false;
 
-        if(queryIsFavoriteByMediaEntityId(entity._id, getDefaultFavoriteEntityId()))
+        if(queryIsFavoriteByMusicInfoDaoId(entity._id, getDefaultFavoriteEntityId()))
             return true;
 
         mFavoriteMusicListLock.writeLock().lock();
@@ -281,7 +282,7 @@ public class MediaLibrary {
             }
         }
         mFavoriteMusicListLock.writeLock().unlock();
-        boolean bRet =  MediaDataBase.getInstance().deleteFavoriteMusicInfoByMediaEntityId(musicEntityId, favoriteEntityId);
+        boolean bRet =  MediaDataBase.getInstance().deleteFavoriteMusicInfoByMusicInfoDaoId(musicEntityId, favoriteEntityId);
         if(bRet){
             FavoriteEntity favoriteEntity = getFavoriteEntityById(favoriteEntityId);
             if(favoriteEntity != null){
@@ -293,11 +294,11 @@ public class MediaLibrary {
 
     }
 
-    public boolean queryIsFavoriteByMediaEntityId(long mediaEntityId, long favoriteEntityId){
+    public boolean queryIsFavoriteByMusicInfoDaoId(long MusicInfoDaoId, long favoriteEntityId){
         mFavoriteMusicListLock.readLock().lock();
         boolean bFavorite = false;
         for(int i = 0;i < mFavoriteMusicListData.size();i++){
-            if(mFavoriteMusicListData.get(i).musicinfo_id == mediaEntityId && mFavoriteMusicListData.get(i).favorite_id == favoriteEntityId){
+            if(mFavoriteMusicListData.get(i).musicinfo_id == MusicInfoDaoId && mFavoriteMusicListData.get(i).favorite_id == favoriteEntityId){
                 bFavorite = true;
                 break;
             }
@@ -467,8 +468,8 @@ public class MediaLibrary {
         else{
             MediaDataBase.getInstance().deleteAllMusicInfo();
         }
-        for(int i = 0;i < mMediaEntityList.size();i++){
-            MediaDataBase.getInstance().insertMusicInfo(mMediaEntityList.get(i));
+        for(int i = 0;i < mMusicInfoDaoList.size();i++){
+            MediaDataBase.getInstance().insertMusicInfo(mMusicInfoDaoList.get(i));
         }
 
         if(mMapListener == null)
@@ -529,9 +530,9 @@ public class MediaLibrary {
 
         @Override
         public void run() {
-            mMediaEntityListLock.writeLock().lock();
-            mMediaEntityList.clear();
-            mMediaEntityListLock.writeLock().unlock();
+            mMusicInfoDaoListLock.writeLock().lock();
+            mMusicInfoDaoList.clear();
+            mMusicInfoDaoListLock.writeLock().unlock();
 
             scannedPath.clear();
             directoies.clear();
@@ -597,11 +598,11 @@ public class MediaLibrary {
                     continue;
                 }
 
-                MediaEntity entrty = new MediaEntity(media);
+                MusicInfoDao entrty = new MusicInfoDao();
                 media.release();
-                mMediaEntityListLock.writeLock().lock();
-                mMediaEntityList.add(entrty);
-                mMediaEntityListLock.writeLock().unlock();
+                mMusicInfoDaoListLock.writeLock().lock();
+                mMusicInfoDaoList.add(entrty);
+                mMusicInfoDaoListLock.writeLock().unlock();
             }
             notifyScanFinish();
         }

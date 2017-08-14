@@ -22,11 +22,11 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 
 import com.bumptech.glide.Glide;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 import com.example.kaizhiwei.puremusictest.ui.localmusic.FavoriteDialog;
 import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
 import com.example.kaizhiwei.puremusictest.ui.home.HomeActivity;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
 
@@ -46,7 +46,7 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
     private ImageView ivBackground;
     private List<PlayingMoreOperAdapter.PlayingMoreOperItemData> mListData;
     private AudioManager mAudioManager;
-    private MediaEntity mediaEntity;
+    private MusicInfoDao musicInfoDao;
     private int mLastVolume;
     private MyVolumeReceiver mVolumeReceiver;
     private static final int MORE_OPER_SEARCHLYRIC = 0;
@@ -62,18 +62,18 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
                 case MORE_OPER_SEARCHLYRIC:
                     break;
                 case MORE_OPER_SHAREMEDIA:
-                    if(mediaEntity == null)
+                    if(musicInfoDao == null)
                         return;
 
                     dismiss();
                     String strShareTitle = PlayingMoreOperDialog.this.getContext().getResources().getString(R.string.app_name);
-                    strShareTitle = String.format("分享一首%s的%s - 来自%s", mediaEntity.artist, mediaEntity.title, strShareTitle);
+                    strShareTitle = String.format("分享一首%s的%s - 来自%s", musicInfoDao.getArtist(), musicInfoDao.getTitle(), strShareTitle);
                     AndroidShare as = new AndroidShare(
                             PlayingMoreOperDialog.this.getContext(),
                             strShareTitle,
                             "http://img6.cache.netease.com/cnews/news2012/img/logo_news.png");
                     as.show();
-                    as.setTitle("分享 - " + mediaEntity.title);
+                    as.setTitle("分享 - " + musicInfoDao.getTitle());
                     break;
                 case MORE_OPER_ADDTO:
                     dismiss();
@@ -81,11 +81,11 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
                     FavoriteDialog dialogFavorite = builderFavorite.create();
                     dialogFavorite.setCancelable(true);
                     dialogFavorite.setFavoritelistData(MediaLibrary.getInstance().getAllFavoriteEntity());
-                    List<MediaEntity> list = new ArrayList<>();
-                    if(mediaEntity != null){
-                        list.add(mediaEntity);
+                    List<MusicInfoDao> list = new ArrayList<>();
+                    if(musicInfoDao != null){
+                        list.add(musicInfoDao);
                     }
-                    dialogFavorite.setMediaEntityData(list);
+                    dialogFavorite.setMusicInfoDaoData(list);
                     dialogFavorite.show();
                     dialogFavorite.setTitle("添加到歌单");
                     break;
@@ -95,7 +95,7 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
                     dismiss();
                     AlterDialogMediaInfo dialog = new AlterDialogMediaInfo(PlayingMoreOperDialog.this.getContext());
                     dialog.show();
-                    dialog.setMediaEntity(mediaEntity);
+                    dialog.setMusicInfoDao(musicInfoDao);
                     break;
             }
         }
@@ -216,8 +216,8 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
         return super.onKeyDown(keyCode, event);
     }
 
-    public void setCurrentMediaEntity(MediaEntity mediaEntity){
-        this.mediaEntity = mediaEntity;
+    public void setCurrentMusicInfoDao(MusicInfoDao MusicInfoDao){
+        this.musicInfoDao = MusicInfoDao;
     }
 
     @Override

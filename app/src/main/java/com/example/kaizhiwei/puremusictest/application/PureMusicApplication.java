@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.example.kaizhiwei.puremusictest.MediaData.SongEntity;
-import com.example.kaizhiwei.puremusictest.model.scanmusic.MediaModel;
+import com.example.kaizhiwei.puremusictest.model.MediaModel;
 
 import org.xutils.x;
 

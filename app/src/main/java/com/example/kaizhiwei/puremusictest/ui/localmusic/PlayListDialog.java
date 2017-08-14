@@ -15,9 +15,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,7 +131,7 @@ public class PlayListDialog extends Dialog implements View.OnClickListener, Adap
         window.setAttributes(wl);
     }
 
-    public void setPlaylistData(List<MediaEntity> list){
+    public void setPlaylistData(List<MusicInfoDao> list){
         mPlaylistAdapter = null;
         mPlaylistAdapter = new PlayListViewAdapter(this.getContext(), list);
         mPlaylistAdapter.notifyDataSetChanged();
@@ -195,7 +195,7 @@ public class PlayListDialog extends Dialog implements View.OnClickListener, Adap
         if(v == tvClearAll){
             if(mDialogListener != null){
                 mDialogListener.onClearPlaylist();
-                mPlaylistAdapter.setPlaylistAdapterData(new ArrayList<MediaEntity>());
+                mPlaylistAdapter.setPlaylistAdapterData(new ArrayList<MusicInfoDao>());
                 tvPromt.setVisibility(View.VISIBLE);
                 lvPlaylist.setVisibility(View.GONE);
             }

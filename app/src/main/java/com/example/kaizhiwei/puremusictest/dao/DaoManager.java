@@ -43,7 +43,7 @@ public class DaoManager {
         File file = new File(strDir);
         file.mkdirs();
         DbManager.DaoConfig daoConfig = new DbManager.DaoConfig()
-                .setDbName("DB_NAME") //设置数据库名
+                .setDbName(DB_NAME) //设置数据库名
                 .setDbVersion(1) //设置数据库版本,每次启动应用时将会检查该版本号,
                 //发现数据库版本低于这里设置的值将进行数据库升级并触发DbUpgradeListener
                 .setAllowTransaction(true)//设置是否开启事务,默认为false关闭事务

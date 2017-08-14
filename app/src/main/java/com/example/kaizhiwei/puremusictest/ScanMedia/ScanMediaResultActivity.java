@@ -77,6 +77,6 @@ public class ScanMediaResultActivity extends BaseActivty implements IScanListene
 //        tvScanResult.setText("扫描完毕共" + mapResult.size() + "首");
 //        tvScanProgressing.setText("为您过滤" + filterNum + "个音乐片段");
 //        pbScanProgring.setProgress(100);
-//        MediaLibrary.getInstance().resetAllMediaEntityInfo(mapResult);
+//        MediaLibrary.getInstance().resetAllMusicInfoDaoInfo(mapResult);
     }
 }

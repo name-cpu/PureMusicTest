@@ -10,9 +10,9 @@ import android.widget.ListView;
 import android.widget.Toast;
 import com.example.kaizhiwei.puremusictest.CommonUI.BaseActivty;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyTextView;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 import com.example.kaizhiwei.puremusictest.service.PlaybackService;
 import com.r0adkll.slidr.Slidr;
 
@@ -52,11 +52,11 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
             if(dialog == null)
                 return;
 
-            List<MediaEntity> listMediaEntity = dialog.getMediaEntityData();
-            if(listMediaEntity == null || listMediaEntity.size() == 0)
+            List<MusicInfoDao> listMusicInfoDao = dialog.getMusicInfoDaoData();
+            if(listMusicInfoDao == null || listMusicInfoDao.size() == 0)
                 return;
 
-            handleDeleteMedia(listMediaEntity, isDeleteFile);
+            handleDeleteMedia(listMusicInfoDao, isDeleteFile);
         }
     };
 
@@ -116,23 +116,23 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
 
     private void initData(){
         Intent intent = getIntent();
-        List<MediaEntity> list = (ArrayList<MediaEntity>)intent.getSerializableExtra(INTENT_LIST_DATA);
+        List<MusicInfoDao> list = (ArrayList<MusicInfoDao>)intent.getSerializableExtra(INTENT_LIST_DATA);
         mRightBtnIsDelete = intent.getBooleanExtra(INTENT_RIGHTBTNISDELETE, true);
         mRightBtnIsRemove = intent.getBooleanExtra(INTENT_RIGHTBTNISREMOVE, false);
         mFavoriteId = intent.getLongExtra(INTENT_FAVORITEID, -1);
 
         List<BatchMgrAudioAdapter.BatchMgrAudioItemData> listAdapterData = new ArrayList<>();
-        List<MediaEntity> listMediaEntity = new ArrayList<>();
+        List<MusicInfoDao> listMusicInfoDao = new ArrayList<>();
         if(list == null){
-            listMediaEntity = MediaLibrary.getInstance().getAllMediaEntrty();
+            listMusicInfoDao = MediaLibrary.getInstance().getAllMediaEntrty();
         }
         else{
-            listMediaEntity.addAll(list);
+            listMusicInfoDao.addAll(list);
         }
-        for(int i = 0;i < listMediaEntity.size();i++){
+        for(int i = 0;i < listMusicInfoDao.size();i++){
             BatchMgrAudioAdapter.BatchMgrAudioItemData itemData = new BatchMgrAudioAdapter.BatchMgrAudioItemData();
             itemData.isSelected = false;
-            itemData.mediaEntity = listMediaEntity.get(i);
+            itemData.musicInfoDao = listMusicInfoDao.get(i);
             listAdapterData.add(itemData);
         }
 
@@ -157,7 +157,7 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
             return;
         }
 
-        List<MediaEntity> listChecked = mAdapter.getCheckedMediaEntity();
+        List<MusicInfoDao> listChecked = mAdapter.getCheckedMusicInfoDao();
         if(listChecked.size() == 0){
             Toast.makeText(this, "没有选择歌曲哦",Toast.LENGTH_SHORT).show();
             return;
@@ -168,7 +168,7 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
             FavoriteDialog dialogFavorite = builderFavorite.create();
             dialogFavorite.setCancelable(true);
             dialogFavorite.setFavoritelistData(MediaLibrary.getInstance().getAllFavoriteEntity());
-            dialogFavorite.setMediaEntityData(listChecked);
+            dialogFavorite.setMusicInfoDaoData(listChecked);
             dialogFavorite.show();
             dialogFavorite.setTitle("添加到歌单");
         }
@@ -211,14 +211,14 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
         mtvDelete.setText(strDelete);
     }
 
-    public List<MediaEntity> getCheckedMediaEntity(){
+    public List<MusicInfoDao> getCheckedMusicInfoDao(){
         if(mAdapter == null)
             return null;
 
-        return mAdapter.getCheckedMediaEntity();
+        return mAdapter.getCheckedMusicInfoDao();
     }
 
-    public void showDeleteAlterDialog(Context context, List<MediaEntity> listOperMediaEntity, String strTitle, boolean isNeedReCreate){
+    public void showDeleteAlterDialog(Context context, List<MusicInfoDao> listOperMusicInfoDao, String strTitle, boolean isNeedReCreate){
         if(isNeedReCreate){
             mAlertDialogDeleteOne = new AlertDialogDeleteOne(context, mAlertDialogDeleteListener);
         }
@@ -228,12 +228,12 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
         }
 
         mAlertDialogDeleteOne.show();
-        mAlertDialogDeleteOne.setMediaEntityData(listOperMediaEntity);
+        mAlertDialogDeleteOne.setMusicInfoDaoData(listOperMusicInfoDao);
         mAlertDialogDeleteOne.setTitle(strTitle);
     }
 
-    private void handleRemoveFromFavorite(final List<MediaEntity> listMediaEntity){
-        if(listMediaEntity == null || mService == null)
+    private void handleRemoveFromFavorite(final List<MusicInfoDao> listMusicInfoDao){
+        if(listMusicInfoDao == null || mService == null)
             return;
 
         new Thread(new Runnable() {
@@ -241,8 +241,8 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
             public void run() {
                 int successNum = 0;
                 boolean bRet = false;
-                for(int i = 0;i < listMediaEntity.size();i++){
-                    bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(listMediaEntity.get(i)._id, mFavoriteId);
+                for(int i = 0;i < listMusicInfoDao.size();i++){
+                    bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(listMusicInfoDao.get(i).get_id(), mFavoriteId);
                     if(bRet){
                         successNum++;
                     }
@@ -256,8 +256,8 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
                         if(finalSuccessNum == 0){
                             strPromt = "移除失败";
                         }
-                        else if(finalSuccessNum < listMediaEntity.size()){
-                            strPromt = String.format("%d移除成功,%d移除失败", finalSuccessNum, listMediaEntity.size()- finalSuccessNum);
+                        else if(finalSuccessNum < listMusicInfoDao.size()){
+                            strPromt = String.format("%d移除成功,%d移除失败", finalSuccessNum, listMusicInfoDao.size()- finalSuccessNum);
                         }
                         else{
                             strPromt = "移除成功";
@@ -269,8 +269,8 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
         }).start();
     }
 
-    private void handleDeleteMedia(final List<MediaEntity> listMediaEntity, final boolean isDeleteFile){
-        if(listMediaEntity == null || mService == null)
+    private void handleDeleteMedia(final List<MusicInfoDao> listMusicInfoDao, final boolean isDeleteFile){
+        if(listMusicInfoDao == null || mService == null)
             return;
 
         new Thread(new Runnable() {
@@ -279,16 +279,16 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
 
                 //是否包含正在播放的歌曲
                 boolean isContainPlaying = false;
-                MediaEntity curMediaEntity = null;
-                curMediaEntity = mService.getCurrentMedia();
+                MusicInfoDao curMusicInfoDao = null;
+                curMusicInfoDao = mService.getCurrentMedia();
                 int successNum = 0;
-                for(int i = 0;i < listMediaEntity.size();i++){
-                    MediaEntity entity = listMediaEntity.get(i);
-                    if(entity == null || entity._id < 0)
+                for(int i = 0;i < listMusicInfoDao.size();i++){
+                    MusicInfoDao entity = listMusicInfoDao.get(i);
+                    if(entity == null || entity.get_id() < 0)
                         continue;
 
                     if(isDeleteFile){
-                        File file = new File(entity._data);
+                        File file = new File(entity.get_data());
                         if(file.exists()){
                             boolean bRet = file.delete();
                             if(bRet)
@@ -299,15 +299,15 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
                         successNum++;
                     }
 
-                    if(curMediaEntity != null){
-                        if(curMediaEntity._id == entity._id){
+                    if(curMusicInfoDao != null){
+                        if(curMusicInfoDao.get_id() == entity.get_id()){
                             isContainPlaying = true;
                         }
                     }
                 }
 
-                mService.mutilDeleteMediaByList(listMediaEntity);
-                MediaLibrary.getInstance().mutilRemoveMediaEntity(listMediaEntity);
+                mService.mutilDeleteMediaByList(listMusicInfoDao);
+                MediaLibrary.getInstance().mutilRemoveMusicInfoDao(listMusicInfoDao);
 
                 final int finalSuccessNum = successNum;
                 final boolean finalIsContainPlaying = isContainPlaying;
@@ -318,7 +318,7 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
                         if(finalSuccessNum == 0){
                             strPromt = "删除失败";
                         }
-                        else if(finalSuccessNum < listMediaEntity.size()){
+                        else if(finalSuccessNum < listMusicInfoDao.size()){
                             strPromt = "删除部分成功,部分失败";
                         }
                         else{

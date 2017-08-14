@@ -7,12 +7,10 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 
-import java.io.File;
 import java.util.List;
 /**
  * Created by 24820 on 2016/12/14.
@@ -22,7 +20,7 @@ public class AlertDialogHide extends AlertDialog implements View.OnClickListener
     private TextView btnCancel;
     private TextView tvTitle;
     private IAlertDialogHideListener mListener;
-    private List<MediaEntity> mListMediaEntity;
+    private List<MusicInfoDao> mListMusicInfoDao;
 
     interface IAlertDialogHideListener{
         void onAlterDialogHideOk(String strFolderPath);
@@ -65,8 +63,8 @@ public class AlertDialogHide extends AlertDialog implements View.OnClickListener
         }
     }
 
-    public void setMediaEntityData(List<MediaEntity> list){
-        mListMediaEntity = list;
+    public void setMusicInfoDaoData(List<MusicInfoDao> list){
+        mListMusicInfoDao = list;
     }
 
     @Override
@@ -75,18 +73,18 @@ public class AlertDialogHide extends AlertDialog implements View.OnClickListener
             dismiss();
         }
         else if(v == btnOK){
-            if(mListMediaEntity == null){
+            if(mListMusicInfoDao == null){
                 dismiss();
                 return;
             }
 
             int successNum = 0;
-            for(int i = 0;i < mListMediaEntity.size();i++){
-                MediaEntity entity = mListMediaEntity.get(i);
-                if(entity == null || entity._id < 0)
+            for(int i = 0;i < mListMusicInfoDao.size();i++){
+                MusicInfoDao entity = mListMusicInfoDao.get(i);
+                if(entity == null || entity.get_id() < 0)
                     continue;
 
-                if(MediaLibrary.getInstance().removeMediaEntity(entity)){
+                if(MediaLibrary.getInstance().removeMusicInfoDao(entity)){
                     successNum++;
                 }
             }
@@ -95,8 +93,8 @@ public class AlertDialogHide extends AlertDialog implements View.OnClickListener
             if(successNum == 0){
                 strPromt = "隐藏失败";
             }
-            else if(successNum < mListMediaEntity.size()){
-                strPromt = "隐藏成功" + successNum + "首,失败" + (mListMediaEntity.size() - successNum) + "首";
+            else if(successNum < mListMusicInfoDao.size()){
+                strPromt = "隐藏成功" + successNum + "首,失败" + (mListMusicInfoDao.size() - successNum) + "首";
             }
             else{
                 strPromt = "隐藏成功";
@@ -104,8 +102,8 @@ public class AlertDialogHide extends AlertDialog implements View.OnClickListener
             Toast.makeText(this.getContext(), strPromt, Toast.LENGTH_SHORT).show();
             dismiss();
 
-            if(mListener != null && mListMediaEntity != null && mListMediaEntity.size() > 0){
-                mListener.onAlterDialogHideOk(mListMediaEntity.get(0).save_path);
+            if(mListener != null && mListMusicInfoDao != null && mListMusicInfoDao.size() > 0){
+                mListener.onAlterDialogHideOk(mListMusicInfoDao.get(0).getSave_path());
             }
         }
     }

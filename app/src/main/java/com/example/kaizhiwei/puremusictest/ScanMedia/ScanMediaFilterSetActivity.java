@@ -74,7 +74,7 @@ public class ScanMediaFilterSetActivity extends BaseActivty implements SelectFol
                 mSelectFolderDialog.registerListener(this);
             }
 
-            mSelectFolderDialog.setMediaEntityData(MediaLibrary.getInstance().getAllMediaEntrty(), mListFilterFoler);
+            mSelectFolderDialog.setMusicInfoDaoData(MediaLibrary.getInstance().getAllMediaEntrty(), mListFilterFoler);
             mSelectFolderDialog.show();
             mSelectFolderDialog.setTitle("音乐目录过滤");
         }

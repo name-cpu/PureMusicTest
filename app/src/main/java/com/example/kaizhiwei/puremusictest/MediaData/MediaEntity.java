@@ -164,7 +164,7 @@ public class MediaEntity implements Serializable {
         mMedia = media;
     }
 
-//    protected MusicInfoDao(Parcel in) {
+//    protected MediaEntity(Parcel in) {
 //        _id = in.readLong();
 //        _data = in.readString();
 //        _size = in.readLong();
@@ -217,15 +217,15 @@ public class MediaEntity implements Serializable {
 //        file_hash = in.readString();
 //    }
 
-//    public static final Creator<MusicInfoDao> CREATOR = new Creator<MusicInfoDao>() {
+//    public static final Creator<MediaEntity> CREATOR = new Creator<MediaEntity>() {
 //        @Override
-//        public MusicInfoDao createFromParcel(Parcel in) {
-//            return new MusicInfoDao(in);
+//        public MediaEntity createFromParcel(Parcel in) {
+//            return new MediaEntity(in);
 //        }
 //
 //        @Override
-//        public MusicInfoDao[] newArray(int size) {
-//            return new MusicInfoDao[size];
+//        public MediaEntity[] newArray(int size) {
+//            return new MediaEntity[size];
 //        }
 //    };
 

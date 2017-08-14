@@ -16,8 +16,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 import com.example.kaizhiwei.puremusictest.ui.home.HomeActivity;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.PlayingDetail.PlayingActivity;
 import com.example.kaizhiwei.puremusictest.R;
@@ -40,7 +40,7 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
     private ImageView  mImArtist;
     private ProgressBar mPlayProgress;
     private LinearLayout llControl;
-    private WeakReference<MediaEntity>  mWeakMediaEntity;
+    private WeakReference<MusicInfoDao>  mWeakMusicInfoDao;
     private boolean mIsPlaying;
     private HomeActivity mHomePage;
     private PlaybackService.Client mClient = new PlaybackService.Client(this.getContext(), this);
@@ -56,14 +56,14 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
                 return;
 
             PlayListViewAdapter.PlayListItemData itemData = (PlayListViewAdapter.PlayListItemData)adapter.getItem(position);
-            if(itemData == null || itemData.mediaEntity == null)
+            if(itemData == null || itemData.MusicInfoDao == null)
                 return;
 
-            MediaEntity curPlayMedia = mService.getCurrentMedia();
+            MusicInfoDao curPlayMedia = mService.getCurrentMedia();
             mPlayListDialog.removeItem(position);
-            mService.deleteMediaById(itemData.mediaEntity._id);
+            mService.deleteMediaById(itemData.MusicInfoDao.get_id());
             if(curPlayMedia != null){
-                if(curPlayMedia._id == itemData.mediaEntity._id){
+                if(curPlayMedia.get_id() == itemData.MusicInfoDao.get_id()){
                     mService.next(false);
                 }
             }
@@ -76,10 +76,10 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
 
             PlayListViewAdapter adapter = (PlayListViewAdapter)parent.getAdapter();
             PlayListViewAdapter.PlayListItemData itemData = (PlayListViewAdapter.PlayListItemData)adapter.getItem(position);
-            if(itemData == null || itemData.mediaEntity == null)
+            if(itemData == null || itemData.MusicInfoDao == null)
                 return;
 
-            mService.play(itemData.mediaEntity);
+            mService.play(itemData.MusicInfoDao);
         }
 
         @Override
@@ -166,10 +166,10 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
             resetUI(true);
         }
         else{
-            MediaEntity curMedia = mService.getCurrentMedia();
+            MusicInfoDao curMedia = mService.getCurrentMedia();
             if(curMedia != null){
-                mtvMain.setText(curMedia.title);
-                mtvSub.setText(curMedia.artist);
+                mtvMain.setText(curMedia.getTitle());
+                mtvSub.setText(curMedia.getArtist());
             }
         }
     }
@@ -222,14 +222,14 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
         }
     }
 
-    public void setPlayingMediaEntrty(MediaEntity media){
+    public void setPlayingMediaEntrty(MusicInfoDao media){
         if(media == null)
             return ;
 
         mtvMain.setText(media.getTitle());
         mtvSub.setText(media.getArtist());
         mPlayProgress.setMax((int)media.getDuration());
-        mWeakMediaEntity = new WeakReference<MediaEntity>(media);
+        mWeakMusicInfoDao = new WeakReference<MusicInfoDao>(media);
     }
 
     public void updatePlayProgress(int iCur, int iMax){
@@ -287,19 +287,19 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
     @Override
     public void onMediaPlayerEvent(MediaPlayer.Event event) {
         if(event.type == MediaPlayer.Event.Playing){
-            MediaEntity mediaEntity = mService.getCurrentMedia();
-            if(mediaEntity != null){
+            MusicInfoDao MusicInfoDao = mService.getCurrentMedia();
+            if(MusicInfoDao != null){
                 resetUI(false);
-                mtvMain.setText(mediaEntity.getTitle());
-                mtvSub.setText(mediaEntity.getArtist());
+                mtvMain.setText(MusicInfoDao.getTitle());
+                mtvSub.setText(MusicInfoDao.getArtist());
                 if(mPlayListDialog != null && mPlayListDialog.isShowing()){
                     mPlayListDialog.setItemPlayState(mService.getCurPlayMediaIndex(), true, true);
                 }
             }
         }
         else if(event.type == MediaPlayer.Event.Paused){
-            MediaEntity mediaEntity = mService.getCurrentMedia();
-            if(mediaEntity != null){
+            MusicInfoDao MusicInfoDao = mService.getCurrentMedia();
+            if(MusicInfoDao != null){
                 if(mPlayListDialog != null && mPlayListDialog.isShowing()){
                     mPlayListDialog.setItemPlayState(mService.getCurPlayMediaIndex(), true, false);
                 }

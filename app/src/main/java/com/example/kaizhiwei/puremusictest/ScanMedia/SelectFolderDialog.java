@@ -1,6 +1,5 @@
 package com.example.kaizhiwei.puremusictest.ScanMedia;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -13,23 +12,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
-import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by 24820 on 2016/12/14.
@@ -135,17 +127,17 @@ public class SelectFolderDialog extends Dialog implements View.OnClickListener{
         return listFilterFolder;
     }
 
-    public void setMediaEntityData(List<MediaEntity> list, List<String> listFilterFolder){
+    public void setMusicInfoDaoData(List<MusicInfoDao> list, List<String> listFilterFolder){
         if(list == null || listFilterFolder == null)
             return;
 
         Map<String, String> map = new HashMap();
         for(int i = 0;i < list.size();i++){
-            File file = new File(list.get(i).save_path);
+            File file = new File(list.get(i).getSave_path());
             if(file.exists() == false)
                 continue;
 
-            map.put(list.get(i).save_path, list.get(i).save_path);
+            map.put(list.get(i).getSave_path(), list.get(i).getSave_path());
         }
 
         List<SelectFolderAdapter.FolderItemData> listFolderData = new ArrayList<>();

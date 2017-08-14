@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.base.BaseDialog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ import java.util.Map;
 /**
  * Created by kaizhiwei on 16/11/26.
  */
-public class MoreOperationDialog extends Dialog implements View.OnClickListener {
+public class MoreOperationDialog extends BaseDialog implements View.OnClickListener {
     public static final int MORE_ADD_NORMA = 1;
     public static final int MORE_ALBUM_NORMAL = 2;
     public static final int MORE_BELL_NORMAL = 3;
@@ -40,10 +41,8 @@ public class MoreOperationDialog extends Dialog implements View.OnClickListener 
     public static final int MORE_SHARE_NORMAL = 12;
     public static final int MORE_SONGER_NORMAL = 13;
 
-    private Context context;
     private List<MoreOperationAdapter.MoreOperationItemData>  mMoreOperAll;
     private List<MoreOperationAdapter.MoreOperationItemData> mListData = new ArrayList<>();
-    private TextView tvTitle;
     private GridView gvMoreOperation;
     private MoreOperationAdapter mMoreAdapter;
     private AudioListViewAdapter.AudioSongItemData mLVSongItemData = null;
@@ -54,7 +53,7 @@ public class MoreOperationDialog extends Dialog implements View.OnClickListener 
     private int mLVAdapterType;
 
     public interface IMoreOperationDialogListener{
-        public void onMoreItemClick(MoreOperationDialog dialog, int tag);
+        void onMoreItemClick(MoreOperationDialog dialog, int tag);
     }
 
     public void registerListener(IMoreOperationDialogListener listener){
@@ -84,9 +83,12 @@ public class MoreOperationDialog extends Dialog implements View.OnClickListener 
         }
     }
 
-    public MoreOperationDialog(Context context, int theme_Dialog) {
+    public MoreOperationDialog(Context context) {
         super(context);
-        this.context = context;
+    }
+
+    @Override
+    public void initData() {
         mMoreOperAll = new ArrayList<>();
 
         MoreOperationAdapter.MoreOperationItemData data = null;
@@ -176,12 +178,9 @@ public class MoreOperationDialog extends Dialog implements View.OnClickListener 
         mMoreOperAll.add(data);
     }
 
-    public String getTitle() {
-        return (String) tvTitle.getText();
-    }
-
-    public void setTitle(String strTitle) {
-        this.tvTitle.setText(strTitle);
+    @Override
+    public void initView() {
+        gvMoreOperation = (GridView)findViewById(R.id.gvMoreOperation);
     }
 
     public void setMoreLVData(int lvAdapterType, AudioListViewAdapter.AudioItemData itemData){
@@ -208,7 +207,7 @@ public class MoreOperationDialog extends Dialog implements View.OnClickListener 
         }
 
         if(mLVSongItemData != null){
-            boolean bFavorite = MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mLVSongItemData.id, 1);
+            boolean bFavorite = MediaLibrary.getInstance().queryIsFavoriteByMusicInfoDaoId(mLVSongItemData.id, 1);
             setFavorite(bFavorite);
         }
 
@@ -272,30 +271,6 @@ public class MoreOperationDialog extends Dialog implements View.OnClickListener 
         }
     }
 
-    public void setContentView(View view) {
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams. FLAG_FULLSCREEN , WindowManager.LayoutParams. FLAG_FULLSCREEN);
-
-        super.setContentView(view);
-        tvTitle = (TextView) view.findViewById(R.id.tvTitle);
-        gvMoreOperation = (GridView) view.findViewById(R.id.gvMoreOperation);
-        gvMoreOperation.setSelector(new ColorDrawable(Color.TRANSPARENT));
-
-        Window window = this.getWindow();
-        window.getDecorView().setPadding(0,0,0,0);
-        window.setWindowAnimations(R.style.ActionSheetDialogAnimation);
-        window.setBackgroundDrawableResource(android.R.color.transparent);
-        // 可以在此设置显示动画
-        WindowManager.LayoutParams wl = window.getAttributes();
-        wl.x = 0;
-        // 以下这两句是为了保证按钮可以水平满屏
-        wl.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        wl.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        wl.gravity = Gravity.BOTTOM;
-
-        window.setAttributes(wl);
-    }
-
     protected void onStart() {
         super.onStart();
     }
@@ -307,24 +282,21 @@ public class MoreOperationDialog extends Dialog implements View.OnClickListener 
         super.onStop();
     }
 
-    public static class Builder {
-        private Context context;
-
+    public static class Builder extends BaseDialog.Builder{
 
         public Builder(Context context) {
-            this.context = context;
+            super(context);
         }
 
-        public MoreOperationDialog create() {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final MoreOperationDialog dialog = new MoreOperationDialog(context,R.style.Dialog);
-            View layout = inflater.inflate(R.layout.more_operation_dialog, null);
+        @Override
+        protected <T extends BaseDialog> T createDialog() {
+            final MoreOperationDialog dialog = new MoreOperationDialog(mContext);
+            return (T) dialog;
+        }
 
-
-            dialog.setContentView(layout);
-
-            return dialog;
+        @Override
+        protected int getCustomeView() {
+            return R.layout.more_operation_dialog;
         }
     }
 }

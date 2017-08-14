@@ -12,12 +12,12 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 import com.example.kaizhiwei.puremusictest.ui.localmusic.PlayListDialog;
 import com.example.kaizhiwei.puremusictest.ui.localmusic.PlayListViewAdapter;
 import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
@@ -77,14 +77,14 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
                 return;
 
             PlayListViewAdapter.PlayListItemData itemData = (PlayListViewAdapter.PlayListItemData)adapter.getItem(position);
-            if(itemData == null || itemData.mediaEntity == null)
+            if(itemData == null || itemData.MusicInfoDao == null)
                 return;
 
-            MediaEntity curPlayMedia = mService.getCurrentMedia();
+            MusicInfoDao curPlayMedia = mService.getCurrentMedia();
             mPlayListDialog.removeItem(position);
-            mService.deleteMediaById(itemData.mediaEntity._id);
+            mService.deleteMediaById(itemData.MusicInfoDao.get_id());
             if(curPlayMedia != null){
-                if(curPlayMedia._id == itemData.mediaEntity._id){
+                if(curPlayMedia.get_id() == itemData.MusicInfoDao.get_id()){
                     mService.next(false);
                 }
             }
@@ -97,10 +97,10 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
 
             PlayListViewAdapter adapter = (PlayListViewAdapter)parent.getAdapter();
             PlayListViewAdapter.PlayListItemData itemData = (PlayListViewAdapter.PlayListItemData)adapter.getItem(position);
-            if(itemData == null || itemData.mediaEntity == null)
+            if(itemData == null || itemData.MusicInfoDao == null)
                 return;
 
-            mService.play(itemData.mediaEntity);
+            mService.play(itemData.MusicInfoDao);
         }
 
         @Override
@@ -225,7 +225,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
 
        // Intent intent =  getIntent();
         //Bundle extras = intent.getExtras();
-        //MusicInfoDao mediaEntity = (MusicInfoDao)extras.getParcelable(PLAYING_MEDIA_ENTITY);
+        //MediaEntity MediaEntity = (MediaEntity)extras.getParcelable(PLAYING_MEDIA_ENTITY);
         initUI();
     }
 
@@ -237,11 +237,11 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
         int playMode = mService.getRepeatMode();
 
         updatePlaymodeState(playMode, false);
-        MediaEntity curMediaEntity = mService.getCurrentMedia();
-        if(curMediaEntity != null){
-            artistInfoFragment.setArtistAlbumInfo(curMediaEntity);
-            musicInfoFragment.setMusciInfo(curMediaEntity);
-            boolean bFavorite = MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(curMediaEntity._id, MediaLibrary.getInstance().getDefaultFavoriteEntityId());
+        MusicInfoDao curMusicInfoDao = mService.getCurrentMedia();
+        if(curMusicInfoDao != null){
+            artistInfoFragment.setArtistAlbumInfo(curMusicInfoDao);
+            musicInfoFragment.setMusciInfo(curMusicInfoDao);
+            boolean bFavorite = MediaLibrary.getInstance().queryIsFavoriteByMusicInfoDaoId(curMusicInfoDao.get_id(), MediaLibrary.getInstance().getDefaultFavoriteEntityId());
             updateLoveState(bFavorite);
         }
     }
@@ -304,21 +304,21 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
             return;
 
         if(v == mivLike){
-            MediaEntity mediaEntity = mService.getCurrentMedia();
-            if(mediaEntity == null)
+            MusicInfoDao MusicInfoDao = mService.getCurrentMedia();
+            if(MusicInfoDao == null)
                 return;
 
             FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-            favoritesMusicEntity.musicinfo_id = mediaEntity._id;
-            favoritesMusicEntity.artist = mediaEntity.artist;
-            favoritesMusicEntity.album = mediaEntity.album;
+            favoritesMusicEntity.musicinfo_id = MusicInfoDao.get_id();
+            favoritesMusicEntity.title = MusicInfoDao.getArtist();
+            favoritesMusicEntity.album = MusicInfoDao.getAlbum();
             favoritesMusicEntity.fav_time = System.currentTimeMillis();
-            favoritesMusicEntity.path = mediaEntity._data;
-            favoritesMusicEntity.title = mediaEntity.title;
+            favoritesMusicEntity.path = MusicInfoDao.get_data();
+            favoritesMusicEntity.title = MusicInfoDao.getTitle();
             favoritesMusicEntity.favorite_id = MediaLibrary.getInstance().getDefaultFavoriteEntityId();
 
             boolean isAddToFavorite = false;
-            if(MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mediaEntity._id, favoritesMusicEntity.favorite_id)){
+            if(MediaLibrary.getInstance().queryIsFavoriteByMusicInfoDaoId(MusicInfoDao.get_id(), favoritesMusicEntity.favorite_id)){
                 boolean bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(favoritesMusicEntity.musicinfo_id, favoritesMusicEntity.favorite_id);
                 if(bRet){
                     isAddToFavorite = false;
@@ -343,18 +343,18 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
 
         }
         else if(v == mivShare){
-            MediaEntity mediaEntity = mService.getCurrentMedia();
-            if(mediaEntity == null)
+            MusicInfoDao MusicInfoDao = mService.getCurrentMedia();
+            if(MusicInfoDao == null)
                 return;
 
             String strShareTitle = getResources().getString(R.string.app_name);
-            strShareTitle = String.format("分享一首%s的%s - 来自%s", mediaEntity.artist, mediaEntity.title, strShareTitle);
+            strShareTitle = String.format("分享一首%s的%s - 来自%s", MusicInfoDao.getArtist(), MusicInfoDao.getTitle(), strShareTitle);
             AndroidShare as = new AndroidShare(
                     this,
                     strShareTitle,
                     "http://img6.cache.netease.com/cnews/news2012/img/logo_news.png");
             as.show();
-            as.setTitle("分享 - " + mediaEntity.title);
+            as.setTitle("分享 - " + MusicInfoDao.getTitle());
         }
         else if(v == mivComment){
 
@@ -364,7 +364,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
                 mPlayingMoreOperDialog = new PlayingMoreOperDialog(this);
             }
             mPlayingMoreOperDialog.show();
-            mPlayingMoreOperDialog.setCurrentMediaEntity(mService.getCurrentMedia());
+            mPlayingMoreOperDialog.setCurrentMusicInfoDao(mService.getCurrentMedia());
         }
         else if(v == mivPlayMode){
             int playMode = mService.getRepeatMode();
@@ -467,8 +467,8 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
             return;
 
         if(event.type == MediaPlayer.Event.Playing){
-            MediaEntity curMediaEntity = mService.getCurrentMedia();
-            if(curMediaEntity != null){
+            MusicInfoDao curMusicInfoDao = mService.getCurrentMedia();
+            if(curMusicInfoDao != null){
                 updatePlayPauseState(true);
             }
             artistInfoFragment.setArtistAlbumInfo(mService.getCurrentMedia());
@@ -478,7 +478,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
             }
 
             if(mPlayingMoreOperDialog != null){
-                mPlayingMoreOperDialog.setCurrentMediaEntity(mService.getCurrentMedia());
+                mPlayingMoreOperDialog.setCurrentMusicInfoDao(mService.getCurrentMedia());
             }
         }
         else if(event.type == MediaPlayer.Event.Paused){

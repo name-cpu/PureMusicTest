@@ -7,9 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
-
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,7 @@ public class BatchMgrAudioAdapter extends BaseAdapter implements View.OnClickLis
     private IOnBatchMgrAudioListener mListener;
 
     static public class BatchMgrAudioItemData{
-        public MediaEntity mediaEntity;
+        public MusicInfoDao musicInfoDao;
         public boolean isSelected;
     }
 
@@ -49,11 +48,11 @@ public class BatchMgrAudioAdapter extends BaseAdapter implements View.OnClickLis
         return listChecked;
     }
 
-    public List<MediaEntity> getCheckedMediaEntity(){
-        List<MediaEntity> listChecked = new ArrayList<>();
+    public List<MusicInfoDao> getCheckedMusicInfoDao(){
+        List<MusicInfoDao> listChecked = new ArrayList<>();
         for(int i = 0;i < mListData.size();i++){
             if(mListData.get(i).isSelected){
-                listChecked.add(mListData.get(i).mediaEntity);
+                listChecked.add(mListData.get(i).musicInfoDao);
             }
         }
         return listChecked;
@@ -95,7 +94,7 @@ public class BatchMgrAudioAdapter extends BaseAdapter implements View.OnClickLis
             return null;
 
         BatchMgrAudioItemData itemData = mListData.get(position);
-        if(itemData == null || itemData.mediaEntity == null)
+        if(itemData == null || itemData.musicInfoDao == null)
             return null;
 
         LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -113,7 +112,7 @@ public class BatchMgrAudioAdapter extends BaseAdapter implements View.OnClickLis
             holder = (BatchMgrAudioAdapterHolder) convertView.getTag();
         }
         holder.cbFolder.setTag(position);
-        holder.cbFolder.setText(itemData.mediaEntity.title);
+        holder.cbFolder.setText(itemData.musicInfoDao.getTitle());
         holder.cbFolder.setChecked(itemData.isSelected);
         return convertView;
     }

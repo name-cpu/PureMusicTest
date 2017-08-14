@@ -41,4 +41,5 @@ dependencies {
     compile 'com.jcodecraeer:xrecyclerview:1.3.2'
     compile project(':purevideoplayer')
     compile 'org.xutils:xutils:3.5.0'
+    compile project(':indexablerecyclerview')
 }

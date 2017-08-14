@@ -3,26 +3,6 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/backgroundColor">
-
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:text="@string/app_name"
-        android:textSize="15sp"
-        android:textColor="#000000"
-        android:textAlignment="center"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:gravity="center"
-        android:layout_gravity="bottom" />
-
-    <View
-        android:id="@+id/viewSepratorLine"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/more_oper_dialog_seperator_line"
-        android:layout_alignParentBottom="true"/>
     <GridView
         android:id="@+id/gvMoreOperation"
         android:layout_width="match_parent"
@@ -30,6 +10,7 @@
         android:layout_marginBottom="10dp"
         android:scrollbars="none"
         android:gravity="center"
+        android:listSelector="@android:color/transparent"
         android:numColumns="4">
     </GridView>
 </LinearLayout>

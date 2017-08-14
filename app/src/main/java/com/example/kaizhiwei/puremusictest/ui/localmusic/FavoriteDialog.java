@@ -15,7 +15,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
 import android.view.WindowManager;
@@ -23,6 +22,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
+
 import java.util.List;
 
 
@@ -33,7 +34,7 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
     private ListView lvFavorite;
     private TextView tvTitle;
     private FavoriteListViewAdapter mFavoriteListAdapter;
-    private List<MediaEntity> mListMediaEntity;
+    private List<MusicInfoDao> mListMusicInfoDao;
 
     public FavoriteDialog(Context context) {
         super(context);
@@ -83,8 +84,8 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
         lvFavorite.setAdapter(mFavoriteListAdapter);
     }
 
-    public void setMediaEntityData(List<MediaEntity> list){
-        mListMediaEntity = list;
+    public void setMusicInfoDaoData(List<MusicInfoDao> list){
+        mListMusicInfoDao = list;
     }
 
     public void setTitle(String strTitle) {
@@ -124,24 +125,24 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
         else{
             boolean bSuccess = false;
             int iSuccessCount = 0;
-            if(mListMediaEntity != null){
-                boolean isMutil = mListMediaEntity.size() > 1 ? true : false;
+            if(mListMusicInfoDao != null){
+                boolean isMutil = mListMusicInfoDao.size() > 1 ? true : false;
                 boolean isExist = false;
-                for(int i = 0;i < mListMediaEntity.size();i++){
-                    MediaEntity mediaEntity = mListMediaEntity.get(i);
-                    if(mediaEntity == null)
+                for(int i = 0;i < mListMusicInfoDao.size();i++){
+                    MusicInfoDao MusicInfoDao = mListMusicInfoDao.get(i);
+                    if(MusicInfoDao == null)
                         continue ;
 
                     FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-                    favoritesMusicEntity.musicinfo_id = mediaEntity._id;
-                    favoritesMusicEntity.artist = mediaEntity.artist;
-                    favoritesMusicEntity.album = mediaEntity.album;
+                    favoritesMusicEntity.musicinfo_id = MusicInfoDao.get_id();
+                    favoritesMusicEntity.artist = MusicInfoDao.getArtist();
+                    favoritesMusicEntity.album = MusicInfoDao.getAlbum();
                     favoritesMusicEntity.fav_time = System.currentTimeMillis();
-                    favoritesMusicEntity.path = mediaEntity._data;
-                    favoritesMusicEntity.title = mediaEntity.title;
+                    favoritesMusicEntity.path = MusicInfoDao.get_data();
+                    favoritesMusicEntity.title = MusicInfoDao.getTitle();
                     favoritesMusicEntity.favorite_id = entity._id;
 
-                    if(MediaLibrary.getInstance().queryIsFavoriteByMediaEntityId(mediaEntity._id, favoritesMusicEntity.favorite_id)){
+                    if(MediaLibrary.getInstance().queryIsFavoriteByMusicInfoDaoId(MusicInfoDao.get_id(), favoritesMusicEntity.favorite_id)){
                         isExist = true;
                     }
                     else{
@@ -153,10 +154,10 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
 
                 String strPromt = "";
                 if(!isMutil){
-                    if(iSuccessCount == mListMediaEntity.size() && isExist == false){
+                    if(iSuccessCount == mListMusicInfoDao.size() && isExist == false){
                         strPromt = String.format("成功添加到\"%s\"", entity.strFavoriteName);
                     }
-                    else if(iSuccessCount == mListMediaEntity.size() && isExist == true){
+                    else if(iSuccessCount == mListMusicInfoDao.size() && isExist == true){
                         strPromt = String.format("已经添加到\"%s\"", entity.strFavoriteName);
                     }
                     else{
@@ -164,7 +165,7 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
                     }
                 }
                 else{
-                    strPromt = String.format("成功%d首,失败%d首", iSuccessCount, mListMediaEntity.size() - iSuccessCount);
+                    strPromt = String.format("成功%d首,失败%d首", iSuccessCount, mListMusicInfoDao.size() - iSuccessCount);
                 }
                 Toast.makeText(this.getContext(), strPromt, Toast.LENGTH_SHORT).show();
             }
@@ -189,18 +190,18 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
             }
 
             boolean bSuccess = false;
-            for(int i = 0;i < mListMediaEntity.size();i++){
-                MediaEntity mediaEntity = mListMediaEntity.get(i);
-                if(mediaEntity == null)
+            for(int i = 0;i < mListMusicInfoDao.size();i++){
+                MusicInfoDao MusicInfoDao = mListMusicInfoDao.get(i);
+                if(MusicInfoDao == null)
                     continue;
 
                 FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-                favoritesMusicEntity.musicinfo_id = mediaEntity._id;
-                favoritesMusicEntity.artist = mediaEntity.artist;
-                favoritesMusicEntity.album = mediaEntity.album;
+                favoritesMusicEntity.musicinfo_id = MusicInfoDao.get_id();
+                favoritesMusicEntity.artist = MusicInfoDao.getArtist();
+                favoritesMusicEntity.album = MusicInfoDao.getAlbum();
                 favoritesMusicEntity.fav_time = System.currentTimeMillis();
-                favoritesMusicEntity.path = mediaEntity._data;
-                favoritesMusicEntity.title = mediaEntity.title;
+                favoritesMusicEntity.path = MusicInfoDao.get_data();
+                favoritesMusicEntity.title = MusicInfoDao.getTitle();
                 favoritesMusicEntity.favorite_id = favoriteEntity._id;
 
                 bSuccess = MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);

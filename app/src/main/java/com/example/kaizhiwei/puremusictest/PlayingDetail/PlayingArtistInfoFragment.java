@@ -6,8 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import com.example.kaizhiwei.puremusictest.MediaData.MediaEntity;
 import com.example.kaizhiwei.puremusictest.R;
 
 /**
@@ -16,7 +14,7 @@ import com.example.kaizhiwei.puremusictest.R;
 public class PlayingArtistInfoFragment extends Fragment {
     private TextView tvArtist;
     private TextView tvAlbum;
-    private MediaEntity mediaEntity;
+    private com.example.kaizhiwei.puremusictest.dao.MusicInfoDao MusicInfoDao;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -25,20 +23,20 @@ public class PlayingArtistInfoFragment extends Fragment {
         tvArtist = (TextView)rootView.findViewById(R.id.tvArtist);
         tvAlbum = (TextView)rootView.findViewById(R.id.tvAlbum);
 
-        if(mediaEntity != null){
-            tvArtist.setText(mediaEntity.artist);
-            tvAlbum.setText(mediaEntity.album);
+        if(MusicInfoDao != null){
+            tvArtist.setText(MusicInfoDao.getArtist());
+            tvAlbum.setText(MusicInfoDao.getAlbum());
         }
         return rootView;
     }
 
-    public void setArtistAlbumInfo(MediaEntity entity){
+    public void setArtistAlbumInfo(com.example.kaizhiwei.puremusictest.dao.MusicInfoDao entity){
         if(entity == null)
             return;
-        mediaEntity = entity;
-        if(mediaEntity != null && tvArtist != null && tvAlbum != null){
-            tvArtist.setText(mediaEntity.artist);
-            tvAlbum.setText(mediaEntity.album);
+        MusicInfoDao = entity;
+        if(MusicInfoDao != null && tvArtist != null && tvAlbum != null){
+            tvArtist.setText(MusicInfoDao.getArtist());
+            tvAlbum.setText(MusicInfoDao.getAlbum());
         }
     }
 }
