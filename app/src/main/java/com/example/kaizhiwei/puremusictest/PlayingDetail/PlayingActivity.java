@@ -13,19 +13,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
-import com.example.kaizhiwei.puremusictest.ui.localmusic.PlayListDialog;
+import com.example.kaizhiwei.puremusictest.service.IPlayMusic;
+import com.example.kaizhiwei.puremusictest.service.IPlayMusicListener;
+import com.example.kaizhiwei.puremusictest.service.PlayMusicImpl;
+import com.example.kaizhiwei.puremusictest.service.PlayMusicService;
+import com.example.kaizhiwei.puremusictest.ui.localmusic.PlaylistDialog;
 import com.example.kaizhiwei.puremusictest.ui.localmusic.PlayListViewAdapter;
-import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
-import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.service.PlaybackService;
 import com.viewpagerindicator.CirclePageIndicator;
-
-import org.videolan.libvlc.Media;
-import org.videolan.libvlc.MediaPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +32,7 @@ import java.util.List;
 /**
  * Created by kaizhiwei on 17/1/4.
  */
-public class PlayingActivity extends FragmentActivity implements View.OnClickListener, PlaybackService.Client.Callback, PlaybackService.Callback, SeekBar.OnSeekBarChangeListener {
+public class PlayingActivity extends FragmentActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, PlayMusicService.Client.Callback, IPlayMusicListener {
     private MyImageView mivBack;
     private MyImageView mivLike;
     private MyImageView mivDownload;
@@ -64,10 +62,10 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
     public static final String PLAYING_MEDIA_ENTITY = "PLAYING_MEDIA_ENTITY";
     private List<List<Integer>> listPLaymodeImageRes;
 
-    private PlaybackService.Client mClient = null;
-    private PlaybackService mService;
-    private PlayListDialog mPlayListDialog;
-    private PlayListDialog.IPlayListDialogListener mListener = new PlayListDialog.IPlayListDialogListener() {
+    private PlayMusicService.Client mClient = null;
+    private PlayMusicService mService;
+    private PlaylistDialog mPlayListDialog;
+    private PlaylistDialog.IPlayListDialogListener mListener = new PlaylistDialog.IPlayListDialogListener() {
         @Override
         public void onDeleteClick(PlayListViewAdapter adapter, int position) {
             if(adapter == null || position < 0)
@@ -80,12 +78,12 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
             if(itemData == null || itemData.MusicInfoDao == null)
                 return;
 
-            MusicInfoDao curPlayMedia = mService.getCurrentMedia();
+            MusicInfoDao curPlayMedia = mService.getCurPlayMusicDao();
             mPlayListDialog.removeItem(position);
-            mService.deleteMediaById(itemData.MusicInfoDao.get_id());
+            mService.removeMusicInfo(itemData.MusicInfoDao.get_id());
             if(curPlayMedia != null){
                 if(curPlayMedia.get_id() == itemData.MusicInfoDao.get_id()){
-                    mService.next(false);
+                    mService.next();
                 }
             }
         }
@@ -100,7 +98,8 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
             if(itemData == null || itemData.MusicInfoDao == null)
                 return;
 
-            mService.play(itemData.MusicInfoDao);
+            mService.setCurPlayIndex(position);
+            mService.setDataSource(itemData.MusicInfoDao.get_data());
         }
 
         @Override
@@ -116,10 +115,11 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
             if(mService == null || mPlayListDialog == null)
                 return;
 
-            int curPlayMode = mService.getRepeatMode();
-            int nextPlayMode = (curPlayMode + 1)%(PreferenceConfig.PLAYMODE_NUM);
-            mService.setRepeatMode(nextPlayMode);
-            mPlayListDialog.updatePlaymodeImg(nextPlayMode, true);
+            int curPlayMode = mService.getPlayMode().ordinal();
+            int nextPlayMode = (curPlayMode + 1)%(PlayMusicImpl.PlayMode.values().length);
+            PlayMusicImpl.PlayMode mode = PlayMusicImpl.PlayMode.values()[nextPlayMode];
+            mService.setPlayMode(mode);
+            mPlayListDialog.updatePlaymodeState(mode, true);
             updatePlaymodeState(nextPlayMode, false);
         }
     };
@@ -196,7 +196,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
         tvTotalTime = (TextView) this.findViewById(R.id.tvTotalTime);
         sbProgress = (SeekBar)this.findViewById(R.id.sbProgress);
         sbProgress.setOnSeekBarChangeListener(this);
-        mClient = new PlaybackService.Client(this, this);
+        mClient = new PlayMusicService.Client(this, this);
 
         listPLaymodeImageRes = new ArrayList<>();
         List<Integer> list = new ArrayList<>();
@@ -234,10 +234,13 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
             return;
 
         updatePlayPauseState(mService.isPlaying());
-        int playMode = mService.getRepeatMode();
+        PlayMusicImpl.PlayMode playMode = mService.getPlayMode();
 
-        updatePlaymodeState(playMode, false);
-        MusicInfoDao curMusicInfoDao = mService.getCurrentMedia();
+        updatePlaymodeState(playMode.ordinal(), false);
+
+        List<MusicInfoDao> list = mService.getPlaylist();
+        int index = mService.getCurPlayIndex();
+        MusicInfoDao curMusicInfoDao = list.get(index);
         if(curMusicInfoDao != null){
             artistInfoFragment.setArtistAlbumInfo(curMusicInfoDao);
             musicInfoFragment.setMusciInfo(curMusicInfoDao);
@@ -256,7 +259,7 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
     }
 
     private String formatTime(int time){
-        String str = "";
+        String str;
         time = time/1000;
         str = String.format("%02d:%02d", time/60, time%60);
         return str;
@@ -284,9 +287,10 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
         if(playMode < 0 || playMode >= PreferenceConfig.PLAYMODE_NUM)
             return;
 
-        mivPlayMode.setResId(listPLaymodeImageRes.get(playMode).get(0), listPLaymodeImageRes.get(playMode).get(1));
+        List<Integer> list = listPLaymodeImageRes.get(playMode);
+        mivPlayMode.setResId(list.get(0), list.get(1));
         if(isShowToast)
-            Toast.makeText(this, listPLaymodeImageRes.get(playMode).get(2), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, list.get(2), Toast.LENGTH_SHORT).show();
     }
 
     private void resetUI(){
@@ -304,57 +308,57 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
             return;
 
         if(v == mivLike){
-            MusicInfoDao MusicInfoDao = mService.getCurrentMedia();
-            if(MusicInfoDao == null)
-                return;
+//            MusicInfoDao MusicInfoDao = mService.getCurrentMedia();
+//            if(MusicInfoDao == null)
+//                return;
 
-            FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-            favoritesMusicEntity.musicinfo_id = MusicInfoDao.get_id();
-            favoritesMusicEntity.title = MusicInfoDao.getArtist();
-            favoritesMusicEntity.album = MusicInfoDao.getAlbum();
-            favoritesMusicEntity.fav_time = System.currentTimeMillis();
-            favoritesMusicEntity.path = MusicInfoDao.get_data();
-            favoritesMusicEntity.title = MusicInfoDao.getTitle();
-            favoritesMusicEntity.favorite_id = MediaLibrary.getInstance().getDefaultFavoriteEntityId();
-
-            boolean isAddToFavorite = false;
-            if(MediaLibrary.getInstance().queryIsFavoriteByMusicInfoDaoId(MusicInfoDao.get_id(), favoritesMusicEntity.favorite_id)){
-                boolean bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(favoritesMusicEntity.musicinfo_id, favoritesMusicEntity.favorite_id);
-                if(bRet){
-                    isAddToFavorite = false;
-                }
-            }
-            else{
-                boolean bRet = MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
-                if(bRet){
-                    isAddToFavorite = true;
-                }
-            }
-
-            if(!isAddToFavorite){
-                Toast.makeText(this, "已取消喜欢", Toast.LENGTH_SHORT).show();
-            }
-            else {
-                Toast.makeText(this, "已添加到我喜欢的单曲", Toast.LENGTH_SHORT).show();
-            }
-            updateLoveState(isAddToFavorite);
+//            FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
+//            favoritesMusicEntity.musicinfo_id = MusicInfoDao.get_id();
+//            favoritesMusicEntity.title = MusicInfoDao.getArtist();
+//            favoritesMusicEntity.album = MusicInfoDao.getAlbum();
+//            favoritesMusicEntity.fav_time = System.currentTimeMillis();
+//            favoritesMusicEntity.path = MusicInfoDao.get_data();
+//            favoritesMusicEntity.title = MusicInfoDao.getTitle();
+//            favoritesMusicEntity.favorite_id = MediaLibrary.getInstance().getDefaultFavoriteEntityId();
+//
+//            boolean isAddToFavorite = false;
+//            if(MediaLibrary.getInstance().queryIsFavoriteByMusicInfoDaoId(MusicInfoDao.get_id(), favoritesMusicEntity.favorite_id)){
+//                boolean bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(favoritesMusicEntity.musicinfo_id, favoritesMusicEntity.favorite_id);
+//                if(bRet){
+//                    isAddToFavorite = false;
+//                }
+//            }
+//            else{
+//                boolean bRet = MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
+//                if(bRet){
+//                    isAddToFavorite = true;
+//                }
+//            }
+//
+//            if(!isAddToFavorite){
+//                Toast.makeText(this, "已取消喜欢", Toast.LENGTH_SHORT).show();
+//            }
+//            else {
+//                Toast.makeText(this, "已添加到我喜欢的单曲", Toast.LENGTH_SHORT).show();
+//            }
+//            updateLoveState(isAddToFavorite);
         }
         else if(v == mivDownload){
 
         }
         else if(v == mivShare){
-            MusicInfoDao MusicInfoDao = mService.getCurrentMedia();
-            if(MusicInfoDao == null)
-                return;
-
-            String strShareTitle = getResources().getString(R.string.app_name);
-            strShareTitle = String.format("分享一首%s的%s - 来自%s", MusicInfoDao.getArtist(), MusicInfoDao.getTitle(), strShareTitle);
-            AndroidShare as = new AndroidShare(
-                    this,
-                    strShareTitle,
-                    "http://img6.cache.netease.com/cnews/news2012/img/logo_news.png");
-            as.show();
-            as.setTitle("分享 - " + MusicInfoDao.getTitle());
+//            MusicInfoDao MusicInfoDao = mService.getCurrentMedia();
+//            if(MusicInfoDao == null)
+//                return;
+//
+//            String strShareTitle = getResources().getString(R.string.app_name);
+//            strShareTitle = String.format("分享一首%s的%s - 来自%s", MusicInfoDao.getArtist(), MusicInfoDao.getTitle(), strShareTitle);
+//            AndroidShare as = new AndroidShare(
+//                    this,
+//                    strShareTitle,
+//                    "http://img6.cache.netease.com/cnews/news2012/img/logo_news.png");
+//            as.show();
+//            as.setTitle("分享 - " + MusicInfoDao.getTitle());
         }
         else if(v == mivComment){
 
@@ -364,27 +368,27 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
                 mPlayingMoreOperDialog = new PlayingMoreOperDialog(this);
             }
             mPlayingMoreOperDialog.show();
-            mPlayingMoreOperDialog.setCurrentMusicInfoDao(mService.getCurrentMedia());
+//            mPlayingMoreOperDialog.setCurrentMusicInfoDao(mService.getCurrentMedia());
         }
         else if(v == mivPlayMode){
-            int playMode = mService.getRepeatMode();
-            playMode = (playMode+1)% PreferenceConfig.PLAYMODE_NUM;
-            mService.setRepeatMode(playMode);
+            int playMode = mService.getPlayMode().ordinal();
+            playMode = (playMode+1)% PlayMusicImpl.PlayMode.values().length;
+            mService.setPlayMode(PlayMusicImpl.PlayMode.values()[playMode]);
             updatePlaymodeState(playMode, true);
         }
         else if(v == mivPre){
-            if(mService.getPlaylistSize() == 0){
-                Toast.makeText(this, "当前无可播放的歌曲", Toast.LENGTH_SHORT).show();
-                return;
-            }
+//            if(mService.getPlaylistSize() == 0){
+//                Toast.makeText(this, "当前无可播放的歌曲", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
 
-            mService.previous(false);
+            mService.pre();
         }
         else if(v == mivPlayPause){
-            if(mService.getPlaylistSize() == 0){
-                Toast.makeText(this, "当前无可播放的歌曲", Toast.LENGTH_SHORT).show();
-                return;
-            }
+//            if(mService.getPlaylistSize() == 0){
+//                Toast.makeText(this, "当前无可播放的歌曲", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
 
             if(mService.isPlaying()){
                 mService.pause();
@@ -394,40 +398,28 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
             }
         }
         else if(v == mivNext){
-            if(mService.getPlaylistSize() == 0){
-                Toast.makeText(this, "当前无可播放的歌曲", Toast.LENGTH_SHORT).show();
-                return;
-            }
+//            if(mService.getPlaylistSize() == 0){
+//                Toast.makeText(this, "当前无可播放的歌曲", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
 
-            mService.next(false);
+            mService.next();
         }
         else if(v == mivPlaylist){
             if(mPlayListDialog == null){
-                PlayListDialog.Builder builder = new PlayListDialog.Builder(this);
-                mPlayListDialog = builder.create(true);
+                PlaylistDialog.Builder builder = new PlaylistDialog.Builder(this);
+                mPlayListDialog = (PlaylistDialog)builder.create();
             }
             mPlayListDialog.setCancelable(true);
             mPlayListDialog.setPlaylistData(mService.getPlaylist());
-            mPlayListDialog.setItemPlayState(mService.getCurPlayMediaIndex(), true, mService.isPlaying());
+            mPlayListDialog.setItemPlayState(mService.getCurPlayIndex(), true, mService.isPlaying());
             mPlayListDialog.setPlayListAdapterListener(mListener);
-            mPlayListDialog.updatePlaymodeImg(mService.getRepeatMode(), false);
+            mPlayListDialog.updatePlaymodeState(mService.getPlayMode(), false);
             mPlayListDialog.show();
         }
         else if(v == mivBack){
             finish();
         }
-    }
-
-    @Override
-    public void onConnected(PlaybackService service) {
-        mService = service;
-        mService.addCallback(this);
-        initUI();
-    }
-
-    @Override
-    public void onDisconnected() {
-        mService = null;
     }
 
     public void onStart() {
@@ -438,63 +430,6 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
     public void onStop() {
         super.onStop();
         mClient.disconnect();
-    }
-
-    @Override
-    public void update() {
-
-    }
-
-    @Override
-    public void updateProgress() {
-        if(mService == null)
-            return ;
-
-        int iTime = (int)mService.getTIme();
-        int iLengtht = (int)mService.getLength();
-        updatePlayProgress(iTime, iLengtht);
-    }
-
-    @Override
-    public void onMediaEvent(Media.Event event) {
-        if(mService == null || event == null)
-            return;
-    }
-
-    @Override
-    public void onMediaPlayerEvent(MediaPlayer.Event event) {
-        if(mService == null || event == null)
-            return;
-
-        if(event.type == MediaPlayer.Event.Playing){
-            MusicInfoDao curMusicInfoDao = mService.getCurrentMedia();
-            if(curMusicInfoDao != null){
-                updatePlayPauseState(true);
-            }
-            artistInfoFragment.setArtistAlbumInfo(mService.getCurrentMedia());
-            musicInfoFragment.setMusciInfo(mService.getCurrentMedia());
-            if(mPlayListDialog != null && mPlayListDialog.isShowing()){
-                mPlayListDialog.setItemPlayState(mService.getCurPlayMediaIndex(), true, true);
-            }
-
-            if(mPlayingMoreOperDialog != null){
-                mPlayingMoreOperDialog.setCurrentMusicInfoDao(mService.getCurrentMedia());
-            }
-        }
-        else if(event.type == MediaPlayer.Event.Paused){
-            updatePlayPauseState(false);
-            if(mPlayListDialog != null && mPlayListDialog.isShowing()){
-                mPlayListDialog.setItemPlayState(mService.getCurPlayMediaIndex(), true, false);
-            }
-        }
-        else if(event.type == MediaPlayer.Event.Stopped){
-            resetUI();
-        }
-        else if(event.type == MediaPlayer.Event.TimeChanged){
-            if(lyricInfoFragment != null){
-                lyricInfoFragment.updateLyric(mService.getTIme());
-            }
-        }
     }
 
     @Override
@@ -512,9 +447,72 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
         if(mService != null){
-            mService.setPosition((float)(seekBar.getProgress()*1.0/seekBar.getMax()));
+            mService.seekTo(seekBar.getProgress());
         }
         isUpdateCurTimeFromUser = false;
+    }
+
+    @Override
+    public void onConnect(PlayMusicService service) {
+        mService = service;
+        mService.addListener(this);
+        initUI();
+    }
+
+    @Override
+    public void onDisconnect() {
+        mService.removeListener(this);
+        mService = null;
+    }
+
+    @Override
+    public void onStateChange(int state) {
+        if(mService == null)
+            return;
+
+        if(state == IPlayMusic.STATE_PAPERED || state == IPlayMusic.STATE_PLAY){
+            updatePlayPauseState(true);
+
+            MusicInfoDao curMusicInfoDao = mService.getCurPlayMusicDao();
+            if(curMusicInfoDao != null){
+                updatePlayPauseState(true);
+            }
+            sbProgress.setMax((int)curMusicInfoDao.getDuration());
+            tvTotalTime.setText(formatTime((int)curMusicInfoDao.getDuration()));
+            artistInfoFragment.setArtistAlbumInfo(mService.getCurPlayMusicDao());
+            musicInfoFragment.setMusciInfo(mService.getCurPlayMusicDao());
+            if(mPlayListDialog != null && mPlayListDialog.isShowing()){
+                mPlayListDialog.setItemPlayState(mService.getCurPlayIndex(), true, true);
+            }
+
+            if(mPlayingMoreOperDialog != null){
+                mPlayingMoreOperDialog.setCurrentMusicInfoDao(mService.getCurPlayMusicDao());
+            }
+        }
+        else if(state == IPlayMusic.STATE_PAUSE){
+            updatePlayPauseState(false);
+            if(mPlayListDialog != null && mPlayListDialog.isShowing()){
+                mPlayListDialog.setItemPlayState(mService.getCurPlayIndex(), true, false);
+            }
+        }
+//        else if(event.type == MediaPlayer.Event.Stopped){
+//            resetUI();
+//        }
+//        else if(event.type == MediaPlayer.Event.TimeChanged){
+//            if(lyricInfoFragment != null){
+//                lyricInfoFragment.updateLyric(mService.getTIme());
+//            }
+//        }
+    }
+
+    @Override
+    public void onPlayPosUpdate(int percent, int curPos, int duration) {
+        updatePlayProgress(curPos, duration);
+    }
+
+    @Override
+    public void onBufferingUpdate(int cur, int total) {
+        sbProgress.setSecondaryProgress(cur);
     }
 
     class PlayingPagerAdapter extends FragmentStatePagerAdapter {

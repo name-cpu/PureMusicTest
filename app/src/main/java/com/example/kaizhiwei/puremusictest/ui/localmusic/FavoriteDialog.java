@@ -22,74 +22,52 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
+import com.example.kaizhiwei.puremusictest.base.BaseDialog;
+import com.example.kaizhiwei.puremusictest.contract.LocalMusicContract;
+import com.example.kaizhiwei.puremusictest.contract.PlaylistContract;
 import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
+import com.example.kaizhiwei.puremusictest.dao.PlaylistDao;
+import com.example.kaizhiwei.puremusictest.dao.PlaylistMemberDao;
+import com.example.kaizhiwei.puremusictest.presenter.LocalMusicPresenter;
+import com.example.kaizhiwei.puremusictest.presenter.PlaylistPrensenter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * Created by kaizhiwei on 16/11/27.
  */
-public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsListView.OnItemClickListener, AlertDialogFavorite.OnAlterDialogFavoriteListener, FavoriteListViewAdapter.IFavoriteOperListener {
+public class FavoriteDialog extends BaseDialog implements View.OnClickListener, AbsListView.OnItemClickListener, AlertDialogFavorite.OnAlterDialogFavoriteListener, FavoriteListViewAdapter.IFavoriteOperListener, PlaylistContract.View, LocalMusicContract.View {
     private ListView lvFavorite;
-    private TextView tvTitle;
     private FavoriteListViewAdapter mFavoriteListAdapter;
     private List<MusicInfoDao> mListMusicInfoDao;
+    private PlaylistPrensenter mPresenter;
+    private LocalMusicPresenter localMusicPresenter;
+    private String mStrKey;
+    private LocalBaseMediaLayout.LayoutType mKeyType;
+    private PlaylistDao mOperatePlaylist;
 
     public FavoriteDialog(Context context) {
         super(context);
-    }
-
-    protected FavoriteDialog(Context context, boolean cancelable, OnCancelListener cancelListener) {
-        super(context, cancelable, cancelListener);
-    }
-
-    public FavoriteDialog(Context context, int themeResId) {
-        super(context, themeResId);
-    }
-
-    public void setContentView(View view) {
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams. FLAG_FULLSCREEN , WindowManager.LayoutParams. FLAG_FULLSCREEN);
-
-        super.setContentView(view);
-        lvFavorite = (ListView) view.findViewById(R.id.lvFavorite);
-        tvTitle = (TextView) view.findViewById(R.id.tvTitle);
-
-        DisplayMetrics dm = null;
-        dm = getContext().getApplicationContext().getResources().getDisplayMetrics();
-
-        Window window = this.getWindow();
-        window.getDecorView().setPadding(0,0,0,0);
-        window.setWindowAnimations(R.style.ActionSheetDialogAnimation);
-        window.setBackgroundDrawableResource(android.R.color.transparent);
-        // 可以在此设置显示动画
-        WindowManager.LayoutParams wl = window.getAttributes();
-        wl.x = 0;
-        wl.y = 0;
-        // 以下这两句是为了保证按钮可以水平满屏
-        wl.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        wl.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        //wl.height = view.getHeight() > 300 * dm.densityDpi ? 300 * dm.densityDpi : view.getHeight();
-        wl.gravity = Gravity.BOTTOM;
-
-        window.setAttributes(wl);
-    }
-
-    public void setFavoritelistData(List<FavoriteEntity> list){
-        mFavoriteListAdapter = new FavoriteListViewAdapter(this.getContext(), list, FavoriteListViewAdapter.READONLY_MODE, false);
-        mFavoriteListAdapter.notifyDataSetChanged();
-        mFavoriteListAdapter.setFavoriteAdapterListener(this);
-        lvFavorite.setOnItemClickListener(this);
-        lvFavorite.setAdapter(mFavoriteListAdapter);
     }
 
     public void setMusicInfoDaoData(List<MusicInfoDao> list){
         mListMusicInfoDao = list;
     }
 
-    public void setTitle(String strTitle) {
-        this.tvTitle.setText(strTitle);
+    @Override
+    public void initData() {
+        mPresenter = new PlaylistPrensenter(this);
+        mPresenter.getPlaylists();
+
+        localMusicPresenter = new LocalMusicPresenter(this);
+    }
+
+    @Override
+    public void initView() {
+        lvFavorite = (ListView) this.findViewById(R.id.lvFavorite);
+        lvFavorite.setOnItemClickListener(this);
     }
 
     protected void onStart() {
@@ -103,6 +81,22 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
         super.onStop();
     }
 
+    public String getStrKey() {
+        return mStrKey;
+    }
+
+    public void setStrKey(String mStrKey) {
+        this.mStrKey = mStrKey;
+    }
+
+    public LocalBaseMediaLayout.LayoutType getKeyType() {
+        return mKeyType;
+    }
+
+    public void setKeyType(LocalBaseMediaLayout.LayoutType mKeyType) {
+        this.mKeyType = mKeyType;
+    }
+
     @Override
     public void onClick(View v) {
 
@@ -110,64 +104,45 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        FavoriteEntity entity = (FavoriteEntity)mFavoriteListAdapter.getItem(position);
-        if(entity == null)
+        PlaylistDao playlistDao = (PlaylistDao)mFavoriteListAdapter.getItem(position);
+        if(playlistDao == null)
             return;
 
+        mOperatePlaylist = playlistDao;
         //新组歌单
-        if(position == 0){
+        if(playlistDao.getList_id() == FavoriteListViewAdapter.ADD_ONE_LIST_ID){
             AlertDialogFavorite favoriteDialog = new AlertDialogFavorite(this.getContext(), this);
             favoriteDialog.show();
-            favoriteDialog.setFavoriteEntity(entity);
+            //favoriteDialog.setFavoriteEntity(entity);
             favoriteDialog.setOperType(AlertDialogFavorite.ADD_FAVORITE);
         }
+        else if(playlistDao.getList_id() == FavoriteListViewAdapter.DEFAULT_LIST_ID){
+
+        }
         //添加到已有的歌单
-        else{
-            boolean bSuccess = false;
-            int iSuccessCount = 0;
-            if(mListMusicInfoDao != null){
-                boolean isMutil = mListMusicInfoDao.size() > 1 ? true : false;
-                boolean isExist = false;
-                for(int i = 0;i < mListMusicInfoDao.size();i++){
-                    MusicInfoDao MusicInfoDao = mListMusicInfoDao.get(i);
-                    if(MusicInfoDao == null)
-                        continue ;
+        else {
+            if (TextUtils.isEmpty(mStrKey))
+                return;
 
-                    FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-                    favoritesMusicEntity.musicinfo_id = MusicInfoDao.get_id();
-                    favoritesMusicEntity.artist = MusicInfoDao.getArtist();
-                    favoritesMusicEntity.album = MusicInfoDao.getAlbum();
-                    favoritesMusicEntity.fav_time = System.currentTimeMillis();
-                    favoritesMusicEntity.path = MusicInfoDao.get_data();
-                    favoritesMusicEntity.title = MusicInfoDao.getTitle();
-                    favoritesMusicEntity.favorite_id = entity._id;
+            if (mKeyType == LocalBaseMediaLayout.LayoutType.ALLSONG) {
+                MusicInfoDao musicInfoDao = localMusicPresenter.getMusicInfoById(Long.parseLong(mStrKey));
+                if (musicInfoDao == null)
+                    return;
 
-                    if(MediaLibrary.getInstance().queryIsFavoriteByMusicInfoDaoId(MusicInfoDao.get_id(), favoritesMusicEntity.favorite_id)){
-                        isExist = true;
-                    }
-                    else{
-                        bSuccess= MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
-                        if(bSuccess)
-                            iSuccessCount++;
-                    }
-                }
-
-                String strPromt = "";
-                if(!isMutil){
-                    if(iSuccessCount == mListMusicInfoDao.size() && isExist == false){
-                        strPromt = String.format("成功添加到\"%s\"", entity.strFavoriteName);
-                    }
-                    else if(iSuccessCount == mListMusicInfoDao.size() && isExist == true){
-                        strPromt = String.format("已经添加到\"%s\"", entity.strFavoriteName);
-                    }
-                    else{
-                        strPromt = String.format("添加失败");
-                    }
-                }
-                else{
-                    strPromt = String.format("成功%d首,失败%d首", iSuccessCount, mListMusicInfoDao.size() - iSuccessCount);
-                }
-                Toast.makeText(this.getContext(), strPromt, Toast.LENGTH_SHORT).show();
+                List<PlaylistMemberDao> listMembers = new ArrayList<>();
+                PlaylistMemberDao playlistMemberDao = new PlaylistMemberDao();
+                playlistMemberDao.setIs_local(1);
+                playlistMemberDao.setMusic_id(musicInfoDao.get_id());
+                playlistMemberDao.setPlaylist_id(mOperatePlaylist.getList_id());
+                playlistMemberDao.setPlay_order(mOperatePlaylist.getSong_count());
+                listMembers.add(playlistMemberDao);
+                handlerAddMembers(mOperatePlaylist, listMembers);
+            } else if (mKeyType == LocalBaseMediaLayout.LayoutType.FOLDER) {
+                localMusicPresenter.getMusicInfosByFolder(mStrKey);
+            } else if (mKeyType == LocalBaseMediaLayout.LayoutType.ALBUM) {
+                localMusicPresenter.getMusicInfosByAlbum(mStrKey);
+            } else if (mKeyType == LocalBaseMediaLayout.LayoutType.ARTIST) {
+                localMusicPresenter.getMusicInfosByArtist(mStrKey);
             }
         }
 
@@ -181,39 +156,19 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
 
         String strPromt = "";
         if(operType == AlertDialogFavorite.ADD_FAVORITE){
-            FavoriteEntity favoriteEntity = new FavoriteEntity();
-            favoriteEntity.favoriteType = FavoriteEntity.DEFAULT_CUSTOME_TYPE;
-            favoriteEntity.strFavoriteName = strFavoriteName;
-            if(MediaLibrary.getInstance().addFavoriteEntity(favoriteEntity) == false){
-                Toast.makeText(this.getContext(), "新建歌单失败",Toast.LENGTH_SHORT).show();
-                return;
-            }
+            PlaylistDao playlistDao = new PlaylistDao();
+            playlistDao.setName(strFavoriteName);
+            playlistDao.setList_id(System.currentTimeMillis());
+            playlistDao.setDate_added(System.currentTimeMillis());
 
-            boolean bSuccess = false;
-            for(int i = 0;i < mListMusicInfoDao.size();i++){
-                MusicInfoDao MusicInfoDao = mListMusicInfoDao.get(i);
-                if(MusicInfoDao == null)
-                    continue;
+            boolean bRet = mPresenter.addPlaylist(playlistDao);
 
-                FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-                favoritesMusicEntity.musicinfo_id = MusicInfoDao.get_id();
-                favoritesMusicEntity.artist = MusicInfoDao.getArtist();
-                favoritesMusicEntity.album = MusicInfoDao.getAlbum();
-                favoritesMusicEntity.fav_time = System.currentTimeMillis();
-                favoritesMusicEntity.path = MusicInfoDao.get_data();
-                favoritesMusicEntity.title = MusicInfoDao.getTitle();
-                favoritesMusicEntity.favorite_id = favoriteEntity._id;
-
-                bSuccess = MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
-            }
-
-            if(bSuccess){
-                strPromt = String.format("成功添加到\"%s\"", favoriteEntity.strFavoriteName);
+            if(bRet){
+                strPromt = String.format("成功添加到\"%s\"", playlistDao.getName());
             }
             else{
                 strPromt = String.format("添加失败");
             }
-
         }
         else if(operType == AlertDialogFavorite.MODIFY_FAVORITE){
             FavoriteEntity entity = dialog.getFavoriteEntity();
@@ -250,23 +205,163 @@ public class FavoriteDialog extends Dialog implements View.OnClickListener, AbsL
             return;
     }
 
-    public static class Builder {
-        private Context context;
+    @Override
+    public void onError(String strErrMsg) {
 
+    }
 
-        public Builder(Context context) {
-            this.context = context;
+    @Override
+    public void onGetPlaylists(List<PlaylistDao> list) {
+        mFavoriteListAdapter = new FavoriteListViewAdapter(this.getContext(), list, FavoriteListViewAdapter.READONLY_MODE, false);
+        mFavoriteListAdapter.notifyDataSetChanged();
+        mFavoriteListAdapter.setFavoriteAdapterListener(this);
+        lvFavorite.setAdapter(mFavoriteListAdapter);
+    }
+
+    @Override
+    public void onGetPlaylistMembers(List<PlaylistMemberDao> list) {
+
+    }
+
+    @Override
+    public void onGetAllMusicInfos(List<MusicInfoDao> list) {
+
+    }
+
+    @Override
+    public void onGetMusicInfosByFolder(List<MusicInfoDao> list) {
+        if(list == null || mOperatePlaylist == null)
+            return;
+
+        List<PlaylistMemberDao> listMembers = new ArrayList<>();
+        for(int i = 0;i < list.size();i++){
+            MusicInfoDao musicInfoDao = list.get(i);
+            if(musicInfoDao == null)
+                continue ;
+
+            PlaylistMemberDao playlistMemberDao = new PlaylistMemberDao();
+            playlistMemberDao.setIs_local(0);
+            playlistMemberDao.setMusic_id(musicInfoDao.getSong_id());
+            playlistMemberDao.setPlaylist_id(mOperatePlaylist.getList_id());
+            playlistMemberDao.setPlay_order(mOperatePlaylist.getSong_count());
+            listMembers.add(playlistMemberDao);
         }
 
-        public FavoriteDialog create() {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final FavoriteDialog dialog = new FavoriteDialog(context,R.style.Dialog);
-            View layout = inflater.inflate(R.layout.favorite_dialog, null);
+        handlerAddMembers(mOperatePlaylist, listMembers);
+    }
 
-            dialog.setContentView(layout);
+    @Override
+    public void onGetMusicInfosByArtist(List<MusicInfoDao> list) {
+        if(list == null || mOperatePlaylist == null)
+            return;
 
-            return dialog;
+        List<PlaylistMemberDao> listMembers = new ArrayList<>();
+        for(int i = 0;i < list.size();i++){
+            MusicInfoDao musicInfoDao = list.get(i);
+            if(musicInfoDao == null)
+                continue ;
+
+            PlaylistMemberDao playlistMemberDao = new PlaylistMemberDao();
+            playlistMemberDao.setIs_local(0);
+            playlistMemberDao.setMusic_id(musicInfoDao.getSong_id());
+            playlistMemberDao.setPlaylist_id(mOperatePlaylist.getList_id());
+            playlistMemberDao.setPlay_order(mOperatePlaylist.getSong_count());
+            listMembers.add(playlistMemberDao);
+        }
+
+        handlerAddMembers(mOperatePlaylist, listMembers);
+    }
+
+    @Override
+    public void onGetMusicInfosByAlbum(List<MusicInfoDao> list) {
+        if(list == null || mOperatePlaylist == null)
+            return;
+
+        List<PlaylistMemberDao> listMembers = new ArrayList<>();
+        for(int i = 0;i < list.size();i++){
+            MusicInfoDao musicInfoDao = list.get(i);
+            if(musicInfoDao == null)
+                continue ;
+
+            PlaylistMemberDao playlistMemberDao = new PlaylistMemberDao();
+            playlistMemberDao.setIs_local(0);
+            playlistMemberDao.setMusic_id(musicInfoDao.getSong_id());
+            playlistMemberDao.setPlaylist_id(mOperatePlaylist.getList_id());
+            playlistMemberDao.setPlay_order(mOperatePlaylist.getSong_count());
+            listMembers.add(playlistMemberDao);
+        }
+
+        handlerAddMembers(mOperatePlaylist, listMembers);
+    }
+
+    @Override
+    public void onQueryMusicInfosByName(List<MusicInfoDao> list) {
+
+    }
+
+    @Override
+    public void onQueryMusicInfosByArist(List<MusicInfoDao> list) {
+
+    }
+
+    @Override
+    public void onQueryMuisicInfosByAlbum(List<MusicInfoDao> list) {
+
+    }
+
+    private void handlerAddMembers(PlaylistDao playlistDao, List<PlaylistMemberDao> playlistMemberDaos){
+        if(playlistDao == null || playlistMemberDaos == null)
+            return;
+
+        String strPromt;
+        int successNum = 0;
+        boolean bMutil = playlistMemberDaos.size() > 1 ? true : false;
+        for(int i = 0;i < playlistMemberDaos.size();i++){
+            PlaylistMemberDao playlistMemberDao = playlistMemberDaos.get(i);
+            if(playlistMemberDao == null)
+                continue ;
+
+            boolean bRet = mPresenter.addPlaylistMember(playlistMemberDao);
+            if(bRet){
+                successNum++;
+            }
+        }
+
+        if(!bMutil){
+            if(successNum == playlistMemberDaos.size()){
+                strPromt = String.format("成功添加到\"%s\"", playlistDao.getName());
+            }
+            else if(successNum == playlistMemberDaos.size()){
+                strPromt = String.format("已经添加到\"%s\"", playlistDao.getName());
+            }
+            else{
+                strPromt = String.format("添加失败");
+            }
+
+            playlistDao.setSong_count(playlistDao.getSong_count() + 1);
+        }
+        else{
+            strPromt = String.format("成功%d首,失败%d首", successNum, playlistMemberDaos.size() - successNum);
+            playlistDao.setSong_count(playlistDao.getSong_count() + successNum);
+        }
+        playlistDao.setDate_modified(System.currentTimeMillis());
+        mPresenter.updatePlaylist(playlistDao);
+        Toast.makeText(this.getContext(), strPromt, Toast.LENGTH_SHORT).show();
+    }
+
+    public static class Builder extends BaseDialog.Builder{
+        public Builder(Context context) {
+            super(context);
+        }
+
+        @Override
+        protected <T extends BaseDialog> T createDialog() {
+            return (T) new FavoriteDialog(mContext);
+        }
+
+        @Override
+        protected int getCustomeView() {
+            return R.layout.favorite_dialog;
         }
     }
 }

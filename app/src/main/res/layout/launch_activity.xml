@@ -15,9 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/default_skin_thumbnail"
-            android:layout_centerHorizontal="true"
-            android:layout_alignParentBottom="true"
-            android:scaleType="center"/>
+            android:scaleType="centerCrop"/>
 
         <TextView
             android:layout_width="wrap_content"

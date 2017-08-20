@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.example.kaizhiwei.puremusictest.R;
 
@@ -22,6 +23,8 @@ import com.example.kaizhiwei.puremusictest.R;
 public abstract class BaseDialog extends Dialog {
     private TextView tvDialogTitle;
     private FrameLayout flCustomeView;
+    private LinearLayout llTitle;
+    private int maxHeight;
 
     public BaseDialog(@NonNull Context context) {
         this(context, 0);
@@ -46,10 +49,11 @@ public abstract class BaseDialog extends Dialog {
         wl.y = 0;
         // 以下这两句是为了保证按钮可以水平满屏
         wl.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        wl.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        wl.height = maxHeight == 0 ? ViewGroup.LayoutParams.WRAP_CONTENT : maxHeight;
         wl.gravity = Gravity.BOTTOM;
         window.setAttributes(wl);
 
+        llTitle = (LinearLayout)view.findViewById(R.id.llTitle);
         tvDialogTitle = (TextView)view.findViewById(R.id.tvDialogTitle);
         flCustomeView = (FrameLayout)view.findViewById(R.id.flCustomeView);
         initData();
@@ -60,6 +64,36 @@ public abstract class BaseDialog extends Dialog {
         if(tvDialogTitle != null){
             tvDialogTitle.setText(str);
         }
+    }
+
+    public void setTitleVisible(boolean show){
+        if(llTitle != null){
+            llTitle.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    public int getMaxDialogHeight() {
+        return maxHeight;
+    }
+
+    public void setMaxDialogHeight(int maxHeight) {
+        if(maxHeight == this.maxHeight)
+            return;
+
+        this.maxHeight = maxHeight;
+        Window window = this.getWindow();
+        window.getDecorView().setPadding(0,0,0,0);
+        window.setWindowAnimations(R.style.ActionSheetDialogAnimation);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
+        // 可以在此设置显示动画
+        WindowManager.LayoutParams wl = window.getAttributes();
+        wl.x = 0;
+        wl.y = 0;
+        // 以下这两句是为了保证按钮可以水平满屏
+        wl.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        wl.height = maxHeight == 0 ? ViewGroup.LayoutParams.WRAP_CONTENT : maxHeight;
+        wl.gravity = Gravity.BOTTOM;
+        window.setAttributes(wl);
     }
 
     public abstract void initData();

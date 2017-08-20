@@ -17,36 +17,37 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
+import com.example.kaizhiwei.puremusictest.service.IPlayMusic;
+import com.example.kaizhiwei.puremusictest.service.IPlayMusicListener;
+import com.example.kaizhiwei.puremusictest.service.PlayMusicImpl;
+import com.example.kaizhiwei.puremusictest.service.PlayMusicService;
 import com.example.kaizhiwei.puremusictest.ui.home.HomeActivity;
-import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.PlayingDetail.PlayingActivity;
 import com.example.kaizhiwei.puremusictest.R;
-import com.example.kaizhiwei.puremusictest.service.PlaybackService;
-
-import org.videolan.libvlc.Media;
-import org.videolan.libvlc.MediaPlayer;
+import com.example.kaizhiwei.puremusictest.util.DeviceUtil;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 /**
  * Created by kaizhiwei on 16/11/20.
  */
-public class NowPlayingLayout extends LinearLayout implements View.OnClickListener, PlaybackService.Client.Callback, PlaybackService.Callback {
-    private ImageButton mBtnPlayPause;
-    private ImageButton mBtnPlayNext;
-    private ImageButton mBtnPlaylist;
-    private TextView   mtvMain;
-    private TextView   mtvSub;
-    private ImageView  mImArtist;
-    private ProgressBar mPlayProgress;
+public class NowPlayingLayout extends LinearLayout implements View.OnClickListener, PlayMusicService.Client.Callback, IPlayMusicListener {
+    private ImageButton btnPlayPause;
+    private ImageButton btnPlayNext;
+    private ImageButton btnPlaylist;
+    private TextView   tvNowPlayingMain;
+    private TextView   tvNowPlayingSub;
+    private ImageView  ivArtist;
+    private ProgressBar pbPlay;
     private LinearLayout llControl;
     private WeakReference<MusicInfoDao>  mWeakMusicInfoDao;
     private boolean mIsPlaying;
     private HomeActivity mHomePage;
-    private PlaybackService.Client mClient = new PlaybackService.Client(this.getContext(), this);
-    private PlaybackService mService;
-    private PlayListDialog mPlayListDialog;
-    private PlayListDialog.IPlayListDialogListener mListener = new PlayListDialog.IPlayListDialogListener() {
+    private PlayMusicService.Client mClient = new PlayMusicService.Client(this.getContext(), this);
+    private PlayMusicService mService;
+    private PlaylistDialog mPlayListDialog;
+    private PlaylistDialog.IPlayListDialogListener mListener = new PlaylistDialog.IPlayListDialogListener() {
         @Override
         public void onDeleteClick(PlayListViewAdapter adapter, int position) {
             if(adapter == null || position < 0)
@@ -59,12 +60,15 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
             if(itemData == null || itemData.MusicInfoDao == null)
                 return;
 
-            MusicInfoDao curPlayMedia = mService.getCurrentMedia();
+            MusicInfoDao curPlayMedia = mService.getCurPlayMusicDao();
             mPlayListDialog.removeItem(position);
-            mService.deleteMediaById(itemData.MusicInfoDao.get_id());
+            mService.removeMusicInfo(itemData.MusicInfoDao.get_id());
             if(curPlayMedia != null){
                 if(curPlayMedia.get_id() == itemData.MusicInfoDao.get_id()){
-                    mService.next(false);
+                    MusicInfoDao musicInfoDao = mService.getMusicInfoByPosition(position);
+                    if(musicInfoDao != null){
+                        mService.setDataSource(musicInfoDao.get_data());
+                    }
                 }
             }
         }
@@ -79,7 +83,8 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
             if(itemData == null || itemData.MusicInfoDao == null)
                 return;
 
-            mService.play(itemData.MusicInfoDao);
+            mService.setCurPlayIndex(position);
+            mService.setDataSource(itemData.MusicInfoDao.get_data());
         }
 
         @Override
@@ -88,6 +93,8 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
                 return;
 
             mService.clearPlaylist();
+            mService.stop();
+            resetUI(true);
         }
 
         @Override
@@ -95,10 +102,11 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
             if(mService == null || mPlayListDialog == null)
                 return;
 
-            int curPlayMode = mService.getRepeatMode();
-            int nextPlayMode = (curPlayMode + 1)%(PreferenceConfig.PLAYMODE_NUM);
-            mService.setRepeatMode(nextPlayMode);
-            mPlayListDialog.updatePlaymodeImg(nextPlayMode, true);
+            int curPlayMode = mService.getPlayMode().ordinal();
+            int nextPlayMode = (curPlayMode + 1)%(PlayMusicImpl.PlayMode.values().length);
+            PlayMusicImpl.PlayMode mode = PlayMusicImpl.PlayMode.values()[nextPlayMode];
+            mService.setPlayMode(mode);
+            mPlayListDialog.updatePlaymodeState(mode, true);
         }
     };
 
@@ -140,36 +148,36 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
         View view = LayoutInflater.from(getContext()).inflate(R.layout.audio_now_playing, null);
         this.addView(view);
 
-        mBtnPlayPause = (ImageButton)view.findViewById(R.id.btnPlayPause);
-        mBtnPlayNext = (ImageButton)view.findViewById(R.id.btnPlayNext);
-        mBtnPlaylist = (ImageButton)view.findViewById(R.id.btnPlaylist);
-        mBtnPlayPause.setOnClickListener(this);
-        mBtnPlayNext.setOnClickListener(this);
-        mBtnPlaylist.setOnClickListener(this);
+        btnPlayPause = (ImageButton)view.findViewById(R.id.btnPlayPause);
+        btnPlayNext = (ImageButton)view.findViewById(R.id.btnPlayNext);
+        btnPlaylist = (ImageButton)view.findViewById(R.id.btnPlaylist);
+        btnPlayPause.setOnClickListener(this);
+        btnPlayNext.setOnClickListener(this);
+        btnPlaylist.setOnClickListener(this);
         this.setOnClickListener(this);
 
-        mtvMain = (TextView) view.findViewById(R.id.tvNowPlayingMain);
-        mtvSub = (TextView)view.findViewById(R.id.tvNowPlayingSub);
-        mImArtist = (ImageView)view.findViewById(R.id.ivArtist);
-        mPlayProgress = (ProgressBar) view.findViewById(R.id.pbPlay);
-        mPlayProgress.setProgress(0);
+        tvNowPlayingMain = (TextView) view.findViewById(R.id.tvNowPlayingMain);
+        tvNowPlayingSub = (TextView)view.findViewById(R.id.tvNowPlayingSub);
+        ivArtist = (ImageView)view.findViewById(R.id.ivArtist);
+        pbPlay = (ProgressBar) view.findViewById(R.id.pbPlay);
+        pbPlay.setProgress(0);
         llControl = (LinearLayout)view.findViewById(R.id.llControl);
         llControl.setOnClickListener(this);
     }
 
-    private void initData(){
+    private void initView(){
         if(mService == null)
             return;
 
-        int size = mService.getPlaylistSize();
+        int size = mService.getPlaylist().size();
         if(size == 0){
             resetUI(true);
         }
         else{
-            MusicInfoDao curMedia = mService.getCurrentMedia();
+            MusicInfoDao curMedia = mService.getCurPlayMusicDao();
             if(curMedia != null){
-                mtvMain.setText(curMedia.getTitle());
-                mtvSub.setText(curMedia.getArtist());
+                tvNowPlayingMain.setText(curMedia.getTitle());
+                tvNowPlayingSub.setText(curMedia.getArtist());
             }
         }
     }
@@ -183,8 +191,9 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
         if(mService == null)
             return;
 
-        if(v == mBtnPlayPause){
-            if(mService.getPlaylistSize() == 0){
+        List<MusicInfoDao> playlist = mService.getPlaylist();
+        if(v == btnPlayPause){
+            if(playlist.size() == 0){
                 Toast.makeText(this.getContext(), "当前无可播放的歌曲", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -196,24 +205,25 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
                 mService.play();
             }
         }
-        else if(v == mBtnPlayNext){
-            if(mService.getPlaylistSize() == 0){
+        else if(v == btnPlayNext){
+            if(playlist.size() == 0){
                 Toast.makeText(this.getContext(), "当前无可播放的歌曲", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            mService.next(false);
+            mService.next();
         }
-        else if(v == mBtnPlaylist){
+        else if(v == btnPlaylist){
             if(mPlayListDialog == null){
-                PlayListDialog.Builder builder = new PlayListDialog.Builder(this.getContext());
-                mPlayListDialog = builder.create(false);
+                PlaylistDialog.Builder builder = new PlaylistDialog.Builder(this.getContext());
+                mPlayListDialog = (PlaylistDialog)builder.create();
             }
+            mPlayListDialog.setMaxDialogHeight(500* DeviceUtil.getDensity(this.getContext()));
             mPlayListDialog.setCancelable(true);
-            mPlayListDialog.setPlaylistData(mService.getPlaylist());
-            mPlayListDialog.setItemPlayState(mService.getCurPlayMediaIndex(), true, mService.isPlaying());
+            mPlayListDialog.setPlaylistData(playlist);
+            mPlayListDialog.setItemPlayState(mService.getCurPlayIndex(), true, mService.isPlaying());
             mPlayListDialog.setPlayListAdapterListener(mListener);
-            mPlayListDialog.updatePlaymodeImg(mService.getRepeatMode(), false);
+            mPlayListDialog.updatePlaymodeState(mService.getPlayMode(), false);
             mPlayListDialog.show();
         }
         else if(llControl == v){
@@ -226,105 +236,117 @@ public class NowPlayingLayout extends LinearLayout implements View.OnClickListen
         if(media == null)
             return ;
 
-        mtvMain.setText(media.getTitle());
-        mtvSub.setText(media.getArtist());
-        mPlayProgress.setMax((int)media.getDuration());
-        mWeakMusicInfoDao = new WeakReference<MusicInfoDao>(media);
+        tvNowPlayingMain.setText(media.getTitle());
+        tvNowPlayingSub.setText(media.getArtist());
+        pbPlay.setMax((int)media.getDuration());
     }
 
-    public void updatePlayProgress(int iCur, int iMax){
-        mPlayProgress.setMax(iMax);
-        mPlayProgress.setProgress(iCur);
+    public void updatePlayProgress(int curPos, int duration){
+        pbPlay.setMax(duration);
+        pbPlay.setProgress(curPos);
     }
 
     public void setPlayPauseState(boolean isPlaying){
         if(isPlaying){
-            mBtnPlayPause.setBackgroundResource(R.drawable.bt_minibar_pause_normal);
+            btnPlayPause.setBackgroundResource(R.drawable.bt_minibar_pause_normal);
         }
         else{
-            mBtnPlayPause.setBackgroundResource(R.drawable.bt_minibar_play_normal);
+            btnPlayPause.setBackgroundResource(R.drawable.bt_minibar_play_normal);
         }
         mIsPlaying = isPlaying;
     }
 
-    //PlaybackService.Client.Callback
     @Override
-    public void onConnected(PlaybackService service) {
+    public void onConnect(PlayMusicService service) {
         mService = service;
-        mService.addCallback(this);
-        initData();
+        mService.addListener(this);
+        initView();
     }
 
     @Override
-    public void onDisconnected() {
+    public void onDisconnect() {
+        mService.removeListener(this);
         mService = null;
-    }
-
-    //PlaybackService.Callback
-    @Override
-    public void update() {
-
-    }
-
-    @Override
-    public void updateProgress() {
-        if(mService == null)
-            return ;
-
-        int iTime = (int)mService.getTIme();
-        int iLengtht = (int)mService.getLength();
-        updatePlayProgress(iTime, iLengtht);
-    }
-
-    @Override
-    public void onMediaEvent(Media.Event event) {
-        if(mService == null || event == null)
-            return;
-
-        setPlayPauseState(mService.isPlaying());
-    }
-
-    @Override
-    public void onMediaPlayerEvent(MediaPlayer.Event event) {
-        if(event.type == MediaPlayer.Event.Playing){
-            MusicInfoDao MusicInfoDao = mService.getCurrentMedia();
-            if(MusicInfoDao != null){
-                resetUI(false);
-                mtvMain.setText(MusicInfoDao.getTitle());
-                mtvSub.setText(MusicInfoDao.getArtist());
-                if(mPlayListDialog != null && mPlayListDialog.isShowing()){
-                    mPlayListDialog.setItemPlayState(mService.getCurPlayMediaIndex(), true, true);
-                }
-            }
-        }
-        else if(event.type == MediaPlayer.Event.Paused){
-            MusicInfoDao MusicInfoDao = mService.getCurrentMedia();
-            if(MusicInfoDao != null){
-                if(mPlayListDialog != null && mPlayListDialog.isShowing()){
-                    mPlayListDialog.setItemPlayState(mService.getCurPlayMediaIndex(), true, false);
-                }
-            }
-        }
-        else if(event.type == MediaPlayer.Event.Stopped){
-            resetUI(true);
-        }
     }
 
     private void resetUI(boolean isStopState){
         if(isStopState){
-            mtvMain.setText(getResources().getString(R.string.app_name) + " 畅享极致");
-            mtvSub.setText("");
-            mPlayProgress.setProgress(0);
-            mtvSub.setVisibility(View.GONE);
-            mtvMain.setGravity(Gravity.CENTER_VERTICAL);
+            tvNowPlayingMain.setText(getResources().getString(R.string.app_name) + " 畅享极致");
+            tvNowPlayingSub.setText("");
+            pbPlay.setProgress(0);
+            pbPlay.setMax(100);
+            tvNowPlayingSub.setVisibility(View.GONE);
+            tvNowPlayingMain.setGravity(Gravity.CENTER_VERTICAL);
+            setPlayPauseState(false);
+            btnPlayPause.setEnabled(false);
+            btnPlayNext.setEnabled(false);
         }
         else{
-            mtvMain.setText("");
-            mtvSub.setText("");
-            mPlayProgress.setProgress(0);
-            mtvSub.setVisibility(View.VISIBLE);
-            mtvMain.setGravity(Gravity.CENTER_VERTICAL);
+            tvNowPlayingMain.setText("");
+            tvNowPlayingSub.setText("");
+            pbPlay.setProgress(0);
+            pbPlay.setMax(100);
+            tvNowPlayingSub.setVisibility(View.VISIBLE);
+            tvNowPlayingMain.setGravity(Gravity.CENTER_VERTICAL);
         }
+    }
+
+    @Override
+    public void onStateChange(int state) {
+        if(state == IPlayMusic.STATE_PAPERED){
+            List<MusicInfoDao> playlist = mService.getPlaylist();
+            int index = mService.getCurPlayIndex();
+            MusicInfoDao musicInfoDao = playlist.get(index);
+
+            if(musicInfoDao != null){
+                btnPlayPause.setEnabled(true);
+                btnPlayNext.setEnabled(true);
+                setPlayingMediaEntrty(musicInfoDao);
+                updatePlayProgress(0, (int)musicInfoDao.getDuration());
+                if(mPlayListDialog != null && mPlayListDialog.isShowing()){
+                    mPlayListDialog.setItemPlayState(mService.getCurPlayIndex(), true, true);
+                }
+            }
+            setPlayPauseState(true);
+        }
+        else if(state == IPlayMusic.STATE_PLAY){
+            List<MusicInfoDao> playlist = mService.getPlaylist();
+            int index = mService.getCurPlayIndex();
+            MusicInfoDao musicInfoDao = playlist.get(index);
+
+            if(musicInfoDao != null){
+                setPlayingMediaEntrty(musicInfoDao);
+                updatePlayProgress(0, (int)musicInfoDao.getDuration());
+                if(mPlayListDialog != null && mPlayListDialog.isShowing()){
+                    mPlayListDialog.setItemPlayState(mService.getCurPlayIndex(), true, true);
+                }
+            }
+            setPlayPauseState(true);
+        }
+        else if(state == IPlayMusic.STATE_PAUSE){
+            List<MusicInfoDao> playlist = mService.getPlaylist();
+            int index = mService.getCurPlayIndex();
+            MusicInfoDao musicInfoDao = playlist.get(index);
+
+            if(musicInfoDao != null){
+                if(mPlayListDialog != null && mPlayListDialog.isShowing()){
+                    mPlayListDialog.setItemPlayState(mService.getCurPlayIndex(), true, false);
+                }
+            }
+            setPlayPauseState(false);
+        }
+        else if(state == IPlayMusic.STATE_ERROR){
+            resetUI(true);
+        }
+    }
+
+    @Override
+    public void onPlayPosUpdate(int percent, int curPos, int duration) {
+        updatePlayProgress(curPos, duration);
+    }
+
+    @Override
+    public void onBufferingUpdate(int cur, int total) {
 
     }
 }

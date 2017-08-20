@@ -76,6 +76,23 @@ public class MediaModel {
         return list;
     }
 
+    public int getMusicInfoDaoSize(){
+        String strSql = "select count(*) from musicinfo;";
+        Cursor cursor = null;
+        int count = 0;
+        try {
+            cursor = DaoManager.getInstance().getDbManager().execQuery(strSql);
+            if(cursor != null){
+                while (cursor.moveToNext()){
+                    count = cursor.getInt(cursor.getColumnIndex("count(*)"));
+                }
+            }
+        } catch (DbException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
     public void asyncGetAllMusicInfos(final BaseHandler handler){
         try {
             final List<MusicInfoDao> list = DaoManager.getInstance().getDbManager().findAll(MusicInfoDao.class);

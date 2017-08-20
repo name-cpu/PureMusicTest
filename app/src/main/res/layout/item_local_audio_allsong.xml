@@ -1,15 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="60dp"
+    android:orientation="horizontal"
+    android:background="@drawable/default_selector"
+    android:weightSum="1">
 
-    <LinearLayout android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:orientation="vertical"
+    <com.example.kaizhiwei.puremusictest.widget.MaskImageView
+        android:id="@+id/ivMore"
+        android:layout_width="60dp"
+        android:layout_height="match_parent"
+        android:layout_marginRight="15dp"
+        android:layout_alignParentRight="true"
+        android:scaleType="center"
+        android:src="@drawable/ic_list_more_normal"
+        android:background="@drawable/default_back"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingLeft="15dp"
-        android:paddingRight="20dp"
-        android:background="@drawable/default_selector">
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/ivMore">
         <LinearLayout
             android:id="@+id/contentLayout"
             android:layout_width="match_parent"
@@ -51,16 +66,8 @@
                     android:gravity="top"
                     style="@style/DefaultSubTextView" />
             </LinearLayout>
-
-            <ImageView
-                android:id="@+id/ivMore"
-                android:layout_gravity="center_vertical"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:scaleX="0.7"
-                android:scaleY="0.7"
-                android:src="@drawable/ic_list_more_normal"
-                android:background="@drawable/default_back"/>
         </LinearLayout>
+
+
     </LinearLayout>
 </RelativeLayout>

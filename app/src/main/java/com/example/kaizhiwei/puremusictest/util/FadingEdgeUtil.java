@@ -58,7 +58,7 @@ public class FadingEdgeUtil {
     }
 
     public static void setEdgeTopColor(AbsListView listView, @ColorInt int color){
-        Class clazz = ScrollView.class;
+        Class clazz = AbsListView.class;
         try {
             Field fieldEdgeGlowTop = clazz.getDeclaredField("mEdgeGlowTop");
             fieldEdgeGlowTop.setAccessible(true);
@@ -79,7 +79,7 @@ public class FadingEdgeUtil {
     }
 
     public static void setEdgeBottomColor(AbsListView listView, @ColorInt int color){
-        Class clazz = ScrollView.class;
+        Class clazz = AbsListView.class;
         try {
             Field fieldEdgeGlowBottom = clazz.getDeclaredField("mEdgeGlowBottom");
             fieldEdgeGlowBottom.setAccessible(true);

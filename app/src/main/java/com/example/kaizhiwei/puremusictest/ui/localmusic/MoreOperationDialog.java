@@ -45,33 +45,20 @@ public class MoreOperationDialog extends BaseDialog implements View.OnClickListe
     private List<MoreOperationAdapter.MoreOperationItemData> mListData = new ArrayList<>();
     private GridView gvMoreOperation;
     private MoreOperationAdapter mMoreAdapter;
-    private AudioListViewAdapter.AudioSongItemData mLVSongItemData = null;
-    private AudioListViewAdapter.AudioFolderItemData mLVFolderItemData = null;
-    private AudioListViewAdapter.AudioArtistAlbumItemData mLVArtistAlbumItemData = null;
     private Map<IMoreOperationDialogListener, Object> mMapListener;
-
+    private String mKey;
     private int mLVAdapterType;
 
     public interface IMoreOperationDialogListener{
         void onMoreItemClick(MoreOperationDialog dialog, int tag);
     }
 
-    public void registerListener(IMoreOperationDialogListener listener){
+    public void setListener(IMoreOperationDialogListener listener){
         if(mMapListener == null){
             mMapListener = new HashMap<>();
         }
 
         mMapListener.put(listener,listener);
-    }
-
-    public void unregisterListener(IMoreOperationDialogListener listener){
-        if(mMapListener == null){
-            mMapListener = new HashMap<>();
-        }
-
-        if(mMapListener.containsKey(listener)){
-            mMapListener.remove(listener);
-        }
     }
 
     @Override
@@ -183,54 +170,54 @@ public class MoreOperationDialog extends BaseDialog implements View.OnClickListe
         gvMoreOperation = (GridView)findViewById(R.id.gvMoreOperation);
     }
 
-    public void setMoreLVData(int lvAdapterType, AudioListViewAdapter.AudioItemData itemData){
-        mLVAdapterType = lvAdapterType;
-
-        mLVSongItemData = null;
-        mLVFolderItemData = null;
-        mLVArtistAlbumItemData = null;
-
-        if(lvAdapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
-            if(itemData instanceof AudioListViewAdapter.AudioSongItemData){
-                mLVSongItemData = (AudioListViewAdapter.AudioSongItemData)itemData;
-            }
-        }
-        else if(lvAdapterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
-            if(itemData instanceof AudioListViewAdapter.AudioFolderItemData){
-                mLVFolderItemData = (AudioListViewAdapter.AudioFolderItemData)itemData;
-            }
-        }
-        else{
-            if(itemData instanceof AudioListViewAdapter.AudioArtistAlbumItemData){
-                mLVArtistAlbumItemData = (AudioListViewAdapter.AudioArtistAlbumItemData)itemData;
-            }
-        }
-
-        if(mLVSongItemData != null){
-            boolean bFavorite = MediaLibrary.getInstance().queryIsFavoriteByMusicInfoDaoId(mLVSongItemData.id, 1);
-            setFavorite(bFavorite);
-        }
-
-        if(mMoreAdapter != null){
-            mMoreAdapter.notifyDataSetChanged();
-        }
-    }
-
-    public int getLVAdapterType(){
-        return mLVAdapterType;
-    }
-
-    public AudioListViewAdapter.AudioItemData getAduioItemData(){
-        if(mLVAdapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
-            return mLVSongItemData;
-        }
-        else if(mLVAdapterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
-            return mLVFolderItemData;
-        }
-        else{
-            return mLVArtistAlbumItemData;
-        }
-    }
+//    public void setMoreLVData(int lvAdapterType, AudioListViewAdapter.AudioItemData itemData){
+//        mLVAdapterType = lvAdapterType;
+//
+//        mLVSongItemData = null;
+//        mLVFolderItemData = null;
+//        mLVArtistAlbumItemData = null;
+//
+//        if(lvAdapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
+//            if(itemData instanceof AudioListViewAdapter.AudioSongItemData){
+//                mLVSongItemData = (AudioListViewAdapter.AudioSongItemData)itemData;
+//            }
+//        }
+//        else if(lvAdapterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
+//            if(itemData instanceof AudioListViewAdapter.AudioFolderItemData){
+//                mLVFolderItemData = (AudioListViewAdapter.AudioFolderItemData)itemData;
+//            }
+//        }
+//        else{
+//            if(itemData instanceof AudioListViewAdapter.AudioArtistAlbumItemData){
+//                mLVArtistAlbumItemData = (AudioListViewAdapter.AudioArtistAlbumItemData)itemData;
+//            }
+//        }
+//
+//        if(mLVSongItemData != null){
+//            boolean bFavorite = MediaLibrary.getInstance().queryIsFavoriteByMusicInfoDaoId(mLVSongItemData.id, 1);
+//            setFavorite(bFavorite);
+//        }
+//
+//        if(mMoreAdapter != null){
+//            mMoreAdapter.notifyDataSetChanged();
+//        }
+//    }
+//
+//    public int getLVAdapterType(){
+//        return mLVAdapterType;
+//    }
+//
+//    public AudioListViewAdapter.AudioItemData getAduioItemData(){
+//        if(mLVAdapterType == AudioListViewAdapter.ADAPTER_TYPE_ALLSONG){
+//            return mLVSongItemData;
+//        }
+//        else if(mLVAdapterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
+//            return mLVFolderItemData;
+//        }
+//        else{
+//            return mLVArtistAlbumItemData;
+//        }
+//    }
 
     public void setMoreOperData(List<Integer> listMore){
         List<MoreOperationAdapter.MoreOperationItemData> listData = new ArrayList<>();
@@ -253,7 +240,7 @@ public class MoreOperationDialog extends BaseDialog implements View.OnClickListe
         gvMoreOperation.setAdapter(mMoreAdapter);
     }
 
-    private boolean isFavorite(){
+    public boolean isFavorite(){
         for(int i = 0;i < mMoreOperAll.size();i++){
             if(mMoreOperAll.get(i).id == MORE_LOVE_NORMAL){
                 return mMoreOperAll.get(i).isSelect ;
@@ -263,12 +250,20 @@ public class MoreOperationDialog extends BaseDialog implements View.OnClickListe
         return false;
     }
 
-    private void setFavorite(boolean bFavorite){
+    public void setFavorite(boolean bFavorite){
         for(int i = 0;i < mMoreOperAll.size();i++){
             if(mMoreOperAll.get(i).id == MORE_LOVE_NORMAL){
                 mMoreOperAll.get(i).isSelect = bFavorite;
             }
         }
+    }
+
+    public String getKey() {
+        return mKey;
+    }
+
+    public void setKey(String mKey) {
+        this.mKey = mKey;
     }
 
     protected void onStart() {

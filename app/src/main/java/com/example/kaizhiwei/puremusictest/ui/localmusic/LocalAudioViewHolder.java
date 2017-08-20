@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.widget.MaskImageView;
 
 /**
  * Created by kaizhiwei on 17/8/14.
@@ -16,7 +17,7 @@ public class LocalAudioViewHolder extends RecyclerView.ViewHolder {
     public TextView tvSub;
     public TextView tvThird;
     public ImageView ivPic;
-    public ImageView ivMore;
+    public MaskImageView ivMore;
 
     public LocalAudioViewHolder(View itemView) {
         super(itemView);
@@ -24,6 +25,6 @@ public class LocalAudioViewHolder extends RecyclerView.ViewHolder {
         tvSub = (TextView)itemView.findViewById(R.id.tvSub);
         tvThird = (TextView)itemView.findViewById(R.id.tvThird);
         ivPic = (ImageView)itemView.findViewById(R.id.ivPic);
-        ivMore = (ImageView)itemView.findViewById(R.id.ivMore);
+        ivMore = (MaskImageView)itemView.findViewById(R.id.ivMore);
     }
 }

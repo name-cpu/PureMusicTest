@@ -12,8 +12,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.kaizhiwei.puremusictest.dao.PlaylistDao;
 import com.example.kaizhiwei.puremusictest.ui.home.HomeActivity;
-import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.util.ImageUtil;
 
@@ -25,7 +25,7 @@ import java.util.List;
  * Created by kaizhiwei on 16/12/10.
  */
 public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClickListener{
-    private List<FavoriteEntity> listData;
+    private List<PlaylistDao> listData;
     private Context mContext;
     private int mOperMode;
     public static final int EDIT_MODE = 0;
@@ -34,6 +34,12 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
     private int Modify_Flag = 1000;
     private int Delete_Flag = 2000;
     private IFavoriteOperListener mListener;
+
+    private PlaylistDao mDefaultPlaylist;
+    private PlaylistDao mAddOne;
+
+    public static final int DEFAULT_LIST_ID = -1;
+    public static final int ADD_ONE_LIST_ID = -2;
 
     @Override
     public void onClick(View v) {
@@ -54,19 +60,26 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
         void OnDeleteClick(FavoriteListViewAdapter adapter, int position);
     }
 
-    public FavoriteListViewAdapter(Context context, List<FavoriteEntity> list, int mode, boolean bHomePage){
+    public FavoriteListViewAdapter(Context context, List<PlaylistDao> list, int mode, boolean bHomePage){
         mContext = context;
-        listData = list;
-
-        FavoriteEntity addOne = new FavoriteEntity();
-        addOne.favoriteType = FavoriteEntity.DEFAULT_ADDONE_TYPE;
-        addOne.strFavoriteName = "新建歌单";
-
-        if(listData == null){
+        if(list == null){
             listData = new ArrayList<>();
         }
+        else{
+            listData = list;
+        }
+
+        mDefaultPlaylist = new PlaylistDao();
+        mDefaultPlaylist.setName(context.getString(R.string.i_like_danqu));
+        mDefaultPlaylist.setList_id(DEFAULT_LIST_ID);
+
+        mAddOne = new PlaylistDao();
+        mAddOne.setName(context.getString(R.string.new_playlist));
+        mAddOne.setList_id(ADD_ONE_LIST_ID);
+
+        listData.add(0, mDefaultPlaylist);
         if(bHomePage == false){
-            list.add(0, addOne);
+            listData.add(0, mAddOne);
         }
 
         mOperMode = mode;
@@ -108,7 +121,7 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
         if(listData == null || position >= listData.size())
             return null;
 
-        FavoriteEntity entity = listData.get(position);
+        PlaylistDao entity = listData.get(position);
         LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         FavoriteListViewAdapterHolder holder = null;
@@ -129,9 +142,9 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
 
         holder.tvFavoriteMain.setTextColor(mContext.getResources().getColor(R.color.mainTextColor));
         holder.tvFavoriteSub.setTextColor(mContext.getResources().getColor(R.color.subTextColor));
-        holder.tvFavoriteMain.setText(entity.strFavoriteName);
-        holder.tvFavoriteSub.setText(entity.favoriteMusicNum + "首");
-        holder.setFavoriteType((int) entity.favoriteType, mOperMode, entity.strFavoriteImgPath);
+        holder.tvFavoriteMain.setText(entity.getName());
+        holder.tvFavoriteSub.setText(entity.getSong_count() + "首");
+        holder.setFavoriteType(entity.getList_id(), mOperMode);
 
         return convertView;
     }
@@ -155,8 +168,8 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
             ibBtnDelete.setClickable(true);
         }
 
-        public void setFavoriteType(int favoriteType, int mode, String strPath){
-            if(favoriteType == FavoriteEntity.DEFAULT_ADDONE_TYPE){
+        public void setFavoriteType(long list_id, int mode){
+            if(list_id == DEFAULT_LIST_ID){
                 ivSongImage.setImageResource(R.drawable.ic_mymusic_add_nor);
                 tvFavoriteSub.setVisibility(View.GONE);
                 ibBtnMore.setVisibility(View.GONE);
@@ -171,7 +184,7 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
                     tvFavoriteMain.setGravity(Gravity.CENTER_VERTICAL);
                 }
             }
-            else if(favoriteType == FavoriteEntity.DEFAULT_FAVORITE_TYPE){
+            else if(list_id == ADD_ONE_LIST_ID){
                 ivSongImage.setImageResource(R.drawable.ic_mymusic_like);
                 ibBtnMore.setVisibility(View.VISIBLE);
                 ibBtnEdit.setVisibility(View.GONE);
@@ -179,7 +192,7 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
             }
             else{
                 //ivSongImage.setImageResource(R.drawable.ic_mymusic_list_item);
-                setFavoriteImage(strPath, ivSongImage);
+                //setFavoriteImage(strPath, ivSongImage);
                 if(mode == EDIT_MODE){
                     ibBtnMore.setVisibility(View.GONE);
                     ibBtnEdit.setVisibility(View.VISIBLE);

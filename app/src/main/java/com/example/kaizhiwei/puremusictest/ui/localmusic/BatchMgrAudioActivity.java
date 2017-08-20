@@ -165,9 +165,9 @@ public class BatchMgrAudioActivity extends BaseActivty implements PlaybackServic
 
         if(v == mtvAddTo){
             FavoriteDialog.Builder builderFavorite = new FavoriteDialog.Builder(this);
-            FavoriteDialog dialogFavorite = builderFavorite.create();
+            FavoriteDialog dialogFavorite = (FavoriteDialog)builderFavorite.create();
             dialogFavorite.setCancelable(true);
-            dialogFavorite.setFavoritelistData(MediaLibrary.getInstance().getAllFavoriteEntity());
+            //dialogFavorite.setFavoritelistData(MediaLibrary.getInstance().getAllFavoriteEntity());
             dialogFavorite.setMusicInfoDaoData(listChecked);
             dialogFavorite.show();
             dialogFavorite.setTitle("添加到歌单");

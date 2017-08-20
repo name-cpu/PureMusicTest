@@ -8,7 +8,6 @@
         android:orientation="vertical"
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/listview_padding"
-        android:paddingRight="@dimen/listview_padding"
         android:background="@drawable/default_selector">
         <LinearLayout
             android:id="@+id/contentLayout"
@@ -54,13 +53,12 @@
                     style="@style/DefaultSubTextView"/>
             </LinearLayout>
 
-            <ImageView
+            <com.example.kaizhiwei.puremusictest.widget.MaskImageView
                 android:id="@+id/ivMore"
-                android:layout_gravity="center_vertical"
-                android:layout_width="50dp"
+                android:layout_width="60dp"
                 android:layout_height="match_parent"
-                android:scaleX="0.7"
-                android:scaleY="0.7"
+                android:layout_alignParentRight="true"
+                android:scaleType="center"
                 android:src="@drawable/ic_list_more_normal"
                 android:background="@drawable/default_back"/>
         </LinearLayout>

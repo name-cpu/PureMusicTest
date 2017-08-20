@@ -8,12 +8,14 @@ import org.videolan.libvlc.Media;
 import org.xutils.db.annotation.Column;
 import org.xutils.db.annotation.Table;
 
+import java.io.Serializable;
+
 /**
  * Created by kaizhiwei on 16/11/12.
  */
 
 @Table(name = "musicinfo")
-public class MusicInfoDao implements Parcelable {
+public class MusicInfoDao implements Parcelable, Serializable {
     @Column(name = "id",isId = true,autoGen = true)
     private long _id;
 

@@ -51,7 +51,6 @@ public class SplashActivity extends MyBaseActivity implements UnStandardContract
     public void onGetUnStandardAdSuccess(UnStandardAdBean bean) {
         if(bean != null && bean.getMaterial_map() != null){
             String strPicUrl = bean.getMaterial_map().get(0).getMaterials().getAd_mob_playerskin_turnround().getDisplay_content().get(0).getPicture();
-            ivLogo.setScaleType(ImageView.ScaleType.FIT_CENTER);
             launcher_root_view.setBackgroundResource(R.color.black);
             Glide.with(this).load(strPicUrl).into(ivLogo);
         }

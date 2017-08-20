@@ -6,7 +6,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/base_dialog_title_height"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:id="@+id/llTitle">
         <TextView
             android:id="@+id/tvDialogTitle"
             android:layout_width="match_parent"

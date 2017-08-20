@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="350dp"
-    android:weightSum="1"
+    android:layout_height="match_parent"
     android:background="@color/backgroundColor">
 
     <LinearLayout
+        android:id="@+id/llTitle"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@color/playlist_title_color"
-        android:weightSum="1">
+        android:layout_alignParentTop="true">
 
         <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
             android:id="@+id/ivPlayMode"
@@ -37,18 +37,21 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/tvPromt"
+        android:id="@+id/tvClose"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="音乐空空如也"
+        android:layout_height="50dp"
+        android:text="关闭"
         android:gravity="center"
         android:textSize="15sp"
-        android:textColor="@color/subTextColor" />
+        android:background="@color/playlist_title_color"
+        android:textColor="@color/mainTextColor"
+        android:layout_alignParentBottom="true"/>
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/tvClose"
+        android:layout_below="@+id/llTitle">
         <ListView
             android:id="@+id/lvPlaylist"
             android:dividerHeight="1dp"
@@ -58,15 +61,15 @@
             android:cacheColorHint="#000000"
             android:scrollbars="none">
         </ListView>
-    </FrameLayout>
 
-    <TextView
-        android:id="@+id/tvClose"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:text="关闭"
-        android:gravity="center"
-        android:textSize="15sp"
-        android:background="@color/playlist_title_color"
-        android:textColor="@color/mainTextColor"/>
-</LinearLayout>
+        <TextView
+            android:id="@+id/tvPromt"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="音乐空空如也"
+            android:gravity="center"
+            android:textSize="@dimen/text_size_16"
+            android:textColor="@color/subTextColor"
+            android:visibility="gone"/>
+    </FrameLayout>
+</RelativeLayout>

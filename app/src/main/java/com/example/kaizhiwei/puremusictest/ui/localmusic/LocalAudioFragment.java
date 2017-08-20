@@ -161,18 +161,22 @@ public class LocalAudioFragment extends MyBaseFragment implements ViewPager.OnLo
         mAllSongFragement = new LocalBaseMediaLayout(this.getActivity());
         mAllSongFragement.setBaseMediaListener(mSubFragmentListener);
         mAllSongFragement.setType(LocalBaseMediaLayout.LayoutType.ALLSONG);
+        mAllSongFragement.initAdapterData();
 
         mSongFolderFragement = new LocalBaseMediaLayout(this.getActivity());
         mSongFolderFragement.setBaseMediaListener(mSubFragmentListener);
         mSongFolderFragement.setType(LocalBaseMediaLayout.LayoutType.FOLDER);
+        mSongFolderFragement.initAdapterData();
 
         mArtistFragement = new LocalBaseMediaLayout(this.getActivity());
         mArtistFragement.setBaseMediaListener(mSubFragmentListener);
         mArtistFragement.setType(LocalBaseMediaLayout.LayoutType.ARTIST);
+        mArtistFragement.initAdapterData();
 
         mAlbumFragement = new LocalBaseMediaLayout(this.getActivity());
         mAlbumFragement.setBaseMediaListener(mSubFragmentListener);
         mAlbumFragement.setType(LocalBaseMediaLayout.LayoutType.ALBUM);
+        mAlbumFragement.initAdapterData();
 
         mLayouts = new ArrayList<>();
         mLayouts.add(mAllSongFragement);
@@ -220,11 +224,6 @@ public class LocalAudioFragment extends MyBaseFragment implements ViewPager.OnLo
         mSongFolderFragement.onResume();
         mArtistFragement.onResume();
         mAlbumFragement.onResume();
-
-        mAllSongFragement.initAdapterData();
-        mSongFolderFragement.initAdapterData();
-        mArtistFragement.initAdapterData();
-        mAlbumFragement.initAdapterData();
     }
 
     public void onPause() {

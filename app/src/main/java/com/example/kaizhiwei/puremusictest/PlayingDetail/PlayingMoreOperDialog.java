@@ -29,6 +29,7 @@ import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
 import com.example.kaizhiwei.puremusictest.ui.home.HomeActivity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.ui.localmusic.LocalBaseMediaLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,9 +79,10 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
                 case MORE_OPER_ADDTO:
                     dismiss();
                     FavoriteDialog.Builder builderFavorite = new FavoriteDialog.Builder(PlayingMoreOperDialog.this.getContext());
-                    FavoriteDialog dialogFavorite = builderFavorite.create();
+                    FavoriteDialog dialogFavorite = (FavoriteDialog)builderFavorite.create();
                     dialogFavorite.setCancelable(true);
-                    dialogFavorite.setFavoritelistData(MediaLibrary.getInstance().getAllFavoriteEntity());
+                    dialogFavorite.setKeyType(LocalBaseMediaLayout.LayoutType.ALLSONG);
+                    dialogFavorite.setStrKey(musicInfoDao.get_id() + "");
                     List<MusicInfoDao> list = new ArrayList<>();
                     if(musicInfoDao != null){
                         list.add(musicInfoDao);

@@ -62,4 +62,7 @@
     <string name="latest">最新</string>
     <string name="mv_categort_recommand">推荐精选</string>
     <string name="select_mv_category">选择分类</string>
+
+    <string name="i_like_danqu">我喜欢的单曲</string>
+    <string name="new_playlist">新建歌单</string>
 </resources>

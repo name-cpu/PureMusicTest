@@ -3,21 +3,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/backgroundColor">
-
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:text="@string/app_name"
-        android:textSize="15sp"
-        android:textColor="#000000"
-        android:textAlignment="center"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:gravity="center"
-        android:layout_gravity="bottom" />
-
-    <View
+    ∂<View
         android:id="@+id/viewSepratorLine"
         android:layout_width="match_parent"
         android:layout_height="1dp"

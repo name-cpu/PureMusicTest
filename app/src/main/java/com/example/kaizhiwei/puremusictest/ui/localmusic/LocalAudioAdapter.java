@@ -21,6 +21,7 @@ import me.yokeyword.indexablerv.IndexableEntity;
 public class LocalAudioAdapter extends IndexableAdapter<LocalAudioAdapter.LocalAudioItemData> {
     private Context mContext;
     private int mContentResId;
+    private String mSelectItemId = "-1";
     private ILocalAudioListener mListener;
     private List<LocalAudioItemData> mDatas;
 
@@ -43,6 +44,11 @@ public class LocalAudioAdapter extends IndexableAdapter<LocalAudioAdapter.LocalA
     public void setDatas(List<LocalAudioItemData> mDatas) {
         this.mDatas = mDatas;
         super.setDatas(mDatas);
+    }
+
+    public void setDatas(List<LocalAudioAdapter.LocalAudioItemData> datas, IndexCallback<LocalAudioAdapter.LocalAudioItemData> callback) {
+        this.mDatas = datas;
+        super.setDatas(datas, callback);
     }
 
     public LocalAudioItemData getItemData(int position){
@@ -80,6 +86,16 @@ public class LocalAudioAdapter extends IndexableAdapter<LocalAudioAdapter.LocalA
         if(localAudioViewHolder.tvThird != null && !TextUtils.isEmpty(entity.getStrThird())){
             localAudioViewHolder.tvThird.setText(entity.getStrThird());
         }
+
+        if(mSelectItemId.equalsIgnoreCase(entity.getId())){
+            localAudioViewHolder.tvMain.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+            localAudioViewHolder.tvSub.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+        }
+        else{
+            localAudioViewHolder.tvMain.setTextColor(mContext.getResources().getColor(R.color.mainTextColor));
+            localAudioViewHolder.tvSub.setTextColor(mContext.getResources().getColor(R.color.subTextColor));
+        }
+
         localAudioViewHolder.ivMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,13 +113,19 @@ public class LocalAudioAdapter extends IndexableAdapter<LocalAudioAdapter.LocalA
         private String strSub;
         private String strThird;
         private String strPic;
-        private long id;
+        private String id;
 
-        public long getId() {
+        public String getPinYin() {
+            return pinYin;
+        }
+
+        private String pinYin;
+
+        public String getId() {
             return id;
         }
 
-        public void setId(long id) {
+        public void setId(String id) {
             this.id = id;
         }
 
@@ -119,6 +141,7 @@ public class LocalAudioAdapter extends IndexableAdapter<LocalAudioAdapter.LocalA
 
         @Override
         public void setFieldPinyinIndexBy(String pinyin) {
+            pinYin = pinyin;
         }
 
         public String getStrMain() {
@@ -164,5 +187,12 @@ public class LocalAudioAdapter extends IndexableAdapter<LocalAudioAdapter.LocalA
 
     public void setContentResId(int mResId) {
         this.mContentResId = mResId;
+    }
+
+    public void setSelectItemId(long id) {
+        if(mDatas == null)
+            return;
+
+        mSelectItemId = id + "";
     }
 }
