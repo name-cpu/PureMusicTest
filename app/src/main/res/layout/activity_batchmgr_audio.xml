@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:weightSum="1"
-    android:background="@color/backgroundColor">
+    android:background="@color/backgroundColor"
+    android:fitsSystemWindows="true">
+    <com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView
+        android:id="@+id/titleView"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:leftText=""
+        app:rightText="">
+    </com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView>
     <CheckBox
         android:id="@+id/ckCheckAll"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:button="@drawable/check_box_blue_selector"
         android:checked="true"
         android:text="全选"
@@ -23,6 +32,27 @@
         android:layout_height="1dp"
         android:background="@color/listviewSeperatorLineColor"
         android:layout_below="@id/ckCheckAll"/>
+
+    <View
+        android:id="@+id/viewSepratorLine2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/listviewSeperatorLineColor"/>
+
+    <FrameLayout
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/viewSepratorLine"
+        android:layout_above="@id/viewSepratorLine2">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rvBatchMgr"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@android:color/transparent"
+            android:cacheColorHint="@android:color/transparent">
+        </android.support.v7.widget.RecyclerView>
+    </FrameLayout>
 
     <RelativeLayout
         android:id="@+id/rlBtn"
@@ -49,27 +79,4 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="20dp"/>
     </RelativeLayout>
-
-    <View
-        android:id="@+id/viewSepratorLine2"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/listviewSeperatorLineColor"
-        android:layout_above="@id/rlBtn"/>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/viewSepratorLine"
-        android:layout_above="@id/viewSepratorLine2">
-        <ListView
-            android:id="@+id/lvBatchMgr"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:divider="@android:color/transparent"
-            android:cacheColorHint="@android:color/transparent">
-        </ListView>
-    </FrameLayout>
-
-
-</RelativeLayout>
+</LinearLayout>

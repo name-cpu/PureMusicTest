@@ -47,12 +47,12 @@ public class PlaylistDao implements Parcelable, Serializable {
     }
 
     protected PlaylistDao(Parcel in) {
-        _id = in.readInt();
-        list_id = in.readInt();
+        _id = in.readLong();
+        list_id = in.readLong();
         _data = in.readLong();
         name = in.readString();
-        date_added = in.readInt();
-        date_modified = in.readInt();
+        date_added = in.readLong();
+        date_modified = in.readLong();
         song_count = in.readInt();
         img_url = in.readString();
         sort = in.readInt();

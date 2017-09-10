@@ -1,10 +1,14 @@
-package com.example.kaizhiwei.puremusictest.HomePage;
+package com.example.kaizhiwei.puremusictest.ui.favorite;
 
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -13,12 +17,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.CommonUI.BaseActivty;
 import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.base.BaseBroadCastContant;
+import com.example.kaizhiwei.puremusictest.dao.PlaylistDao;
+import com.example.kaizhiwei.puremusictest.model.PlaylistModel;
 import com.example.kaizhiwei.puremusictest.ui.home.HomeActivity;
 import com.example.kaizhiwei.puremusictest.util.ImageUtil;
+import com.example.kaizhiwei.puremusictest.util.RxBus;
 
 import java.io.File;
 import java.io.InputStream;
@@ -27,12 +36,13 @@ import java.io.InputStream;
  * Created by kaizhiwei on 17/1/15.
  */
 public class FavoriteEditInfoActivity extends BaseActivty {
-    private FavoriteEntity mFaroviteEntity;
+    private PlaylistDao playlistDao;
     private ImageView ivImage;
     private EditText etName;
-    private EditText etDesc;
     private LinearLayout llFirst;
     private String mNewImagePath;
+
+    public static final String PLAYLIST_DAO = "PLAYLIST_DAO";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,28 +52,20 @@ public class FavoriteEditInfoActivity extends BaseActivty {
         setRightTest("保存");
         ivImage = (ImageView)this.findViewById(R.id.ivImage);
         etName = (EditText)this.findViewById(R.id.etName);
-        etDesc = (EditText)this.findViewById(R.id.etDesc);
         llFirst = (LinearLayout)this.findViewById(R.id.llFirst);
         llFirst.setOnClickListener(this);
         ivImage.setOnClickListener(this);
 
-        long lFavoriteId = getIntent().getLongExtra(FavoriteMainFragment.FAVORITE_ID, 0);
-        mFaroviteEntity = MediaLibrary.getInstance().getFavoriteEntityById(lFavoriteId);
-        if(mFaroviteEntity != null){
-            etName.setText(mFaroviteEntity.strFavoriteName);
-            etName.setSelection(mFaroviteEntity.strFavoriteName.length());
-            if(TextUtils.isEmpty(mFaroviteEntity.strFavoriteDesc) == false && mFaroviteEntity.strFavoriteDesc.equalsIgnoreCase("null") == false){
-                etDesc.setText(mFaroviteEntity.strFavoriteDesc);
-                etDesc.setSelection(mFaroviteEntity.strFavoriteDesc.length());
-            }
-            setFavoriteImage(mFaroviteEntity.strFavoriteImgPath);
-        }
+        playlistDao = getIntent().getParcelableExtra(PLAYLIST_DAO);
+        etName.setText(playlistDao.getName());
+        etName.setSelection(playlistDao.getName().length());
+        setFavoriteImage(playlistDao.getImg_url());
     }
 
     @Override
     public void onClick(View v) {
        if(tvRight == v){
-           if(mFaroviteEntity == null)
+           if(playlistDao == null)
                return;
 
             if(TextUtils.isEmpty(etName.getText().toString())) {
@@ -71,10 +73,10 @@ public class FavoriteEditInfoActivity extends BaseActivty {
                return;
            }
 
-           mFaroviteEntity.strFavoriteName = etName.getText().toString();
-           mFaroviteEntity.strFavoriteDesc = etDesc.getText().toString();
-           mFaroviteEntity.strFavoriteImgPath = mNewImagePath;
-           boolean bRet = MediaLibrary.getInstance().modifyFavoriteEntity(mFaroviteEntity);
+           playlistDao.setName(etName.getText().toString());
+           playlistDao.setImg_url(mNewImagePath);
+           playlistDao.setDate_modified(System.currentTimeMillis());
+           boolean bRet = PlaylistModel.getInstance().updatePlaylist(playlistDao);
            String str = "";
            if(bRet){
                str = "保存成功";
@@ -101,8 +103,8 @@ public class FavoriteEditInfoActivity extends BaseActivty {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             Uri uri = data.getData();
-            setFavoriteImage(uri.getPath());
-            mNewImagePath = uri.getPath();
+            setFavoriteImage(uri.toString());
+            mNewImagePath = uri.toString();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -139,39 +141,17 @@ public class FavoriteEditInfoActivity extends BaseActivty {
     }
 
     private void setFavoriteImage(String strPath){
-        Bitmap bitmap = null;
-        File file = new File(strPath);
         boolean bDefault = false;
         if(TextUtils.isEmpty(strPath)){
             bDefault = true;
         }
 
-        if(bDefault == false){
-            file = new File(strPath);
-            if(file.exists() == false){
-                bDefault = true;
-            }
-            else{
-                bDefault = false;
-            }
-        }
-
         if(bDefault){
-            bitmap = ImageUtil.decodeSampledBitmapFromResource(HomeActivity.getInstance().getResources(), R.drawable.ic_playlist_default, 100, 100);
-            ivImage.setImageBitmap(bitmap);
+            Glide.with(this).load(R.drawable.ic_playlist_default).into(ivImage);
         }
         else{
-            Uri uri = Uri.fromFile(file);
-            Log.e("uri", uri.toString());
-            ContentResolver cr = this.getContentResolver();
-            try {
-                InputStream inStream = cr.openInputStream(uri);
-                byte[] byData = ImageUtil.toByteArray(inStream);
-                bitmap = ImageUtil.decodeSampledBitmapFromData(byData, 100, 100);
-                ivImage.setImageBitmap(bitmap);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            Uri uri = Uri.parse(strPath);
+            Glide.with(this).load(uri).into(ivImage);
         }
     }
 }

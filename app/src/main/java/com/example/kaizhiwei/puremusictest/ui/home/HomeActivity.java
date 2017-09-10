@@ -20,9 +20,9 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.example.kaizhiwei.puremusictest.ui.favorite.FavoriteMemberFragment;
 import com.example.kaizhiwei.puremusictest.ui.localmusic.LocalAudioFragment;
 import com.example.kaizhiwei.puremusictest.ui.localmusic.NowPlayingLayout;
-import com.example.kaizhiwei.puremusictest.HomePage.FavoriteMainFragment;
 import com.example.kaizhiwei.puremusictest.util.SystemBarTintManager;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.util.DeviceUtil;
@@ -41,7 +41,7 @@ public class HomeActivity extends FragmentActivity {
 
     private LocalMusicMainFragment mLocalAudioMainFragment;
     private LocalAudioFragment mLocalAudioFragment;
-    private FavoriteMainFragment mFavoriteMainFragment;
+    private FavoriteMemberFragment mFavoriteMainFragment;
 
     private List<Fragment> mListFragment;
     private FragmentPagerAdapter mFragemtnPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
@@ -223,12 +223,13 @@ public class HomeActivity extends FragmentActivity {
 
     public void switchToFavoriteFragment(Bundle bundle ){
 //        if(mFavoriteMainFragment == null){
-//            mFavoriteMainFragment = new FavoriteMainFragment();
+//            mFavoriteMainFragment = new FavoriteMemberFragment();
 //        }
 
-        mFavoriteMainFragment = new FavoriteMainFragment();
+        mFavoriteMainFragment = new FavoriteMemberFragment();
         FragmentTransaction transaction = this.getSupportFragmentManager().beginTransaction();
         //getFragmentManager().executePendingTransactions();
+        transaction.setCustomAnimations(R.anim.anim_right_enter, R.anim.anim_right_exit);
         transaction.replace(R.id.flContent, mFavoriteMainFragment);
         mFavoriteMainFragment.setArguments(bundle);
         if(mLocalAudioMainFragment != null){
@@ -238,7 +239,7 @@ public class HomeActivity extends FragmentActivity {
         if(mLocalAudioFragment != null){
             transaction.hide(mLocalAudioFragment);
         }
-        //transaction.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
+
         transaction.addToBackStack("mFavoriteMainFragment");
         transaction.commit();
 //        getSupportFragmentManager().executePendingTransactions();

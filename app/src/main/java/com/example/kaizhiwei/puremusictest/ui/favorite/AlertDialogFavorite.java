@@ -1,4 +1,4 @@
-package com.example.kaizhiwei.puremusictest.ui.localmusic;
+package com.example.kaizhiwei.puremusictest.ui.favorite;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -10,10 +10,9 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.dao.PlaylistDao;
 
 /**
  * Created by 24820 on 2016/12/14.
@@ -25,7 +24,7 @@ public class AlertDialogFavorite extends AlertDialog implements View.OnClickList
     private TextView tvTitle;
     private int mOperType;
     private OnAlterDialogFavoriteListener mListener;
-    private FavoriteEntity mFavoriteEntity;
+    private PlaylistDao mFavoriteEntity;
     public static final int USER_CANCEL = -1;
     public static final int ADD_FAVORITE = 0;
     public static final int MODIFY_FAVORITE = 1;
@@ -68,8 +67,8 @@ public class AlertDialogFavorite extends AlertDialog implements View.OnClickList
         else if(mOperType == MODIFY_FAVORITE){
             tvTitle.setText("重命名");
             if(mFavoriteEntity != null){
-                etFavoriteName.setText(mFavoriteEntity.strFavoriteName);
-                etFavoriteName.setSelection(mFavoriteEntity.strFavoriteName.length());
+                etFavoriteName.setText(mFavoriteEntity.getName());
+                etFavoriteName.setSelection(mFavoriteEntity.getName().length());
                 //etFavoriteName.setInputType(InputType.TYPE_CLASS_TEXT);
                 etFavoriteName.requestFocus();
             }
@@ -98,14 +97,14 @@ public class AlertDialogFavorite extends AlertDialog implements View.OnClickList
         super.show();
     }
 
-    public void setFavoriteEntity(FavoriteEntity entity){
+    public void setFavoriteEntity(PlaylistDao entity){
         if(entity == null)
             return;
 
         mFavoriteEntity = entity;
     }
 
-    public FavoriteEntity getFavoriteEntity(){
+    public PlaylistDao getFavoriteEntity(){
         return mFavoriteEntity;
     }
 
@@ -137,11 +136,6 @@ public class AlertDialogFavorite extends AlertDialog implements View.OnClickList
             else if(mOperType == MODIFY_FAVORITE){
                 if(TextUtils.isEmpty(strFavoriteName)){
                     Toast.makeText(this.getContext(), "歌单名字不能为空", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if(MediaLibrary.getInstance().isExistFavorite(strFavoriteName, mFavoriteEntity._id)){
-                    Toast.makeText(this.getContext(), "该歌单已经存在,换个名字吧~", Toast.LENGTH_SHORT).show();
                     return;
                 }
             }

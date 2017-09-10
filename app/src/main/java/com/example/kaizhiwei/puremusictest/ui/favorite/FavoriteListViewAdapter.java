@@ -1,4 +1,4 @@
-package com.example.kaizhiwei.puremusictest.ui.localmusic;
+package com.example.kaizhiwei.puremusictest.ui.favorite;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -126,7 +126,7 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
 
         FavoriteListViewAdapterHolder holder = null;
         if(convertView == null){
-            View view = inflater.inflate(R.layout.favorite_dialog_item, null);
+            View view = inflater.inflate(R.layout.item_homepage_favorite, null);
             view.setBackgroundResource(R.color.backgroundColor);
             holder = new FavoriteListViewAdapterHolder(view);
             holder.ibBtnEdit.setOnClickListener(this);
@@ -153,7 +153,6 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
         public ImageView ivSongImage;
         public TextView tvFavoriteMain;
         public TextView tvFavoriteSub;
-        public ImageView ibBtnMore;
         public ImageView ibBtnEdit;
         public ImageView ibBtnDelete;
 
@@ -161,7 +160,6 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
             ivSongImage = (ImageView)view.findViewById(R.id.ivSongImage);
             tvFavoriteMain = (TextView)view.findViewById(R.id.tvFavoriteMain);
             tvFavoriteSub = (TextView)view.findViewById(R.id.tvFavoriteSub);
-            ibBtnMore = (ImageView)view.findViewById(R.id.ibBtnMore);
             ibBtnEdit = (ImageView)view.findViewById(R.id.ibBtnEdit);
             ibBtnDelete = (ImageView)view.findViewById(R.id.ibBtnDelete);
             ibBtnEdit.setClickable(true);
@@ -172,7 +170,6 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
             if(list_id == DEFAULT_LIST_ID){
                 ivSongImage.setImageResource(R.drawable.ic_mymusic_add_nor);
                 tvFavoriteSub.setVisibility(View.GONE);
-                ibBtnMore.setVisibility(View.GONE);
                 ibBtnEdit.setVisibility(View.GONE);
                 ibBtnDelete.setVisibility(View.GONE);
 
@@ -186,7 +183,6 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
             }
             else if(list_id == ADD_ONE_LIST_ID){
                 ivSongImage.setImageResource(R.drawable.ic_mymusic_like);
-                ibBtnMore.setVisibility(View.VISIBLE);
                 ibBtnEdit.setVisibility(View.GONE);
                 ibBtnDelete.setVisibility(View.GONE);
             }
@@ -194,12 +190,10 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
                 //ivSongImage.setImageResource(R.drawable.ic_mymusic_list_item);
                 //setFavoriteImage(strPath, ivSongImage);
                 if(mode == EDIT_MODE){
-                    ibBtnMore.setVisibility(View.GONE);
                     ibBtnEdit.setVisibility(View.VISIBLE);
                     ibBtnDelete.setVisibility(View.VISIBLE);
                 }
                 else{
-                    ibBtnMore.setVisibility(View.VISIBLE);
                     ibBtnEdit.setVisibility(View.GONE);
                     ibBtnDelete.setVisibility(View.GONE);
                 }

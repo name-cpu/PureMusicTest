@@ -23,11 +23,10 @@ import android.widget.SeekBar;
 
 import com.bumptech.glide.Glide;
 import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
-import com.example.kaizhiwei.puremusictest.ui.localmusic.FavoriteDialog;
+import com.example.kaizhiwei.puremusictest.ui.favorite.FavoriteDialog;
 import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyImageView;
 import com.example.kaizhiwei.puremusictest.ui.home.HomeActivity;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.ui.localmusic.LocalBaseMediaLayout;
 
@@ -87,7 +86,7 @@ public class PlayingMoreOperDialog extends Dialog implements AdapterView.OnItemC
                     if(musicInfoDao != null){
                         list.add(musicInfoDao);
                     }
-                    dialogFavorite.setMusicInfoDaoData(list);
+                    //dialogFavorite.setMusicInfoDaoData(list);
                     dialogFavorite.show();
                     dialogFavorite.setTitle("添加到歌单");
                     break;

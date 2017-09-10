@@ -75,14 +75,14 @@
                         android:textColor="@color/white"
                         android:textSize="@dimen/large_text_size"/>
 
-                    <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
+                    <ImageView
                         android:id="@+id/mivEdit"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/btn_edit_playlist_normol"
                         android:layout_gravity="center_vertical"/>
 
-                    <com.example.kaizhiwei.puremusictest.CommonUI.MyImageView
+                    <ImageView
                         android:id="@+id/mivMoreOper"
                         android:layout_marginLeft="10dp"
                         android:layout_width="wrap_content"
@@ -104,11 +104,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:paddingTop="10dp">
-            <TextView
-                android:id="@+id/tvDetail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+            android:paddingTop="10dp">∂
             <LinearLayout
                 android:background="@color/backgroundColor"
                 android:id="@+id/llControl"
@@ -152,6 +148,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/listviewSeperatorLineColor"/>
+            <com.example.kaizhiwei.puremusictest.ui.localmusic.LocalBaseMediaLayout
+                android:id="@+id/lbMediaLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            </com.example.kaizhiwei.puremusictest.ui.localmusic.LocalBaseMediaLayout>
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>

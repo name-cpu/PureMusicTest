@@ -92,7 +92,7 @@
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".HomePage.FavoriteEditInfoActivity"
+        <activity android:name=".ui.favorite.FavoriteEditInfoActivity"
             android:configChanges="orientation|screenLayout"
             android:screenOrientation="portrait"
             android:launchMode="standard"/>

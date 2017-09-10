@@ -223,13 +223,11 @@
                     android:layout_height="1dp"
                     android:layout_alignParentBottom="true"
                     android:background="@color/more_oper_dialog_seperator_line"/>
-
-                <com.example.kaizhiwei.puremusictest.HomePage.FavoriteLayout
-                    android:id="@+id/favoriteLayout"
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rvFavorite"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center">
-                </com.example.kaizhiwei.puremusictest.HomePage.FavoriteLayout>
+                    android:layout_height="wrap_content">
+                </android.support.v7.widget.RecyclerView>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

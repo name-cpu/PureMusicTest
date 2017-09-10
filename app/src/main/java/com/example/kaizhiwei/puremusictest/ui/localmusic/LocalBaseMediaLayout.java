@@ -22,17 +22,17 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-import com.example.kaizhiwei.puremusictest.CommonUI.AndroidShare;
+
 import com.example.kaizhiwei.puremusictest.contract.LocalMusicContract;
 import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 import com.example.kaizhiwei.puremusictest.presenter.LocalMusicPresenter;
-import com.example.kaizhiwei.puremusictest.MediaData.FavoritesMusicEntity;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.service.IPlayMusic;
 import com.example.kaizhiwei.puremusictest.service.IPlayMusicListener;
 import com.example.kaizhiwei.puremusictest.service.PlayMusicService;
+import com.example.kaizhiwei.puremusictest.ui.favorite.FavoriteDialog;
 import com.example.kaizhiwei.puremusictest.widget.RecyclerViewDividerDecoration;
 import java.io.File;
 import java.util.ArrayList;
@@ -105,7 +105,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
 
     private LayoutType mType = LayoutType.ALLSONG;
     public enum LayoutType{
-        ALLSONG, FOLDER, ARTIST, ALBUM
+        ALLSONG, FOLDER, ARTIST, ALBUM, CUSTOME
     }
 
     private IndexableAdapter.IndexCallback<LocalAudioAdapter.LocalAudioItemData> indexCallback = new IndexableAdapter.IndexCallback<LocalAudioAdapter.LocalAudioItemData>() {
@@ -290,6 +290,10 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
                 indexLayout.setIndexBarVisibility(false);
                 indexLayout.showIndexTitle(false);
                 break;
+            case CUSTOME:
+                indexLayout.showAllLetter(false);
+                indexLayout.setIndexBarVisibility(false);
+                indexLayout.showIndexTitle(false);
             default:
                 contentResId = R.layout.item_local_audio_allsong;
                 break;
@@ -314,6 +318,10 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         }
     }
 
+    public void initAdaterData(List<MusicInfoDao> list){
+        onGetAllMusicInfos(list);
+    }
+
     public void setMoreOperDialogData(List<Integer> list){
         if(list == null || list.size() ==0)
             return;
@@ -321,6 +329,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         if(mListMoreOperData == null){
             mListMoreOperData = new ArrayList<>();
         }
+        mListMoreOperData.clear();
         mListMoreOperData.addAll(list);
     }
 
@@ -741,7 +750,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
 ////        }
 ////        intent.putExtra(BatchMgrAudioActivity.INTENT_LIST_DATA, (Serializable)listTemp);
 ////        HomeActivity.getInstance().startActivity(intent);
-////        HomeActivity.getInstance().overridePendingTransition(R.anim.anim_left_enter, R.anim.anim_right_exit);
+////        HomeActivity.getInstance().overridePendingTransition(R.anim.anim_right_enter, R.anim.anim_right_exit);
 //    }
 
     //MoreOperationDialog.IMoreOperationDialogListener
@@ -750,6 +759,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         if(mPresenter == null || dialog == null)
             return;
 
+        mMoreDialog.dismiss();
         List<MusicInfoDao> listOperMusicInfoDao = new ArrayList<>();
         String strKey = dialog.getKey();
         if(TextUtils.isEmpty(strKey))
@@ -928,10 +938,10 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
 //            }
 //        }
 
-        if(listOperMusicInfoDao == null || listOperMusicInfoDao.size() == 0){
-            Toast.makeText(mContext, "data error", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if(listOperMusicInfoDao == null || listOperMusicInfoDao.size() == 0){
+//            Toast.makeText(mContext, "data error", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
 
 //        switch (tag){
 //            case MoreOperationDialog.MORE_ADD_NORMA:
@@ -1089,7 +1099,6 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
 //            case MoreOperationDialog.MORE_SONGER_NORMAL:
 //                break;
 //        }
-        mMoreDialog.dismiss();
         if(mListener != null){
             mListener.onMoreOperClick(this, tag, listOperMusicInfoDao);
         }

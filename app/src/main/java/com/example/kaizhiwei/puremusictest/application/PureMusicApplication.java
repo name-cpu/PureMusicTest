@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.example.kaizhiwei.puremusictest.MediaData.SongEntity;
+import com.example.kaizhiwei.puremusictest.dao.DaoManager;
 import com.example.kaizhiwei.puremusictest.model.MediaModel;
 
 import org.xutils.x;
@@ -31,7 +32,7 @@ public class PureMusicApplication extends Application {
         MediaModel.getInstance().init(mContext);
         x.Ext.init(this);
         x.Ext.setDebug(true); // 是否输出debug日志
-
+        DaoManager.getInstance();
 //        String url = "http://assets.geilicdn.com/channelapk/1000n_shurufa_1.9.6.apk";
 //
 //        OkHttpClient okHttpClient = new OkHttpClient();

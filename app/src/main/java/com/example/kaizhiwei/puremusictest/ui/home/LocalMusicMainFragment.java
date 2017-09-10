@@ -4,80 +4,104 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.CallSuper;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.example.kaizhiwei.puremusictest.ui.localmusic.AlertDialogFavorite;
-import com.example.kaizhiwei.puremusictest.ui.localmusic.FavoriteListViewAdapter;
 import com.example.kaizhiwei.puremusictest.CommonUI.MyTextView;
-import com.example.kaizhiwei.puremusictest.HomePage.FavoriteLayout;
-import com.example.kaizhiwei.puremusictest.HomePage.FavoriteMainFragment;
-import com.example.kaizhiwei.puremusictest.MediaData.FavoriteEntity;
-import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.base.MyBaseFragment;
+import com.example.kaizhiwei.puremusictest.dao.PlaylistDao;
+import com.example.kaizhiwei.puremusictest.dao.PlaylistMemberDao;
+import com.example.kaizhiwei.puremusictest.model.IPlaylistDataObserver;
+import com.example.kaizhiwei.puremusictest.model.PlaylistModel;
 import com.example.kaizhiwei.puremusictest.service.PlaybackService;
+import com.example.kaizhiwei.puremusictest.ui.favorite.AlertDialogFavorite;
+import com.example.kaizhiwei.puremusictest.widget.RecyclerViewDividerDecoration;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 
 /**
  * Created by kaizhiwei on 16/12/16.
  */
-public class LocalMusicMainFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemClickListener, AlertDialogFavorite.OnAlterDialogFavoriteListener, FavoriteLayout.IFavoriteOperListener, PlaybackService.Client.Callback {
-    private RelativeLayout ryLocal;
-    private RelativeLayout ryLastPlay;
-    private RelativeLayout ryDownload;
-    private FavoriteLayout favoriteLayout;
-    private TextView tvLocalSub;
-    private TextView tvLastPlaySub;
-    private TextView tvDonwloadSub;
-    private TextView tvAddFavorite;
-    private MyTextView mtvManageFavorite;
-    private ImageView ivPlay;
+public class LocalMusicMainFragment extends MyBaseFragment implements View.OnClickListener,  PlaybackService.Client.Callback, IPlaylistDataObserver {
+    @Bind(R.id.ivIcon)
+    ImageView ivIcon;
+    @Bind(R.id.tvLocalMain)
+    TextView tvLocalMain;
+    @Bind(R.id.tvLocalSub)
+    TextView tvLocalSub;
+    @Bind(R.id.ivPlay)
+    ImageView ivPlay;
+    @Bind(R.id.ryLocal)
+    RelativeLayout ryLocal;
+    @Bind(R.id.ivIconLastPlay)
+    ImageView ivIconLastPlay;
+    @Bind(R.id.tvLastPlayMain)
+    TextView tvLastPlayMain;
+    @Bind(R.id.tvLastPlaySub)
+    TextView tvLastPlaySub;
+    @Bind(R.id.ryLastPlay)
+    RelativeLayout ryLastPlay;
+    @Bind(R.id.ivIconDownload)
+    ImageView ivIconDownload;
+    @Bind(R.id.tvDonwloadMain)
+    TextView tvDonwloadMain;
+    @Bind(R.id.tvDonwloadSub)
+    TextView tvDonwloadSub;
+    @Bind(R.id.ryDownload)
+    RelativeLayout ryDownload;
+    @Bind(R.id.tvAddFavorite)
+    TextView tvAddFavorite;
+    @Bind(R.id.mtvManageFavorite)
+    MyTextView mtvManageFavorite;
+    @Bind(R.id.rvFavorite)
+    RecyclerView rvFavorite;
+    @Bind(R.id.llContent)
+    LinearLayout llContent;
+
+    private FavoriteViewAdpapter mFavoriteViewAdapter;
+
     private Vibrator vibrator;
     private PlaybackService.Client mClient;
     private PlaybackService mService;
 
-    public LocalMusicMainFragment(){
+    public LocalMusicMainFragment() {
         super();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_home_localmusic, null, false);//关联布局文件
-        ryLocal = (RelativeLayout) rootView.findViewById(R.id.ryLocal);
-        ryLastPlay = (RelativeLayout) rootView.findViewById(R.id.ryLastPlay);
-        ryDownload = (RelativeLayout) rootView.findViewById(R.id.ryDownload);
+    protected int getLayoutResource() {
+        return R.layout.fragment_home_localmusic;
+    }
+
+    @Override
+    protected void initView() {
         ryLocal.setOnClickListener(this);
         ryLastPlay.setOnClickListener(this);
         ryDownload.setOnClickListener(this);
 
-        favoriteLayout = (FavoriteLayout) rootView.findViewById(R.id.favoriteLayout);
-        favoriteLayout.setMode(FavoriteLayout.READONLY_MODE);
-        favoriteLayout.setIsHomePage(true);
-        favoriteLayout.setFavoriteLayoutListener(this);
-
-        tvAddFavorite = (TextView) rootView.findViewById(R.id.tvAddFavorite);
-        mtvManageFavorite = (MyTextView) rootView.findViewById(R.id.mtvManageFavorite);
         tvAddFavorite.setOnClickListener(this);
         mtvManageFavorite.setOnClickListener(this);
-
-        tvLocalSub = (TextView)rootView.findViewById(R.id.tvLocalSub);
-        tvLastPlaySub = (TextView)rootView.findViewById(R.id.tvLastPlaySub);
-        tvDonwloadSub = (TextView)rootView.findViewById(R.id.tvDonwloadSub);
-        ivPlay = (ImageView)rootView.findViewById(R.id.ivPlay);
         ivPlay.setOnClickListener(this);
 
-        tvLocalSub.setText(MediaLibrary.getInstance().getMusicInfoDaoSize() + "首");
-        vibrator = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
+        rvFavorite.setLayoutManager(linearLayoutManager);
+        rvFavorite.setNestedScrollingEnabled(false);
+        rvFavorite.addItemDecoration(new RecyclerViewDividerDecoration(this.getActivity(), RecyclerViewDividerDecoration.HORIZONTAL_LIST));
+        mFavoriteViewAdapter = new FavoriteViewAdpapter(this.getActivity());
+        mFavoriteViewAdapter.setAdadpterMode(FavoriteViewAdpapter.AdapterMode.MODE_NORMAL);
+        rvFavorite.setAdapter(mFavoriteViewAdapter);
+    }
 
-        return rootView;
+    @Override
+    protected void initData() {
+        PlaylistModel.getInstance().addObserver(this);
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -86,7 +110,7 @@ public class LocalMusicMainFragment extends Fragment implements View.OnClickList
 
     public void onAttach(Context context) {
         super.onAttach(context);
-        if(mClient == null){
+        if (mClient == null) {
             mClient = new PlaybackService.Client(this.getActivity(), this);
         }
         mClient.connect();
@@ -94,22 +118,14 @@ public class LocalMusicMainFragment extends Fragment implements View.OnClickList
 
     public void onDetach() {
         super.onDetach();
-        if(mClient != null){
+        if (mClient != null) {
             mClient.disconnect();
-        }
-    }
-
-    public void updateData(){
-        if(favoriteLayout != null){
-            favoriteLayout.setFavoriteEntityData(MediaLibrary.getInstance().getAllFavoriteEntity());
-            favoriteLayout.show();
         }
     }
 
     @CallSuper
     public void onResume() {
         super.onResume();
-        updateData();
     }
 
     public void onPause() {
@@ -128,135 +144,43 @@ public class LocalMusicMainFragment extends Fragment implements View.OnClickList
     }
 
     @Override
+    public void onDestroy(){
+        super.onDestroy();
+        PlaylistModel.getInstance().removeObserver(this);
+    }
+
+    @Override
     public void onClick(View v) {
-        if(v == ryLocal){
+        if (v == ryLocal) {
             HomeActivity.getInstance().switchToAudioFragment();
-        }
-        else if(v == mtvManageFavorite){
-            if(favoriteLayout.getMode() == FavoriteListViewAdapter.READONLY_MODE){
-                favoriteLayout.setMode(FavoriteListViewAdapter.EDIT_MODE);
+        } else if (v == mtvManageFavorite) {
+            if (mFavoriteViewAdapter.getAdapterMode() == FavoriteViewAdpapter.AdapterMode.MODE_NORMAL) {
+                mFavoriteViewAdapter.setAdadpterMode(FavoriteViewAdpapter.AdapterMode.MODE_EDIT);
                 mtvManageFavorite.setText("完成");
-            }
-            else{
-                favoriteLayout.setMode(FavoriteListViewAdapter.READONLY_MODE);
+            } else {
+                mFavoriteViewAdapter.setAdadpterMode(FavoriteViewAdpapter.AdapterMode.MODE_NORMAL);
                 mtvManageFavorite.setText("管理");
             }
-        }
-        else if(v == tvAddFavorite){
-            AlertDialogFavorite favoriteDialog = new AlertDialogFavorite(this.getContext(), this);
+        } else if (v == tvAddFavorite) {
+            AlertDialogFavorite favoriteDialog = new AlertDialogFavorite(this.getContext(), new AlertDialogFavorite.OnAlterDialogFavoriteListener() {
+                @Override
+                public void OnFinish(AlertDialogFavorite dialog, int operType, String strFavoriteName) {
+                    PlaylistDao dao = new PlaylistDao();
+                    long currentTime = System.currentTimeMillis();
+                    dao.setDate_added(currentTime);
+                    dao.setList_id(currentTime);
+                    dao.setName(strFavoriteName);
+                    PlaylistModel.getInstance().addPlaylist(dao);
+                    mFavoriteViewAdapter.initData();
+                }
+            });
             favoriteDialog.show();
-            favoriteDialog.setAlertFavoriteListener(this);
             favoriteDialog.setOperType(AlertDialogFavorite.ADD_FAVORITE);
-        }
-        else if(v == ivPlay){
-            if(mService != null){
+        } else if (v == ivPlay) {
+            if (mService != null) {
                 mService.next(false);
             }
         }
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-    }
-
-    @Override
-    public void OnFinish(AlertDialogFavorite dialog, int operType, String strFavoriteName) {
-        favoriteLayout.setMode(FavoriteLayout.READONLY_MODE);
-        mtvManageFavorite.setText("管理");
-        if(operType == AlertDialogFavorite.USER_CANCEL){
-
-        }
-        else if(operType == AlertDialogFavorite.ADD_FAVORITE){
-            FavoriteEntity favoriteEntity = new FavoriteEntity();
-            favoriteEntity.favoriteType = FavoriteEntity.DEFAULT_CUSTOME_TYPE;
-            favoriteEntity.strFavoriteName = strFavoriteName;
-            if(MediaLibrary.getInstance().addFavoriteEntity(favoriteEntity) == false){
-                Toast.makeText(this.getContext(), "新建歌单失败",Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            favoriteLayout.insertView(1, favoriteEntity);
-//            boolean bSuccess = false;
-//            for(int i = 0;i < mListMusicInfoDao.size();i++){
-//                MediaEntity MediaEntity = mListMusicInfoDao.get(i);
-//                if(MediaEntity == null)
-//                    continue;
-//
-//                FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-//                favoritesMusicEntity.musicinfo_id = MediaEntity._id;
-//                favoritesMusicEntity.artist = MediaEntity.artist;
-//                favoritesMusicEntity.album = MediaEntity.album;
-//                favoritesMusicEntity.fav_time = System.currentTimeMillis();
-//                favoritesMusicEntity.path = MediaEntity._data;
-//                favoritesMusicEntity.title = MediaEntity.title;
-//                favoritesMusicEntity.favorite_id = favoriteEntity._id;
-//
-//                bSuccess = MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
-//            }
-//
-//            if(bSuccess){
-//                strPromt = String.format("成功添加到\"%s\"", favoriteEntity.strFavoriteName);
-//            }
-//            else{
-//                strPromt = String.format("添加失败");
-//            }
-
-        }
-        else if(operType == AlertDialogFavorite.MODIFY_FAVORITE){
-            FavoriteEntity favoriteEntity = dialog.getFavoriteEntity();
-            if(favoriteEntity == null)
-                return;
-
-            favoriteEntity.strFavoriteName = strFavoriteName;
-            if(MediaLibrary.getInstance().modifyFavoriteEntity(favoriteEntity) == false){
-                Toast.makeText(this.getContext(), "修改歌单失败",Toast.LENGTH_SHORT).show();
-                return;
-            }
-            favoriteLayout.updateView(favoriteEntity);
-        }
-    }
-
-    @Override
-    public void onModifyClick(FavoriteLayout layout, int position) {
-        AlertDialogFavorite favoriteDialog = new AlertDialogFavorite(this.getContext(), this);
-        favoriteDialog.show();
-        favoriteDialog.setFavoriteEntity((FavoriteEntity)layout.getItem(position));
-        favoriteDialog.setOperType(AlertDialogFavorite.MODIFY_FAVORITE);
-    }
-
-    @Override
-    public void onDeleteClick(FavoriteLayout layout, int position) {
-        FavoriteEntity favoriteEntity = (FavoriteEntity)layout.getItem(position);
-        if(favoriteEntity == null || favoriteEntity._id < 0)
-            return;
-
-        if(MediaLibrary.getInstance().removeFavoriteEntity(favoriteEntity) == false){
-            Toast.makeText(this.getContext(), "修改歌单失败",Toast.LENGTH_SHORT).show();
-            return;
-        }
-        favoriteLayout.removeView(favoriteEntity);
-    }
-
-    @Override
-    public void onItemLongClick(FavoriteLayout layout, int position) {
-        vibrator.vibrate(30);
-        onClick(mtvManageFavorite);
-    }
-
-    @Override
-    public void onItemClick(FavoriteLayout layout, int position) {
-        if(layout == null)
-            return;
-
-        FavoriteEntity  favoriteEntity = (FavoriteEntity)layout.getItem(position);
-        if(favoriteEntity == null)
-            return;
-
-        Bundle bundle = new Bundle();
-        bundle.putLong(FavoriteMainFragment.FAVORITE_ID, favoriteEntity._id);
-        bundle.putString(FavoriteMainFragment.FAVORITE_NAME, favoriteEntity.strFavoriteName);
-        HomeActivity.getInstance().switchToFavoriteFragment(bundle);
     }
 
     @Override
@@ -267,5 +191,21 @@ public class LocalMusicMainFragment extends Fragment implements View.OnClickList
     @Override
     public void onDisconnected() {
         mService = null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
+
+    @Override
+    public void onPlaylistChanged(long playlistId) {
+        mFavoriteViewAdapter.initData();
+    }
+
+    @Override
+    public void onPlaylistMenberChanged(long playlistId, long musicId) {
+
     }
 }

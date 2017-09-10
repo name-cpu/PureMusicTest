@@ -13,18 +13,21 @@ public interface PlaylistContract {
 
     interface Presenter extends BaseContract.Presenter{
         boolean addPlaylist(PlaylistDao playlistDao);
-        boolean removePlaylist(int listId);
+        boolean removePlaylist(long listId);
         boolean updatePlaylist(PlaylistDao playlistDao);
         void getPlaylists();
+        void queryPlaylistById(long id);
 
-        boolean addPlaylistMember(PlaylistMemberDao playlistMemberDao);
-        boolean removePlaylistMember(long id);
-        boolean updatePlaylistMember(PlaylistMemberDao playlistMemberDao);
-        void getPlaylistMembers(int list_id);
+        boolean isExistPlaylistMember(long playlistId, long id);
+        boolean addPlaylistMember(long playlistId, PlaylistMemberDao playlistMemberDao);
+        boolean removePlaylistMember(long playlistId, long id);
+        boolean updatePlaylistMember(long playlistId, PlaylistMemberDao playlistMemberDao);
+        void getPlaylistMembers(long list_id);
     }
 
     interface View extends BaseContract.View {
         void onGetPlaylists(List<PlaylistDao> list);
+        void onQueryPlaylistById(List<PlaylistDao> list);
         void onGetPlaylistMembers(List<PlaylistMemberDao> list);
     }
 }

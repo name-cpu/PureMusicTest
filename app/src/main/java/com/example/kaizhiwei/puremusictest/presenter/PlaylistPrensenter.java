@@ -7,6 +7,7 @@ import com.example.kaizhiwei.puremusictest.contract.PlaylistContract;
 import com.example.kaizhiwei.puremusictest.dao.PlaylistDao;
 import com.example.kaizhiwei.puremusictest.dao.PlaylistMemberDao;
 import com.example.kaizhiwei.puremusictest.model.PlaylistModel;
+import com.example.kaizhiwei.puremusictest.model.PlaylistModuleProxy;
 import com.example.kaizhiwei.puremusictest.util.BusinessCode;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class PlaylistPrensenter implements PlaylistContract.Presenter {
     }
 
     @Override
-    public boolean removePlaylist(int listId) {
+    public boolean removePlaylist(long listId) {
         return PlaylistModel.getInstance().removePlaylist(listId);
     }
 
@@ -39,7 +40,7 @@ public class PlaylistPrensenter implements PlaylistContract.Presenter {
 
     @Override
     public void getPlaylists() {
-        PlaylistModel.getInstance().asyncGetPlaylists(new BaseHandler() {
+        PlaylistModuleProxy.getInstance().asyncGetPlaylists(new BaseHandler() {
             @Override
             public void handleBusiness(Message msg) {
                 int what = msg.what;
@@ -59,23 +60,49 @@ public class PlaylistPrensenter implements PlaylistContract.Presenter {
     }
 
     @Override
-    public boolean addPlaylistMember(PlaylistMemberDao playlistMemberDao) {
-        return PlaylistModel.getInstance().addPlaylistMember(playlistMemberDao);
+    public void queryPlaylistById(long id) {
+        PlaylistModuleProxy.getInstance().asyncQueryPlaylistById(id, new BaseHandler() {
+            @Override
+            public void handleBusiness(Message msg) {
+                int what = msg.what;
+                if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
+                    List<PlaylistDao> list = (List<PlaylistDao>)(msg.obj);
+                    if(mView != null){
+                        mView.onQueryPlaylistById(list);
+                    }
+                }
+                else{
+                    if(mView != null){
+                        mView.onError("");
+                    }
+                }
+            }
+        });
     }
 
     @Override
-    public boolean removePlaylistMember(long id) {
-        return PlaylistModel.getInstance().removePlaylistMember(id);
+    public boolean isExistPlaylistMember(long playlistId, long id) {
+        return PlaylistModel.getInstance().isExistPlaylistMember(playlistId, id);
     }
 
     @Override
-    public boolean updatePlaylistMember(PlaylistMemberDao playlistMemberDao) {
-        return PlaylistModel.getInstance().updatePlaylistMember(playlistMemberDao);
+    public boolean addPlaylistMember(long playlistId, PlaylistMemberDao playlistMemberDao) {
+        return PlaylistModel.getInstance().addPlaylistMember(playlistId, playlistMemberDao);
     }
 
     @Override
-    public void getPlaylistMembers(int list_id) {
-        PlaylistModel.getInstance().asyncGetPlaylistMembers(list_id, new BaseHandler() {
+    public boolean removePlaylistMember(long playlistId, long musicId) {
+        return PlaylistModel.getInstance().removePlaylistMember(playlistId, musicId);
+    }
+
+    @Override
+    public boolean updatePlaylistMember(long playlistId, PlaylistMemberDao playlistMemberDao) {
+        return PlaylistModel.getInstance().updatePlaylistMember(playlistId, playlistMemberDao);
+    }
+
+    @Override
+    public void getPlaylistMembers(long list_id) {
+        PlaylistModuleProxy.getInstance().asyncGetPlaylistMembers(list_id, new BaseHandler() {
             @Override
             public void handleBusiness(Message msg) {
                 int what = msg.what;

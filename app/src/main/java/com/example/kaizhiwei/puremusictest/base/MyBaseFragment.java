@@ -1,6 +1,9 @@
 package com.example.kaizhiwei.puremusictest.base;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,6 +24,13 @@ public abstract class MyBaseFragment extends Fragment {
     public boolean isFirst;
 
     protected Toast mToast;
+    protected IntentFilter intentFilter;
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            onReceiveBroadCast(intent);
+        }
+    };
 
     @Nullable
     @Override
@@ -34,6 +44,11 @@ public abstract class MyBaseFragment extends Fragment {
         if (isFragmentVisible && !isFirst) {
             onFragmentVisibleChange(true);
         }
+        intentFilter = createIntentFilter();
+        if(intentFilter == null){
+            intentFilter = new IntentFilter();
+        }
+        this.getActivity().registerReceiver(broadcastReceiver, intentFilter);
         return rootView;
     }
 
@@ -45,6 +60,14 @@ public abstract class MyBaseFragment extends Fragment {
     protected abstract void initView();
 
     protected abstract void initData();
+
+    protected IntentFilter createIntentFilter(){
+        return null;
+    }
+
+    protected void onReceiveBroadCast(Intent intent){
+
+    }
 
     /**
      * 通过Class跳转界面
@@ -111,6 +134,8 @@ public abstract class MyBaseFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        ButterKnife.unbind(this);
+        this.getActivity().unregisterReceiver(broadcastReceiver);
     }
 
     /**
