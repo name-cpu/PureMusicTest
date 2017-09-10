@@ -17,6 +17,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.RandomAccess;
@@ -37,8 +38,8 @@ public class PlayMusicImpl implements IPlayMusic {
     private List<WeakReference<IPlayMusicListener>> mListeners = new ArrayList<>();
     private int mState = IPlayMusic.STATE_IDLE;
     private List<MusicInfoDao> mPlaylists = new ArrayList<>();
-    private int mLastPlayPos = -1;
-    private int mCurPlayPos = 0;
+    private long mLastPlayMusicId = -1;
+    private long mCurPlayMusicId = 0;
     private PlayMode mPlayMode = PlayMode.PLAYLIST_LOOP;
     private static final String PLAYLIST_FILENAME = "playlist.txt";
     private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(5);
@@ -204,6 +205,14 @@ public class PlayMusicImpl implements IPlayMusic {
     private PlayMusicImpl(){
     }
 
+    public int getPositionById(long musicId){
+        for(int i = 0;i < mPlaylists.size();i++) {
+            if (musicId == mPlaylists.get(i).get_id())
+                return i;
+        }
+        return -1;
+    }
+
     private void updateState(int state){
         for(int i = 0;i < mListeners.size();i++){
             IPlayMusicListener playMusicListener = mListeners.get(i).get();
@@ -245,8 +254,8 @@ public class PlayMusicImpl implements IPlayMusic {
                 mPlaylists.clear();
                 mPlaylists.addAll(playlist);
             }
-            mLastPlayPos = mCurPlayPos;
-            mCurPlayPos = curPos;
+            mLastPlayMusicId = mCurPlayMusicId;
+            mCurPlayMusicId = curPos;
         } catch (Exception e) {
             e.printStackTrace();
         }finally{
@@ -285,7 +294,7 @@ public class PlayMusicImpl implements IPlayMusic {
             //获取输入流
             ous = new ObjectOutputStream(new FileOutputStream(file));
             ous.writeObject(mPlaylists);
-            ous.writeInt(mCurPlayPos);
+            ous.writeInt(getPositionById(mCurPlayMusicId));
         } catch (Exception e) {
             e.printStackTrace();
         }finally{
@@ -337,10 +346,49 @@ public class PlayMusicImpl implements IPlayMusic {
 
     public void clearPlaylist(){
         mPlaylists.clear();
-        mCurPlayPos = -1;
-        mLastPlayPos = -1;
+        mCurPlayMusicId = -1;
+        mLastPlayMusicId = -1;
         mHandler.removeCallbacks(savePlaylistRunnable);
         mHandler.postDelayed(savePlaylistRunnable, 1000);
+    }
+
+    public void addToNextPlay(MusicInfoDao musicInfoDao){
+        if(musicInfoDao == null)
+            return;
+
+        if(musicInfoDao.get_id() == mCurPlayMusicId)
+            return;
+
+        boolean isExist = false;
+        int index = -1;
+        for(int i = 0;i < mPlaylists.size();i++){
+            if(mPlaylists.get(i).get_id() == musicInfoDao.get_id()){
+                isExist = true;
+                index = i;
+                break;
+            }
+        }
+
+        if(mPlaylists.size() == 0){
+            mPlaylists.add(musicInfoDao);
+        }
+        else{
+            int pos = getPositionById(mCurPlayMusicId);
+            //如果存在，将对应的歌曲排到正在播放的下一个位置
+            if(isExist){
+                mPlaylists.add(pos+1, musicInfoDao);
+                if(index <= pos){
+                    mPlaylists.remove(index);
+                }
+                else{
+                    mPlaylists.remove(index+1);
+                }
+            }
+            //如果不存在，加入播放列表，并将对应的歌曲排到正在播放的下一个位置
+            else{
+                mPlaylists.add(pos+1, musicInfoDao);
+            }
+        }
     }
 
     public void addMusicInfo(MusicInfoDao musicInfoDao, int postion){
@@ -376,15 +424,15 @@ public class PlayMusicImpl implements IPlayMusic {
     }
 
     public int getCurPlayIndex(){
-        return mCurPlayPos;
+        return getPositionById(mCurPlayMusicId);
     }
 
     public void setCurPlayIndex(int index){
         if(index < 0 || index >= mPlaylists.size())
             return;
 
-        mLastPlayPos = mCurPlayPos;
-        mCurPlayPos = index;
+        mLastPlayMusicId = mCurPlayMusicId;
+        mCurPlayMusicId = mPlaylists.get(index).get_id();
     }
 
     public void seekTo(int postition){
@@ -433,7 +481,8 @@ public class PlayMusicImpl implements IPlayMusic {
     @Override
     public void play()  {
         if(mediaPlayer == null && mPlaylists != null){
-            setDataSource(mPlaylists.get(mCurPlayPos).get_data());
+            int pos = getPositionById(mCurPlayMusicId);
+            setDataSource(mPlaylists.get(pos).get_data());
             return;
         }
 
@@ -460,7 +509,8 @@ public class PlayMusicImpl implements IPlayMusic {
             return;
 
         boolean isSameAsCur = false;
-        if(mLastPlayPos >= 0 && mPlaylists.get(mLastPlayPos).get_data().equalsIgnoreCase(filePath)){
+        int pos = getPositionById(mLastPlayMusicId);
+        if(pos >= 0 && mPlaylists.get(pos).get_data().equalsIgnoreCase(filePath)){
             isSameAsCur = true;
         }
 
@@ -525,7 +575,7 @@ public class PlayMusicImpl implements IPlayMusic {
 
     @Override
     public void next()  {
-        int nextPos = mCurPlayPos;
+        int nextPos = getPositionById(mCurPlayMusicId);
         if(mPlayMode == PlayMode.RANDOM){
             int min = 0;
             int max = mPlaylists.size();
@@ -545,7 +595,7 @@ public class PlayMusicImpl implements IPlayMusic {
 
     @Override
     public void pre()  {
-        int prePos = mCurPlayPos;
+        int prePos = getPositionById(mCurPlayMusicId);
         if(mPlayMode == PlayMode.RANDOM){
             int min = 0;
             int max = mPlaylists.size();
@@ -571,10 +621,14 @@ public class PlayMusicImpl implements IPlayMusic {
     }
 
     public MusicInfoDao getCurPlayMusicDao(){
-        if(mPlaylists == null || mCurPlayPos < 0 || mCurPlayPos >= mPlaylists.size())
+        if(mPlaylists == null)
             return null;
 
-        MusicInfoDao musicDao = mPlaylists.get(mCurPlayPos);
+        int pos = getPositionById(mCurPlayMusicId);
+        if(pos < 0)
+            return null;
+
+        MusicInfoDao musicDao = mPlaylists.get(pos);
         return musicDao;
     }
 

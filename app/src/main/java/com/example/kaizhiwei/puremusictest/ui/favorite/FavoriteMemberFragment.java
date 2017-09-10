@@ -135,18 +135,6 @@ public class FavoriteMemberFragment extends MyBaseFragment implements View.OnCli
 
     @Override
     protected void initView() {
-//        ivBack.setOnClickListener(this);
-//        mivEdit.setOnClickListener(this);
-//        mivMoreOper.setOnClickListener(this);
-//        tvManager.setOnClickListener(this);
-//        lbmLayout = new LocalBaseMediaLayout(this.getActivity());
-//        //lbmLayout.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, false, false, false);
-//        lbmLayout.setBaseMediaListener(mSubFragmentListener);
-//        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-//        params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-//        params.addRule(RelativeLayout.BELOW, R.id.viewSepratorLine);
-//        lbmLayout.setLayoutParams(params);
-//        llMain.addView(lbmLayout);
     }
 
     @Override
@@ -175,11 +163,6 @@ public class FavoriteMemberFragment extends MyBaseFragment implements View.OnCli
         mivMoreOper.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
 
-    public void onDestory() {
-        super.onDestroy();
-        lbMediaLayout.onDestory();
-    }
-
     public void onResume() {
         super.onResume();
         lbMediaLayout.onResume();
@@ -203,6 +186,7 @@ public class FavoriteMemberFragment extends MyBaseFragment implements View.OnCli
     @Override
     public void onDestroy(){
         super.onDestroy();
+       // lbMediaLayout.onDestory();
         PlaylistModel.getInstance().removeObserver(this);
     }
 
@@ -336,7 +320,7 @@ public class FavoriteMemberFragment extends MyBaseFragment implements View.OnCli
     }
 
     @Override
-    public void onPlaylistMenberChanged(long playlistId, long musicId) {
+    public void onPlaylistMemberChanged(long playlistId, long musicId) {
         if(playlistId != mCurPlaylistDao.getList_id())
             return;
 

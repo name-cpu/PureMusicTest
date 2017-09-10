@@ -87,6 +87,13 @@ public class PlayMusicService extends Service implements IPlayMusic {
         playMusicImpl.clearPlaylist();
     }
 
+    public void addToNextPlay(MusicInfoDao musicInfoDao){
+        if(musicInfoDao == null)
+            return;
+
+        playMusicImpl.addToNextPlay(musicInfoDao);
+    }
+
     public void addMusicInfo(MusicInfoDao musicInfoDao, int postion){
         playMusicImpl.addMusicInfo(musicInfoDao, postion);
     }

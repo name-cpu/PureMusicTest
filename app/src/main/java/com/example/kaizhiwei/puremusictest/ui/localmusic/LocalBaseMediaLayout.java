@@ -530,7 +530,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         if(musicInfoDao == null || mService == null)
             return;
 
-        if(mType == LayoutType.ALLSONG){
+        if(mType == LayoutType.ALLSONG || mType == LayoutType.CUSTOME){
             mService.setPlaylist(mMusicInfoDaos);
             int realPlayPosition = currentPosition;
             for(int i = 0;i < mMusicInfoDaos.size();i++){
@@ -765,7 +765,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         if(TextUtils.isEmpty(strKey))
             return;
 
-        if(mType == LayoutType.ALLSONG){
+        if(mType == LayoutType.ALLSONG || mType == LayoutType.CUSTOME){
             MusicInfoDao musicInfoDao = mPresenter.getMusicInfoById(Long.parseLong(strKey));
             if(musicInfoDao == null)
                 return;
@@ -783,17 +783,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
                 case MoreOperationDialog.MORE_ALBUM_NORMAL:
                     break;
                 case MoreOperationDialog.MORE_BELL_NORMAL:
-//                    if(mLVSongItemData == null)
-//                        return ;
-
-                    if(listOperMusicInfoDao == null || listOperMusicInfoDao.size() > 1)
-                        return;
-
-                    MusicInfoDao MusicInfoDao = listOperMusicInfoDao.get(0);
-                    if(MusicInfoDao == null)
-                        return;
-
-                    String filePath = MusicInfoDao.getSave_path();
+                    String filePath = musicInfoDao.get_data();
                     ContentValues cv = new ContentValues();
                     Uri uri = null, newUri = null;
                     uri = MediaStore.Audio.Media.getContentUriForPath(filePath);
@@ -809,7 +799,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
                         mContext.getContentResolver().update(uri, cv, MediaStore.MediaColumns.DATA + "=?",new String[] { filePath });
                         newUri = ContentUris.withAppendedId(uri, Long.valueOf(id));
                         RingtoneManager.setActualDefaultRingtoneUri(mContext, RingtoneManager.TYPE_RINGTONE, newUri);
-                        String strPromt = String.format("已将歌曲\"%s\"设置为铃声",MusicInfoDao.getTitle());
+                        String strPromt = String.format("已将歌曲\"%s\"设置为铃声",musicInfoDao.getTitle());
                         Toast.makeText(mContext, strPromt, Toast.LENGTH_SHORT).show();
                     }
                     break;
@@ -889,29 +879,21 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
 //                    break;
 //                case MoreOperationDialog.MORE_MV_NORMAL:
 //                    break;
-//                case MoreOperationDialog.MORE_NEXTPLAY_NORMAL:
-//                    if(mLVSongItemData == null)
-//                        return ;
-//
-//                    MusicInfoDao = MediaLibrary.getInstance().getMusicInfoDaoById(mLVSongItemData.id);
-//                    if(MusicInfoDao == null)
-//                        return ;
-//
-//                    if(mLVSongItemData != null){
-//                        boolean bRet = mService.addSongToNext(MusicInfoDao);
-//                        if(bRet){
-//                            Toast.makeText(mContext, "已添加到播放列表", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                    break;
+                case MoreOperationDialog.MORE_NEXTPLAY_NORMAL:
+                    if(mService != null){
+                        mService.addToNextPlay(musicInfoDao);
+                        Toast.makeText(mContext, "已添加到播放列表", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
 //                case MoreOperationDialog.MORE_PLAY_NORMAL:
 //                    if(mService != null){
 //                        //mService.play(listOperMusicInfoDao, 0);
 //                        //mAllSongAdapter.setItemPlayState(listOperMusicInfoDao.get(0), true);
 //                    }
 //                    break;
-//                case MoreOperationDialog.MORE_REMOVE_NORMAL:
-//                    break;
+                case MoreOperationDialog.MORE_REMOVE_NORMAL:
+
+                    break;
 //                case MoreOperationDialog.MORE_SHARE_NORMAL:
 //                    if(mLVSongItemData == null)
 //                        return ;

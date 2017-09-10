@@ -6,5 +6,5 @@ package com.example.kaizhiwei.puremusictest.model;
 
 public interface IPlaylistDataObserver {
     void onPlaylistChanged(long playlistId);
-    void onPlaylistMenberChanged(long playlistId, long musicId);
+    void onPlaylistMemberChanged(long playlistId, long musicId);
 }

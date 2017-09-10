@@ -96,6 +96,7 @@ public class LocalMusicMainFragment extends MyBaseFragment implements View.OnCli
         rvFavorite.addItemDecoration(new RecyclerViewDividerDecoration(this.getActivity(), RecyclerViewDividerDecoration.HORIZONTAL_LIST));
         mFavoriteViewAdapter = new FavoriteViewAdpapter(this.getActivity());
         mFavoriteViewAdapter.setAdadpterMode(FavoriteViewAdpapter.AdapterMode.MODE_NORMAL);
+        mFavoriteViewAdapter.initData();
         rvFavorite.setAdapter(mFavoriteViewAdapter);
     }
 
@@ -205,7 +206,7 @@ public class LocalMusicMainFragment extends MyBaseFragment implements View.OnCli
     }
 
     @Override
-    public void onPlaylistMenberChanged(long playlistId, long musicId) {
+    public void onPlaylistMemberChanged(long playlistId, long musicId) {
 
     }
 }

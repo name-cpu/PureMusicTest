@@ -2,12 +2,9 @@ package com.example.kaizhiwei.puremusictest.model;
 
 import android.content.Context;
 
-import com.example.kaizhiwei.puremusictest.base.BaseHandler;
-import com.example.kaizhiwei.puremusictest.base.BaseRunnable;
 import com.example.kaizhiwei.puremusictest.dao.DaoManager;
 import com.example.kaizhiwei.puremusictest.dao.PlaylistDao;
 import com.example.kaizhiwei.puremusictest.dao.PlaylistMemberDao;
-import com.example.kaizhiwei.puremusictest.util.BusinessCode;
 
 import org.xutils.common.util.KeyValue;
 import org.xutils.db.Selector;
@@ -68,7 +65,7 @@ public class PlaylistModel {
 
     private void notifyPlaylistMemberChanged(long playlistId, long musicId){
         for(int i = 0;i < mObservers.size();i++){
-            mObservers.get(i).onPlaylistMenberChanged(playlistId, musicId);
+            mObservers.get(i).onPlaylistMemberChanged(playlistId, musicId);
         }
     }
 

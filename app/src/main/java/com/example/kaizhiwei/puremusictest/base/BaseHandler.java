@@ -2,11 +2,16 @@ package com.example.kaizhiwei.puremusictest.base;
 
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BaseHandler extends Handler {
     private AtomicBoolean isCancle = new AtomicBoolean(false);
+
+    public BaseHandler(){
+        super(Looper.getMainLooper());
+    }
 
     @Override
     public void handleMessage(Message msg) {
