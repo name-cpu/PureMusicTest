@@ -23,20 +23,30 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.example.kaizhiwei.puremusictest.bean.SearchLrcPicBean;
 import com.example.kaizhiwei.puremusictest.contract.LocalMusicContract;
+import com.example.kaizhiwei.puremusictest.contract.SearchLrcPicContract;
+import com.example.kaizhiwei.puremusictest.dao.FavoriteMusicDao;
 import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
+import com.example.kaizhiwei.puremusictest.model.FavoriteMusicModel;
+import com.example.kaizhiwei.puremusictest.model.IMediaDataObserver;
+import com.example.kaizhiwei.puremusictest.model.MediaModel;
 import com.example.kaizhiwei.puremusictest.presenter.LocalMusicPresenter;
 import com.example.kaizhiwei.puremusictest.MediaData.MediaLibrary;
 import com.example.kaizhiwei.puremusictest.MediaData.PreferenceConfig;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.presenter.SearchLrcPicPresenter;
 import com.example.kaizhiwei.puremusictest.service.IPlayMusic;
 import com.example.kaizhiwei.puremusictest.service.IPlayMusicListener;
 import com.example.kaizhiwei.puremusictest.service.PlayMusicService;
 import com.example.kaizhiwei.puremusictest.ui.favorite.FavoriteDialog;
+import com.example.kaizhiwei.puremusictest.ui.home.HomeActivity;
+import com.example.kaizhiwei.puremusictest.util.RingBellUtil;
 import com.example.kaizhiwei.puremusictest.widget.RecyclerViewDividerDecoration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +61,10 @@ import me.yokeyword.indexablerv.RealAdapter;
  * Created by kaizhiwei on 17/1/14.
  */
 public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.IMediaScanListener, MoreOperationDialog.IMoreOperationDialogListener,
-        View.OnClickListener, LocalMusicContract.View, LocalAudioAdapter.ILocalAudioListener, IndexableAdapter.OnItemContentClickListener<LocalAudioAdapter.LocalAudioItemData>,IndexableAdapter.OnItemContentLongClickListener<LocalAudioAdapter.LocalAudioItemData>, PlayMusicService.Client.Callback, IPlayMusicListener {
+        View.OnClickListener, LocalMusicContract.View, LocalAudioAdapter.ILocalAudioListener,
+        IndexableAdapter.OnItemContentClickListener<LocalAudioAdapter.LocalAudioItemData>,
+        IndexableAdapter.OnItemContentLongClickListener<LocalAudioAdapter.LocalAudioItemData>,
+        PlayMusicService.Client.Callback, IPlayMusicListener, SearchLrcPicContract.View, IMediaDataObserver {
     private Context mContext;
     private IndexableLayout indexLayout;
     private LocalAudioAdapter mAdapter;
@@ -66,6 +79,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
     private List<Integer> mListMoreOperData;
 
     private LocalMusicPresenter mPresenter;
+    private SearchLrcPicPresenter mSearchLrcPicPresenter;
     private String mSearchKey;
 
     //加载控件
@@ -103,7 +117,26 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
 
     private List<MusicInfoDao> mMusicInfoDaos = new ArrayList<>();
 
+    //对musicinfodao数据进行分类，文件夹、歌手、专辑使用此数据
+    private Map<String, List<MusicInfoDao>> mCategaryMusicInfoDaos = new TreeMap<>(new Comparator<String>() {
+        @Override
+        public int compare(String lhs, String rhs) {
+            return lhs.compareTo(rhs);
+        }
+    });
+
     private LayoutType mType = LayoutType.ALLSONG;
+
+    @Override
+    public void onSearchLrcPicSuccess(SearchLrcPicBean bean) {
+
+    }
+
+    @Override
+    public void onMediaDataChanged(int type, long musicId) {
+        //initAdapterData();
+    }
+
     public enum LayoutType{
         ALLSONG, FOLDER, ARTIST, ALBUM, CUSTOME
     }
@@ -111,7 +144,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
     private IndexableAdapter.IndexCallback<LocalAudioAdapter.LocalAudioItemData> indexCallback = new IndexableAdapter.IndexCallback<LocalAudioAdapter.LocalAudioItemData>() {
         @Override
         public void onFinished(List<EntityWrapper<LocalAudioAdapter.LocalAudioItemData>> datas) {
-            if(mType == LayoutType.ALLSONG){
+            if(mType == LayoutType.ALLSONG || mType == LayoutType.CUSTOME){
                 List<MusicInfoDao> newList = new ArrayList<>();
                 for(int i = 0;i < datas.size();i++){
                     LocalAudioAdapter.LocalAudioItemData itemData = datas.get(i).getData();
@@ -159,6 +192,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
 
     public View initView(LayoutInflater inflater) {
         mPresenter = new LocalMusicPresenter(this);
+        mSearchLrcPicPresenter = new SearchLrcPicPresenter(this);
 
         View rootView = inflater.inflate(R.layout.fragment_all_media, null);
         mClient = new PlayMusicService.Client(mContext, this);
@@ -171,7 +205,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         indexLayout.setOverlayStyle_Center();
         indexLayout.setVisibility(View.GONE);
         indexLayout.getRecyclerView().addItemDecoration(new RecyclerViewDividerDecoration(mContext, RecyclerViewDividerDecoration.HORIZONTAL_LIST));
-
+        indexLayout.getRecyclerView().setNestedScrollingEnabled(false);
         mAdapter = new LocalAudioAdapter(mContext);
         mAdapter.setListener(this);
         mAdapter.setOnItemContentClickListener(this);
@@ -194,13 +228,11 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
     }
 
     public void onResume(){
-//        MediaLibrary.getInstance().setListener(this);
-//        mAllSongAdapter.setListener(this);
+        MediaModel.getInstance().addObserver(this);
     }
 
     public void onPause() {
-//        MediaLibrary.getInstance().unregisterListener(this);
-//        mAllSongAdapter.unregisterListener(this);
+        MediaModel.getInstance().removeObserver(this);
     }
 
     public void onStart() {
@@ -240,6 +272,9 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         else if(mType == LayoutType.ALBUM){
             mPresenter.queryMuisicInfosByAlbum(strKey);
         }
+        else if(mType == LayoutType.FOLDER){
+            mPresenter.queryMusicInfosByFolder(strKey);
+        }
     }
 
     public void setFilterFolder(String strFolderName){
@@ -253,12 +288,12 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
 //            mAllSongAdapter.setFilterArtist(strArtistrName);
 //        }
     }
-
-    public void setFilterAlbum(String strAlbumName){
-//        if(mAllSongAdapter != null){
-//            mAllSongAdapter.setFilterAlbum(strAlbumName);
+//
+//    public void setFilterAlbum(String strAlbumName){
+//        if(mPresenter != null){
+//            mPresenter.setFilterAlbum(strAlbumName);
 //        }
-    }
+//    }
 
     public LayoutType getType() {
         return mType;
@@ -351,6 +386,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
 
     @Override
     public void onGetAllMusicInfos(final List<MusicInfoDao> list) {
+        rlLoading.setVisibility(View.GONE);
         if(list == null)
             return;
 
@@ -362,8 +398,6 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
                 @Override
                 public void run() {
                     indexLayout.setVisibility(View.VISIBLE);
-                    rlLoading.setVisibility(View.GONE);
-
                     List<LocalAudioAdapter.LocalAudioItemData> listData = new ArrayList<>();
                     for(int i = 0; i < mMusicInfoDaos.size();i++){
                         LocalAudioAdapter.LocalAudioItemData itemData = new LocalAudioAdapter.LocalAudioItemData();
@@ -389,31 +423,21 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
     }
 
     @Override
-    public void onGetMusicInfosByFolder(List<MusicInfoDao> list) {
+    public void onGetMusicInfosByFolder(Map<String, List<MusicInfoDao>> mapRet) {
+        if(mapRet == null)
+            return;
+
         indexLayout.setVisibility(View.VISIBLE);
         rlLoading.setVisibility(View.GONE);
 
+        mCategaryMusicInfoDaos.clear();
+        mCategaryMusicInfoDaos.putAll(mapRet);
+
         List<LocalAudioAdapter.LocalAudioItemData> listData = new ArrayList<>();
-        Map<String, List<MusicInfoDao>> map = new TreeMap<>(new Comparator<String>() {
-            @Override
-            public int compare(String lhs, String rhs) {
-                return lhs.compareTo(rhs);
-            }
-        });
-
-        for(int i = 0; i < list.size();i++){
-            List<MusicInfoDao> listDaos = map.get(list.get(i).getSave_path());
-            if(listDaos == null){
-                listDaos = new ArrayList<>();
-            }
-            listDaos.add(list.get(i));
-            map.put(list.get(i).getSave_path(), listDaos);
-        }
-
-        Set<String> keys = map.keySet();
+        Set<String> keys = mCategaryMusicInfoDaos.keySet();
         for(String key : keys){
             String[] strs = key.split(File.separator);
-            List<MusicInfoDao> listDaos = map.get(key);
+            List<MusicInfoDao> listDaos = mCategaryMusicInfoDaos.get(key);
             LocalAudioAdapter.LocalAudioItemData itemData = new LocalAudioAdapter.LocalAudioItemData();
             itemData.setStrMain(strs[strs.length-1]);
             itemData.setStrSub(listDaos.size() + "首");
@@ -425,73 +449,60 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
     }
 
     @Override
-    public void onGetMusicInfosByArtist(List<MusicInfoDao> list) {
+    public void onGetMusicInfosByArtist(Map<String, List<MusicInfoDao>> mapRet) {
+        if(mapRet == null)
+            return;
+
         indexLayout.setVisibility(View.VISIBLE);
         rlLoading.setVisibility(View.GONE);
 
+        mCategaryMusicInfoDaos.clear();
+        mCategaryMusicInfoDaos.putAll(mapRet);
+
         List<LocalAudioAdapter.LocalAudioItemData> listData = new ArrayList<>();
-        Map<String, List<MusicInfoDao>> map = new TreeMap<>(new Comparator<String>() {
-            @Override
-            public int compare(String lhs, String rhs) {
-                return lhs.compareTo(rhs);
-            }
-        });
-
-        for(int i = 0; i < list.size();i++){
-            List<MusicInfoDao> listDaos = map.get(list.get(i).getArtist());
-            if(listDaos == null){
-                listDaos = new ArrayList<>();
-            }
-            listDaos.add(list.get(i));
-            map.put(list.get(i).getArtist(), listDaos);
-        }
-
-        Set<String> keys = map.keySet();
+        Set<String> keys = mCategaryMusicInfoDaos.keySet();
         for(String key : keys){
             String[] strs = key.split(File.separator);
-            List<MusicInfoDao> listDaos = map.get(key);
+            List<MusicInfoDao> listDaos = mCategaryMusicInfoDaos.get(key);
             LocalAudioAdapter.LocalAudioItemData itemData = new LocalAudioAdapter.LocalAudioItemData();
             itemData.setStrMain(strs[strs.length-1]);
             itemData.setStrSub(listDaos.size() + "首");
             itemData.setStrThird(key);
+            itemData.setId(key);
             listData.add(itemData);
         }
         mAdapter.setDatas(listData);
     }
 
     @Override
-    public void onGetMusicInfosByAlbum(List<MusicInfoDao> list) {
+    public void onGetMusicInfosByAlbum(Map<String, List<MusicInfoDao>> mapRet) {
+        if(mapRet == null)
+            return;
+
         indexLayout.setVisibility(View.VISIBLE);
         rlLoading.setVisibility(View.GONE);
 
+        mCategaryMusicInfoDaos.clear();
+        mCategaryMusicInfoDaos.putAll(mapRet);
+
         List<LocalAudioAdapter.LocalAudioItemData> listData = new ArrayList<>();
-        Map<String, List<MusicInfoDao>> map = new TreeMap<>(new Comparator<String>() {
-            @Override
-            public int compare(String lhs, String rhs) {
-                return lhs.compareTo(rhs);
-            }
-        });
-
-        for(int i = 0; i < list.size();i++){
-            List<MusicInfoDao> listDaos = map.get(list.get(i).getAlbum());
-            if(listDaos == null){
-                listDaos = new ArrayList<>();
-            }
-            listDaos.add(list.get(i));
-            map.put(list.get(i).getAlbum(), listDaos);
-        }
-
-        Set<String> keys = map.keySet();
+        Set<String> keys = mCategaryMusicInfoDaos.keySet();
         for(String key : keys){
             String[] strs = key.split(File.separator);
-            List<MusicInfoDao> listDaos = map.get(key);
+            List<MusicInfoDao> listDaos = mCategaryMusicInfoDaos.get(key);
             LocalAudioAdapter.LocalAudioItemData itemData = new LocalAudioAdapter.LocalAudioItemData();
             itemData.setStrMain(strs[strs.length-1]);
             itemData.setStrSub(listDaos.size() + "首");
             itemData.setStrThird(key);
+            itemData.setId(key);
             listData.add(itemData);
         }
         mAdapter.setDatas(listData);
+    }
+
+    @Override
+    public void onQueryMusicInfosByFolder(List<MusicInfoDao> list) {
+        onGetAllMusicInfos(list);
     }
 
     @Override
@@ -501,12 +512,12 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
 
     @Override
     public void onQueryMusicInfosByArist(List<MusicInfoDao> list) {
-        onGetMusicInfosByArtist(list);
+        onGetAllMusicInfos(list);
     }
 
     @Override
     public void onQueryMuisicInfosByAlbum(List<MusicInfoDao> list) {
-        onGetMusicInfosByAlbum(list);
+        onGetAllMusicInfos(list);
     }
 
     //MediaLibrary.IMediaScanListener
@@ -526,11 +537,11 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
 
     @Override
     public void onItemClick(View v, int originalPosition, int currentPosition, LocalAudioAdapter.LocalAudioItemData entity) {
-        MusicInfoDao musicInfoDao = mPresenter.getMusicInfoById(Long.parseLong(entity.getId()));
-        if(musicInfoDao == null || mService == null)
-            return;
-
         if(mType == LayoutType.ALLSONG || mType == LayoutType.CUSTOME){
+            final MusicInfoDao musicInfoDao = mPresenter.getMusicInfoById(Long.parseLong(entity.getId()));
+            if(musicInfoDao == null || mService == null)
+                return;
+
             mService.setPlaylist(mMusicInfoDaos);
             int realPlayPosition = currentPosition;
             for(int i = 0;i < mMusicInfoDaos.size();i++){
@@ -545,15 +556,54 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
             mService.prepareAsync();
             mAdapter.setSelectItemId(Long.parseLong(entity.getId()));
             mAdapter.notifyDataSetChanged();
+
+            if(TextUtils.isEmpty(musicInfoDao.getLyric_path())){
+                String query = String.format("%s$$%s", musicInfoDao.getTitle(), musicInfoDao.getArtist());
+                mSearchLrcPicPresenter.searchLrcPic("android", "6.0.3.1", "xiaomi", 2, "baidu.ting.search.lrcpic", "json",
+                        query, System.currentTimeMillis(), "rqCNe1a9CwfBNPxnUUMbXVipabBzT5%2FpZsq1%2BqF1%2BpeOLc5vuWeTNK2JLBYhBejgp8Nnc%2BWTvSA1g6eF8zVmKQ%3D%3D", 2,
+                        new SearchLrcPicContract.View() {
+                            @Override
+                            public void onSearchLrcPicSuccess(SearchLrcPicBean bean) {
+                                if(bean == null || bean.getSonginfo() == null || bean.getSonginfo().size() == 0)return;
+
+                                SearchLrcPicBean.SonginfoBean songinfoBean = bean.getSonginfo().get(0);
+                                musicInfoDao.setAlbum(songinfoBean.getAlbum_id() + "");
+                                musicInfoDao.setArtist(songinfoBean.getAuthor());
+                                musicInfoDao.setLyric_path(songinfoBean.getLrclink());
+                                musicInfoDao.setArtist_image(songinfoBean.getArtist_480_800());
+                                musicInfoDao.setAlbum_image(songinfoBean.getAvatar_s500());
+                                musicInfoDao.setSong_id(songinfoBean.getSong_id());
+                                musicInfoDao.set_display_name(songinfoBean.getSong_title());
+                                MediaModel.getInstance().updateMusicInfo(musicInfoDao);
+                            }
+
+                            @Override
+                            public void onError(String strErrMsg) {
+
+                            }
+                        });
+            }
         }
         else if(mType == LayoutType.FOLDER){
-
+            AudioFilterFragment filterFragment = new AudioFilterFragment();
+            HomeActivity.getInstance().addFragment(filterFragment);
+            filterFragment.setFilterType(AudioFilterFragment.FILTER_BY_FOLDER);
+            filterFragment.setFilterData(entity.getStrMain());
+            filterFragment.setTitle(entity.getStrMain());
         }
         else if(mType == LayoutType.ARTIST){
-
+            AudioFilterFragment filterFragment = new AudioFilterFragment();
+            HomeActivity.getInstance().addFragment(filterFragment);
+            filterFragment.setFilterType(AudioFilterFragment.FILTER_BY_ARTIST);
+            filterFragment.setFilterData(entity.getStrMain());
+            filterFragment.setTitle(entity.getStrMain());
         }
-        else{
-
+        else if(mType == LayoutType.ALBUM){
+            AudioFilterFragment filterFragment = new AudioFilterFragment();
+            HomeActivity.getInstance().addFragment(filterFragment);
+            filterFragment.setFilterType(AudioFilterFragment.FILTER_BY_ALBUM);
+            filterFragment.setFilterData(entity.getStrMain());
+            filterFragment.setTitle(entity.getStrMain());
         }
     }
 
@@ -590,12 +640,12 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
             list.add(MoreOperationDialog.MORE_SHARE_NORMAL);
             list.add(MoreOperationDialog.MORE_ADD_NORMA);
             list.add(MoreOperationDialog.MORE_DELETE_NORMAL);
+            mMoreDialog.setFavorite(FavoriteMusicModel.getInstance().isHasFavorite(Long.parseLong(wrapper.getData().getId())));
         }
         else if(mType == LayoutType.FOLDER){
             mMoreDialog.setTitle(itemData.getStrMain());
             list.add(MoreOperationDialog.MORE_PLAY_NORMAL);
             list.add(MoreOperationDialog.MORE_ADD_NORMA);
-            list.add(MoreOperationDialog.MORE_HIDE_NORMAL);
             list.add(MoreOperationDialog.MORE_DELETE_NORMAL);
         }
         else{
@@ -605,7 +655,6 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
             list.add(MoreOperationDialog.MORE_DELETE_NORMAL);
         }
 
-        //mMoreDialog.setMoreLVData(adapterType, itemData);
         if(mListMoreOperData == null){
             mMoreDialog.setMoreOperData(list);
         }
@@ -742,13 +791,13 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
 //
 //    @Override
 //    public void onBatchMgrClick(AudioListViewAdapter adapter) {
-//        Intent intent = new Intent(mContext, BatchMgrAudioActivity.class);
+//        Intent intent = new Intent(mContext, BatchMgrFragment.class);
 //        List<MusicInfoDao> listTemp = new ArrayList<>();
 ////        List<MusicInfoDao> temp = mAllSongAdapter.getAdapterOriginData();
 ////        if(temp != null){
 ////            listTemp.addAll(temp);
 ////        }
-////        intent.putExtra(BatchMgrAudioActivity.INTENT_LIST_DATA, (Serializable)listTemp);
+////        intent.putExtra(BatchMgrFragment.INTENT_LIST_DATA, (Serializable)listTemp);
 ////        HomeActivity.getInstance().startActivity(intent);
 ////        HomeActivity.getInstance().overridePendingTransition(R.anim.anim_right_enter, R.anim.anim_right_exit);
 //    }
@@ -783,39 +832,29 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
                 case MoreOperationDialog.MORE_ALBUM_NORMAL:
                     break;
                 case MoreOperationDialog.MORE_BELL_NORMAL:
-                    String filePath = musicInfoDao.get_data();
-                    ContentValues cv = new ContentValues();
-                    Uri uri = null, newUri = null;
-                    uri = MediaStore.Audio.Media.getContentUriForPath(filePath);
-                    Cursor cursor = mContext.getContentResolver().query(uri, null, MediaStore.MediaColumns.DATA + "=?", new String[]{filePath}, null);
-                    if(cursor.moveToFirst() && cursor.getCount() > 0){
-                        String id = cursor.getString(0);
-                        cv.put(MediaStore.Audio.Media.IS_RINGTONE, true);
-                        cv.put(MediaStore.Audio.Media.IS_NOTIFICATION, false);
-                        cv.put(MediaStore.Audio.Media.IS_ALARM, false);
-                        cv.put(MediaStore.Audio.Media.IS_MUSIC, false);
-
-                        // 把需要设为铃声的歌曲更新铃声库
-                        mContext.getContentResolver().update(uri, cv, MediaStore.MediaColumns.DATA + "=?",new String[] { filePath });
-                        newUri = ContentUris.withAppendedId(uri, Long.valueOf(id));
-                        RingtoneManager.setActualDefaultRingtoneUri(mContext, RingtoneManager.TYPE_RINGTONE, newUri);
-                        String strPromt = String.format("已将歌曲\"%s\"设置为铃声",musicInfoDao.getTitle());
-                        Toast.makeText(mContext, strPromt, Toast.LENGTH_SHORT).show();
-                    }
+                    RingBellUtil.setRingBell(this.getContext(), musicInfoDao.get_data());
+                    String strPromt = String.format("已将歌曲\"%s\"设置为铃声",musicInfoDao.getTitle());
+                    Toast.makeText(mContext, strPromt, Toast.LENGTH_SHORT).show();
                     break;
-//                case MoreOperationDialog.MORE_DELETE_NORMAL:
-//                    String strTitle = "";
-//                    if(mLVSongItemData != null){
-//                        strTitle = "确定删除\"" + mLVSongItemData.mMainTitle + "\"吗?";
-//                    }
-//                    else if(mLVFolderItemData != null){
-//                        strTitle = "确定删除\"" + mLVFolderItemData.mFolderName + "\"下的所有歌曲吗?";
-//                    }
-//                    else if(mLVArtistAlbumItemData != null){
-//                        strTitle = "确定删除该歌手/专辑的所有歌曲吗?";
-//                    }
-//                    showDeleteAlterDialog(mContext, listOperMusicInfoDao, strTitle, false);
-//                    break;
+                case MoreOperationDialog.MORE_DELETE_NORMAL:
+                    String strTitle = "";
+                    strTitle = "确定删除\"" + musicInfoDao.getTitle() + "\"吗?";
+                    AlertDialogDeleteOne.Builder builder = new AlertDialogDeleteOne.Builder(this.getContext());
+                    AlertDialogDeleteOne deleteDialog = new AlertDialogDeleteOne(this.getContext(), new AlertDialogDeleteOne.IOnAlertDialogDeleteListener() {
+                        @Override
+                        public void OnDeleteClick(AlertDialogDeleteOne dialog, boolean isDeleteFile) {
+                            List<MusicInfoDao> listMusicInfoDao = dialog.getMusicInfoDaoData();
+                            if(listMusicInfoDao == null || listMusicInfoDao.size() == 0)
+                                return;
+
+                            handleDeleteMedia(listMusicInfoDao, isDeleteFile);
+                        }
+                    });
+                    listOperMusicInfoDao.add(musicInfoDao);
+                    deleteDialog.show();
+                    deleteDialog.setTitle(strTitle);
+                    deleteDialog.setMusicInfoDaoData(listOperMusicInfoDao);
+                    break;
 //                case MoreOperationDialog.MORE_DOWNLOAD_NORMAL:
 //                    break;
 //                case MoreOperationDialog.MORE_HIDE_NORMAL:
@@ -824,59 +863,27 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
 //                    hideOne.setMusicInfoDaoData(listOperMusicInfoDao);
 //                    hideOne.setAlertDialogListener(mAlertDialogHideListener);
 //                    break;
-//                case MoreOperationDialog.MORE_LOVE_NORMAL:
-//                    if(mLVSongItemData == null)
-//                        return ;
-//
-//                    //多个文件时仅添加,单个文件可添加 可删除
-//                    boolean isMutil = listOperMusicInfoDao.size() > 1 ? true : false;
-//                    boolean isAddToFavorite = false;
-//                    int iSuccessNum = 0;
-//                    for(int i = 0;i < listOperMusicInfoDao.size();i++){
-//                        MusicInfoDao = listOperMusicInfoDao.get(i);
-//                        if(MusicInfoDao == null)
-//                            continue;
-//
-//                        FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-//                        favoritesMusicEntity.musicinfo_id = MusicInfoDao.get_id();
-//                        favoritesMusicEntity.artist = MusicInfoDao.getTitle();
-//                        favoritesMusicEntity.album = MusicInfoDao.getAlbum();
-//                        favoritesMusicEntity.fav_time = System.currentTimeMillis();
-//                        favoritesMusicEntity.path = MusicInfoDao.get_data();
-//                        favoritesMusicEntity.title = MusicInfoDao.getTitle();
-//                        favoritesMusicEntity.favorite_id = MediaLibrary.getInstance().getDefaultFavoriteEntityId();
-//
-//                        if(MediaLibrary.getInstance().queryIsFavoriteByMusicInfoDaoId(MusicInfoDao.get_id(), favoritesMusicEntity.favorite_id)){
-//                            if(isMutil == false){
-//                                boolean bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(favoritesMusicEntity.musicinfo_id, favoritesMusicEntity.favorite_id);
-//                                if(bRet){
-//                                    iSuccessNum++;
-//                                    isAddToFavorite = false;
-//                                }
-//                            }
-//                        }
-//                        else{
-//                            boolean bRet = MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
-//                            if(bRet){
-//                                iSuccessNum++;
-//                                isAddToFavorite = true;
-//                            }
-//                        }
-//                    }
-//
-//                    if(isMutil){
-//                        Toast.makeText(mContext, "成功" + iSuccessNum + "首,失败" + (listOperMusicInfoDao.size() - iSuccessNum) + "首", Toast.LENGTH_SHORT).show();
-//                    }
-//                    else{
-//                        if(!isAddToFavorite){
-//                            Toast.makeText(mContext, "已取消喜欢", Toast.LENGTH_SHORT).show();
-//                        }
-//                        else{
-//                            Toast.makeText(mContext, "已添加到我喜欢的单曲", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//
-//                    break;
+                case MoreOperationDialog.MORE_LOVE_NORMAL:
+                    boolean bRet = FavoriteMusicModel.getInstance().isHasFavorite(musicInfoDao.get_id());
+                    if(!bRet){
+                        FavoriteMusicDao dao = new FavoriteMusicDao();
+                        dao.setMusicinfo_id(musicInfoDao.get_id());
+                        dao.setFav_time(System.currentTimeMillis());
+                        dao.setAlbum(musicInfoDao.getAlbum());
+                        dao.setArtist(musicInfoDao.getArtist());
+                        FavoriteMusicModel.getInstance().addFavoriteMusic(dao);
+                    }
+                    else{
+                        FavoriteMusicModel.getInstance().removeFavoriteMusic(musicInfoDao.get_id());
+                    }
+
+                    if(bRet){
+                        Toast.makeText(mContext, "已取消喜欢", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        Toast.makeText(mContext, "已添加到我喜欢的单曲", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
 //                case MoreOperationDialog.MORE_MV_NORMAL:
 //                    break;
                 case MoreOperationDialog.MORE_NEXTPLAY_NORMAL:
@@ -909,180 +916,45 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
                     break;
             }
         }
-//        else if(mType == LayoutType.FOLDER){
-//            List<MusicInfoDao> result = mPresenter.getMusicInfosByFolder(strKey);
-//            listOperMusicInfoDao.add(musicInfoDao);
-//        }
-//        else{
-//            if(itemData instanceof AudioListViewAdapter.AudioArtistAlbumItemData){
-//                mLVArtistAlbumItemData = (AudioListViewAdapter.AudioArtistAlbumItemData)itemData;
-//                listOperMusicInfoDao = mLVArtistAlbumItemData.mListMedia;
-//            }
-//        }
+        else if(mType == LayoutType.FOLDER || mType == LayoutType.ALBUM || mType == LayoutType.ARTIST){
+            listOperMusicInfoDao.addAll(mCategaryMusicInfoDaos.get(strKey));
+            switch (tag) {
+                case MoreOperationDialog.MORE_PLAY_NORMAL:
+                    mService.setPlaylist(listOperMusicInfoDao);
+                    if(listOperMusicInfoDao.size() > 0){
+                        mService.setCurPlayIndex(0);
+                        mService.setDataSource(listOperMusicInfoDao.get(0).get_data());
+                        mService.prepareAsync();
+                    }
+                    break;
+                case MoreOperationDialog.MORE_ADD_NORMA:
+                    FavoriteDialog.Builder builderFavorite = new FavoriteDialog.Builder(mContext);
+                    FavoriteDialog dialogFavorite = (FavoriteDialog)builderFavorite.create();
+                    dialogFavorite.setCancelable(true);
+                    dialogFavorite.setKeyType(mType);
+                    dialogFavorite.show();
+                    dialogFavorite.setStrKey(strKey);
+                    dialogFavorite.setTitle(strKey);
+                    break;
+                case MoreOperationDialog.MORE_DELETE_NORMAL:
+                    String strTitle = "";
+                    strTitle = "确定删除文件夹下所有歌曲吗?";
+                    AlertDialogDeleteOne.Builder builder = new AlertDialogDeleteOne.Builder(this.getContext());
+                    AlertDialogDeleteOne deleteDialog = new AlertDialogDeleteOne(this.getContext(), new AlertDialogDeleteOne.IOnAlertDialogDeleteListener() {
+                        @Override
+                        public void OnDeleteClick(AlertDialogDeleteOne dialog, boolean isDeleteFile) {
+                            List<MusicInfoDao> listMusicInfoDao = dialog.getMusicInfoDaoData();
+                            if(listMusicInfoDao == null || listMusicInfoDao.size() == 0)
+                                return;
 
-//        if(listOperMusicInfoDao == null || listOperMusicInfoDao.size() == 0){
-//            Toast.makeText(mContext, "data error", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-
-//        switch (tag){
-//            case MoreOperationDialog.MORE_ADD_NORMA:
-//                FavoriteDialog.Builder builderFavorite = new FavoriteDialog.Builder(mContext);
-//                FavoriteDialog dialogFavorite = builderFavorite.create();
-//                dialogFavorite.setCancelable(true);
-//                dialogFavorite.setFavoritelistData(MediaLibrary.getInstance().getAllFavoriteEntity());
-//                dialogFavorite.setMusicInfoDaoData(listOperMusicInfoDao);
-//                dialogFavorite.show();
-//                dialogFavorite.setTitle("添加到歌单");
-//                break;
-//            case MoreOperationDialog.MORE_ALBUM_NORMAL:
-//                break;
-//            case MoreOperationDialog.MORE_BELL_NORMAL:
-//                if(mLVSongItemData == null)
-//                    return ;
-//
-//                if(listOperMusicInfoDao == null || listOperMusicInfoDao.size() > 1)
-//                    return;
-//
-//                MusicInfoDao MusicInfoDao = listOperMusicInfoDao.get(0);
-//                if(MusicInfoDao == null)
-//                    return;
-//
-//                String filePath = MusicInfoDao.getSave_path();
-//                ContentValues cv = new ContentValues();
-//                Uri uri = null, newUri = null;
-//                uri = MediaStore.Audio.Media.getContentUriForPath(filePath);
-//                Cursor cursor = mContext.getContentResolver().query(uri, null, MediaStore.MediaColumns.DATA + "=?", new String[]{filePath}, null);
-//                if(cursor.moveToFirst() && cursor.getCount() > 0){
-//                    String id = cursor.getString(0);
-//                    cv.put(MediaStore.Audio.Media.IS_RINGTONE, true);
-//                    cv.put(MediaStore.Audio.Media.IS_NOTIFICATION, false);
-//                    cv.put(MediaStore.Audio.Media.IS_ALARM, false);
-//                    cv.put(MediaStore.Audio.Media.IS_MUSIC, false);
-//
-//                    // 把需要设为铃声的歌曲更新铃声库
-//                    mContext.getContentResolver().update(uri, cv, MediaStore.MediaColumns.DATA + "=?",new String[] { filePath });
-//                    newUri = ContentUris.withAppendedId(uri, Long.valueOf(id));
-//                    RingtoneManager.setActualDefaultRingtoneUri(mContext, RingtoneManager.TYPE_RINGTONE, newUri);
-//                    String strPromt = String.format("已将歌曲\"%s\"设置为铃声",MusicInfoDao.getTitle());
-//                    Toast.makeText(mContext, strPromt, Toast.LENGTH_SHORT).show();
-//                }
-//                break;
-//            case MoreOperationDialog.MORE_DELETE_NORMAL:
-//                String strTitle = "";
-//                if(mLVSongItemData != null){
-//                    strTitle = "确定删除\"" + mLVSongItemData.mMainTitle + "\"吗?";
-//                }
-//                else if(mLVFolderItemData != null){
-//                    strTitle = "确定删除\"" + mLVFolderItemData.mFolderName + "\"下的所有歌曲吗?";
-//                }
-//                else if(mLVArtistAlbumItemData != null){
-//                    strTitle = "确定删除该歌手/专辑的所有歌曲吗?";
-//                }
-//                showDeleteAlterDialog(mContext, listOperMusicInfoDao, strTitle, false);
-//                break;
-//            case MoreOperationDialog.MORE_DOWNLOAD_NORMAL:
-//                break;
-//            case MoreOperationDialog.MORE_HIDE_NORMAL:
-//                AlertDialogHide hideOne = new AlertDialogHide(mContext);
-//                hideOne.show();
-//                hideOne.setMusicInfoDaoData(listOperMusicInfoDao);
-//                hideOne.setAlertDialogListener(mAlertDialogHideListener);
-//                break;
-//            case MoreOperationDialog.MORE_LOVE_NORMAL:
-//                if(mLVSongItemData == null)
-//                    return ;
-//
-//                //多个文件时仅添加,单个文件可添加 可删除
-//                boolean isMutil = listOperMusicInfoDao.size() > 1 ? true : false;
-//                boolean isAddToFavorite = false;
-//                int iSuccessNum = 0;
-//                for(int i = 0;i < listOperMusicInfoDao.size();i++){
-//                    MusicInfoDao = listOperMusicInfoDao.get(i);
-//                    if(MusicInfoDao == null)
-//                        continue;
-//
-//                    FavoritesMusicEntity favoritesMusicEntity = new FavoritesMusicEntity();
-//                    favoritesMusicEntity.musicinfo_id = MusicInfoDao.get_id();
-//                    favoritesMusicEntity.artist = MusicInfoDao.getTitle();
-//                    favoritesMusicEntity.album = MusicInfoDao.getAlbum();
-//                    favoritesMusicEntity.fav_time = System.currentTimeMillis();
-//                    favoritesMusicEntity.path = MusicInfoDao.get_data();
-//                    favoritesMusicEntity.title = MusicInfoDao.getTitle();
-//                    favoritesMusicEntity.favorite_id = MediaLibrary.getInstance().getDefaultFavoriteEntityId();
-//
-//                    if(MediaLibrary.getInstance().queryIsFavoriteByMusicInfoDaoId(MusicInfoDao.get_id(), favoritesMusicEntity.favorite_id)){
-//                        if(isMutil == false){
-//                            boolean bRet = MediaLibrary.getInstance().removeFavoriteMusicEntity(favoritesMusicEntity.musicinfo_id, favoritesMusicEntity.favorite_id);
-//                            if(bRet){
-//                                iSuccessNum++;
-//                                isAddToFavorite = false;
-//                            }
-//                        }
-//                    }
-//                    else{
-//                        boolean bRet = MediaLibrary.getInstance().addFavoriteMusicEntity(favoritesMusicEntity);
-//                        if(bRet){
-//                            iSuccessNum++;
-//                            isAddToFavorite = true;
-//                        }
-//                    }
-//                }
-//
-//                if(isMutil){
-//                    Toast.makeText(mContext, "成功" + iSuccessNum + "首,失败" + (listOperMusicInfoDao.size() - iSuccessNum) + "首", Toast.LENGTH_SHORT).show();
-//                }
-//                else{
-//                    if(!isAddToFavorite){
-//                        Toast.makeText(mContext, "已取消喜欢", Toast.LENGTH_SHORT).show();
-//                    }
-//                    else{
-//                        Toast.makeText(mContext, "已添加到我喜欢的单曲", Toast.LENGTH_SHORT).show();
-//                    }
-//                }
-//
-//                break;
-//            case MoreOperationDialog.MORE_MV_NORMAL:
-//                break;
-//            case MoreOperationDialog.MORE_NEXTPLAY_NORMAL:
-//                if(mLVSongItemData == null)
-//                    return ;
-//
-//                MusicInfoDao = MediaLibrary.getInstance().getMusicInfoDaoById(mLVSongItemData.id);
-//                if(MusicInfoDao == null)
-//                    return ;
-//
-//                if(mLVSongItemData != null){
-//                    boolean bRet = mService.addSongToNext(MusicInfoDao);
-//                    if(bRet){
-//                        Toast.makeText(mContext, "已添加到播放列表", Toast.LENGTH_SHORT).show();
-//                    }
-//                }
-//                break;
-//            case MoreOperationDialog.MORE_PLAY_NORMAL:
-//                if(mService != null){
-//                    //mService.play(listOperMusicInfoDao, 0);
-//                    //mAllSongAdapter.setItemPlayState(listOperMusicInfoDao.get(0), true);
-//                }
-//                break;
-//            case MoreOperationDialog.MORE_REMOVE_NORMAL:
-//                break;
-//            case MoreOperationDialog.MORE_SHARE_NORMAL:
-//                if(mLVSongItemData == null)
-//                    return ;
-//
-//                AndroidShare as = new AndroidShare(
-//                        mContext,
-//                        "哈哈---超方便的分享！！！来自allen",
-//                        "http://img6.cache.netease.com/cnews/news2012/img/logo_news.png");
-//                as.show();
-//                as.setTitle("分享 - " + mLVSongItemData.mMainTitle);
-//                break;
-//            case MoreOperationDialog.MORE_SONGER_NORMAL:
-//                break;
-//        }
-        if(mListener != null){
-            mListener.onMoreOperClick(this, tag, listOperMusicInfoDao);
+                            handleDeleteMedia(listMusicInfoDao, isDeleteFile);
+                        }
+                    });
+                    deleteDialog.show();
+                    deleteDialog.setTitle(strTitle);
+                    deleteDialog.setMusicInfoDaoData(listOperMusicInfoDao);
+                    break;
+            }
         }
     }
 
@@ -1151,51 +1023,53 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
         boolean isContainPlaying = false;
         MusicInfoDao curMusicInfoDao = null;
         curMusicInfoDao = mService.getCurPlayMusicDao();
-        if(curMusicInfoDao == null)
-            return;
 
-//        int successNum = 0;
-//        for(int i = 0;i < listMusicInfoDao.size();i++){
-//            MusicInfoDao entity = listMusicInfoDao.get(i);
-//            if(entity == null || entity.get_id() < 0)
-//                continue;
-//
-//            if(isDeleteFile){
-//                File file = new File(entity.get_data());
-//                if(file.exists()){
-//                    boolean bRet = file.delete();
-//                    if(bRet)
-//                        successNum++;
-//                }
-//            }
-//            else{
-//                successNum++;
-//            }
-//
-//            if(curMusicInfoDao != null){
-//                if(curMusicInfoDao.get_id() == entity.get_id()){
-//                    isContainPlaying = true;
-//                }
-//            }
-//        }
-//
-//        mService.mutilDeleteMediaByList(listMusicInfoDao);
-//        MediaLibrary.getInstance().mutilRemoveMusicInfoDao(listMusicInfoDao);
-//
-//        String strPromt = "";
-//        if(successNum == 0){
-//            strPromt = "删除失败";
-//        }
-//        else if(successNum < listMusicInfoDao.size()){
-//            strPromt = "删除部分成功,部分失败";
-//        }
-//        else{
-//            strPromt = "删除成功";
-//        }
-//        Toast.makeText(mContext, strPromt, Toast.LENGTH_SHORT).show();
-//
-//        if(isContainPlaying && mService != null){
-//            mService.reCalNextPlayIndex();
-//        }
+        boolean delDBRet = false;
+        boolean delFileRet = false;
+        int successNum = 0;
+        for(int i = 0;i < listMusicInfoDao.size();i++){
+            MusicInfoDao entity = listMusicInfoDao.get(i);
+            if(entity == null || entity.get_id() < 0)
+                continue;
+
+            if(curMusicInfoDao != null && curMusicInfoDao.get_id() == entity.get_id()){
+                if(curMusicInfoDao.get_id() == entity.get_id()){
+                    isContainPlaying = true;
+                }
+            }
+            else{
+                mService.removeMusicInfo(entity.get_id());
+                delDBRet = MediaModel.getInstance().deleteMusicInfo(entity);
+                if(isDeleteFile){
+                    File file = new File(entity.get_data());
+                    if(file.exists()){
+                        delFileRet = file.delete();
+                    }
+                }
+                else{
+                    delFileRet = true;
+                }
+
+                if(delDBRet && delFileRet){
+                    successNum++;
+                }
+            }
+        }
+
+        String strPromt = "";
+        if(successNum == 0){
+            strPromt = "删除失败";
+        }
+        else if(successNum < listMusicInfoDao.size()){
+            strPromt = "删除部分成功,部分失败";
+        }
+        else{
+            strPromt = "删除成功";
+        }
+        Toast.makeText(mContext, strPromt, Toast.LENGTH_SHORT).show();
+
+        if(isContainPlaying && mService != null){
+            mService.next();
+        }
     }
 }

@@ -8,6 +8,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
+import com.example.kaizhiwei.puremusictest.dao.RecentPlayDao;
+import com.example.kaizhiwei.puremusictest.model.RecentPlayModel;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -131,6 +133,7 @@ public class PlayMusicImpl implements IPlayMusic {
         public void onCompletion(IMediaPlayer iMediaPlayer) {
             updateState(IPlayMusic.STATE_COMPLETE);
             mHandler.removeCallbacks(playPosRunnable);
+            addToRecentPlayDB();
             next();
         }
     };
@@ -651,5 +654,13 @@ public class PlayMusicImpl implements IPlayMusic {
         }
 
         return null;
+    }
+
+    public void addToRecentPlayDB(){
+        RecentPlayDao recentPlayDao = new RecentPlayDao();
+        recentPlayDao.setInfo_id(mCurPlayMusicId);
+        recentPlayDao.setTime_stamp(System.currentTimeMillis());
+        recentPlayDao.setHas_play_status(true);
+        RecentPlayModel.getInstance().addRecentPlay(recentPlayDao);
     }
 }

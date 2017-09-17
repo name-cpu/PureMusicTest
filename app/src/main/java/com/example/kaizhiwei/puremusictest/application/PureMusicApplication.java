@@ -6,6 +6,7 @@ import android.content.Context;
 import com.example.kaizhiwei.puremusictest.MediaData.SongEntity;
 import com.example.kaizhiwei.puremusictest.dao.DaoManager;
 import com.example.kaizhiwei.puremusictest.model.MediaModel;
+import com.example.kaizhiwei.puremusictest.model.MediaModelProxy;
 
 import org.xutils.x;
 
@@ -29,7 +30,7 @@ public class PureMusicApplication extends Application {
         super.onCreate();
         instance = this;
         mContext = getApplicationContext();
-        MediaModel.getInstance().init(mContext);
+        MediaModelProxy.getInstance().init(mContext);
         x.Ext.init(this);
         x.Ext.setDebug(true); // 是否输出debug日志
         DaoManager.getInstance();

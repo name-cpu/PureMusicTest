@@ -10,7 +10,12 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.model.PlaylistModel;
 
 import butterknife.ButterKnife;
 
@@ -31,6 +36,9 @@ public abstract class MyBaseFragment extends Fragment {
             onReceiveBroadCast(intent);
         }
     };
+
+    private View fullLoadingView;
+    private TextView tvLoadDesc;
 
     @Nullable
     @Override
@@ -160,4 +168,53 @@ public abstract class MyBaseFragment extends Fragment {
         mToast.show();
     }
 
+    public void showFullLoadingView(ViewGroup parent, String loadingDesc){
+        if(parent == null)
+            return;
+
+        if(fullLoadingView == null){
+            fullLoadingView = LayoutInflater.from(this.getActivity()).inflate(R.layout.view_full_loading, (ViewGroup) this.getActivity().getWindow().getDecorView());
+            tvLoadDesc = (TextView)fullLoadingView.findViewById(R.id.tvLoadDesc);
+        }
+
+        if(fullLoadingView.getParent() != null){
+            ViewGroup oldParent = (ViewGroup)fullLoadingView.getParent();
+            oldParent.removeView(fullLoadingView);
+        }
+
+        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        parent.addView(fullLoadingView, params);
+        if(loadingDesc != null){
+            tvLoadDesc.setText(loadingDesc);
+        }
+    }
+
+    public void showFullLoadingView(String loadingDesc){
+        if(fullLoadingView == null){
+            fullLoadingView = LayoutInflater.from(this.getActivity()).inflate(R.layout.view_full_loading, null);
+            tvLoadDesc = (TextView)fullLoadingView.findViewById(R.id.tvLoadDesc);
+        }
+
+        if(fullLoadingView.getParent() != null){
+            ViewGroup oldParent = (ViewGroup)fullLoadingView.getParent();
+            oldParent.removeView(fullLoadingView);
+        }
+
+        ViewGroup parent = (ViewGroup)this.getActivity().findViewById(android.R.id.content);
+        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        parent.addView(fullLoadingView, params);
+        if(loadingDesc != null){
+            tvLoadDesc.setText(loadingDesc);
+        }
+    }
+
+    public void hideFullLoadingView(){
+        if(fullLoadingView == null)
+            return;
+
+        if(fullLoadingView.getParent() != null){
+            ViewGroup oldParent = (ViewGroup)fullLoadingView.getParent();
+            oldParent.removeView(fullLoadingView);
+        }
+    }
 }

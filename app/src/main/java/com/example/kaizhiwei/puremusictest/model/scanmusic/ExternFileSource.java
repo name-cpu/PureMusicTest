@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.kaizhiwei.puremusictest.MediaData.VLCInstance;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 import com.example.kaizhiwei.puremusictest.util.DeviceUtil;
 import com.example.kaizhiwei.puremusictest.base.BaseHandler;
 import com.example.kaizhiwei.puremusictest.base.BaseRunnable;
@@ -284,20 +285,22 @@ public class ExternFileSource extends BaseScanMusic {
     }
 
     @Override
-    public void scan(BaseHandler handler) {
-        new BaseRunnable(handler) {
-            @Override
-            public void doBusiness() throws Exception {
-                for(int i = 0;i < mListScanPath.size();i++){
-                    mAvailableSize += DeviceUtil.getFolderSize(new File(mListScanPath.get(i))); //new File(mListScanPath.get(i)).getUsableSpace(); //getPathTotalSize(mListScanPath.get(i)) - getPathAvailableSize(mListScanPath.get(i));
-                }
+    public List<MusicInfoDao> scan() {
+//        new BaseRunnable(handler) {
+//            @Override
+//            public void doBusiness() throws Exception {
+//                for(int i = 0;i < mListScanPath.size();i++){
+//                    mAvailableSize += DeviceUtil.getFolderSize(new File(mListScanPath.get(i))); //new File(mListScanPath.get(i)).getUsableSpace(); //getPathTotalSize(mListScanPath.get(i)) - getPathAvailableSize(mListScanPath.get(i));
+//                }
+//
+//                for(int i = 0; i < mListScanPath.size();i++){
+//                    getDirFile(mListScanPath.get(i));
+//                }
+//
+//                notifyFinish();
+//            }
+//        };
 
-                for(int i = 0; i < mListScanPath.size();i++){
-                    getDirFile(mListScanPath.get(i));
-                }
-
-                notifyFinish();
-            }
-        };
+        return null;
     }
 }

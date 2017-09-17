@@ -1,6 +1,7 @@
 package com.example.kaizhiwei.puremusictest.model.scanmusic;
 
 import com.example.kaizhiwei.puremusictest.base.BaseHandler;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
 public abstract class BaseScanMusic {
     private List<IScanListener> mListeners = new ArrayList<>();
 
-    public abstract void scan(BaseHandler handler);
+    public abstract List<MusicInfoDao> scan();
 
     public void addListener(IScanListener listener){
         if(mListeners.contains(listener) == false){

@@ -16,11 +16,20 @@ import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.base.MyBaseFragment;
 import com.example.kaizhiwei.puremusictest.dao.PlaylistDao;
 import com.example.kaizhiwei.puremusictest.dao.PlaylistMemberDao;
+import com.example.kaizhiwei.puremusictest.model.FavoriteMusicModel;
+import com.example.kaizhiwei.puremusictest.model.IFavoriteMusicObserver;
+import com.example.kaizhiwei.puremusictest.model.IMediaDataObserver;
 import com.example.kaizhiwei.puremusictest.model.IPlaylistDataObserver;
+import com.example.kaizhiwei.puremusictest.model.IRecentPlayObserver;
+import com.example.kaizhiwei.puremusictest.model.MediaModel;
 import com.example.kaizhiwei.puremusictest.model.PlaylistModel;
+import com.example.kaizhiwei.puremusictest.model.RecentPlayModel;
 import com.example.kaizhiwei.puremusictest.service.PlaybackService;
 import com.example.kaizhiwei.puremusictest.ui.favorite.AlertDialogFavorite;
+import com.example.kaizhiwei.puremusictest.util.FadingEdgeUtil;
 import com.example.kaizhiwei.puremusictest.widget.RecyclerViewDividerDecoration;
+
+import org.videolan.libvlc.Media;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -29,7 +38,8 @@ import butterknife.ButterKnife;
 /**
  * Created by kaizhiwei on 16/12/16.
  */
-public class LocalMusicMainFragment extends MyBaseFragment implements View.OnClickListener,  PlaybackService.Client.Callback, IPlaylistDataObserver {
+public class LocalMusicMainFragment extends MyBaseFragment implements View.OnClickListener,  PlaybackService.Client.Callback,
+        IPlaylistDataObserver, IRecentPlayObserver, IFavoriteMusicObserver, IMediaDataObserver {
     @Bind(R.id.ivIcon)
     ImageView ivIcon;
     @Bind(R.id.tvLocalMain)
@@ -66,8 +76,6 @@ public class LocalMusicMainFragment extends MyBaseFragment implements View.OnCli
     LinearLayout llContent;
 
     private FavoriteViewAdpapter mFavoriteViewAdapter;
-
-    private Vibrator vibrator;
     private PlaybackService.Client mClient;
     private PlaybackService mService;
 
@@ -96,6 +104,7 @@ public class LocalMusicMainFragment extends MyBaseFragment implements View.OnCli
         rvFavorite.addItemDecoration(new RecyclerViewDividerDecoration(this.getActivity(), RecyclerViewDividerDecoration.HORIZONTAL_LIST));
         mFavoriteViewAdapter = new FavoriteViewAdpapter(this.getActivity());
         mFavoriteViewAdapter.setAdadpterMode(FavoriteViewAdpapter.AdapterMode.MODE_NORMAL);
+        mFavoriteViewAdapter.setShowMyFavorite(true);
         mFavoriteViewAdapter.initData();
         rvFavorite.setAdapter(mFavoriteViewAdapter);
     }
@@ -103,6 +112,9 @@ public class LocalMusicMainFragment extends MyBaseFragment implements View.OnCli
     @Override
     protected void initData() {
         PlaylistModel.getInstance().addObserver(this);
+        RecentPlayModel.getInstance().addObserver(this);
+        FavoriteMusicModel.getInstance().addObserver(this);
+        MediaModel.getInstance().addObserver(this);
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -124,30 +136,20 @@ public class LocalMusicMainFragment extends MyBaseFragment implements View.OnCli
         }
     }
 
-    @CallSuper
-    public void onResume() {
+    @Override
+    public void onResume(){
         super.onResume();
-    }
-
-    public void onPause() {
-        super.onPause();
-        //lbmLayout.onPause();
-    }
-
-    public void onStart() {
-        super.onStart();
-        //lbmLayout.onStart();
-    }
-
-    public void onStop() {
-        super.onStop();
-        //lbmLayout.onStop();
+        tvLocalSub.setText(MediaModel.getInstance().getMusicInfoDaoSize() + "首");
+        tvLastPlaySub.setText(RecentPlayModel.getInstance().getRecentPlaySize() + "首");
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
         PlaylistModel.getInstance().removeObserver(this);
+        RecentPlayModel.getInstance().removeObserver(this);
+        FavoriteMusicModel.getInstance().removeObserver(this);
+        MediaModel.getInstance().removeObserver(this);
     }
 
     @Override
@@ -197,7 +199,6 @@ public class LocalMusicMainFragment extends MyBaseFragment implements View.OnCli
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.unbind(this);
     }
 
     @Override
@@ -208,5 +209,20 @@ public class LocalMusicMainFragment extends MyBaseFragment implements View.OnCli
     @Override
     public void onPlaylistMemberChanged(long playlistId, long musicId) {
 
+    }
+
+    @Override
+    public void onRecentPlayChanged(int type, long id) {
+        tvLastPlaySub.setText(RecentPlayModel.getInstance().getRecentPlaySize() + "首");
+    }
+
+    @Override
+    public void onFavoriteMusicChanged(int type, long id) {
+        mFavoriteViewAdapter.initData();
+    }
+
+    @Override
+    public void onMediaDataChanged(int type, long musicId) {
+        tvLocalSub.setText(MediaModel.getInstance().getMusicInfoDaoSize() + "首");
     }
 }

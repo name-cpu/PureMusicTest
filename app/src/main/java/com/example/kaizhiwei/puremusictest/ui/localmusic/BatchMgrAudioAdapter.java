@@ -2,20 +2,16 @@ package com.example.kaizhiwei.puremusictest.ui.localmusic;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 import com.example.kaizhiwei.puremusictest.dao.PlaylistMemberDao;
-import com.example.kaizhiwei.puremusictest.model.PlaylistModel;
-import com.example.kaizhiwei.puremusictest.model.PlaylistModuleProxy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,11 +32,12 @@ public class BatchMgrAudioAdapter extends RecyclerView.Adapter<BatchMgrAudioAdap
     static public class BatchMgrAudioItemData{
         public MusicInfoDao musicInfoDao;
         public PlaylistMemberDao playlistMemberDao;
+        public Object obj;
         public boolean isSelected;
     }
 
     interface IOnBatchMgrAudioListener{
-        void onBatchMgrAudioItemCheck(BatchMgrAudioAdapter adapter, int position);
+        void onItemChecked(BatchMgrAudioAdapter adapter, int position);
     }
 
     public BatchMgrAudioAdapter(Context context, List<BatchMgrAudioItemData> list){
@@ -97,7 +94,7 @@ public class BatchMgrAudioAdapter extends RecyclerView.Adapter<BatchMgrAudioAdap
                 boolean isChecked = checkBox.isChecked();
                 mListData.get(position).isSelected = isChecked;
                 if(mListener != null){
-                    mListener.onBatchMgrAudioItemCheck(BatchMgrAudioAdapter.this, position);
+                    mListener.onItemChecked(BatchMgrAudioAdapter.this, position);
                 }
             }
         });

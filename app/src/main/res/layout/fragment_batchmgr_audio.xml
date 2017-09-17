@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        app:leftText=""
+        app:leftText="@string/app_name"
+        app:title=""
         app:rightText="">
     </com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView>
     <CheckBox
@@ -60,7 +61,7 @@
         android:layout_height="70dp"
         android:layout_alignParentBottom="true">
         <com.example.kaizhiwei.puremusictest.CommonUI.MyTextView
-            android:id="@+id/mtvAddTo"
+            android:id="@+id/mtvLeft"
             android:layout_width="150dp"
             android:layout_height="40dp"
             android:text="添加到"
@@ -69,7 +70,7 @@
             android:layout_marginLeft="20dp"/>
 
         <com.example.kaizhiwei.puremusictest.CommonUI.MyTextView
-            android:id="@+id/mtvDelete"
+            android:id="@+id/mtvRight"
             android:layout_width="150dp"
             android:layout_height="40dp"
             android:text="删除"

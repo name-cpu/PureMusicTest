@@ -16,6 +16,9 @@ import java.io.Serializable;
 
 @Table(name = "musicinfo")
 public class MusicInfoDao implements Parcelable, Serializable {
+    public static final int DATA_FROM_LOCAL = 0;    //本地文件
+    public static final int DATA_FROM_NET = 1;      //网络文件
+
     @Column(name = "id",isId = true,autoGen = true)
     private long _id;
 

@@ -162,7 +162,7 @@ public class PlaybackService extends Service {
 //                        /**
 //                         * 1) There is a media to update
 //                         * 2) It has a length of 0
-//                         * (dynamic getTrack() loading - most notably the OGG container)
+//                         * (dynamic getTrack() music_loading - most notably the OGG container)
 //                         * 3) We were able to get a length even after parsing
 //                         * (don't want to replace a 0 with a 0)
 //                         */

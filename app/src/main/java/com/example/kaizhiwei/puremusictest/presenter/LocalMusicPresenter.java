@@ -3,12 +3,17 @@ package com.example.kaizhiwei.puremusictest.presenter;
 import android.os.Message;
 
 import com.example.kaizhiwei.puremusictest.model.MediaModel;
+import com.example.kaizhiwei.puremusictest.model.MediaModelProxy;
 import com.example.kaizhiwei.puremusictest.util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.base.BaseHandler;
 import com.example.kaizhiwei.puremusictest.contract.LocalMusicContract;
 import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by kaizhiwei on 17/8/13.
@@ -23,7 +28,7 @@ public class LocalMusicPresenter implements LocalMusicContract.Presenter {
 
     @Override
     public void getAllMusicInfos() {
-        MediaModel.getInstance().asyncGetAllMusicInfos(new BaseHandler() {
+        MediaModelProxy.getInstance().asyncGetAllMusicInfos(new BaseHandler() {
             @Override
             public void handleBusiness(Message msg) {
                 int what = msg.what;
@@ -50,15 +55,15 @@ public class LocalMusicPresenter implements LocalMusicContract.Presenter {
 
     @Override
     public void getMusicInfosByFolder(String folder) {
-        MediaModel.getInstance().asyncMusicInfosByFolder(folder, new BaseHandler() {
+        MediaModelProxy.getInstance().asyncQueryMusicInfosByFolder(folder, new BaseHandler() {
             @Override
             public void handleBusiness(Message msg) {
                 int what = msg.what;
-                List<MusicInfoDao> list = null;
+                Map<String, List<MusicInfoDao>> mapRet = null;
                 if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
-                    list = (List<MusicInfoDao>)msg.obj;
+                    mapRet = (Map<String, List<MusicInfoDao>>)msg.obj;
                     if(mView != null){
-                        mView.onGetMusicInfosByFolder(list);
+                        mView.onGetMusicInfosByFolder(mapRet);
                     }
                 }
                 else{
@@ -72,13 +77,13 @@ public class LocalMusicPresenter implements LocalMusicContract.Presenter {
 
     @Override
     public void getMusicInfosByArtist(String artist) {
-        MediaModel.getInstance().asyncMusicInfosByArtist(artist, new BaseHandler() {
+        MediaModelProxy.getInstance().asyncQueryMusicInfosByArtist(artist, new BaseHandler() {
             @Override
             public void handleBusiness(Message msg) {
                 int what = msg.what;
-                List<MusicInfoDao> list = null;
+                Map<String, List<MusicInfoDao>> list = null;
                 if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
-                    list = (List<MusicInfoDao>)msg.obj;
+                    list = (Map<String, List<MusicInfoDao>>)msg.obj;
                     if(mView != null){
                         mView.onGetMusicInfosByArtist(list);
                     }
@@ -94,13 +99,13 @@ public class LocalMusicPresenter implements LocalMusicContract.Presenter {
 
     @Override
     public void getMusicInfosByAlbum(String album) {
-        MediaModel.getInstance().asyncMusicInfosByAlbum(album, new BaseHandler() {
+        MediaModelProxy.getInstance().asyncQueryMusicInfosByAlbum(album, new BaseHandler() {
             @Override
             public void handleBusiness(Message msg) {
                 int what = msg.what;
-                List<MusicInfoDao> list = null;
+                Map<String, List<MusicInfoDao>> list = null;
                 if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
-                    list = (List<MusicInfoDao>)msg.obj;
+                    list = (Map<String, List<MusicInfoDao>>)msg.obj;
                     if(mView != null){
                         mView.onGetMusicInfosByAlbum(list);
                     }
@@ -115,14 +120,44 @@ public class LocalMusicPresenter implements LocalMusicContract.Presenter {
     }
 
     @Override
-    public void queryMusicInfosByName(String songName) {
-        MediaModel.getInstance().asyncQueryMusicInfosByName(songName, new BaseHandler() {
+    public void queryMusicInfosByFolder(String folder) {
+        MediaModelProxy.getInstance().asyncQueryMusicInfosByFolder(folder, new BaseHandler() {
             @Override
             public void handleBusiness(Message msg) {
                 int what = msg.what;
-                List<MusicInfoDao> list = null;
                 if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
-                    list = (List<MusicInfoDao>)msg.obj;
+                    ArrayList<MusicInfoDao> list = new ArrayList<MusicInfoDao>();
+                    Map<String, List<MusicInfoDao>> map = (Map<String, List<MusicInfoDao>>)msg.obj;
+                    Set<String> keySet = map.keySet();
+                    for(String key : keySet){
+                        list.addAll(map.get(key));
+                    }
+                    if(mView != null){
+                        mView.onQueryMusicInfosByFolder(list);
+                    }
+                }
+                else{
+                    if(mView != null){
+                        mView.onError("");
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void queryMusicInfosByName(String songName) {
+        MediaModelProxy.getInstance().asyncQueryMusicInfosByName(songName, new BaseHandler() {
+            @Override
+            public void handleBusiness(Message msg) {
+                int what = msg.what;
+                if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
+                    List<MusicInfoDao> list = new ArrayList<MusicInfoDao>();
+                    Map<String, List<MusicInfoDao>> map = (Map<String, List<MusicInfoDao>>)msg.obj;
+                    Set<String> keySet = map.keySet();
+                    for(String key : keySet){
+                        list.addAll(map.get(key));
+                    }
                     if(mView != null){
                         mView.onQueryMusicInfosByName(list);
                     }
@@ -138,13 +173,17 @@ public class LocalMusicPresenter implements LocalMusicContract.Presenter {
 
     @Override
     public void queryMusicInfosByArist(String artist) {
-        MediaModel.getInstance().asyncQueryMusicInfosByArtist(artist, new BaseHandler() {
+        MediaModelProxy.getInstance().asyncQueryMusicInfosByArtist(artist, new BaseHandler() {
             @Override
             public void handleBusiness(Message msg) {
                 int what = msg.what;
-                List<MusicInfoDao> list = null;
                 if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
-                    list = (List<MusicInfoDao>)msg.obj;
+                    List<MusicInfoDao> list = new ArrayList<MusicInfoDao>();
+                    Map<String, List<MusicInfoDao>> map = (Map<String, List<MusicInfoDao>>)msg.obj;
+                    Set<String> keySet = map.keySet();
+                    for(String key : keySet){
+                        list.addAll(map.get(key));
+                    }
                     if(mView != null){
                         mView.onQueryMusicInfosByArist(list);
                     }
@@ -160,13 +199,17 @@ public class LocalMusicPresenter implements LocalMusicContract.Presenter {
 
     @Override
     public void queryMuisicInfosByAlbum(String album) {
-        MediaModel.getInstance().asyncQueryMusicInfosByAlbum(album, new BaseHandler() {
+        MediaModelProxy.getInstance().asyncQueryMusicInfosByAlbum(album, new BaseHandler() {
             @Override
             public void handleBusiness(Message msg) {
                 int what = msg.what;
-                List<MusicInfoDao> list = null;
                 if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
-                    list = (List<MusicInfoDao>)msg.obj;
+                    List<MusicInfoDao> list = new ArrayList<MusicInfoDao>();
+                    Map<String, List<MusicInfoDao>> map = (Map<String, List<MusicInfoDao>>)msg.obj;
+                    Set<String> keySet = map.keySet();
+                    for(String key : keySet){
+                        list.addAll(map.get(key));
+                    }
                     if(mView != null){
                         mView.onQueryMuisicInfosByAlbum(list);
                     }

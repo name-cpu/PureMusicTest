@@ -2,10 +2,14 @@ package com.example.kaizhiwei.puremusictest.model;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 
 import com.example.kaizhiwei.puremusictest.base.BaseRunnable;
+import com.example.kaizhiwei.puremusictest.base.ThreadPool;
+import com.example.kaizhiwei.puremusictest.dao.PlaylistMemberDao;
 import com.example.kaizhiwei.puremusictest.model.scanmusic.MediaStoreSource;
 import com.example.kaizhiwei.puremusictest.util.BusinessCode;
 import com.example.kaizhiwei.puremusictest.base.BaseHandler;
@@ -18,7 +22,9 @@ import org.xutils.ex.DbException;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -28,7 +34,20 @@ import java.util.concurrent.CountDownLatch;
 public class MediaModel {
     private static MediaModel mInstance;
     private Context mContext;
-    private CountDownLatch mCountDown;
+    private boolean isScaning = false;
+    private List<IMediaDataObserver> mObservers = new ArrayList<>();
+    private static final int NOTIFY_MEDIA_INFO = 1;
+    private android.os.Handler mSafeHandler = new Handler(Looper.getMainLooper()){
+
+        @Override
+        public void handleMessage(Message msg) {
+            if(msg.what == NOTIFY_MEDIA_INFO){
+                int musicId = msg.arg1;
+                notifyMediaDataChanged(musicId);
+            }
+        }
+    };
+
 
     public static MediaModel getInstance(){
         if(mInstance == null){
@@ -46,34 +65,62 @@ public class MediaModel {
         mContext = context;
     }
 
-    public List<MusicInfoDao> getAllMusicInfos(){
-        if(mCountDown == null){
-            mCountDown = new CountDownLatch(1);
+    public void addObserver(IMediaDataObserver observer){
+        if(observer == null)
+            return;
+
+        if(!mObservers.contains(observer)){
+            mObservers.add(observer);
         }
-        try {
-            mCountDown.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    }
+
+    public void removeObserver(IMediaDataObserver observer){
+        if(observer == null)
+            return;
+
+        if(mObservers.contains(observer)){
+            mObservers.remove(observer);
         }
+    }
+
+    private void notifyMediaDataChanged(long musicId){
+        for(int i = 0;i < mObservers.size();i++){
+            mObservers.get(i).onMediaDataChanged(0, musicId);
+        }
+    }
+
+    private void postNotifyMediaData(long musicId){
+        mSafeHandler.removeMessages(NOTIFY_MEDIA_INFO);
+        Message message = new Message();
+        message.what = NOTIFY_MEDIA_INFO;
+        message.arg1 = (int)musicId;
+        mSafeHandler.sendMessageDelayed(message, 200);
+    }
+
+    public synchronized List<MusicInfoDao> getAllMusicInfos() {
         List<MusicInfoDao> list = null;
         try {
             list = DaoManager.getInstance().getDbManager().findAll(MusicInfoDao.class);
-            if(list == null || list.size() == 0){
+            if (list == null || list.size() == 0) {
                 MediaStoreSource storeSource = new MediaStoreSource(mContext);
-                storeSource.scan(new BaseHandler() {
-                    @Override
-                    public void handleBusiness(Message msg) {
-                        mCountDown.countDown();
-
-
+                isScaning = true;
+                list = storeSource.scan();
+                for (int i = 0; i < list.size(); i++) {
+                    try {
+                        DaoManager.getInstance().getDbManager().save(list.get(i));
+                    } catch (DbException e) {
+                        e.printStackTrace();
                     }
-                });
+                }
+                isScaning = false;
             }
-        } catch (DbException e) {
+            return list;
+        }
+        catch (Exception e){
             e.printStackTrace();
         }
 
-        return list;
+        return null;
     }
 
     public int getMusicInfoDaoSize(){
@@ -93,36 +140,19 @@ public class MediaModel {
         return count;
     }
 
-    public void asyncGetAllMusicInfos(final BaseHandler handler){
-        try {
-            final List<MusicInfoDao> list = DaoManager.getInstance().getDbManager().findAll(MusicInfoDao.class);
-            if(list == null || list.size() == 0){
-                MediaStoreSource storeSource = new MediaStoreSource(mContext);
-                storeSource.scan(new BaseHandler() {
-                    @Override
-                    public void handleBusiness(Message msg) {
-                        int what = msg.what;
-                        if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
-                            List<MusicInfoDao> list1  = (List<MusicInfoDao>)msg.obj;
-                            for(int i = 0;i < list1.size();i++){
-                                try {
-                                    DaoManager.getInstance().getDbManager().save(list1.get(i));
-                                } catch (DbException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, list1).sendToTarget();
-                        }else{
-
-                        }
-                        handler.obtainMessage(BusinessCode.BUSINESS_CODE_ERROR, null).sendToTarget();
-
-                    }
-                });
+    public void getAllMusicInfos(BaseHandler handler){
+        while (isScaning){
+            try{
+                Thread.sleep(200);
             }
-            else{
-                handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, list).sendToTarget();
+            catch (Exception e){
+                e.printStackTrace();
             }
+        }
+
+        try{
+            List<MusicInfoDao> list = DaoManager.getInstance().getDbManager().findAll(MusicInfoDao.class);
+            handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, list).sendToTarget();
         } catch (DbException e) {
             e.printStackTrace();
         }
@@ -141,213 +171,139 @@ public class MediaModel {
         }
     }
 
-    public void asyncMusicInfosByFolder(final String folder, final BaseHandler handler){
+    public void updateMusicInfo(MusicInfoDao musicInfoDao){
+        if(musicInfoDao == null)
+            return;
+
         try {
-            final List<MusicInfoDao> list = DaoManager.getInstance().getDbManager().findAll(MusicInfoDao.class);
-            if(list == null || list.size() == 0){
-                MediaStoreSource storeSource = new MediaStoreSource(mContext);
-                storeSource.scan(new BaseHandler() {
-                    @Override
-                    public void handleBusiness(Message msg) {
-                        int what = msg.what;
-                        if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
-                            List<MusicInfoDao> list1  = (List<MusicInfoDao>)msg.obj;
-                            List<MusicInfoDao> listRet = new ArrayList<>();
-
-                            for(int i = 0;i < list1.size();i++) {
-                                MusicInfoDao dao = list1.get(i);
-                                if(dao == null)
-                                    continue;
-
-                                File file = new File(list1.get(i).get_data());
-                                if (file.exists() && file.isFile()) {
-                                    File parent = file.getParentFile();
-                                    String parentName = parent.getName();
-                                    dao.setSave_path(parent.getPath());
-
-                                    if(TextUtils.isEmpty(folder)){
-                                        listRet.add(list1.get(i));
-                                    }
-                                    else if(parentName.equalsIgnoreCase(folder)) {
-                                        listRet.add(list1.get(i));
-                                    }
-                                }
-                            }
-                            handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, listRet).sendToTarget();
-                        }else{
-
-                        }
-                        handler.obtainMessage(BusinessCode.BUSINESS_CODE_ERROR, null).sendToTarget();
-
-                    }
-                });
-            }
-            else{
-                List<MusicInfoDao> listRet = new ArrayList<>();
-                for(int i = 0;i < list.size();i++) {
-                    MusicInfoDao dao = list.get(i);
-                    if(dao == null)
-                        continue;
-
-                    File file = new File(list.get(i).get_data());
-                    if (file.exists() && file.isFile()) {
-                        File parent = file.getParentFile();
-                        String parentName = parent.getName();
-                        dao.setSave_path(parent.getPath());
-
-                        if(TextUtils.isEmpty(folder)){
-                            listRet.add(list.get(i));
-                        }
-                        else if(parentName.equalsIgnoreCase(folder)) {
-                            listRet.add(list.get(i));
-                        }
-                    }
-                }
-
-                handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, listRet).sendToTarget();
-            }
-        } catch (DbException e) {
+            DaoManager.getInstance().getDbManager().saveOrUpdate(musicInfoDao);
+            postNotifyMediaData(musicInfoDao.get_id());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void asyncMusicInfosByArtist(final String artist, final BaseHandler handler){
+    public boolean deleteMusicInfo(MusicInfoDao musicInfoDao){
         try {
-            final List<MusicInfoDao> list = DaoManager.getInstance().getDbManager().findAll(MusicInfoDao.class);
-            if(list == null || list.size() == 0){
-                MediaStoreSource storeSource = new MediaStoreSource(mContext);
-                storeSource.scan(new BaseHandler() {
-                    @Override
-                    public void handleBusiness(Message msg) {
-                        int what = msg.what;
-                        if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
-                            List<MusicInfoDao> list1  = (List<MusicInfoDao>)msg.obj;
-                            List<MusicInfoDao> listRet = new ArrayList<>();
-                            if(TextUtils.isEmpty(artist)){
-                                listRet.addAll(list1);
-                            }
-                            else{
-                                for(int i = 0;i < list1.size();i++) {
-                                    File file = new File(list1.get(i).get_data());
-                                    if (file.exists() && file.isFile()) {
-                                        String artistTemp = list1.get(i).getArtist();
-                                        if (artistTemp.equalsIgnoreCase(artist)) {
-                                            listRet.add(list1.get(i));
-                                        }
-                                    }
-                                }
-                            }
-                            handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, listRet).sendToTarget();
-                        }else{
+            int num = DaoManager.getInstance().getDbManager().delete(MusicInfoDao.class, WhereBuilder.b("id", " == ", musicInfoDao.get_id()));
+            PlaylistModel.getInstance().removePlaylistMembers(musicInfoDao.get_id());
+            FavoriteMusicModel.getInstance().removeFavoriteMusic(musicInfoDao.get_id());
+            postNotifyMediaData(musicInfoDao.get_id());
+            return (num > 0) ? true : false;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-                        }
-                        handler.obtainMessage(BusinessCode.BUSINESS_CODE_ERROR, null).sendToTarget();
+        return false;
+    }
 
+    public Map<String, List<MusicInfoDao>> queryMusicInfosByFolder(String folder){
+        while (isScaning){
+            try{
+                Thread.sleep(200);
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            List<MusicInfoDao> list = DaoManager.getInstance().getDbManager().findAll(MusicInfoDao.class);
+            Map<String, List<MusicInfoDao>> map = new HashMap<>();
+            for(int i = 0;i < list.size();i++) {
+                MusicInfoDao dao = list.get(i);
+                if(dao == null)
+                    continue;
+
+                File file = new File(list.get(i).get_data());
+                if (file.exists() && file.isFile()) {
+                    File parent = file.getParentFile();
+                    String parentName = parent.getName();
+                    dao.setSave_path(parent.getPath());
+
+                    List<MusicInfoDao> temp = map.get(parentName);
+                    if(temp == null){
+                        temp = new ArrayList<>();
                     }
-                });
+                    if(TextUtils.isEmpty(folder) || folder.equalsIgnoreCase(parentName)){
+                        temp.add(list.get(i));
+                    }
+                    map.put(parentName, temp);
+                }
             }
-            else{
-                handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, list).sendToTarget();
-            }
+
+            return map;
         } catch (DbException e) {
             e.printStackTrace();
         }
+
+        return null;
     }
 
-    public void asyncMusicInfosByAlbum(final String album, final BaseHandler handler){
+    public List<MusicInfoDao> queryMusicInfosByName(String songName){
         try {
-            final List<MusicInfoDao> list = DaoManager.getInstance().getDbManager().findAll(MusicInfoDao.class);
-            if(list == null || list.size() == 0){
-                MediaStoreSource storeSource = new MediaStoreSource(mContext);
-                storeSource.scan(new BaseHandler() {
-                    @Override
-                    public void handleBusiness(Message msg) {
-                        int what = msg.what;
-                        if(what == BusinessCode.BUSINESS_CODE_SUCCESS){
-                            List<MusicInfoDao> list1  = (List<MusicInfoDao>)msg.obj;
-                            List<MusicInfoDao> listRet = new ArrayList<>();
-                            if(TextUtils.isEmpty(album)){
-                                listRet.addAll(list1);
-                            }
-                            else{
-                                for(int i = 0;i < list1.size();i++) {
-                                    File file = new File(list1.get(i).get_data());
-                                    if (file.exists() && file.isFile()) {
-                                        String albumTemp = list1.get(i).getAlbum();
-                                        if (albumTemp.equalsIgnoreCase(album)) {
-                                            listRet.add(list1.get(i));
-                                        }
-                                    }
-                                }
-                            }
-                            handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, listRet).sendToTarget();
-                        }else{
-
-                        }
-                        handler.obtainMessage(BusinessCode.BUSINESS_CODE_ERROR, null).sendToTarget();
-
-                    }
-                });
-            }
-            else{
-                handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, list).sendToTarget();
-            }
+            Selector<MusicInfoDao> cursor = DaoManager.getInstance().getDbManager().selector(MusicInfoDao.class).
+                    where(WhereBuilder.b("title", "like", "%%" + songName + "%%")).or(WhereBuilder.b("artist", "like", "%%" + songName + "%%"));
+            List<MusicInfoDao> list = cursor.findAll();
+            return list;
         } catch (DbException e) {
             e.printStackTrace();
         }
+
+        return null;
     }
 
-    public void asyncQueryMusicInfosByName(final String songName, final BaseHandler handler){
-        new BaseRunnable(handler){
+    public Map<String, List<MusicInfoDao>> queryMusicInfosByArtist(String artist){
+        try {
+            List<MusicInfoDao> list = DaoManager.getInstance().getDbManager().findAll(MusicInfoDao.class);
+            Map<String, List<MusicInfoDao>> map = new HashMap<>();
+            for(int i = 0;i < list.size();i++) {
+                MusicInfoDao dao = list.get(i);
+                if(dao == null)
+                    continue;
 
-            @Override
-            public void doBusiness() throws Exception {
-                try {
-                    Selector<MusicInfoDao> cursor = DaoManager.getInstance().getDbManager().selector(MusicInfoDao.class).
-                        where(WhereBuilder.b("title", "like", "%%" + songName + "%%")).or(WhereBuilder.b("artist", "like", "%%" + songName + "%%"));
-                    final List<MusicInfoDao> list = cursor.findAll();
-                    handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, list).sendToTarget();
-                } catch (DbException e) {
-                    handler.obtainMessage(BusinessCode.BUSINESS_CODE_ERROR, null).sendToTarget();
-                    e.printStackTrace();
+                List<MusicInfoDao> temp = map.get(dao.getArtist());
+                if(temp == null){
+                    temp = new ArrayList<>();
+                }
+                if(TextUtils.isEmpty(artist) || dao.getArtist().contains(artist)){
+                    temp.add(list.get(i));
+                    map.put(dao.getArtist(), temp);
                 }
             }
-        };
+
+            return map;
+        } catch (DbException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
-    public void asyncQueryMusicInfosByArtist(final String artist, final BaseHandler handler){
-        new BaseRunnable(handler){
+    public Map<String, List<MusicInfoDao>> queryMusicInfosByAlbum(String album){
+        try {
+            List<MusicInfoDao> list = DaoManager.getInstance().getDbManager().findAll(MusicInfoDao.class);
+            Map<String, List<MusicInfoDao>> map = new HashMap<>();
+            for(int i = 0;i < list.size();i++) {
+                MusicInfoDao dao = list.get(i);
+                if(dao == null)
+                    continue;
 
-            @Override
-            public void doBusiness() throws Exception {
-                try {
-                    Selector<MusicInfoDao> cursor = DaoManager.getInstance().getDbManager().selector(MusicInfoDao.class).
-                            where(WhereBuilder.b("artist", "like", "%%" + artist + "%%"));
-                    final List<MusicInfoDao> list = cursor.findAll();
-                    handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, list).sendToTarget();
-                } catch (DbException e) {
-                    handler.obtainMessage(BusinessCode.BUSINESS_CODE_ERROR, null).sendToTarget();
-                    e.printStackTrace();
+                List<MusicInfoDao> temp = map.get(dao.getAlbum());
+                if(temp == null){
+                    temp = new ArrayList<>();
                 }
-            }
-        };
-    }
-
-    public void asyncQueryMusicInfosByAlbum(final String album, final BaseHandler handler){
-        new BaseRunnable(handler){
-
-            @Override
-            public void doBusiness() throws Exception {
-                try {
-                    Selector<MusicInfoDao> cursor = DaoManager.getInstance().getDbManager().selector(MusicInfoDao.class).
-                            where(WhereBuilder.b("album", "like", "%%" + album + "%%"));
-                    final List<MusicInfoDao> list = cursor.findAll();
-                    handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, list).sendToTarget();
-                } catch (DbException e) {
-                    handler.obtainMessage(BusinessCode.BUSINESS_CODE_ERROR, null).sendToTarget();
-                    e.printStackTrace();
+                if(TextUtils.isEmpty(album) || dao.getAlbum().contains(album)){
+                    temp.add(list.get(i));
                 }
+                map.put(dao.getAlbum(), temp);
             }
-        };
+
+            return map;
+        } catch (DbException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

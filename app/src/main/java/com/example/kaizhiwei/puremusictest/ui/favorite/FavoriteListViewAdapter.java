@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.kaizhiwei.puremusictest.dao.PlaylistDao;
+import com.example.kaizhiwei.puremusictest.ui.home.FavoriteViewAdpapter;
 import com.example.kaizhiwei.puremusictest.ui.home.HomeActivity;
 import com.example.kaizhiwei.puremusictest.R;
 import com.example.kaizhiwei.puremusictest.util.ImageUtil;
@@ -24,40 +25,22 @@ import java.util.List;
 /**
  * Created by kaizhiwei on 16/12/10.
  */
-public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClickListener{
+public class FavoriteListViewAdapter extends BaseAdapter{
     private List<PlaylistDao> listData;
     private Context mContext;
     private int mOperMode;
     public static final int EDIT_MODE = 0;
     public static final int READONLY_MODE = 1;
-
-    private int Modify_Flag = 1000;
-    private int Delete_Flag = 2000;
     private IFavoriteOperListener mListener;
 
     private PlaylistDao mDefaultPlaylist;
     private PlaylistDao mAddOne;
 
-    public static final int DEFAULT_LIST_ID = -1;
     public static final int ADD_ONE_LIST_ID = -2;
 
-    @Override
-    public void onClick(View v) {
-        if(mListener == null)
-            return;
-
-        int tag = (int)v.getTag() - Delete_Flag;
-        if(tag >= 0){
-            mListener.OnDeleteClick(this, tag);
-        }
-        else{
-            mListener.OnModifyClick(this, tag + Delete_Flag - Modify_Flag);
-        }
-    }
-
     public interface IFavoriteOperListener{
-        void OnModifyClick(FavoriteListViewAdapter adapter, int position);
-        void OnDeleteClick(FavoriteListViewAdapter adapter, int position);
+        void onFavoriteModifyClick(int position);
+        void onFavoriteDeleteClick(int position);
     }
 
     public FavoriteListViewAdapter(Context context, List<PlaylistDao> list, int mode, boolean bHomePage){
@@ -71,7 +54,7 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
 
         mDefaultPlaylist = new PlaylistDao();
         mDefaultPlaylist.setName(context.getString(R.string.i_like_danqu));
-        mDefaultPlaylist.setList_id(DEFAULT_LIST_ID);
+        mDefaultPlaylist.setList_id(FavoriteViewAdpapter.MY_FAVORITE_PLAYLIST_ID);
 
         mAddOne = new PlaylistDao();
         mAddOne.setName(context.getString(R.string.new_playlist));
@@ -117,7 +100,7 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         if(listData == null || position >= listData.size())
             return null;
 
@@ -129,10 +112,22 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
             View view = inflater.inflate(R.layout.item_homepage_favorite, null);
             view.setBackgroundResource(R.color.backgroundColor);
             holder = new FavoriteListViewAdapterHolder(view);
-            holder.ibBtnEdit.setOnClickListener(this);
-            holder.ibBtnDelete.setOnClickListener(this);
-            holder.ibBtnEdit.setTag(position + Modify_Flag);
-            holder.ibBtnDelete.setTag(position + Delete_Flag);
+            holder.ibBtnEdit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(mListener != null){
+                        mListener.onFavoriteModifyClick(position);
+                    }
+                }
+            });
+            holder.ibBtnDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(mListener != null){
+                        mListener.onFavoriteDeleteClick(position);
+                    }
+                }
+            });
             view.setTag(holder);
             convertView = view;
         }
@@ -167,7 +162,7 @@ public class FavoriteListViewAdapter extends BaseAdapter implements View.OnClick
         }
 
         public void setFavoriteType(long list_id, int mode){
-            if(list_id == DEFAULT_LIST_ID){
+            if(list_id == FavoriteViewAdpapter.MY_FAVORITE_PLAYLIST_ID){
                 ivSongImage.setImageResource(R.drawable.ic_mymusic_add_nor);
                 tvFavoriteSub.setVisibility(View.GONE);
                 ibBtnEdit.setVisibility(View.GONE);

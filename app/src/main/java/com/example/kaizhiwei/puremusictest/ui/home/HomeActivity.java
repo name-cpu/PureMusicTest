@@ -247,6 +247,17 @@ public class HomeActivity extends FragmentActivity {
 //        startActivity(intent);
     }
 
+    public void addFragment(Fragment fragment){
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.anim_right_enter, R.anim.anim_right_exit);
+        transaction.add(R.id.flContent, fragment);
+        transaction.addToBackStack(fragment.toString());
+        transaction.commit();
+    }
+
+    public void popStackFragment(){
+        getSupportFragmentManager().popBackStack();
+    }
 
     public void switchToLocalMusicMain(){
         mLocalAudioMainFragment = (LocalMusicMainFragment) this.getSupportFragmentManager().findFragmentByTag("mLocalAudioMainFragment");

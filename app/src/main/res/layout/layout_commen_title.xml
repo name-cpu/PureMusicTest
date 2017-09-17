@@ -12,8 +12,9 @@
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:gravity="center"
-        android:textColor="#ffffff"
+        android:textColor="@color/white"
         android:drawableLeft="@drawable/ic_title_return"
+        android:maxLines="1"
         android:layout_alignParentLeft="true"/>
 
     <TextView
@@ -21,9 +22,10 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:text="title"
-        android:textColor="#ffffff"
+        android:textColor="@color/white"
         android:textSize="@dimen/text_size_20"
         android:gravity="center"
+        android:maxLines="1"
         android:layout_centerHorizontal="true"/>
 
     <TextView
@@ -34,7 +36,8 @@
         android:gravity="center"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:textColor="#ffffff"
+        android:textColor="@color/white"
+        android:maxLines="1"
         android:layout_alignParentRight="true"/>
 
 

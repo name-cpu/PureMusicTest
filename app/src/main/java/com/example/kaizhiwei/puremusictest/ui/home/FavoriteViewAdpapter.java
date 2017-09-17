@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.kaizhiwei.puremusictest.model.FavoriteMusicModel;
 import com.example.kaizhiwei.puremusictest.model.PlaylistModuleProxy;
 import com.example.kaizhiwei.puremusictest.ui.favorite.FavoriteMemberFragment;
 import com.example.kaizhiwei.puremusictest.R;
@@ -30,6 +31,8 @@ public class FavoriteViewAdpapter extends RecyclerView.Adapter<FavoriteViewHolde
     private Context mContext;
     private List<PlaylistDao> mDatas = new ArrayList<>();
     private AdapterMode mMode;
+    private boolean showMyFavorite = false;
+    public static final int MY_FAVORITE_PLAYLIST_ID = -1000;
 
     public enum AdapterMode{
         MODE_NORMAL,
@@ -55,14 +58,34 @@ public class FavoriteViewAdpapter extends RecyclerView.Adapter<FavoriteViewHolde
             public void handleBusiness(Message msg) {
                 if(msg.what == BusinessCode.BUSINESS_CODE_SUCCESS){
                     List<PlaylistDao> list = (List<PlaylistDao>)msg.obj;
-                    if(list == null)
-                        return;
                     mDatas.clear();
-                    mDatas.addAll(list);
+                    if(list != null){
+                        mDatas.addAll(list);
+                    }
+                    PlaylistDao dao = createMyFavorite();
+                    if(dao != null){
+                        int count = FavoriteMusicModel.getInstance().getFavoriteMusicSize();
+                        dao.setSong_count(count);
+                        mDatas.add(0, dao);
+                    }
                     notifyDataSetChanged();
                 }
             }
         });
+    }
+
+    public void setShowMyFavorite(boolean bShow){
+        showMyFavorite = bShow;
+    }
+
+    private PlaylistDao createMyFavorite(){
+        if(!showMyFavorite)
+            return null;
+
+        PlaylistDao playlistDao = new PlaylistDao();
+        playlistDao.setName("我喜欢的单曲");
+        playlistDao.setList_id(MY_FAVORITE_PLAYLIST_ID);
+        return playlistDao;
     }
 
     @Override
@@ -84,8 +107,11 @@ public class FavoriteViewAdpapter extends RecyclerView.Adapter<FavoriteViewHolde
             holder.ibBtnEdit.setVisibility(View.GONE);
         }
         else{
-            holder.ibBtnDelete.setVisibility(View.VISIBLE);
-            holder.ibBtnEdit.setVisibility(View.VISIBLE);
+            //默认的我喜欢的单曲不能编辑和删除
+            if(dao.getList_id() != MY_FAVORITE_PLAYLIST_ID){
+                holder.ibBtnDelete.setVisibility(View.VISIBLE);
+                holder.ibBtnEdit.setVisibility(View.VISIBLE);
+            }
         }
 
         holder.ibBtnDelete.setOnClickListener(new View.OnClickListener() {
@@ -141,9 +167,14 @@ public class FavoriteViewAdpapter extends RecyclerView.Adapter<FavoriteViewHolde
             @Override
             public void onClick(View v) {
                 final PlaylistDao playlistDao = mDatas.get(position);
-                Bundle bundle = new Bundle();
-                bundle.putParcelable(FavoriteMemberFragment.PLAYLIST_DAO, playlistDao);
-                HomeActivity.getInstance().switchToFavoriteFragment(bundle);
+                if(playlistDao.getList_id() == MY_FAVORITE_PLAYLIST_ID){
+
+                }
+                else{
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable(FavoriteMemberFragment.PLAYLIST_DAO, playlistDao);
+                    HomeActivity.getInstance().switchToFavoriteFragment(bundle);
+                }
             }
         });
     }

@@ -1,28 +1,47 @@
 package com.example.kaizhiwei.puremusictest.ui.localmusic;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.example.kaizhiwei.puremusictest.CommonUI.BaseFragment;
+import com.example.kaizhiwei.puremusictest.CommonUI.CommonTitleView;
 import com.example.kaizhiwei.puremusictest.R;
+import com.example.kaizhiwei.puremusictest.base.MyBaseFragment;
+import com.example.kaizhiwei.puremusictest.contract.LocalMusicContract;
+import com.example.kaizhiwei.puremusictest.dao.MusicInfoDao;
+import com.example.kaizhiwei.puremusictest.presenter.LocalMusicPresenter;
+import com.example.kaizhiwei.puremusictest.ui.home.HomeActivity;
+
+import java.util.List;
+import java.util.Map;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * Created by kaizhiwei on 16/11/21.
  */
-public class AudioFilterFragment extends BaseFragment{
-    private LocalBaseMediaLayout lbmLayout;
-    private LinearLayout llMain;
+public class AudioFilterFragment extends MyBaseFragment implements LocalMusicContract.View {
+    @Bind(R.id.lbmLayout)
+    LocalBaseMediaLayout lbmLayout;
+    @Bind(R.id.llMain)
+    LinearLayout llMain;
+    @Bind(R.id.commonTitle)
+    CommonTitleView commonTitle;
+
     private int mFilterType;
     private String mFilterData;
+    private String mTitle;
 
-    public static final String FILTER_TYPE = "FILTER_TYPE";
-    public static final String FILTER_NAME = "FILTER_NAME";
-    public static final String TITLE_NAME = "TITLE_NAME";
-    private LocalBaseMediaLayout.ILocalBaseListener mSubFragmentListener= new LocalBaseMediaLayout.ILocalBaseListener() {
+    public static final int FILTER_BY_FOLDER = 1;
+    public static final int FILTER_BY_ARTIST = 2;
+    public static final int FILTER_BY_ALBUM = 3;
+
+    private LocalMusicPresenter musicPresenter = new LocalMusicPresenter(this);
+
+    private LocalBaseMediaLayout.ILocalBaseListener mSubFragmentListener = new LocalBaseMediaLayout.ILocalBaseListener() {
         @Override
         public void onFragmentInitFinish(LinearLayout fragment) {
 
@@ -35,48 +54,59 @@ public class AudioFilterFragment extends BaseFragment{
     };
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = super.onCreateView(inflater, container, savedInstanceState);
-        setContentView(R.layout.activty_audio_filter);
-        llMain = (LinearLayout)rootView.findViewById(R.id.llMain);
-        lbmLayout = (LocalBaseMediaLayout)rootView.findViewById(R.id.lbmLayout);
+    protected int getLayoutResource() {
+        return R.layout.activty_audio_filter;
+    }
+
+    @Override
+    protected void initView() {
         lbmLayout.setBaseMediaListener(mSubFragmentListener);
-        Bundle bundle = getArguments();
-        int filterType = bundle.getInt(FILTER_TYPE, AudioListViewAdapter.ADAPTER_TYPE_FOLDER);
-        String strFilterData = bundle.getString(FILTER_NAME);
-        String strTitleName = bundle.getString(TITLE_NAME);
+        lbmLayout.setType(LocalBaseMediaLayout.LayoutType.ALLSONG);
+        commonTitle.setTitleViewInfo(mTitle, "", "");
+        commonTitle.setTitleViewListener(new CommonTitleView.onTitleClickListener() {
+            @Override
+            public void onLeftBtnClicked() {
+                HomeActivity.getInstance().popStackFragment();
+            }
 
-        //lbmLayout.setAdapterType(AudioListViewAdapter.ADAPTER_TYPE_ALLSONG, false, true, true);
-        if(filterType == AudioListViewAdapter.ADAPTER_TYPE_FOLDER){
-            lbmLayout.setFilterFolder(strFilterData);
-        }
-        else if(filterType == AudioListViewAdapter.ADAPTER_TYPE_ARTIST){
-            lbmLayout.setFilterArtist(strFilterData);
-        }
-        else if(filterType == AudioListViewAdapter.ADAPTER_TYPE_ALBUM){
-            lbmLayout.setFilterAlbum(strFilterData);
-        }
-        mFilterType = filterType;
-        mFilterData = strFilterData;
+            @Override
+            public void onRightBtnClicked() {
 
-        setTitle(strTitleName);
-        return rootView;
+            }
+        });
     }
 
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-
+    @Override
+    protected void initData() {
+        if (mFilterType == FILTER_BY_FOLDER) {
+            musicPresenter.queryMusicInfosByFolder(mFilterData);
+        } else if (mFilterType == FILTER_BY_ARTIST) {
+            musicPresenter.queryMusicInfosByArist(mFilterData);
+        } else if (mFilterType == FILTER_BY_ALBUM) {
+            musicPresenter.queryMuisicInfosByAlbum(mFilterData);
+        }
     }
 
-    public void onDestory(){
+    public void setFilterType(int type) {
+        mFilterType = type;
+    }
+
+    public void setFilterData(String data) {
+        mFilterData = data;
+    }
+
+    public void setTitle(String string){
+        mTitle = string;
+    }
+
+    public void onDestory() {
         super.onDestroy();
         lbmLayout.onDestory();
     }
 
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         lbmLayout.onResume();
-        lbmLayout.initAdapterData();
     }
 
     public void onPause() {
@@ -96,5 +126,64 @@ public class AudioFilterFragment extends BaseFragment{
 
     public void onDetach() {
         super.onDetach();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // TODO: inflate a fragment view
+        View rootView = super.onCreateView(inflater, container, savedInstanceState);
+        ButterKnife.bind(this, rootView);
+        return rootView;
+    }
+
+    @Override
+    public void onError(String strErrMsg) {
+
+    }
+
+    @Override
+    public void onGetAllMusicInfos(List<MusicInfoDao> list) {
+
+    }
+
+    @Override
+    public void onGetMusicInfosByFolder(Map<String, List<MusicInfoDao>> mapRet) {
+
+    }
+
+    @Override
+    public void onGetMusicInfosByArtist(Map<String, List<MusicInfoDao>> mapRet) {
+
+    }
+
+    @Override
+    public void onGetMusicInfosByAlbum(Map<String, List<MusicInfoDao>> mapRet) {
+
+    }
+
+    @Override
+    public void onQueryMusicInfosByFolder(List<MusicInfoDao> list) {
+        lbmLayout.initAdaterData(list);
+    }
+
+    @Override
+    public void onQueryMusicInfosByName(List<MusicInfoDao> list) {
+        lbmLayout.initAdaterData(list);
+    }
+
+    @Override
+    public void onQueryMusicInfosByArist(List<MusicInfoDao> list) {
+        lbmLayout.initAdaterData(list);
+    }
+
+    @Override
+    public void onQueryMuisicInfosByAlbum(List<MusicInfoDao> list) {
+        lbmLayout.initAdaterData(list);
     }
 }

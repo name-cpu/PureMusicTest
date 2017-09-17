@@ -21,6 +21,7 @@ import com.example.kaizhiwei.puremusictest.bean.PlazaIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.PlazaRecommIndexBean;
 import com.example.kaizhiwei.puremusictest.bean.RecommMvBean;
 import com.example.kaizhiwei.puremusictest.bean.SceneCategoryListBean;
+import com.example.kaizhiwei.puremusictest.bean.SearchLrcPicBean;
 import com.example.kaizhiwei.puremusictest.bean.ShowRedPointBean;
 import com.example.kaizhiwei.puremusictest.bean.SongDetailInfoBean;
 import com.example.kaizhiwei.puremusictest.bean.SugSceneBean;
@@ -372,4 +373,18 @@ public interface ApiService {
                                         @Query("param") String param,
                                         @Query("timestamp") String timestamp,
                                         @Query("sign") String sign);
+
+    //GET /v1/restserver/ting?from=android&version=5.8.0.1&channel=1382d&operator=3&method=baidu.ting.search.lrcpic&format=json&
+    // query=%E5%86%B7%E6%88%98$$%E7%8E%8B%E8%8F%B2&ts=1505552454696&e=R4YX2%2BCKYtuLi2ZmfymZ0Lrf9oyxrCP76x7AVaIzxYUW8QPppbUjDtkmG%2BEXjhaU&type=2
+    @GET("/v1/restserver/ting")
+    Observable<SearchLrcPicBean> searchLrcPic(@Query("from") String from,
+                                              @Query("version") String version,
+                                              @Query("channel") String channel,
+                                              @Query("operator") int operator,
+                                              @Query("method") String method,
+                                              @Query("format") String format,
+                                              @Query("query") String query,
+                                              @Query("ts") long ts,
+                                              @Query(value = "e", encoded = true) String e);
+
 }

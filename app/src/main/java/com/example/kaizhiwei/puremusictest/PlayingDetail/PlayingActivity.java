@@ -240,6 +240,9 @@ public class PlayingActivity extends FragmentActivity implements View.OnClickLis
 
         List<MusicInfoDao> list = mService.getPlaylist();
         int index = mService.getCurPlayIndex();
+        if(index < 0)
+            return;
+
         MusicInfoDao curMusicInfoDao = list.get(index);
         if(curMusicInfoDao != null){
             artistInfoFragment.setArtistAlbumInfo(curMusicInfoDao);

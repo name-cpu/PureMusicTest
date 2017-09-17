@@ -44,49 +44,42 @@ public class MediaStoreSource extends BaseScanMusic {
     }
 
     @Override
-    public void scan(final BaseHandler handler) {
-        new BaseRunnable(handler) {
-            @Override
-            public void doBusiness() throws Exception {
-                mListMusicInfos = new ArrayList<>();
-                Cursor c = mContext.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
-                if (c != null) {
-                    MusicInfoDao musicInfoDao;
-                    while (c.moveToNext()) {
-                        musicInfoDao = new MusicInfoDao();
-                        musicInfoDao.set_data(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
-                        musicInfoDao.set_size(c.getLong(c.getColumnIndex(MediaStore.Audio.Media.SIZE)));
-                        musicInfoDao.set_display_name(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME)));
-                        musicInfoDao.setTitle(c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE)));
-                        musicInfoDao.setTitle_key(c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE_KEY)));
+    public List<MusicInfoDao> scan() {
+        mListMusicInfos = new ArrayList<>();
+        Cursor c = mContext.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
+        if (c != null) {
+            MusicInfoDao musicInfoDao;
+            while (c.moveToNext()) {
+                musicInfoDao = new MusicInfoDao();
+                musicInfoDao.set_data(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA)));
+                musicInfoDao.set_size(c.getLong(c.getColumnIndex(MediaStore.Audio.Media.SIZE)));
+                musicInfoDao.set_display_name(c.getString(c.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME)));
+                musicInfoDao.setTitle(c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE)));
+                musicInfoDao.setTitle_key(c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE_KEY)));
 
-                        List<String> letters = getPinYin(musicInfoDao.getTitle());
-                        if(letters.size() > 0){
-                            musicInfoDao.setTitle_letter(letters.get(0));
-                        }
+                List<String> letters = getPinYin(musicInfoDao.getTitle());
+                if(letters.size() > 0){
+                    musicInfoDao.setTitle_letter(letters.get(0));
+                }
 
-                        musicInfoDao.setDate_added(c.getLong(c.getColumnIndex(MediaStore.Audio.Media.DATE_ADDED)));
-                        musicInfoDao.setDate_modified(c.getLong(c.getColumnIndex(MediaStore.Audio.Media.DATE_MODIFIED)));
-                        musicInfoDao.setMime_type(c.getString(c.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE)));
-                        musicInfoDao.setDuration(c.getLong(c.getColumnIndex(MediaStore.Audio.Media.DURATION)));
-                        musicInfoDao.setBookmark(c.getLong(c.getColumnIndex(MediaStore.Audio.Media.BOOKMARK)));
-                        musicInfoDao.setArtist(c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST)));
-                        musicInfoDao.setArtist_key(c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST_KEY)));
-                        //musicInfoDao.setAlbum_art(c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM_ARTIST)));
-                        musicInfoDao.setAlbum_key(c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM)));
-                        musicInfoDao.setAlbum(c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM_KEY)));
-                        musicInfoDao.setTrack(c.getLong(c.getColumnIndex(MediaStore.Audio.Media.TRACK)));
-                        musicInfoDao.setYear(c.getLong(c.getColumnIndex(MediaStore.Audio.Media.YEAR)));
-                        mListMusicInfos.add(musicInfoDao);
-                    }
-                    c.close();
-                    handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS,mListMusicInfos).sendToTarget();
-                }
-                else{
-                    handler.obtainMessage(BusinessCode.BUSINESS_CODE_ERROR,null).sendToTarget();
-                }
+                musicInfoDao.setDate_added(c.getLong(c.getColumnIndex(MediaStore.Audio.Media.DATE_ADDED)));
+                musicInfoDao.setDate_modified(c.getLong(c.getColumnIndex(MediaStore.Audio.Media.DATE_MODIFIED)));
+                musicInfoDao.setMime_type(c.getString(c.getColumnIndex(MediaStore.Audio.Media.MIME_TYPE)));
+                musicInfoDao.setDuration(c.getLong(c.getColumnIndex(MediaStore.Audio.Media.DURATION)));
+                musicInfoDao.setBookmark(c.getLong(c.getColumnIndex(MediaStore.Audio.Media.BOOKMARK)));
+                musicInfoDao.setArtist(c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST)));
+                musicInfoDao.setArtist_key(c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST_KEY)));
+                //musicInfoDao.setAlbum_art(c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM_ARTIST)));
+                musicInfoDao.setAlbum_key(c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM)));
+                musicInfoDao.setAlbum(c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM_KEY)));
+                musicInfoDao.setTrack(c.getLong(c.getColumnIndex(MediaStore.Audio.Media.TRACK)));
+                musicInfoDao.setYear(c.getLong(c.getColumnIndex(MediaStore.Audio.Media.YEAR)));
+                mListMusicInfos.add(musicInfoDao);
             }
-        };
+            c.close();
+        }
+
+        return mListMusicInfos;
     }
 
     public ArrayList<String> getPinYin(String strData){

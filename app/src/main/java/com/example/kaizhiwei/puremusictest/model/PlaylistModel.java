@@ -1,6 +1,9 @@
 package com.example.kaizhiwei.puremusictest.model;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 
 import com.example.kaizhiwei.puremusictest.dao.DaoManager;
 import com.example.kaizhiwei.puremusictest.dao.PlaylistDao;
@@ -22,6 +25,23 @@ public class PlaylistModel {
     private static PlaylistModel mInstance;
     private Context mContext;
     private List<IPlaylistDataObserver> mObservers = new ArrayList<>();
+    private static final int NOTIFY_PLAYLIST = 1;
+    private static final int NOTIFY_PLAYLIST_MEMBER = 2;
+    private android.os.Handler mSafeHandler = new Handler(Looper.getMainLooper()){
+
+        @Override
+        public void handleMessage(Message msg) {
+            if(msg.what == NOTIFY_PLAYLIST){
+                int playlistId = msg.arg1;
+                notifyPlaylistChanged(playlistId);
+            }
+            else if(msg.what == NOTIFY_PLAYLIST_MEMBER){
+                int musicId = msg.arg1;
+                long playlistId = (long)msg.obj;
+                notifyPlaylistMemberChanged(playlistId, musicId);
+            }
+        }
+    };
 
     public static PlaylistModel getInstance(){
         if(mInstance == null){
@@ -32,7 +52,6 @@ public class PlaylistModel {
     }
 
     private PlaylistModel(){
-
     }
 
     public void init(Context context){
@@ -69,13 +88,30 @@ public class PlaylistModel {
         }
     }
 
+    private void postNotifyPlaylist(long playlistId){
+        mSafeHandler.removeMessages(NOTIFY_PLAYLIST);
+        Message message = new Message();
+        message.what = NOTIFY_PLAYLIST;
+        message.obj = playlistId;
+        mSafeHandler.sendMessageDelayed(message, 200);
+    }
+
+    private void postNotifyPlaylistMember(long playlistId, long musicId){
+        mSafeHandler.removeMessages(NOTIFY_PLAYLIST_MEMBER);
+        Message message = new Message();
+        message.what = NOTIFY_PLAYLIST_MEMBER;
+        message.arg1 = (int)musicId;
+        message.obj = playlistId;
+        mSafeHandler.sendMessageDelayed(message, 200);
+    }
+
     public boolean addPlaylist(PlaylistDao playlistDao){
         if(playlistDao == null)
             return false;
 
         try {
             DaoManager.getInstance().getDbManager().save(playlistDao);
-            notifyPlaylistChanged(playlistDao.getList_id());
+            postNotifyPlaylist(playlistDao.getList_id());
         }
         catch (DbException e) {
             e.printStackTrace();
@@ -89,7 +125,7 @@ public class PlaylistModel {
         try {
             DaoManager.getInstance().getDbManager().delete(PlaylistMemberDao.class, WhereBuilder.b("playlist_id" , " == ", listId));
             DaoManager.getInstance().getDbManager().delete(PlaylistDao.class, WhereBuilder.b("list_id", " == ", listId));
-            //notifyPlaylistChanged(playlistDao);
+            postNotifyPlaylist(listId);
         } catch (DbException e) {
             e.printStackTrace();
             return false;
@@ -105,8 +141,9 @@ public class PlaylistModel {
         try {
             DaoManager.getInstance().getDbManager().update(PlaylistDao.class, WhereBuilder.b("list_id", " == ", playlistDao.getList_id()),
                     new KeyValue("date_modified", playlistDao.getDate_modified()), new KeyValue("song_count", playlistDao.getSong_count()),
-                    new KeyValue("img_url", playlistDao.getImg_url()), new KeyValue("sort", playlistDao.getSort()));
-            notifyPlaylistChanged(playlistDao.getList_id());
+                    new KeyValue("img_url", playlistDao.getImg_url()), new KeyValue("sort", playlistDao.getSort()),
+                    new KeyValue("name", playlistDao.getName()));
+            postNotifyPlaylist(playlistDao.getList_id());
         } catch (DbException e) {
             e.printStackTrace();
             return false;
@@ -143,7 +180,7 @@ public class PlaylistModel {
 
         try {
             DaoManager.getInstance().getDbManager().save(playlistMemberDao);
-            notifyPlaylistMemberChanged(playlistId, playlistMemberDao.getMusic_id());
+            postNotifyPlaylistMember(playlistId, playlistMemberDao.getMusic_id());
         }
         catch (DbException e) {
             e.printStackTrace();
@@ -155,8 +192,27 @@ public class PlaylistModel {
 
     public boolean removePlaylistMember(long playlistId, long musicId){
         try {
-            DaoManager.getInstance().getDbManager().delete(PlaylistMemberDao.class, WhereBuilder.b("music_id" , " == ", musicId).and("playlist_id", " == ", playlistId));
-            //notifyPlaylistMemberChanged(playlistId, musicId);
+            int num = DaoManager.getInstance().getDbManager().delete(PlaylistMemberDao.class, WhereBuilder.b("music_id" , " == ", musicId).and("playlist_id", " == ", playlistId));
+            String strSql = String.format("update playlistdatas set song_count = song_count - %d where list_id = %d;", num, playlistId);
+            DaoManager.getInstance().getDbManager().execQuery(strSql);
+            postNotifyPlaylistMember(playlistId, musicId);
+        } catch (DbException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean removePlaylistMembers(long musicId){
+        try {
+            Selector<PlaylistMemberDao> selector = DaoManager.getInstance().getDbManager().selector(PlaylistMemberDao.class)
+                    .where("music_id", " == ", musicId);
+            List<PlaylistMemberDao> list = selector.findAll();
+            for(int i = 0;i < list.size();i++){
+                removePlaylistMember(list.get(i).getPlaylist_id(), musicId);
+            }
+            postNotifyPlaylistMember(-1, musicId);
         } catch (DbException e) {
             e.printStackTrace();
             return false;
@@ -176,7 +232,7 @@ public class PlaylistModel {
                 successNum++;
             }
         }
-        notifyPlaylistMemberChanged(playlistId, ids.get(0));
+        postNotifyPlaylistMember(playlistId, ids.get(0));
         return successNum;
     }
 
@@ -191,7 +247,7 @@ public class PlaylistModel {
             e.printStackTrace();
             return false;
         }
-        notifyPlaylistMemberChanged(playlistId, playlistMemberDao.getMusic_id());
+        postNotifyPlaylistMember(playlistId, playlistMemberDao.getMusic_id());
         return true;
     }
 
