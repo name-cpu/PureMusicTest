@@ -441,7 +441,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
             LocalAudioAdapter.LocalAudioItemData itemData = new LocalAudioAdapter.LocalAudioItemData();
             itemData.setStrMain(strs[strs.length-1]);
             itemData.setStrSub(listDaos.size() + "首");
-            itemData.setStrThird(key);
+            itemData.setStrThird(listDaos.get(0).getSave_path());
             itemData.setId(strs[strs.length-1]);
             listData.add(itemData);
         }
@@ -810,7 +810,7 @@ public class LocalBaseMediaLayout extends LinearLayout implements MediaLibrary.I
 
         mMoreDialog.dismiss();
         List<MusicInfoDao> listOperMusicInfoDao = new ArrayList<>();
-        String strKey = dialog.getKey();
+        String strKey = (String)dialog.getKey();
         if(TextUtils.isEmpty(strKey))
             return;
 

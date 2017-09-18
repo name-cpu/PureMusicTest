@@ -248,10 +248,22 @@ public class HomeActivity extends FragmentActivity {
     }
 
     public void addFragment(Fragment fragment){
+        if(fragment == null)
+            return;
+
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.setCustomAnimations(R.anim.anim_right_enter, R.anim.anim_right_exit);
         transaction.add(R.id.flContent, fragment);
         transaction.addToBackStack(fragment.toString());
+        transaction.commit();
+    }
+
+    public void removeFragment(Fragment fragment){
+        if(fragment == null)
+            return;
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.remove(fragment);
         transaction.commit();
     }
 

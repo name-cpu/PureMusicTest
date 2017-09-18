@@ -3,6 +3,8 @@ package com.example.kaizhiwei.puremusictest.util;
 import android.graphics.Paint;
 import android.os.Build;
 import android.support.annotation.ColorInt;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.EdgeEffectCompat;
 import android.widget.AbsListView;
 import android.widget.EdgeEffect;
 import android.widget.ScrollView;
@@ -93,6 +95,22 @@ public class FadingEdgeUtil {
                 fieldPaint.setAccessible(true);
                 Paint paint = (Paint)fieldPaint.get(mEdgeGlowBottom);
                 paint.setColor(color);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public static void disableViewPagerEdgeEffect(ViewPager viewpager){
+        try {
+            Field leftEdgeField = viewpager.getClass().getDeclaredField("mLeftEdge");
+            Field rightEdgeField = viewpager.getClass().getDeclaredField("mRightEdge");
+            if (leftEdgeField != null && rightEdgeField != null) {
+                leftEdgeField.setAccessible(true);
+                rightEdgeField.setAccessible(true);
+                EdgeEffectCompat leftEdge = (EdgeEffectCompat) leftEdgeField.get(viewpager);
+                EdgeEffectCompat rightEdge = (EdgeEffectCompat) rightEdgeField.get(viewpager);
+                leftEdge.setSize(0, 0);
+                rightEdge.setSize(0, 0);
             }
         } catch (Exception e) {
             e.printStackTrace();

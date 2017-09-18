@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="140dp">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/img_spacepage_nocontent"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="一首歌都没有呢"
+            android:textColor="@color/blackgray"
+            android:textSize="@dimen/text_size_17"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:text="一首歌都没有听过呢，赶紧来一发吧"
+            android:textColor="@color/blackgray"
+            android:textSize="@dimen/text_size_12"
+            android:gravity="center"/>
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
+        <RelativeLayout
+            android:id="@+id/rlCtrlBar"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
+            <TextView
+                android:id="@+id/tvRandomPlay"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:drawableLeft="@drawable/btn_suijibofang"
+                android:layout_marginLeft="5dp"
+                android:gravity="center"
+                android:layout_alignParentLeft="true"/>
+
+            <TextView
+                android:id="@+id/tvBatchMgr"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:drawableLeft="@drawable/icon_down"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="15dp"/>
+
+            <TextView
+                android:id="@+id/tvDownload"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:drawableLeft="@drawable/icon_piliang"
+                android:layout_toLeftOf="@+id/tvBatchMgr"
+                android:layout_marginRight="15dp"/>
+        </RelativeLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rvSong"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:overScrollFooter="@android:color/transparent"
+            android:overScrollHeader="@android:color/transparent"
+            android:overScrollMode="never">
+        </android.support.v7.widget.RecyclerView>
+    </LinearLayout>
+
+</RelativeLayout>

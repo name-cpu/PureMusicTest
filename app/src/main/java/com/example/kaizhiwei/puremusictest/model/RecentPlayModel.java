@@ -13,6 +13,8 @@ import org.xutils.db.sqlite.WhereBuilder;
 import org.xutils.ex.DbException;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -97,17 +99,14 @@ public class RecentPlayModel {
         notifyRecentPlayChanged(recentPlayDao.get_id());
     }
 
-    public boolean removeRecentPlay(RecentPlayDao recentPlayDao){
-        if(recentPlayDao == null || recentPlayDao.getInfo_id() < 0)
-            return false;
-
+    public boolean removeRecentPlay(long musicId){
         int ret = -1;
         try {
-            ret = DaoManager.getInstance().getDbManager().delete(RecentPlayDao.class, WhereBuilder.b("info_id" , " == ", recentPlayDao.getInfo_id()));
+            ret = DaoManager.getInstance().getDbManager().delete(RecentPlayDao.class, WhereBuilder.b("info_id" , " == ", musicId));
         } catch (DbException e) {
             e.printStackTrace();
         }
-        notifyRecentPlayChanged(recentPlayDao.get_id());
+        notifyRecentPlayChanged(musicId);
         return ret > 0 ? true : false;
     }
 
@@ -130,6 +129,12 @@ public class RecentPlayModel {
         List<RecentPlayDao> list = null;
         try {
             list = DaoManager.getInstance().getDbManager().findAll(RecentPlayDao.class);
+            Collections.sort(list, new Comparator<RecentPlayDao>() {
+                @Override
+                public int compare(RecentPlayDao lhs, RecentPlayDao rhs) {
+                    return (int)(rhs.getTime_stamp() - lhs.getTime_stamp());
+                }
+            });
         } catch (DbException e) {
             e.printStackTrace();
         }

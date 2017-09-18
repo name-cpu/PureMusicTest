@@ -39,12 +39,12 @@ public class RecentPlayProxy {
         };
     }
 
-    public void asyncRemoveRecentPlay(final RecentPlayDao recentPlayDao, final BaseHandler handler){
+    public void asyncRemoveRecentPlay(final long musicId, final BaseHandler handler){
         new BaseRunnable(handler){
 
             @Override
             public void doBusiness() throws Exception {
-                boolean bret = RecentPlayModel.getInstance().removeRecentPlay(recentPlayDao);
+                boolean bret = RecentPlayModel.getInstance().removeRecentPlay(musicId);
                 if(handler != null){
                     handler.obtainMessage(BusinessCode.BUSINESS_CODE_SUCCESS, bret).sendToTarget();
                 }

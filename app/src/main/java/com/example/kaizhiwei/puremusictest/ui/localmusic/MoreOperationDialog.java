@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 /**
@@ -46,7 +47,7 @@ public class MoreOperationDialog extends BaseDialog implements View.OnClickListe
     private GridView gvMoreOperation;
     private MoreOperationAdapter mMoreAdapter;
     private Map<IMoreOperationDialogListener, Object> mMapListener;
-    private String mKey;
+    private Object mKey;
     private int mLVAdapterType;
 
     public interface IMoreOperationDialogListener{
@@ -258,11 +259,11 @@ public class MoreOperationDialog extends BaseDialog implements View.OnClickListe
         }
     }
 
-    public String getKey() {
+    public Object getKey() {
         return mKey;
     }
 
-    public void setKey(String mKey) {
+    public void setKey(Object mKey) {
         this.mKey = mKey;
     }
 

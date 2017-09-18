@@ -66,7 +66,7 @@ public class AudioFilterFragment extends MyBaseFragment implements LocalMusicCon
         commonTitle.setTitleViewListener(new CommonTitleView.onTitleClickListener() {
             @Override
             public void onLeftBtnClicked() {
-                HomeActivity.getInstance().popStackFragment();
+                HomeActivity.getInstance().removeFragment(AudioFilterFragment.this);
             }
 
             @Override

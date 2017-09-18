@@ -454,7 +454,7 @@ public class FavoriteMemberFragment extends MyBaseFragment implements View.OnCli
 
     @Override
     public void onMoreItemClick(MoreOperationDialog dialog, int tag) {
-        String key = dialog.getKey();
+        String key = (String)dialog.getKey();
         int position = Integer.parseInt(key);
         MusicInfoDao musicInfoDao = mFavoriteMusicDaos.get(position);
         if (musicInfoDao == null)

@@ -26,6 +26,7 @@ import com.example.kaizhiwei.puremusictest.model.PlaylistModel;
 import com.example.kaizhiwei.puremusictest.model.RecentPlayModel;
 import com.example.kaizhiwei.puremusictest.service.PlaybackService;
 import com.example.kaizhiwei.puremusictest.ui.favorite.AlertDialogFavorite;
+import com.example.kaizhiwei.puremusictest.ui.recentplay.RecentPlayMainFragment;
 import com.example.kaizhiwei.puremusictest.util.FadingEdgeUtil;
 import com.example.kaizhiwei.puremusictest.widget.RecyclerViewDividerDecoration;
 
@@ -156,7 +157,11 @@ public class LocalMusicMainFragment extends MyBaseFragment implements View.OnCli
     public void onClick(View v) {
         if (v == ryLocal) {
             HomeActivity.getInstance().switchToAudioFragment();
-        } else if (v == mtvManageFavorite) {
+        } else if(v == ryLastPlay){
+            RecentPlayMainFragment fragment = new RecentPlayMainFragment();
+            HomeActivity.getInstance().addFragment(fragment);
+        }
+        else if (v == mtvManageFavorite) {
             if (mFavoriteViewAdapter.getAdapterMode() == FavoriteViewAdpapter.AdapterMode.MODE_NORMAL) {
                 mFavoriteViewAdapter.setAdadpterMode(FavoriteViewAdpapter.AdapterMode.MODE_EDIT);
                 mtvManageFavorite.setText("完成");
